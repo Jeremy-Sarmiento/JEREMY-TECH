@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="es">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   Jeremy Tech -Tienda de Tecnologia
+  </title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+  <link href="styles.css" rel="stylesheet"/>
+ </head>
+ <body>
+  <header>
+   <div class="logo-text">
+    JEREMY
+    <span>
+     TECH
+    </span>
+   </div>
+   <p>
+    La Paz, Soldan 312 int 38, Galerias Union y Progreso, Cercado | jeresarmientotarojo@gmail.com | 993398655 / 997833866
+   </p>
+  </header>
+  <nav>
+   <a href="#inicio">
+    INICIO
+   </a>
+   <a href="#celulares">
+    CELULARES
+   </a>
+   <a href="#laptops">
+    LAPTOPS
+   </a>
+   <a href="#audifonos">
+    AUDIFONOS
+   </a>
+   <a href="#accesorios">
+    ACCESORIOS
+   </a>
+   <a href="#smartwatches">
+    SMARTWATCHES
+   </a>
+  </nav>
+  <button class="btn-inicio-flotante" id="btnInicio" onclick="irAlInicio()">
+  </button>
+  <section id="inicio">
+   <div class="carousel">
+    <div class="carousel-inner">
+     <div class="carousel-item">
+      <img alt="Tecnologia" src="assets/Banners/banner_tecnologia.jpg"/>
+      <div class="carousel-overlay">
+       <h2>
+        Bienvenidos a Jeremy Tech
+       </h2>
+       <p>
+        Tu tienda de tecnologia de confianza. Los mejores dispositivos al mejor precio con garantia y soporte.
+       </p>
+      </div>
+     </div>
+     <div class="carousel-item">
+      <img alt="Celulares" loading="lazy" src="assets/Banners/banner_celulares.jpg"/>
+      <div class="carousel-overlay">
+       <h2>
+        Los Mejores Dispositivos
+       </h2>
+       <p>
+        Celulares, laptops, audifonos y mas. Encuentra la tecnologia que necesitas en un solo lugar.
+       </p>
+      </div>
+     </div>
+     <div class="carousel-item">
+      <img alt="Ofertas" loading="lazy" src="assets/Banners/banner_ofertas.jpg"/>
+      <div class="carousel-overlay">
+       <h2>
+        Ofertas Especiales
+       </h2>
+       <p>
+        Tecnologia de ultima generacion a precios imbatibles. No te pierdas nuestras promociones.
+       </p>
+      </div>
+     </div>
+    </div>
+    <div class="carousel-controls">
+     <button class="carousel-btn" onclick="previousSlide()">
+      ‹
+     </button>
+     <button class="carousel-btn" onclick="nextSlide()">
+      ›
+     </button>
+    </div>
+    <div class="carousel-indicators">
+     <span class="indicator active" onclick="goToSlide(0)">
+     </span>
+     <span class="indicator" onclick="goToSlide(1)">
+     </span>
+     <span class="indicator" onclick="goToSlide(2)">
+     </span>
+    </div>
+   </div>
+  </section>
+  <div class="productos">
+   <section id="celulares">
+    <h2>
+     Celulares
+    </h2>
+    <div class="grid">
+     <div class="card">
+      <div class="card-carousel">
+       <div class="card-carousel-inner">
+        <div class="card-carousel-item">
+         <img alt="iPhone 15 Pro" loading="lazy" src="assets/iPhone_15_Pro/imagen_1.jpg"/>
+        </div>
+        <div class="card-carousel-item">
+         <img alt="iPhone 15 Pro" loading="lazy" src="assets/iPhone_15_Pro/imagen_2.jpg"/>
+        </div>
+       </div>
+       <button class="card-carousel-btn prev" onclick="changeCardSlide(this, -1)">
+        ‹
+       </button>
+       <button class="card-carousel-btn next" onclick="changeCardSlide(this, 1)">
+        ›
+       </button>
+       <div class="card-carousel-dots">
+        <span class="card-carousel-dot active">
+        </span>
+        <span class="card-carousel-dot">
+        </span>
+       </div>
+      </div>
+      <div class="info">
+       <div class="card-info-item active">
+        <h3>
+         iPhone 15 Pro
+        </h3>
+        <p>
+         Chip A17 Pro | 256GB | Camara 48MP
+        </p>
+        <p class="price">
+         S/ 8,999
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#3B4C5A">
+         </div>
+         <div class="color-dot" style="background:#F5F5DC; border: 2px solid #ddd">
+         </div>
+         <div class="color-dot" style="background:#1A1C72">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'iPhone 15 Pro - 256GB')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+       <div class="card-info-item">
+        <h3>
+         iPhone 15 Pro
+        </h3>
+        <p>
+         Chip A17 Pro | 512GB | Camara 48MP
+        </p>
+        <p class="price">
+         S/ 10,999
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#3B4C5A">
+         </div>
+         <div class="color-dot" style="background:#F5F5DC; border: 2px solid #ddd">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'iPhone 15 Pro - 512GB')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+      </div>
+     </div>
+     <div class="card">
+      <div class="card-carousel">
+       <div class="card-carousel-inner">
+        <div class="card-carousel-item">
+         <img alt="Samsung Galaxy S24 Ultra" loading="lazy" src="assets/Samsung_Galaxy_S24_Ultra/imagen_1.jpg"/>
+        </div>
+        <div class="card-carousel-item">
+         <img alt="Samsung Galaxy S24 Ultra" loading="lazy" src="assets/Samsung_Galaxy_S24_Ultra/imagen_2.jpg"/>
+        </div>
+       </div>
+       <button class="card-carousel-btn prev" onclick="changeCardSlide(this, -1)">
+        ‹
+       </button>
+       <button class="card-carousel-btn next" onclick="changeCardSlide(this, 1)">
+        ›
+       </button>
+       <div class="card-carousel-dots">
+        <span class="card-carousel-dot active">
+        </span>
+        <span class="card-carousel-dot">
+        </span>
+       </div>
+      </div>
+      <div class="info">
+       <div class="card-info-item active">
+        <h3>
+         Samsung Galaxy S24 Ultra
+        </h3>
+        <p>
+         Snapdragon 8 Gen 3 | 256GB | Camara 200MP
+        </p>
+        <p class="price">
+         S/ 7,499
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#2C2C2C">
+         </div>
+         <div class="color-dot" style="background:#E8D5B7">
+         </div>
+         <div class="color-dot" style="background:#4A6741">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'Samsung Galaxy S24 Ultra - 256GB')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+       <div class="card-info-item">
+        <h3>
+         Samsung Galaxy S24 Ultra
+        </h3>
+        <p>
+         Snapdragon 8 Gen 3 | 512GB | Camara 200MP
+        </p>
+        <p class="price">
+         S/ 8,999
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#2C2C2C">
+         </div>
+         <div class="color-dot" style="background:#E8D5B7">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'Samsung Galaxy S24 Ultra - 512GB')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+      </div>
+     </div>
+     <div class="card">
+      <div class="card-carousel">
+       <div class="card-carousel-inner">
+        <div class="card-carousel-item">
+         <img alt="Xiaomi 14" loading="lazy" src="assets/Xiaomi_14/imagen_1.jpg"/>
+        </div>
+        <div class="card-carousel-item">
+         <img alt="Xiaomi 14" loading="lazy" src="assets/Xiaomi_14/imagen_2.jpg"/>
+        </div>
+       </div>
+       <button class="card-carousel-btn prev" onclick="changeCardSlide(this, -1)">
+        ‹
+       </button>
+       <button class="card-carousel-btn next" onclick="changeCardSlide(this, 1)">
+        ›
+       </button>
+       <div class="card-carousel-dots">
+        <span class="card-carousel-dot active">
+        </span>
+        <span class="card-carousel-dot">
+        </span>
+       </div>
+      </div>
+      <div class="info">
+       <div class="card-info-item active">
+        <h3>
+         Xiaomi 14
+        </h3>
+        <p>
+         Snapdragon 8 Gen 3 | 256GB | Camara Leica
+        </p>
+        <p class="price">
+         S/ 4,299
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#1A1A2E">
+         </div>
+         <div class="color-dot" style="background:#F0E68C">
+         </div>
+         <div class="color-dot" style="background:#4A90A4">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'Xiaomi 14 - 256GB')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+       <div class="card-info-item">
+        <h3>
+         Xiaomi 14
+        </h3>
+        <p>
+         Snapdragon 8 Gen 3 | 512GB | Camara Leica
+        </p>
+        <p class="price">
+         S/ 5,199
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#1A1A2E">
+         </div>
+         <div class="color-dot" style="background:#4A90A4">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'Xiaomi 14 - 512GB')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <section id="laptops">
+    <h2>
+     Laptops
+    </h2>
+    <div class="grid">
+     <div class="card">
+      <div class="card-carousel">
+       <div class="card-carousel-inner">
+        <div class="card-carousel-item">
+         <img alt="MacBook Air M3" loading="lazy" src="assets/MacBook_Air_M3/imagen_1.jpg"/>
+        </div>
+        <div class="card-carousel-item">
+         <img alt="MacBook Air M3" loading="lazy" src="assets/MacBook_Air_M3/imagen_2.jpg"/>
+        </div>
+       </div>
+       <button class="card-carousel-btn prev" onclick="changeCardSlide(this, -1)">
+        ‹
+       </button>
+       <button class="card-carousel-btn next" onclick="changeCardSlide(this, 1)">
+        ›
+       </button>
+       <div class="card-carousel-dots">
+        <span class="card-carousel-dot active">
+        </span>
+        <span class="card-carousel-dot">
+        </span>
+       </div>
+      </div>
+      <div class="info">
+       <div class="card-info-item active">
+        <h3>
+         MacBook Air M3
+        </h3>
+        <p>
+         Chip M3 | 8GB RAM | 256GB SSD | Pantalla 13.6"
+        </p>
+        <p class="price">
+         S/ 9,499
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#C0C0C0; border: 2px solid #ddd">
+         </div>
+         <div class="color-dot" style="background:#2C2C2E">
+         </div>
+         <div class="color-dot" style="background:#E8D5C4; border: 2px solid #ddd">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'MacBook Air M3 - 256GB')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+       <div class="card-info-item">
+        <h3>
+         MacBook Air M3
+        </h3>
+        <p>
+         Chip M3 | 16GB RAM | 512GB SSD | Pantalla 13.6"
+        </p>
+        <p class="price">
+         S/ 11,999
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#C0C0C0; border: 2px solid #ddd">
+         </div>
+         <div class="color-dot" style="background:#2C2C2E">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'MacBook Air M3 - 512GB')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+      </div>
+     </div>
+     <div class="card">
+      <div class="card-carousel">
+       <div class="card-carousel-inner">
+        <div class="card-carousel-item">
+         <img alt="Lenovo ThinkPad X1 Carbon" loading="lazy" src="assets/Lenovo_ThinkPad_X1_Carbon/imagen_1.jpg"/>
+        </div>
+       </div>
+       <button class="card-carousel-btn prev" onclick="changeCardSlide(this, -1)">
+        ‹
+       </button>
+       <button class="card-carousel-btn next" onclick="changeCardSlide(this, 1)">
+        ›
+       </button>
+       <div class="card-carousel-dots">
+        <span class="card-carousel-dot active">
+        </span>
+       </div>
+      </div>
+      <div class="info">
+       <div class="card-info-item active">
+        <h3>
+         Lenovo ThinkPad X1 Carbon
+        </h3>
+        <p>
+         Intel i7 | 16GB RAM | 512GB SSD | Pantalla 14"
+        </p>
+        <p class="price">
+         S/ 8,799
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#1A1A1A">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'Lenovo ThinkPad X1 Carbon')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+      </div>
+     </div>
+     <div class="card">
+      <div class="card-carousel">
+       <div class="card-carousel-inner">
+        <div class="card-carousel-item">
+         <img alt="HP Pavilion 15" loading="lazy" src="assets/HP_Pavilion_15/imagen_1.jpg"/>
+        </div>
+        <div class="card-carousel-item">
+         <img alt="HP Pavilion 15" loading="lazy" src="assets/HP_Pavilion_15/imagen_2.jpg"/>
+        </div>
+       </div>
+       <button class="card-carousel-btn prev" onclick="changeCardSlide(this, -1)">
+        ‹
+       </button>
+       <button class="card-carousel-btn next" onclick="changeCardSlide(this, 1)">
+        ›
+       </button>
+       <div class="card-carousel-dots">
+        <span class="card-carousel-dot active">
+        </span>
+        <span class="card-carousel-dot">
+        </span>
+       </div>
+      </div>
+      <div class="info">
+       <div class="card-info-item active">
+        <h3>
+         HP Pavilion 15
+        </h3>
+        <p>
+         AMD Ryzen 5 | 8GB RAM | 512GB SSD | Pantalla 15.6"
+        </p>
+        <p class="price">
+         S/ 4,999
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#B8C4CC">
+         </div>
+         <div class="color-dot" style="background:#2C2C2E">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'HP Pavilion 15 - Ryzen 5')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+       <div class="card-info-item">
+        <h3>
+         HP Pavilion 15
+        </h3>
+        <p>
+         AMD Ryzen 7 | 16GB RAM | 1TB SSD | Pantalla 15.6"
+        </p>
+        <p class="price">
+         S/ 6,499
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#B8C4CC">
+         </div>
+         <div class="color-dot" style="background:#2C2C2E">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'HP Pavilion 15 - Ryzen 7')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <section id="audifonos">
+    <h2>
+     Audifonos
+    </h2>
+    <div class="grid">
+     <div class="card">
+      <div class="card-carousel">
+       <div class="card-carousel-inner">
+        <div class="card-carousel-item">
+         <img alt="AirPods Pro 2" loading="lazy" src="assets/Apple_AirPods_Pro_2/imagen_1.jpg"/>
+        </div>
+        <div class="card-carousel-item">
+         <img alt="AirPods Pro 2" loading="lazy" src="assets/Apple_AirPods_Pro_2/imagen_2.jpg"/>
+        </div>
+       </div>
+       <button class="card-carousel-btn prev" onclick="changeCardSlide(this, -1)">
+        ‹
+       </button>
+       <button class="card-carousel-btn next" onclick="changeCardSlide(this, 1)">
+        ›
+       </button>
+       <div class="card-carousel-dots">
+        <span class="card-carousel-dot active">
+        </span>
+        <span class="card-carousel-dot">
+        </span>
+       </div>
+      </div>
+      <div class="info">
+       <div class="card-info-item active">
+        <h3>
+         Apple AirPods Pro 2
+        </h3>
+        <p>
+         Cancelacion de ruido activa | USB-C | H2 Chip
+        </p>
+        <p class="price">
+         S/ 1,899
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#FFFFFF; border: 2px solid #ddd">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'Apple AirPods Pro 2')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+       <div class="card-info-item">
+        <h3>
+         Apple AirPods Pro 2
+        </h3>
+        <p>
+         Cancelacion de ruido activa | Lightning | H2 Chip
+        </p>
+        <p class="price">
+         S/ 1,699
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#FFFFFF; border: 2px solid #ddd">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'Apple AirPods Pro 2 - Lightning')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+      </div>
+     </div>
+     <div class="card">
+      <div class="card-carousel">
+       <div class="card-carousel-inner">
+        <div class="card-carousel-item">
+         <img alt="Sony WH-1000XM5" loading="lazy" src="assets/Sony_WH-1000XM5/imagen_1.jpg"/>
+        </div>
+       </div>
+       <button class="card-carousel-btn prev" onclick="changeCardSlide(this, -1)">
+        ‹
+       </button>
+       <button class="card-carousel-btn next" onclick="changeCardSlide(this, 1)">
+        ›
+       </button>
+       <div class="card-carousel-dots">
+        <span class="card-carousel-dot active">
+        </span>
+       </div>
+      </div>
+      <div class="info">
+       <div class="card-info-item active">
+        <h3>
+         Sony WH-1000XM5
+        </h3>
+        <p>
+         Cancelacion de ruido | 30h bateria | LDAC
+        </p>
+        <p class="price">
+         S/ 2,499
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#1A1A1A">
+         </div>
+         <div class="color-dot" style="background:#C0C0C0; border: 2px solid #ddd">
+         </div>
+         <div class="color-dot" style="background:#E8D5C4; border: 2px solid #ddd">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'Sony WH-1000XM5')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+      </div>
+     </div>
+     <div class="card">
+      <div class="card-carousel">
+       <div class="card-carousel-inner">
+        <div class="card-carousel-item">
+         <img alt="JBL Tune 510BT" loading="lazy" src="assets/JBL_Tune_510BT/imagen_1.jpg"/>
+        </div>
+        <div class="card-carousel-item">
+         <img alt="JBL Tune 510BT" loading="lazy" src="assets/JBL_Tune_510BT/imagen_2.jpg"/>
+        </div>
+       </div>
+       <button class="card-carousel-btn prev" onclick="changeCardSlide(this, -1)">
+        ‹
+       </button>
+       <button class="card-carousel-btn next" onclick="changeCardSlide(this, 1)">
+        ›
+       </button>
+       <div class="card-carousel-dots">
+        <span class="card-carousel-dot active">
+        </span>
+        <span class="card-carousel-dot">
+        </span>
+       </div>
+      </div>
+      <div class="info">
+       <div class="card-info-item active">
+        <h3>
+         JBL Tune 510BT
+        </h3>
+        <p>
+         Bluetooth 5.0 | 40h bateria | PureBass
+        </p>
+        <p class="price">
+         S/ 349
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#1A1A2E">
+         </div>
+         <div class="color-dot" style="background:#FFFFFF; border: 2px solid #ddd">
+         </div>
+         <div class="color-dot" style="background:#4169E1">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'JBL Tune 510BT')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+       <div class="card-info-item">
+        <h3>
+         JBL Tune 510BT
+        </h3>
+        <p>
+         Bluetooth 5.0 | 40h bateria | PureBass
+        </p>
+        <p class="price">
+         S/ 349
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#1A1A2E">
+         </div>
+         <div class="color-dot" style="background:#4169E1">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'JBL Tune 510BT - Azul')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <section id="accesorios">
+    <h2>
+     Accesorios
+    </h2>
+    <div class="grid">
+     <div class="card">
+      <div class="card-carousel">
+       <div class="card-carousel-inner">
+        <div class="card-carousel-item">
+         <img alt="Cargador MagSafe" loading="lazy" src="assets/Cargador_MagSafe/imagen_1.jpg"/>
+        </div>
+       </div>
+       <button class="card-carousel-btn prev" onclick="changeCardSlide(this, -1)">
+        ‹
+       </button>
+       <button class="card-carousel-btn next" onclick="changeCardSlide(this, 1)">
+        ›
+       </button>
+       <div class="card-carousel-dots">
+        <span class="card-carousel-dot active">
+        </span>
+       </div>
+      </div>
+      <div class="info">
+       <div class="card-info-item active">
+        <h3>
+         Cargador MagSafe
+        </h3>
+        <p>
+         Carga inalambrica 15W | Compatible iPhone
+        </p>
+        <p class="price">
+         S/ 299
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#FFFFFF; border: 2px solid #ddd">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'Cargador MagSafe')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+      </div>
+     </div>
+     <div class="card">
+      <div class="card-carousel">
+       <div class="card-carousel-inner">
+        <div class="card-carousel-item">
+         <img alt="Funda iPhone 15" loading="lazy" src="assets/Funda_iPhone_15_Pro/imagen_1.jpg"/>
+        </div>
+        <div class="card-carousel-item">
+         <img alt="Funda iPhone 15" loading="lazy" src="assets/Funda_iPhone_15_Pro/imagen_2.jpg"/>
+        </div>
+       </div>
+       <button class="card-carousel-btn prev" onclick="changeCardSlide(this, -1)">
+        ‹
+       </button>
+       <button class="card-carousel-btn next" onclick="changeCardSlide(this, 1)">
+        ›
+       </button>
+       <div class="card-carousel-dots">
+        <span class="card-carousel-dot active">
+        </span>
+        <span class="card-carousel-dot">
+        </span>
+       </div>
+      </div>
+      <div class="info">
+       <div class="card-info-item active">
+        <h3>
+         Funda iPhone 15 Pro
+        </h3>
+        <p>
+         Silicona | MagSafe | Proteccion completa
+        </p>
+        <p class="price">
+         S/ 149
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#1A1A2E">
+         </div>
+         <div class="color-dot" style="background:#4169E1">
+         </div>
+         <div class="color-dot" style="background:#2E8B57">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'Funda iPhone 15 Pro')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+       <div class="card-info-item">
+        <h3>
+         Funda iPhone 15 Pro Max
+        </h3>
+        <p>
+         Silicona | MagSafe | Proteccion completa
+        </p>
+        <p class="price">
+         S/ 179
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#1A1A2E">
+         </div>
+         <div class="color-dot" style="background:#2E8B57">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'Funda iPhone 15 Pro Max')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+      </div>
+     </div>
+     <div class="card">
+      <div class="card-carousel">
+       <div class="card-carousel-inner">
+        <div class="card-carousel-item">
+         <img alt="Mouse Logitech MX" loading="lazy" src="assets/Logitech_MX_Master_3S/imagen_1.jpg"/>
+        </div>
+       </div>
+       <button class="card-carousel-btn prev" onclick="changeCardSlide(this, -1)">
+        ‹
+       </button>
+       <button class="card-carousel-btn next" onclick="changeCardSlide(this, 1)">
+        ›
+       </button>
+       <div class="card-carousel-dots">
+        <span class="card-carousel-dot active">
+        </span>
+       </div>
+      </div>
+      <div class="info">
+       <div class="card-info-item active">
+        <h3>
+         Logitech MX Master 3S
+        </h3>
+        <p>
+         Inalambrico | 8K DPI | USB-C | Silence Click
+        </p>
+        <p class="price">
+         S/ 649
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#1A1A2E">
+         </div>
+         <div class="color-dot" style="background:#C0C0C0; border: 2px solid #ddd">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'Logitech MX Master 3S')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <section id="smartwatches">
+    <h2>
+     Smartwatches
+    </h2>
+    <div class="grid">
+     <div class="card">
+      <div class="card-carousel">
+       <div class="card-carousel-inner">
+        <div class="card-carousel-item">
+         <img alt="Apple Watch Series 9" loading="lazy" src="assets/Apple_Watch_Series_9/imagen_1.jpg"/>
+        </div>
+        <div class="card-carousel-item">
+         <img alt="Apple Watch Series 9" loading="lazy" src="assets/Apple_Watch_Series_9/imagen_2.jpeg"/>
+        </div>
+       </div>
+       <button class="card-carousel-btn prev" onclick="changeCardSlide(this, -1)">
+        ‹
+       </button>
+       <button class="card-carousel-btn next" onclick="changeCardSlide(this, 1)">
+        ›
+       </button>
+       <div class="card-carousel-dots">
+        <span class="card-carousel-dot active">
+        </span>
+        <span class="card-carousel-dot">
+        </span>
+       </div>
+      </div>
+      <div class="info">
+       <div class="card-info-item active">
+        <h3>
+         Apple Watch Series 9
+        </h3>
+        <p>
+         S9 SiP | GPS | Pantalla Always-On | 45mm
+        </p>
+        <p class="price">
+         S/ 3,499
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#C0C0C0; border: 2px solid #ddd">
+         </div>
+         <div class="color-dot" style="background:#1A1A2E">
+         </div>
+         <div class="color-dot" style="background:#FFB6C1; border: 2px solid #ddd">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'Apple Watch Series 9 - 45mm')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+       <div class="card-info-item">
+        <h3>
+         Apple Watch Series 9
+        </h3>
+        <p>
+         S9 SiP | GPS | Pantalla Always-On | 41mm
+        </p>
+        <p class="price">
+         S/ 3,199
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#C0C0C0; border: 2px solid #ddd">
+         </div>
+         <div class="color-dot" style="background:#FFB6C1; border: 2px solid #ddd">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'Apple Watch Series 9 - 41mm')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+      </div>
+     </div>
+     <div class="card">
+      <div class="card-carousel">
+       <div class="card-carousel-inner">
+        <div class="card-carousel-item">
+         <img alt="Samsung Galaxy Watch 6" loading="lazy" src="assets/Samsung_Galaxy_Watch_6/imagen_1.jpg"/>
+        </div>
+       </div>
+       <button class="card-carousel-btn prev" onclick="changeCardSlide(this, -1)">
+        ‹
+       </button>
+       <button class="card-carousel-btn next" onclick="changeCardSlide(this, 1)">
+        ›
+       </button>
+       <div class="card-carousel-dots">
+        <span class="card-carousel-dot active">
+        </span>
+       </div>
+      </div>
+      <div class="info">
+       <div class="card-info-item active">
+        <h3>
+         Samsung Galaxy Watch 6
+        </h3>
+        <p>
+         Exynos W930 | GPS | WearOS | 44mm
+        </p>
+        <p class="price">
+         S/ 2,199
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#1A1A2E">
+         </div>
+         <div class="color-dot" style="background:#C0C0C0; border: 2px solid #ddd">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'Samsung Galaxy Watch 6 - 44mm')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+      </div>
+     </div>
+     <div class="card">
+      <div class="card-carousel">
+       <div class="card-carousel-inner">
+        <div class="card-carousel-item">
+         <img alt="Xiaomi Smart Band 8" loading="lazy" src="assets/Xiaomi_Smart_Band_8/imagen_1.jpg"/>
+        </div>
+        <div class="card-carousel-item">
+         <img alt="Xiaomi Smart Band 8" loading="lazy" src="assets/Xiaomi_Smart_Band_8/imagen_2.jpg"/>
+        </div>
+       </div>
+       <button class="card-carousel-btn prev" onclick="changeCardSlide(this, -1)">
+        ‹
+       </button>
+       <button class="card-carousel-btn next" onclick="changeCardSlide(this, 1)">
+        ›
+       </button>
+       <div class="card-carousel-dots">
+        <span class="card-carousel-dot active">
+        </span>
+        <span class="card-carousel-dot">
+        </span>
+       </div>
+      </div>
+      <div class="info">
+       <div class="card-info-item active">
+        <h3>
+         Xiaomi Smart Band 8
+        </h3>
+        <p>
+         Pantalla AMOLED | 16 dias bateria | GPS
+        </p>
+        <p class="price">
+         S/ 249
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#1A1A2E">
+         </div>
+         <div class="color-dot" style="background:#C0C0C0; border: 2px solid #ddd">
+         </div>
+         <div class="color-dot" style="background:#FFB6C1; border: 2px solid #ddd">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'Xiaomi Smart Band 8')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+       <div class="card-info-item">
+        <h3>
+         Xiaomi Smart Band 8
+        </h3>
+        <p>
+         Pantalla AMOLED | 16 dias bateria | NFC
+        </p>
+        <p class="price">
+         S/ 299
+        </p>
+        <div class="colors">
+         <div class="color-dot" style="background:#1A1A2E">
+         </div>
+         <div class="color-dot" style="background:#C0C0C0; border: 2px solid #ddd">
+         </div>
+        </div>
+        <a class="btn-whatsapp" href="#" onclick="enviarWhatsApp(event, 'Xiaomi Smart Band 8 - NFC')">
+         <svg viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+          </path>
+         </svg>
+         Consultar
+        </a>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+  </div>
+  <footer>
+   <p>
+    © 2024 Jeremy Tech. Todos los derechos reservados.
+   </p>
+   <p>
+    La Paz, Bolivia | 993398655 / 997833866
+   </p>
+  </footer>
+  <script src="script.js">
+  </script>
+ </body>
+</html>
