@@ -5,9 +5,9 @@ const productos = [
     categoria: "Celulares",
     nombre: "iPhone 15 Pro",
     especificaciones: "Chip A17 Pro | 256GB | Camara 48MP",
-    precioPEN: 1,
+    precioPEN: 5499,
     colores: ["#3B4C5A", "#F5F5DC", "#1A1C72"],
-    imagen: "assets/iPhone_15_Pro/imagen_1.jpg",
+    imagen: "assets/Celulares/iPhone_15_Pro/imagen_1.png",
   },
   {
     id: "iphone-15-pro-512",
@@ -16,7 +16,7 @@ const productos = [
     especificaciones: "Chip A17 Pro | 512GB | Camara 48MP",
     precioPEN: 10999,
     colores: ["#3B4C5A", "#F5F5DC"],
-    imagen: "assets/iPhone_15_Pro/imagen_2.jpg",
+    imagen: "assets/Celulares/iPhone_15_Pro/imagen_2.png",
   },
   {
     id: "samsung-galaxy-s24-ultra-256",
@@ -25,7 +25,7 @@ const productos = [
     especificaciones: "Snapdragon 8 Gen 3 | 256GB | Camara 200MP",
     precioPEN: 7499,
     colores: ["#2C2C2C", "#E8D5B7", "#4A6741"],
-    imagen: "assets/Samsung_Galaxy_S24_Ultra/imagen_1.jpg",
+    imagen: "assets/Celulares/Samsung_Galaxy_S24_Ultra/imagen_1.png",
   },
   {
     id: "samsung-galaxy-s24-ultra-512",
@@ -34,7 +34,7 @@ const productos = [
     especificaciones: "Snapdragon 8 Gen 3 | 512GB | Camara 200MP",
     precioPEN: 8999,
     colores: ["#2C2C2C", "#E8D5B7"],
-    imagen: "assets/Samsung_Galaxy_S24_Ultra/imagen_2.jpg",
+    imagen: "assets/Celulares/Samsung_Galaxy_S24_Ultra/imagen_2.png",
   },
   {
     id: "xiaomi-14-256",
@@ -43,7 +43,7 @@ const productos = [
     especificaciones: "Snapdragon 8 Gen 3 | 256GB | Camara Leica",
     precioPEN: 4299,
     colores: ["#1A1A2E", "#F0E68C", "#4A90A4"],
-    imagen: "assets/Xiaomi_14/imagen_1.jpg",
+    imagen: "assets/Celulares/Xiaomi_14/imagen_1.png",
   },
   {
     id: "xiaomi-14-512",
@@ -51,8 +51,8 @@ const productos = [
     nombre: "Xiaomi 14",
     especificaciones: "Snapdragon 8 Gen 3 | 512GB | Camara Leica",
     precioPEN: 5199,
-    colores: ["#1A1A2E", "#4A90A4"],
-    imagen: "assets/Xiaomi_14/imagen_2.jpg",
+    colores: ["#1A1A2E", "#F0E68C", "#4A90A4"],
+    imagen: "assets/Celulares/Xiaomi_14/imagen_2.png",
   },
 
   // ========== LAPTOPS ==========
@@ -63,7 +63,7 @@ const productos = [
     especificaciones: 'Chip M3 | 8GB RAM | 256GB SSD | Pantalla 13.6"',
     precioPEN: 9499,
     colores: ["#C0C0C0", "#2C2C2E", "#E8D5C4"],
-    imagen: "assets/MacBook_Air_M3/imagen_1.jpg",
+    imagen: "assets/Laptops/MacBook_Air_M3/imagen_1.png",
   },
   {
     id: "macbook-air-m3-512",
@@ -72,7 +72,7 @@ const productos = [
     especificaciones: 'Chip M3 | 16GB RAM | 512GB SSD | Pantalla 13.6"',
     precioPEN: 11999,
     colores: ["#C0C0C0", "#2C2C2E"],
-    imagen: "assets/MacBook_Air_M3/imagen_2.jpg",
+    imagen: "assets/Laptops/MacBook_Air_M3/imagen_2.png",
   },
   {
     id: "lenovo-thinkpad-x1-carbon",
@@ -81,7 +81,7 @@ const productos = [
     especificaciones: 'Intel i7 | 16GB RAM | 512GB SSD | Pantalla 14"',
     precioPEN: 8799,
     colores: ["#1A1A1A"],
-    imagen: "assets/Lenovo_ThinkPad_X1_Carbon/imagen_1.jpg",
+    imagen: "assets/Laptops/Lenovo_ThinkPad_X1_Carbon/imagen_1.png",
   },
   {
     id: "hp-pavilion-15-ryzen5",
@@ -90,7 +90,7 @@ const productos = [
     especificaciones: 'AMD Ryzen 5 | 8GB RAM | 512GB SSD | Pantalla 15.6"',
     precioPEN: 4999,
     colores: ["#B8C4CC", "#2C2C2E"],
-    imagen: "assets/HP_Pavilion_15/imagen_1.jpg",
+    imagen: "assets/Laptops/HP_Pavilion_15/imagen_1.png",
   },
   {
     id: "hp-pavilion-15-ryzen7",
@@ -99,7 +99,7 @@ const productos = [
     especificaciones: 'AMD Ryzen 7 | 16GB RAM | 1TB SSD | Pantalla 15.6"',
     precioPEN: 6499,
     colores: ["#B8C4CC", "#2C2C2E"],
-    imagen: "assets/HP_Pavilion_15/imagen_2.jpg",
+    imagen: "assets/Laptops/HP_Pavilion_15/imagen_2.png",
   },
 
   // ========== AUDIFONOS ==========
@@ -110,7 +110,7 @@ const productos = [
     especificaciones: "Cancelacion de ruido activa | USB-C | H2 Chip",
     precioPEN: 1899,
     colores: ["#FFFFFF"],
-    imagen: "assets/Apple_AirPods_Pro_2/imagen_1.jpg",
+    imagen: "assets/Audifonos/Apple_AirPods_Pro_2/imagen_1.png",
   },
   {
     id: "sony-wh-1000xm5",
@@ -119,7 +119,7 @@ const productos = [
     especificaciones: "Cancelacion de ruido | 30h bateria | LDAC",
     precioPEN: 2499,
     colores: ["#1A1A1A", "#C0C0C0", "#E8D5C4"],
-    imagen: "assets/Sony_WH-1000XM5/imagen_1.jpg",
+    imagen: "assets/Audifonos/Sony_WH-1000XM5/imagen_1.png",
   },
   {
     id: "jbl-tune-510bt",
@@ -128,9 +128,27 @@ const productos = [
     especificaciones: "Bluetooth 5.0 | 40h bateria | PureBass",
     precioPEN: 349,
     colores: ["#1A1A2E", "#FFFFFF", "#4169E1"],
-    imagen: "assets/JBL_Tune_510BT/imagen_1.jpg",
+    imagen: "assets/Audifonos/JBL_Tune_510BT/imagen_1.png",
   },
-  
+  {
+    id: "jbl-charge-5",
+    categoria: "Audifonos",
+    nombre: "JBL Charge 5",
+    especificaciones: "Bluetooth 5.1 | 20h bateria | IP67 | Powerbank",
+    precioPEN: 699,
+    colores: ["#1A1A2E", "#2E8B57", "#B22222"],
+    imagen: "assets/Audifonos/JBL_Charge_5/imagen_1.png",
+  },
+  {
+    id: "bose-qc-ultra",
+    categoria: "Audifonos",
+    nombre: "Bose QuietComfort Ultra",
+    especificaciones: "Cancelacion de ruido | Immersive Audio | 24h bateria",
+    precioPEN: 3299,
+    colores: ["#1A1A2E", "#C0C0C0", "#E8D5C4"],
+    imagen: "assets/Audifonos/Bose_QC_Ultra/imagen_1.png",
+  },
+
   // ========== ACCESORIOS ==========
   {
     id: "cargador-magsafe",
@@ -139,7 +157,7 @@ const productos = [
     especificaciones: "Carga inalambrica 15W | Compatible iPhone",
     precioPEN: 299,
     colores: ["#FFFFFF"],
-    imagen: "assets/Cargador_MagSafe/imagen_1.jpg",
+    imagen: "assets/Accesorios/Cargador_MagSafe/imagen_1.png",
   },
   {
     id: "funda-iphone-15-pro",
@@ -148,7 +166,7 @@ const productos = [
     especificaciones: "Silicona | MagSafe | Proteccion completa",
     precioPEN: 149,
     colores: ["#1A1A2E", "#4169E1", "#2E8B57"],
-    imagen: "assets/Funda_iPhone_15_Pro/imagen_1.jpeg",
+    imagen: "assets/Accesorios/Funda_iPhone_15_Pro/imagen_1.png",
   },
    {
     id: "logitech-mx-master-3s",
@@ -157,7 +175,25 @@ const productos = [
     especificaciones: "Inalambrico | 8K DPI | USB-C | Silence Click",
     precioPEN: 649,
     colores: ["#1A1A2E", "#C0C0C0"],
-    imagen: "assets/Logitech_MX_Master_3S/imagen_1.jpg",
+    imagen: "assets/Accesorios/Logitech_MX_Master_3S/imagen_1.png",
+  },
+  {
+    id: "anker-powercore-20000",
+    categoria: "Accesorios",
+    nombre: "Anker PowerCore 20000",
+    especificaciones: "Powerbank 20000mAh | Carga rapida 20W",
+    precioPEN: 249,
+    colores: ["#1A1A2E", "#FFFFFF"],
+    imagen: "assets/Accesorios/Anker_PowerCore_20000/imagen_1.png",
+  },
+  {
+    id: "samsung-monitor-27",
+    categoria: "Accesorios",
+    nombre: 'Samsung Monitor 27" 4K',
+    especificaciones: "4K UHD | IPS | USB-C | 60Hz",
+    precioPEN: 1899,
+    colores: ["#1A1A2E", "#C0C0C0"],
+    imagen: "assets/Accesorios/Samsung_Monitor_27/imagen_1.png",
   },
 
   // ========== SMARTWATCHES ==========
@@ -168,7 +204,7 @@ const productos = [
     especificaciones: "S9 SiP | GPS | Pantalla Always-On | 45mm",
     precioPEN: 3499,
     colores: ["#C0C0C0", "#1A1A2E", "#FFB6C1"],
-    imagen: "assets/Apple_Watch_Series_9/imagen_1.jpg",
+    imagen: "assets/Smartwatches/Apple_Watch_Series_9/imagen_1.png",
   },
   {
     id: "apple-watch-series-9-41",
@@ -177,7 +213,7 @@ const productos = [
     especificaciones: "S9 SiP | GPS | Pantalla Always-On | 41mm",
     precioPEN: 3199,
     colores: ["#C0C0C0", "#FFB6C1"],
-    imagen: "assets/Apple_Watch_Series_9/imagen_2.jpeg",
+    imagen: "assets/Smartwatches/Apple_Watch_Series_9/imagen_2.png",
   },
   {
     id: "samsung-galaxy-watch-6-44",
@@ -186,7 +222,7 @@ const productos = [
     especificaciones: "Exynos W930 | GPS | WearOS | 44mm",
     precioPEN: 2199,
     colores: ["#1A1A2E", "#C0C0C0"],
-    imagen: "assets/Samsung_Galaxy_Watch_6/imagen_1.jpg",
+    imagen: "assets/Smartwatches/Samsung_Galaxy_Watch_6/imagen_1.png",
   },
   {
     id: "xiaomi-smart-band-8",
@@ -195,7 +231,7 @@ const productos = [
     especificaciones: "Pantalla AMOLED | 16 dias bateria | GPS",
     precioPEN: 249,
     colores: ["#1A1A2E", "#C0C0C0", "#FFB6C1"],
-    imagen: "assets/Xiaomi_Smart_Band_8/imagen_1.jpg",
+    imagen: "assets/Smartwatches/Xiaomi_Smart_Band_8/imagen_1.png",
   },
   {
     id: "xiaomi-smart-band-8-nfc",
@@ -204,7 +240,47 @@ const productos = [
     especificaciones: "Pantalla AMOLED | 16 dias bateria | NFC",
     precioPEN: 299,
     colores: ["#1A1A2E", "#C0C0C0"],
-    imagen: "assets/Xiaomi_Smart_Band_8/imagen_2.jpg",
+    imagen: "assets/Smartwatches/Xiaomi_Smart_Band_8/imagen_2.png",
+  },
+
+  // ========== TABLETS ==========
+  {
+    id: "ipad-air-m2",
+    categoria: "Tablets",
+    nombre: "iPad Air M2",
+    especificaciones: 'Chip M2 | 64GB | Pantalla 11" Liquid Retina',
+    precioPEN: 2999,
+    colores: ["#C0C0C0", "#1A1A2E", "#E8D5C4"],
+    imagen: "assets/Tablets/iPad_Air_M2/imagen_1.png",
+  },
+  {
+    id: "samsung-galaxy-tab-s9",
+    categoria: "Tablets",
+    nombre: "Samsung Galaxy Tab S9",
+    especificaciones: 'Snapdragon 8 Gen 2 | 128GB | AMOLED 11"',
+    precioPEN: 3499,
+    colores: ["#1A1A2E", "#C0C0C0"],
+    imagen: "assets/Tablets/Samsung_Galaxy_Tab_S9/imagen_1.png",
+  },
+
+  // ========== GAMING ==========
+  {
+    id: "dualsense-edge",
+    categoria: "Gaming",
+    nombre: "PlayStation DualSense Edge",
+    especificaciones: "Control pro | Back buttons | Stick removibles",
+    precioPEN: 1299,
+    colores: ["#FFFFFF", "#1A1A2E"],
+    imagen: "assets/Gaming/DualSense_Edge/imagen_1.png",
+  },
+  {
+    id: "xbox-controller",
+    categoria: "Gaming",
+    nombre: "Xbox Wireless Controller",
+    especificaciones: "Bluetooth | USB-C | Compatible PC/Xbox",
+    precioPEN: 349,
+    colores: ["#1A1A2E", "#FFFFFF", "#2E8B57"],
+    imagen: "assets/Gaming/Xbox_Controller/imagen_1.png",
   },
 ];
 

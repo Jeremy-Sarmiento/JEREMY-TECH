@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     'Audifonos': 'grid-audifonos',
     'Accesorios': 'grid-accesorios',
     'Smartwatches': 'grid-smartwatches',
+    'Tablets': 'grid-tablets',
+    'Gaming': 'grid-gaming',
   };
 
   function agruparProductos(lista) {
