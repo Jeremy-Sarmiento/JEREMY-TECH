@@ -4,9 +4,9 @@
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>
-   Jeremy Tech -Tienda de Tecnologia
+   Jeremy Tech - Tienda de Tecnologia
   </title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/>
   <link href="styles.css" rel="stylesheet"/>
  </head>
  <body>
@@ -18,51 +18,86 @@
     </span>
    </div>
    <p>
-    La Paz Soldan, frente al salon de eventos "los portales", | jeresarmientotarojo@gmail.com | 993398655 / 997833866
+    La Paz Soldan, frente al salon de eventos "los portales" | jeresarmientotarojo@gmail.com | 993398655 / 997833866
    </p>
   </header>
-  <nav>
-   <a href="#inicio">
-    INICIO
-   </a>
-   <a href="#celulares">
-    CELULARES
-   </a>
-   <a href="#laptops">
-    LAPTOPS
-   </a>
-   <a href="#audifonos">
-    AUDIFONOS
-   </a>
-   <a href="#accesorios">
-    ACCESORIOS
-   </a>
-    <a href="#smartwatches">
-     SMARTWATCHES
-    </a>
-    <a href="#tablets">
-     TABLETS
-    </a>
-    <a href="#gaming">
-     GAMING
-    </a>
-    <div class="nav-moneda">
-     <button class="nav-moneda-btn" id="monedaBtn">
-      💱 PEN
-     </button>
-     <div class="nav-moneda-dropdown" id="monedaDropdown">
-      <div class="moneda-option active" data-moneda="PEN">🇵🇪 PEN - Sol peruano</div>
-      <div class="moneda-option" data-moneda="USD">🇺🇸 USD - Dolar</div>
-      <div class="moneda-option" data-moneda="EUR">🇪🇺 EUR - Euro</div>
-      <div class="moneda-option" data-moneda="GBP">🇬🇧 GBP - Libra</div>
-      <div class="moneda-option" data-moneda="BRL">🇧🇷 BRL - Real</div>
-      <div class="moneda-option" data-moneda="ARS">🇦🇷 ARS - Peso argentino</div>
-      <div class="moneda-option" data-moneda="CLP">🇨🇱 CLP - Peso chileno</div>
-      <div class="moneda-option" data-moneda="COP">🇨🇴 COP - Peso colombiano</div>
+   <nav>
+    <button class="nav-hamburger" id="hamburgerBtn" onclick="toggleMenu()" aria-label="Abrir menú de categorías">
+     <span></span>
+     <span></span>
+     <span></span>
+    </button>
+    <div class="nav-main-links" id="navMainLinks">
+     <a href="#inicio">
+      INICIO
+     </a>
+     <a href="#celulares">
+      CELULARES
+     </a>
+     <a href="#laptops">
+      LAPTOPS
+     </a>
+     <a href="#audifonos">
+      AUDIFONOS
+     </a>
+     <a href="#accesorios">
+      ACCESORIOS
+     </a>
+     <a href="#smartwatches">
+      SMARTWATCHES
+     </a>
+     <a href="#tablets">
+      TABLETS
+     </a>
+     <a href="#gaming">
+      GAMING
+     </a>
+ 
+    </div>
+    <div class="nav-actions">
+     <div class="nav-search-box">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+       <circle cx="11" cy="11" r="8"></circle>
+       <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" id="busquedaInput" placeholder="Buscar productos, specs..." autocomplete="off"/>
+      <button id="btnLimpiarBusqueda" class="btn-clear-search" style="display:none;" title="Limpiar búsqueda" onclick="limpiarBusqueda()">&times;</button>
      </div>
+     <div class="nav-moneda">
+      <button class="nav-moneda-btn" id="monedaBtn">
+       💱 PEN
+      </button>
+      <div class="nav-moneda-dropdown" id="monedaDropdown">
+       <div class="moneda-option active" data-moneda="PEN">🇵🇪 PEN - Sol peruano</div>
+       <div class="moneda-option" data-moneda="USD">🇺🇸 USD - Dolar</div>
+       <div class="moneda-option" data-moneda="EUR">🇪🇺 EUR - Euro</div>
+       <div class="moneda-option" data-moneda="GBP">🇬🇧 GBP - Libra</div>
+       <div class="moneda-option" data-moneda="BRL">🇧🇷 BRL - Real</div>
+       <div class="moneda-option" data-moneda="ARS">🇦🇷 ARS - Peso argentino</div>
+       <div class="moneda-option" data-moneda="CLP">🇨🇱 CLP - Peso chileno</div>
+       <div class="moneda-option" data-moneda="COP">🇨🇴 COP - Peso colombiano</div>
+      </div>
+     </div>
+     <button class="nav-orders-btn" id="ordersNavBtn" onclick="abrirHistorialPedidos()" title="Ver historial de pedidos">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+       <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+       <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+       <line x1="12" y1="22.08" x2="12" y2="12"></line>
+      </svg>
+      <span>Mis Pedidos</span>
+     </button>
+     <button class="nav-cart-btn" id="cartNavBtn" onclick="abrirCarrito()" title="Ver carrito de compras">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+       <circle cx="9" cy="21" r="1"></circle>
+       <circle cx="20" cy="21" r="1"></circle>
+       <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+      </svg>
+      <span>Carrito</span>
+      <span class="cart-badge" id="cartBadgeNav">0</span>
+     </button>
     </div>
   </nav>
-  <button class="btn-inicio-flotante" id="btnInicio" onclick="irAlInicio()">
+   <button class="btn-inicio-flotante" id="btnInicio" onclick="irAlInicio()">
   </button>
   <section id="inicio">
    <div class="carousel">
@@ -120,6 +155,14 @@
    </div>
   </section>
   <div class="productos">
+   <!-- Mensaje de búsqueda sin resultados -->
+   <div id="noSearchResults" class="no-search-results" style="display: none;">
+    <div class="no-results-icon">🔍</div>
+    <h3>No se encontraron productos</h3>
+    <p>No encontramos resultados para "<span id="searchQueryText"></span>". Intenta con otra palabra clave o marca.</p>
+    <button class="btn-reset-search" onclick="limpiarBusqueda()">Ver todos los productos</button>
+   </div>
+
    <section id="celulares">
     <h2>Celulares</h2>
     <div class="grid" id="grid-celulares"></div>
@@ -136,20 +179,21 @@
     <h2>Accesorios</h2>
     <div class="grid" id="grid-accesorios"></div>
    </section>
-    <section id="smartwatches">
-     <h2>Smartwatches</h2>
-     <div class="grid" id="grid-smartwatches"></div>
-    </section>
-    <section id="tablets">
-     <h2>Tablets</h2>
-     <div class="grid" id="grid-tablets"></div>
-    </section>
-    <section id="gaming">
-     <h2>Gaming</h2>
-     <div class="grid" id="grid-gaming"></div>
-    </section>
+   <section id="smartwatches">
+    <h2>Smartwatches</h2>
+    <div class="grid" id="grid-smartwatches"></div>
+   </section>
+   <section id="tablets">
+    <h2>Tablets</h2>
+    <div class="grid" id="grid-tablets"></div>
+   </section>
+   <section id="gaming">
+    <h2>Gaming</h2>
+    <div class="grid" id="grid-gaming"></div>
+   </section>
 
   </div>
+
   <footer>
    <p>
     © 2026 Jeremy Tech. Todos los derechos reservados.
@@ -158,8 +202,438 @@
     La Joya, Arequipa  | 997833866
    </p>
   </footer>
+
+  <!-- ================= CARRO DE COMPRAS (DRAWER LATERAL) ================= -->
+  <div id="cartOverlay" class="cart-overlay" onclick="cerrarCarrito()"></div>
+
+  <div id="cartDrawer" class="cart-drawer">
+   <div class="cart-header">
+    <div class="cart-title">
+     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="9" cy="21" r="1"></circle>
+      <circle cx="20" cy="21" r="1"></circle>
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+     </svg>
+     <h3>Tu Carrito</h3>
+     <span class="cart-count-pill" id="cartCountPill">0 items</span>
+    </div>
+    <button class="btn-close-drawer" onclick="cerrarCarrito()" title="Cerrar">&times;</button>
+   </div>
+
+   <div class="cart-body" id="cartBody">
+    <div id="cartEmptyState" class="cart-empty-state">
+     <div class="empty-icon">🛒</div>
+     <h4>Tu carrito está vacío</h4>
+     <p>Explora nuestro catálogo y agrega los mejores dispositivos tecnológicos.</p>
+     <button class="btn-explorar" onclick="cerrarCarrito()">Explorar Productos</button>
+    </div>
+    <div id="cartItemsList" class="cart-items-list"></div>
+   </div>
+
+   <div class="cart-footer" id="cartFooter" style="display: none;">
+    <!-- Área de Cupón de Descuento -->
+    <div class="cart-coupon-area">
+     <div class="cart-coupon-input-wrap">
+      <input type="text" id="cuponInput" placeholder="Cupón (ej. JEREMYTECH10)" autocomplete="off"/>
+      <button type="button" class="btn-apply-coupon" onclick="aplicarCupon()">Aplicar</button>
+     </div>
+     <div id="cuponTagMsg" class="coupon-tag-msg" style="display:none;"></div>
+    </div>
+
+    <!-- Selector de Modalidad de Entrega -->
+    <div class="cart-delivery-selector">
+     <div class="delivery-opt-label">Modalidad de entrega:</div>
+     <div class="delivery-opts-grid">
+      <label class="delivery-opt active" id="delivOptDomicilio" onclick="cambiarOpcionEnvio('domicilio')">
+       <input type="radio" name="tipoEnvio" value="domicilio" checked/>
+       <span>🚚 Domicilio</span>
+      </label>
+      <label class="delivery-opt" id="delivOptTienda" onclick="cambiarOpcionEnvio('tienda')">
+       <input type="radio" name="tipoEnvio" value="tienda"/>
+       <span>🏬 En Tienda (Gratis)</span>
+      </label>
+     </div>
+    </div>
+
+    <div class="cart-summary-row">
+     <span>Subtotal:</span>
+     <span id="cartSubtotal">PEN 0</span>
+    </div>
+    <div class="cart-summary-row discount-row" id="cartDiscountRow" style="display: none;">
+     <span>Descuento Cupón:</span>
+     <span id="cartDiscount">-PEN 0</span>
+    </div>
+    <div class="cart-summary-row total-row">
+     <span>Total a Pagar:</span>
+     <span id="cartTotal">PEN 0</span>
+    </div>
+    <div class="cart-footer-actions">
+     <button class="btn-checkout-card" onclick="abrirCheckout()">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+       <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+       <line x1="1" y1="10" x2="23" y2="10"></line>
+      </svg>
+      Proceder al Checkout
+     </button>
+     <button class="btn-vaciar-cart" onclick="vaciarCarrito()">
+      Vaciar Carrito
+     </button>
+    </div>
+   </div>
+  </div>
+
+  <!-- ================= MODAL DE CHECKOUT MULTIMÉTODO ================= -->
+  <div id="checkoutModal" class="modal-overlay" style="display:none;">
+   <div class="modal-card checkout-modal-card">
+    <button class="modal-close" onclick="cerrarCheckout()" title="Cerrar">&times;</button>
+    <div class="checkout-header">
+     <h2>🛍️ Finalizar Pedido — Jeremy Tech</h2>
+     <p>Plataforma de Checkout Seguro con múltiples medios de pago</p>
+    </div>
+
+    <form id="checkoutForm" onsubmit="procesarPago(event)">
+     <!-- PASO 1: Datos Personales y Entrega -->
+     <div class="form-section-title">1. Datos del Cliente y Entrega</div>
+     <div class="form-row">
+      <div class="form-group">
+       <label for="clienteNombre">Nombre Completo *</label>
+       <input type="text" id="clienteNombre" placeholder="Ej. Juan Pérez" required />
+      </div>
+      <div class="form-group">
+       <label for="clienteTelefono">Teléfono / WhatsApp *</label>
+       <input type="tel" id="clienteTelefono" placeholder="Ej. 997833866" required />
+      </div>
+     </div>
+     <div class="form-row">
+      <div class="form-group">
+       <label for="clienteEmail">Correo Electrónico *</label>
+       <input type="email" id="clienteEmail" placeholder="correo@ejemplo.com" required />
+      </div>
+      <div class="form-group">
+       <label for="clienteDireccion">Dirección de Entrega / Ciudad *</label>
+       <input type="text" id="clienteDireccion" placeholder="Ej. La Joya / Arequipa, Calle..." required />
+      </div>
+     </div>
+
+     <!-- PASO 2: Facturación Electrónica (SUNAT) -->
+     <div class="form-section-title">2. Comprobante de Pago (SUNAT)</div>
+     <div class="invoice-type-selector">
+      <label class="invoice-opt active" id="optBoleta" onclick="cambiarTipoComprobante('boleta')">
+       <input type="radio" name="tipoComprobante" value="boleta" checked />
+       <span>🧾 Boleta de Venta (DNI)</span>
+      </label>
+      <label class="invoice-opt" id="optFactura" onclick="cambiarTipoComprobante('factura')">
+       <input type="radio" name="tipoComprobante" value="factura" />
+       <span>📑 Factura Electrónica (RUC)</span>
+      </label>
+     </div>
+
+     <div id="campoBoletaDni" class="form-group">
+      <label for="clienteDni">Número de DNI (8 dígitos) *</label>
+      <input type="text" id="clienteDni" maxlength="8" placeholder="Ej. 72345678" />
+     </div>
+
+     <div id="campoFacturaRuc" class="form-row" style="display: none;">
+      <div class="form-group">
+       <label for="clienteRuc">Número de RUC (11 dígitos) *</label>
+       <input type="text" id="clienteRuc" maxlength="11" placeholder="Ej. 20601234567" />
+      </div>
+      <div class="form-group">
+       <label for="clienteRazonSocial">Razón Social *</label>
+       <input type="text" id="clienteRazonSocial" placeholder="Ej. Tech Solutions S.A.C." />
+      </div>
+     </div>
+
+     <!-- PASO 3: Método de Pago -->
+     <div class="form-section-title">3. Selecciona tu Método de Pago</div>
+     <div class="checkout-method-tabs">
+      <button type="button" class="pay-tab-btn active" id="tabTarjeta" onclick="cambiarMetodoPago('tarjeta')">
+       <span class="tab-icon">💳</span>
+       <span class="tab-title">Tarjeta</span>
+       <span class="tab-sub">Débito / Crédito</span>
+      </button>
+      <button type="button" class="pay-tab-btn" id="tabYape" onclick="cambiarMetodoPago('yape')">
+       <span class="tab-icon">📱</span>
+       <span class="tab-title">Yape / Plin</span>
+       <span class="tab-sub">Pago QR Móvil</span>
+      </button>
+      <button type="button" class="pay-tab-btn" id="tabTransf" onclick="cambiarMetodoPago('transferencia')">
+       <span class="tab-icon">🏦</span>
+       <span class="tab-title">Transferencia</span>
+       <span class="tab-sub">BCP / Interbank</span>
+      </button>
+      <button type="button" class="pay-tab-btn" id="tabContra" onclick="cambiarMetodoPago('contraentrega')">
+       <span class="tab-icon">💵</span>
+       <span class="tab-title">En Tienda</span>
+       <span class="tab-sub">Pago al Recibir</span>
+      </button>
+     </div>
+
+     <!-- Panel 1: Tarjeta de Crédito/Débito -->
+     <div id="panelMetodoTarjeta" class="payment-method-panel">
+      <!-- Tarjeta Virtual Interactiva -->
+      <div class="virtual-card" id="virtualCard">
+       <div class="card-chip">
+        <div class="chip-line"></div>
+        <div class="chip-line"></div>
+       </div>
+       <div class="card-brand-badge" id="cardBrandLogo">TARJETA</div>
+       <div class="card-number-display" id="cardPreviewNumber">•••• •••• •••• ••••</div>
+       <div class="card-bottom">
+        <div class="card-info-group">
+         <span class="card-label">TITULAR</span>
+         <span class="card-val" id="cardPreviewName">NOMBRE Y APELLIDO</span>
+        </div>
+        <div class="card-info-group">
+         <span class="card-label">EXPIRA</span>
+         <span class="card-val" id="cardPreviewExpiry">MM/AA</span>
+        </div>
+       </div>
+      </div>
+
+      <div class="form-group">
+       <label for="tarjetaNumero">Número de Tarjeta *</label>
+       <div class="input-with-badge">
+        <input type="text" id="tarjetaNumero" maxlength="19" placeholder="1234 5678 9012 3456" autocomplete="cc-number" />
+        <span class="input-card-icon" id="inputBrandIcon">💳</span>
+       </div>
+      </div>
+      <div class="form-group">
+       <label for="tarjetaTitular">Nombre del Titular *</label>
+       <input type="text" id="tarjetaTitular" placeholder="COMO APARECE EN LA TARJETA" autocomplete="cc-name" />
+      </div>
+      <div class="form-row">
+       <div class="form-group">
+        <label for="tarjetaExpiracion">Expiración (MM/AA) *</label>
+        <input type="text" id="tarjetaExpiracion" maxlength="5" placeholder="MM/AA" autocomplete="cc-exp" />
+       </div>
+       <div class="form-group">
+        <label for="tarjetaCvv">CVV / CVC *</label>
+        <input type="password" id="tarjetaCvv" maxlength="4" placeholder="•••" autocomplete="cc-csc" />
+       </div>
+      </div>
+     </div>
+
+     <!-- Panel 2: Yape y Plin -->
+     <div id="panelMetodoYape" class="payment-method-panel" style="display:none;">
+      <div class="qr-payment-box">
+       <div class="qr-visual">
+        <div class="qr-code-frame">
+         <!-- SVG QR Code Visual -->
+         <svg class="qr-svg" viewBox="0 0 100 100">
+          <rect x="5" y="5" width="25" height="25" fill="#00D4FF" rx="4"/>
+          <rect x="10" y="10" width="15" height="15" fill="#0D1622"/>
+          <rect x="14" y="14" width="7" height="7" fill="#00D4FF"/>
+          <rect x="70" y="5" width="25" height="25" fill="#00D4FF" rx="4"/>
+          <rect x="75" y="10" width="15" height="15" fill="#0D1622"/>
+          <rect x="79" y="14" width="7" height="7" fill="#00D4FF"/>
+          <rect x="5" y="70" width="25" height="25" fill="#00D4FF" rx="4"/>
+          <rect x="10" y="75" width="15" height="15" fill="#0D1622"/>
+          <rect x="14" y="79" width="7" height="7" fill="#00D4FF"/>
+          <!-- Grid bits -->
+          <rect x="35" y="10" width="6" height="6" fill="#00D4FF"/>
+          <rect x="45" y="10" width="6" height="6" fill="#00D4FF"/>
+          <rect x="55" y="10" width="6" height="6" fill="#00D4FF"/>
+          <rect x="35" y="20" width="6" height="6" fill="#00D4FF"/>
+          <rect x="45" y="30" width="6" height="6" fill="#00D4FF"/>
+          <rect x="10" y="45" width="6" height="6" fill="#00D4FF"/>
+          <rect x="25" y="45" width="6" height="6" fill="#00D4FF"/>
+          <rect x="35" y="45" width="6" height="6" fill="#00D4FF"/>
+          <rect x="45" y="45" width="10" height="10" fill="#25D366" rx="2"/>
+          <rect x="60" y="45" width="6" height="6" fill="#00D4FF"/>
+          <rect x="75" y="45" width="6" height="6" fill="#00D4FF"/>
+          <rect x="85" y="45" width="6" height="6" fill="#00D4FF"/>
+          <rect x="45" y="60" width="6" height="6" fill="#00D4FF"/>
+          <rect x="60" y="60" width="6" height="6" fill="#00D4FF"/>
+          <rect x="75" y="60" width="6" height="6" fill="#00D4FF"/>
+          <rect x="35" y="75" width="6" height="6" fill="#00D4FF"/>
+          <rect x="45" y="75" width="6" height="6" fill="#00D4FF"/>
+          <rect x="60" y="75" width="6" height="6" fill="#00D4FF"/>
+          <rect x="75" y="75" width="6" height="6" fill="#00D4FF"/>
+          <rect x="85" y="75" width="6" height="6" fill="#00D4FF"/>
+          <rect x="35" y="85" width="6" height="6" fill="#00D4FF"/>
+          <rect x="55" y="85" width="6" height="6" fill="#00D4FF"/>
+          <rect x="70" y="85" width="6" height="6" fill="#00D4FF"/>
+         </svg>
+        </div>
+        <div class="qr-brand-badges">
+         <span class="yape-tag">YAPE</span>
+         <span class="plin-tag">PLIN</span>
+        </div>
+       </div>
+       <div class="qr-details">
+        <div class="qr-info-row">
+         <span>Número de Destino:</span>
+         <div class="copy-field">
+          <strong>997833866</strong>
+          <button type="button" class="btn-copy-mini" onclick="copiarTexto('997833866', 'Número copiado')" title="Copiar">📋</button>
+         </div>
+        </div>
+        <div class="qr-info-row">
+         <span>Titular:</span>
+         <strong>Jeremy Sarmiento / Jeremy Tech</strong>
+        </div>
+        <div class="qr-info-row">
+         <span>Monto a Yapear/Plinear:</span>
+         <strong class="highlight-pen" id="yapeMontoPEN">S/ 0.00</strong>
+        </div>
+       </div>
+      </div>
+      <div class="form-group" style="margin-top: 15px;">
+       <label for="yapeCodigoOperacion">Código / Número de Operación Yape/Plin *</label>
+       <input type="text" id="yapeCodigoOperacion" placeholder="Ej. 849201" maxlength="12" />
+      </div>
+     </div>
+
+     <!-- Panel 3: Transferencia Bancaria Directa -->
+     <div id="panelMetodoTransf" class="payment-method-panel" style="display:none;">
+      <div class="bank-accounts-list">
+       <div class="bank-card bcp-card">
+        <div class="bank-card-header">
+         <strong>🔵 BCP — Banco de Crédito</strong>
+         <button type="button" class="btn-copy-mini" onclick="copiarTexto('215-98765432-0-88', 'Cuenta BCP copiada')">Copiar</button>
+        </div>
+        <div class="bank-card-body">
+         <div>Cuenta: <code>215-98765432-0-88</code></div>
+         <div>CCI: <code>002-215-0098765432088-12</code></div>
+        </div>
+       </div>
+
+       <div class="bank-card interbank-card">
+        <div class="bank-card-header">
+         <strong>🟢 Interbank</strong>
+         <button type="button" class="btn-copy-mini" onclick="copiarTexto('898-3001234567', 'Cuenta Interbank copiada')">Copiar</button>
+        </div>
+        <div class="bank-card-body">
+         <div>Cuenta: <code>898-3001234567</code></div>
+         <div>CCI: <code>003-898-013001234567-45</code></div>
+        </div>
+       </div>
+
+       <div class="bank-card bbva-card">
+        <div class="bank-card-header">
+         <strong>🔵 BBVA Continental</strong>
+         <button type="button" class="btn-copy-mini" onclick="copiarTexto('0011-0234-0200987654', 'Cuenta BBVA copiada')">Copiar</button>
+        </div>
+        <div class="bank-card-body">
+         <div>Cuenta: <code>0011-0234-0200987654</code></div>
+         <div>CCI: <code>011-234-000200987654-78</code></div>
+        </div>
+       </div>
+      </div>
+      <div class="form-group" style="margin-top: 15px;">
+       <label for="transfCodigoOperacion">Número de Operación Bancaria *</label>
+       <input type="text" id="transfCodigoOperacion" placeholder="Ej. 1290348" maxlength="15" />
+      </div>
+     </div>
+
+     <!-- Panel 4: Contra Entrega / En Tienda -->
+     <div id="panelMetodoContra" class="payment-method-panel" style="display:none;">
+      <div class="store-pickup-box">
+       <div class="pickup-icon">🏬</div>
+       <h4>Pago y Retiro en Tienda Física / Contraentrega</h4>
+       <p>Paga con efectivo, tarjeta o Yape al momento de recibir tu pedido o al retirarlo en nuestra sede.</p>
+       <div class="pickup-location-card">
+        <strong>📍 Sede Principal Jeremy Tech:</strong>
+        <p>La Paz Soldán, frente al salón de eventos "Los Portales", La Joya, Arequipa.</p>
+        <p class="pickup-hours">🕒 Horario de Atención: Lunes a Sábado de 8:30 AM a 8:00 PM</p>
+       </div>
+      </div>
+     </div>
+
+     <!-- Resumen Total y Botón de Pago -->
+     <div class="checkout-total-banner">
+      <div>
+       <span>Total a Pagar:</span>
+       <div id="checkoutDiscountNote" class="checkout-discount-note" style="display:none;"></div>
+      </div>
+      <strong id="checkoutTotalMonto">PEN 0.00</strong>
+     </div>
+
+     <div class="security-badges">
+      <span>🔒 Cifrado SSL 256-bit</span>
+      <span>🛡️ Garantía Oficial Jeremy Tech</span>
+      <span>⚡ Despacho Inmediato</span>
+     </div>
+
+     <button type="submit" class="btn-pagar-ahora" id="btnPagarAhora">
+      <span class="btn-text">🔒 Confirmar Pedido y Pagar</span>
+      <span class="btn-spinner" style="display:none;"></span>
+     </button>
+    </form>
+   </div>
+  </div>
+
+  <!-- ================= MODAL DE ÉXITO / TICKET DIGITAL ================= -->
+  <div id="successModal" class="modal-overlay" style="display:none;">
+   <div class="modal-card success-card">
+    <div class="success-icon-wrap">
+     <svg class="checkmark" viewBox="0 0 52 52">
+      <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+      <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+     </svg>
+    </div>
+    <h2>¡Pedido Confirmado con Éxito!</h2>
+    <p class="success-subtitle">Tu orden ha sido registrada en nuestro sistema y está en preparación.</p>
+    
+    <div class="ticket-recibo" id="ticketRecibo">
+     <div class="ticket-header">
+      <span class="ticket-brand">JEREMY TECH</span>
+      <span class="ticket-order-id" id="ticketOrderId">#JT-00000</span>
+     </div>
+     <div class="ticket-body">
+      <div class="ticket-row"><span>Cliente:</span> <strong id="ticketCliente"></strong></div>
+      <div class="ticket-row"><span>Documento:</span> <strong id="ticketDocumento"></strong></div>
+      <div class="ticket-row"><span>Comprobante:</span> <strong id="ticketComprobante"></strong></div>
+      <div class="ticket-row"><span>Método de Pago:</span> <strong id="ticketMetodoPago"></strong></div>
+      <div class="ticket-row"><span>Entrega:</span> <strong id="ticketEntrega"></strong></div>
+      <div class="ticket-row"><span>Fecha y Hora:</span> <strong id="ticketFecha"></strong></div>
+      <div class="ticket-divider"></div>
+      <div class="ticket-items" id="ticketItems"></div>
+      <div class="ticket-divider"></div>
+      <div class="ticket-row total-ticket"><span>Total Pagado:</span> <strong id="ticketTotal"></strong></div>
+     </div>
+    </div>
+
+    <div class="success-actions">
+     <button class="btn-whatsapp-recibo" onclick="enviarReciboWhatsApp()">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+      </svg>
+      Enviar Comprobante a WhatsApp
+     </button>
+     <button class="btn-ver-mis-pedidos" onclick="cerrarModalExito(); abrirHistorialPedidos();">
+      📦 Ver en Mis Pedidos
+     </button>
+     <button class="btn-seguir-comprando" onclick="cerrarModalExito()">Seguir Comprando</button>
+    </div>
+   </div>
+  </div>
+
+  <!-- ================= MODAL DE HISTORIAL DE PEDIDOS / SEGUIMIENTO ================= -->
+  <div id="ordersModal" class="modal-overlay" style="display:none;">
+   <div class="modal-card orders-modal-card">
+    <button class="modal-close" onclick="cerrarHistorialPedidos()" title="Cerrar">&times;</button>
+    <div class="checkout-header">
+     <h2>📦 Mis Pedidos y Seguimiento</h2>
+     <p>Historial y estado de tus compras en Jeremy Tech</p>
+    </div>
+
+    <div id="ordersListContainer" class="orders-list-container">
+     <!-- Se renderizan dinámicamente -->
+    </div>
+   </div>
+  </div>
+
+  <!-- Toast de Notificaciones -->
+  <div id="cartToast" class="cart-toast">
+   <div class="toast-icon">✓</div>
+   <div class="toast-message" id="toastMessage">Producto agregado al carrito</div>
+  </div>
+
   <script src="productos-data.js"></script>
   <script src="puente-digital.js"></script>
+  <script src="db-modelo.js"></script>
   <script src="script.js"></script>
  </body>
 </html>

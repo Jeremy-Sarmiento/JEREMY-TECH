@@ -1,5 +1,31 @@
+/**
+ * @fileoverview Catálogo Central de Productos - Jeremy Tech
+ * @description Estructura de datos que almacena el inventario de la tienda.
+ * Contiene especificaciones técnicas, precios base en PEN, variantes de color
+ * y rutas a las imágenes de cada dispositivo o accesorio.
+ * @author Jeremy Tech
+ * @version 1.0.0
+ */
+
+/**
+ * @typedef {Object} Producto
+ * @property {string} id - Identificador único de la variante o producto (ej. 'iphone-15-pro-256').
+ * @property {'Celulares'|'Laptops'|'Audifonos'|'Accesorios'|'Smartwatches'|'Tablets'|'Gaming'} categoria - Categoría a la que pertenece el producto.
+ * @property {string} nombre - Nombre comercial del producto.
+ * @property {string} especificaciones - Resumen de especificaciones técnicas clave (CPU, RAM, almacenamiento, etc.).
+ * @property {number} precioPEN - Precio base en Soles Peruanos (PEN).
+ * @property {string[]} colores - Lista de códigos de color hexadecimales disponibles.
+ * @property {string} imagen - Ruta relativa al archivo de imagen representativo.
+ */
+
+/**
+ * Catálogo completo de productos disponibles en Jeremy Tech.
+ * @type {Producto[]}
+ */
 const productos = [
-  // ========== CELULARES ==========
+  // ==========================================
+  // CELULARES
+  // ==========================================
   {
     id: "iphone-15-pro-256",
     categoria: "Celulares",
@@ -55,7 +81,9 @@ const productos = [
     imagen: "assets/Celulares/Xiaomi_14/imagen_2.png",
   },
 
-  // ========== LAPTOPS ==========
+  // ==========================================
+  // LAPTOPS
+  // ==========================================
   {
     id: "macbook-air-m3-256",
     categoria: "Laptops",
@@ -102,7 +130,9 @@ const productos = [
     imagen: "assets/Laptops/HP_Pavilion_15/imagen_2.png",
   },
 
-  // ========== AUDIFONOS ==========
+  // ==========================================
+  // AUDÍFONOS Y AUDIO
+  // ==========================================
   {
     id: "airpods-pro-2-usbc",
     categoria: "Audifonos",
@@ -149,7 +179,9 @@ const productos = [
     imagen: "assets/Audifonos/Bose_QC_Ultra/imagen_1.png",
   },
 
-  // ========== ACCESORIOS ==========
+  // ==========================================
+  // ACCESORIOS Y PERIFÉRICOS
+  // ==========================================
   {
     id: "cargador-magsafe",
     categoria: "Accesorios",
@@ -168,7 +200,7 @@ const productos = [
     colores: ["#1A1A2E", "#4169E1", "#2E8B57"],
     imagen: "assets/Accesorios/Funda_iPhone_15_Pro/imagen_1.png",
   },
-   {
+  {
     id: "logitech-mx-master-3s",
     categoria: "Accesorios",
     nombre: "Logitech MX Master 3S",
@@ -196,7 +228,9 @@ const productos = [
     imagen: "assets/Accesorios/Samsung_Monitor_27/imagen_1.png",
   },
 
-  // ========== SMARTWATCHES ==========
+  // ==========================================
+  // SMARTWATCHES & WEARABLES
+  // ==========================================
   {
     id: "apple-watch-series-9-45",
     categoria: "Smartwatches",
@@ -243,7 +277,9 @@ const productos = [
     imagen: "assets/Smartwatches/Xiaomi_Smart_Band_8/imagen_2.png",
   },
 
-  // ========== TABLETS ==========
+  // ==========================================
+  // TABLETS
+  // ==========================================
   {
     id: "ipad-air-m2",
     categoria: "Tablets",
@@ -263,7 +299,9 @@ const productos = [
     imagen: "assets/Tablets/Samsung_Galaxy_Tab_S9/imagen_1.png",
   },
 
-  // ========== GAMING ==========
+  // ==========================================
+  // GAMING
+  // ==========================================
   {
     id: "dualsense-edge",
     categoria: "Gaming",
@@ -284,6 +322,7 @@ const productos = [
   },
 ];
 
+// Compatibilidad con entornos CommonJS / Node.js (pruebas unitarias o SSR)
 if (typeof module !== "undefined" && module.exports) {
   module.exports = productos;
 }
