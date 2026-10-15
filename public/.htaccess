@@ -1,0 +1,7 @@
+# Front controller (patrón de referencia).
+# Con el servidor embebido de PHP (php -S localhost:8000 -t public)
+# este archivo no se aplica; el routing lo hace public/index.php.
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]

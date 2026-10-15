@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 140" role="img" aria-label="JEREMY TECH">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&amp;display=swap');
+    .logo-svg-text {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      letter-spacing: 7px;
+    }
+  </style>
+  <text class="logo-svg-text" x="10" y="104" font-size="90" fill="#E0E0E0">JEREMY</text>
+  <text class="logo-svg-text" x="440" y="104" font-size="90" fill="#00D4FF">TECH</text>
+</svg>

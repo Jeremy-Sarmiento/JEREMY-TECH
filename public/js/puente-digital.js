@@ -33,6 +33,7 @@ var MONEDAS = {
   ARS: { simbolo: "ARS", nombre: "Peso argentino", flag: "\uD83C\uDDE6\uD83C\uDDF7" },
   CLP: { simbolo: "CLP", nombre: "Peso chileno", flag: "\uD83C\uDDE8\uD83C\uDDF1" },
   COP: { simbolo: "COP", nombre: "Peso colombiano", flag: "\uD83C\uDDE8\uD83C\uDDF4" },
+
 };
 
 /**
@@ -81,7 +82,7 @@ function actualizarPreciosEnTarjetas() {
     if (isNaN(precioPEN)) return;
     var precio = convertirPrecio(precioPEN, monedaActual);
     var simbolo = MONEDAS[monedaActual] ? MONEDAS[monedaActual].simbolo : monedaActual;
-    el.textContent = simbolo + " " + precio.toLocaleString();
+    el.textContent = simbolo + " " + precio.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   });
   if (typeof window.actualizarPreciosEnCarrito === "function") {
     window.actualizarPreciosEnCarrito();
