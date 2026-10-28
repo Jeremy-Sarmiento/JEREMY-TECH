@@ -5,6 +5,8 @@ namespace Controller;
 
 use Model\Carrito;
 use Model\Cuenta;
+use Model\Notificacion;
+use Model\PagoSimulado;
 
 /**
  * Controlador del Carrito (Jeremy Tech MVC).
@@ -38,6 +40,7 @@ class CarritoController
      */
     public function agregar(): void
     {
+        \Security\Proteccion::exigirPost();
         $id = (string) ($_POST['id'] ?? '');
         $cantidad = (int) ($_POST['cantidad'] ?? 1);
         // (Etapa 7) La ficha envía la variante elegida; el catálogo no.
@@ -57,6 +60,7 @@ class CarritoController
      */
     public function eliminar(): void
     {
+        \Security\Proteccion::exigirPost();
         $id = (string) ($_POST['id'] ?? '');
 
         $this->respuestaJson(function () use ($id): array {
@@ -77,6 +81,7 @@ class CarritoController
      */
     public function cambiarCantidad(): void
     {
+        \Security\Proteccion::exigirPost();
         $id = (string) ($_POST['id'] ?? '');
         $cantidad = (int) ($_POST['cantidad'] ?? 1);
 
@@ -98,6 +103,7 @@ class CarritoController
      */
     public function aplicarCupon(): void
     {
+        \Security\Proteccion::exigirPost();
         $codigo = (string) ($_POST['codigo'] ?? '');
 
         $this->respuestaJson(function () use ($codigo): array {
@@ -121,6 +127,7 @@ class CarritoController
      */
     public function procesar(): void
     {
+        \Security\Proteccion::exigirPost();
         if (!Cuenta::estaRegistrado()) {
             $this->respuestaJson(function (): array {
                 return ['ok' => false, 'error' => 'Debes iniciar sesión para completar la compra'];
@@ -128,16 +135,9 @@ class CarritoController
             return;
         }
 
-        $cliente = [
-            'tipo'      => ($_POST['tipo'] ?? '') === 'B2B' ? 'B2B' : 'B2C',
-            'nombre'    => trim((string) ($_POST['nombre'] ?? '')),
-            'empresa'   => trim((string) ($_POST['empresa'] ?? '')),
-            'ruc'       => trim((string) ($_POST['ruc'] ?? '')),
-            'dni'       => trim((string) ($_POST['dni'] ?? '')),
-            'email'     => trim((string) ($_POST['email'] ?? '')),
-            'telefono'  => trim((string) ($_POST['telefono'] ?? '')),
-            'direccion' => trim((string) ($_POST['direccion'] ?? '')),
-        ];
+        // Los datos del paso 1 (contacto) y del paso 2 (SUNAT) son del pedido,
+        // NO del perfil: el checkout no sobrescribe `users`. El perfil se
+        // edita en "Mi perfil" y el registro. Aquí solo se resuelve el destino.
 
         // Destino de entrega (Etapa 5): la zona de la dirección fija el costo.
         $modalidad = (string) ($_POST['modalidad'] ?? 'tienda');
@@ -155,19 +155,48 @@ class CarritoController
         ];
 
         // El JSON del recibo viaja como texto plano para conservar espacios.
-        $this->respuestaJson(function () use ($cliente, $pago): array {
-            if ($cliente['nombre'] === '') {
-                return ['ok' => false, 'error' => 'El nombre es obligatorio'];
+        $this->respuestaJson(function () use ($pago): array {
+            // Pago simulado: valida y decide el estado antes de crear el
+            // pedido. Si la tarjeta/Yape se rechaza, no se descuenta stock ni
+            // se registra una orden que parezca pagada.
+            $resultadoPago = PagoSimulado::procesar((string) $pago['metodo'], $_POST);
+            if (!($resultadoPago['ok'] ?? false)) {
+                return ['ok' => false, 'error' => $resultadoPago['error'] ?? 'No se pudo procesar el pago.'];
             }
+
+            $pago['metodo']         = (string) ($resultadoPago['metodo'] ?? $pago['metodo']);
+            $pago['estado_pedido']  = (string) ($resultadoPago['estado_pedido'] ?? 'Pendiente');
+            $pago['estado_pago']    = (string) ($resultadoPago['estado_pago'] ?? 'Pendiente');
+            $pago['transaccion_id'] = (string) ($resultadoPago['transaccion_id'] ?? '');
+
             try {
-                $pedidoId = Carrito::checkout($cliente, $pago);
+                $pedidoId = Carrito::checkout($pago);
             } catch (\Throwable $e) {
                 return ['ok' => false, 'error' => 'Error al registrar el pedido: ' . $e->getMessage()];
             }
             if ($pedidoId === null) {
                 return ['ok' => false, 'error' => 'El carrito está vacío'];
             }
-            return ['ok' => true, 'pedidoId' => $pedidoId];
+
+            // Correo simulado de pago confirmado: solo para tarjeta/Yape
+            // aprobados en el checkout. Transferencia y contraentrega esperan
+            // a que el administrador confirme el pago.
+            if ((string) $pago['estado_pago'] === 'Pagado') {
+                try {
+                    Notificacion::pagoConfirmado($pedidoId);
+                } catch (\Throwable $e) {
+                    error_log('No se pudo registrar el correo de pago del pedido #' . $pedidoId . ': ' . $e->getMessage());
+                }
+            }
+
+            return [
+                'ok'           => true,
+                'pedidoId'     => $pedidoId,
+                'estadoPedido' => $pago['estado_pedido'],
+                'estadoPago'   => $pago['estado_pago'],
+                'transaccionId' => $pago['transaccion_id'],
+                'mensaje'      => (string) ($resultadoPago['mensaje'] ?? ''),
+            ];
         });
     }
 

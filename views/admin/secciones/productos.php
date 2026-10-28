@@ -66,6 +66,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 
     <dialog class="admin-modal" id="modalForm"<?= $editando ? ' data-modal-auto="1"' : '' ?>>
         <form method="post" action="?ruta=admin/productos/guardar" class="admin-formulario">
+            <?= \Security\Proteccion::campo() ?>
             <div class="admin-modal-cabecera">
                 <h3><?= $editando ? 'Editar producto' : 'Nuevo producto' ?></h3>
                 <button type="button" class="admin-modal-cerrar" data-modal-cerrar aria-label="Cerrar">&times;</button>
@@ -201,7 +202,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
                         </td>
                         <td class="admin-acciones">
                             <a class="btn-mini" href="?ruta=admin/productos&editar=<?= urlencode((string) $p['slug']) ?>">Editar</a>
-                            <a class="btn-mini" href="?ruta=admin/productos/estado&id=<?= urlencode((string) $p['slug']) ?>"><?= (int) $p['activo'] ? 'Ocultar' : 'Mostrar' ?></a>
+                            <?= \Security\Proteccion::botonPost('admin/productos/estado', ['id' => (string) $p['slug']], (int) $p['activo'] ? 'Ocultar' : 'Mostrar') ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>

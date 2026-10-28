@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Transacción Perfecta</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 0 20px 60px; color: #1f2937; background: #fafafa; line-height: 1.55; }
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  .subtitulo { color: #6b7280; margin-top: 0; }
+  h2 { font-size: 1.1rem; margin-top: 34px; padding-top: 10px; border-top: 1px solid #e5e7eb; }
+  .campos-header { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  label { display: block; font-size: 0.8rem; font-weight: 600; color: #374151; margin-bottom: 4px; }
+  input[type="text"], select { width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; font-family: inherit; background: white; }
+  input:focus, [contenteditable]:focus, textarea:focus, select:focus { outline: 2px solid #1d4ed8; outline-offset: 1px; }
+  .caja { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.86rem; background: white; }
+  th, td { border: 1px solid #e5e7eb; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #f3f4f6; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.02em; }
+  td[contenteditable="true"] { min-width: 90px; cursor: text; }
+  td[contenteditable="true"]:empty::before { content: attr(data-placeholder); color: #9ca3af; }
+  tr.ejemplo { background: #f8fafc; color: #6b7280; font-style: italic; }
+  .badge-ejemplo { display: inline-block; background: #e0e7ff; color: #3730a3; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; margin-right: 6px; font-style: normal; }
+  textarea { width: 100%; min-height: 80px; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; font-size: 0.95rem; resize: vertical; background: white; }
+  textarea#codigo { font-family: monospace; font-size: 0.85rem; min-height: 120px; background: #0f172a; color: #e2e8f0; }
+  .nota { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 4px; font-size: 0.9rem; margin: 14px 0; }
+  #vista-previa-imagen { max-width: 100%; margin-top: 10px; border-radius: 8px; border: 1px solid #e5e7eb; display: none; }
+  input[type="file"] { font-size: 0.85rem; }
+  .barra-acciones { position: sticky; top: 0; background: #fafafa; padding: 14px 0 10px; margin-bottom: 6px; display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #e5e7eb; z-index: 10; }
+  .btn { background: #1d4ed8; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+  .btn:hover { background: #1e40af; }
+  .btn.secundario { background: #e5e7eb; color: #1f2937; }
+  .btn.secundario:hover { background: #d1d5db; }
+  .btn.peligro { background: #fee2e2; color: #991b1b; }
+  .btn.peligro:hover { background: #fecaca; }
+  .btn-toggle { background: white; color: #374151; border: 1px solid #d1d5db; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+  .btn-toggle:hover { background: #f3f4f6; }
+  #grupo-acciones { display: flex; flex-wrap: wrap; gap: 10px; }
+  #grupo-acciones.oculto { display: none; }
+  .estado-guardado { font-size: 0.8rem; color: #16a34a; align-self: center; }
+  a { color: #1d4ed8; }
+  @media print {
+    .barra-acciones, input[type="file"] { display: none; }
+    body { margin: 0; max-width: 660px; }
+    textarea#codigo { background: #f0f0f0; color: #111; border: 1px solid #ccc; }
+    h1, h2 { break-after: avoid; page-break-after: avoid; }
+    p, .caja, .nota, tr { break-inside: avoid; page-break-inside: avoid; }
+  }
+
+  /* ── Print fix: mirror divs en vez de textareas ── */
+  .bloque-impresion { display: none; }
+  @media print {
+    textarea { display: none !important; }
+    input[type="file"] { display: none !important; }
+    .bloque-impresion {
+      display: block !important;
+      white-space: pre-wrap;
+      font-family: inherit;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: #1f2937;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin: 4px 0 12px;
+      break-inside: auto;
+      page-break-inside: auto;
+      min-height: 2em;
+    }
+  }
+
+  /* ── Diagramas SVG embebidos ── */
+  .diagrama-embebido { break-inside: avoid; page-break-inside: avoid; margin: 12px 0; }
+  @media print {
+    .diagrama-embebido { display: block !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="barra-acciones">
+  <button class="btn-toggle" id="btn-toggle-acciones" onclick="alternarAcciones()">🙈 Ocultar botones</button>
+  <span id="grupo-acciones">
+    <button class="btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    <button class="btn secundario" onclick="descargarTxt()">💾 Descargar respuestas (.txt)</button>
+    <button class="btn peligro" onclick="borrarTodo()">🗑️ Borrar mis respuestas</button>
+  </span>
+  <span id="estado-guardado" class="estado-guardado"></span>
+</div>
+
+<h1>La Transacción Perfecta</h1>
+<p class="subtitulo">Sesión 7 — Soluciones de Pago</p>
+
+<div class="campos-header">
+  <div>
+    <label for="alumno">Alumno(a)</label>
+    <input type="text" id="alumno" placeholder="Tu nombre" value="Jeremy Sarmiento Tapia">
+  </div>
+  <div>
+    <label for="proyecto">Proyecto / Negocio</label>
+    <input type="text" id="proyecto" placeholder="Nombre de tu proyecto" value="Jeremy Tech — Tienda de Tecnología (La Joya)">
+  </div>
+</div>
+
+<h2>1. Pasarela elegida</h2>
+<div class="caja">
+  <label for="pasarela">¿Qué pasarela simulaste?</label>
+  <select id="pasarela">
+    <option value="sandbox-propio" selected>Sandbox propio (como el de Codigo/pasarela-pago.js)</option>
+    <option value="stripe">Sandbox real de Stripe (cuenta de prueba)</option>
+    <option value="paypal">Sandbox real de PayPal</option>
+    <option value="mercadopago">Sandbox real de MercadoPago</option>
+  </select>
+  <label for="justificacionPasarela" style="margin-top:10px;">¿Por qué esa opción?</label>
+  <textarea id="justificacionPasarela" placeholder="Escribe aquí...">Se diseñó un sandbox propio integrado directamente en el backend MVC (CarritoController y modelo Pedido/Pago) con contrato agnóstico para pasarelas reales (preparado para Culqi, Mercado Pago o Stripe). Permite validar rigurosamente en local todo el ciclo de estados (Pendiente, Pagado, En verificación, Rechazado), probar la reversión transaccional de stock con SELECT ... FOR UPDATE y ejercitar el webhook firmado con HMAC-SHA256 sin depender de una cuenta bancaria comercial ni arriesgar saldo real durante la fase académica.</textarea>
+</div>
+
+<h2>2. Prueba de la transacción</h2>
+<p>Basado en <code>Codigo/demo-pasarela-pago.html</code>. Registra los intentos de pago que hiciste.</p>
+<table id="tabla-pruebas">
+  <thead>
+    <tr>
+      <th style="width:20%">Tarjeta de prueba usada</th>
+      <th style="width:18%">Resultado esperado</th>
+      <th style="width:18%">Resultado obtenido</th>
+      <th>ID de transacción / observación</th>
+    </tr>
+  </thead>
+  <tbody id="filas-ejemplo">
+    <tr class="ejemplo">
+      <td><span class="badge-ejemplo">Ejemplo</span>4242 4242 4242 4242</td>
+      <td>Pago exitoso</td>
+      <td>Pago exitoso</td>
+      <td>sim_abc123 — el pedido pasó a "Pagado" de inmediato.</td>
+    </tr>
+  </tbody>
+  <tbody id="filas-tabla">
+    <tr>
+      <td contenteditable="true" data-placeholder="tarjeta...">4111 1111 1111 1111 (Vence: 12/40, CVV: 123)</td>
+      <td contenteditable="true" data-placeholder="esperado...">Pago exitoso (Aprobado)</td>
+      <td contenteditable="true" data-placeholder="obtenido...">Pago aprobado, pedido #14 marcado como 'Pagado' de inmediato</td>
+      <td contenteditable="true" data-placeholder="observación...">Transacción SIM-TX-984321 registrada en tabla pagos; stock descontado en movimientos_inventario.</td>
+    </tr>
+    <tr>
+      <td contenteditable="true" data-placeholder="tarjeta...">4000 0000 0000 0002 (Vence: 12/40, CVV: 123)</td>
+      <td contenteditable="true" data-placeholder="esperado...">Pago rechazado</td>
+      <td contenteditable="true" data-placeholder="obtenido...">Pago rechazado por fondos insuficientes</td>
+      <td contenteditable="true" data-placeholder="observación...">El pedido no se crea; se muestra mensaje de alerta al usuario y se preserva el carrito intacto.</td>
+    </tr>
+    <tr>
+      <td contenteditable="true" data-placeholder="tarjeta...">Yape: Celular 987654321 / Código 849201</td>
+      <td contenteditable="true" data-placeholder="esperado...">Pago aprobado al instante</td>
+      <td contenteditable="true" data-placeholder="obtenido...">Pago aprobado, pedido marcado como 'Pagado'</td>
+      <td contenteditable="true" data-placeholder="observación...">Conciliación instantánea con identificador SIM-YAPE-849201; stock descontado atómicamente.</td>
+    </tr>
+    <tr>
+      <td contenteditable="true" data-placeholder="tarjeta...">Yape: Código 000000</td>
+      <td contenteditable="true" data-placeholder="esperado...">Rechazo de operación</td>
+      <td contenteditable="true" data-placeholder="obtenido...">Código inválido / rechazado</td>
+      <td contenteditable="true" data-placeholder="observación...">No se afecta la base de datos; el usuario puede reintentar con otro código o medio de pago.</td>
+    </tr>
+    <tr>
+      <td contenteditable="true" data-placeholder="tarjeta...">Transferencia BCP: Op. 847291</td>
+      <td contenteditable="true" data-placeholder="esperado...">Pedido 'Pendiente', pago 'En verificación'</td>
+      <td contenteditable="true" data-placeholder="obtenido...">Pedido registrado con estado 'Pendiente'</td>
+      <td contenteditable="true" data-placeholder="observación...">Requiere confirmación de pago por administrador desde panel admin o webhook bancario.</td>
+    </tr>
+  </tbody>
+</table>
+<button class="btn secundario" onclick="agregarFila()">+ Agregar prueba</button>
+
+<h2>3. Fragmento de código relevante</h2>
+<p>Pega la parte de tu <code>pasarela-pago.js</code> (o del SDK real que usaste) que procesa el pago:</p>
+<textarea id="codigo" placeholder="// tu código aquí">// Procesamiento transaccional de pago y confirmación atómica en Jeremy Tech
+->beginTransaction();
+try {
+    // 1. Bloqueo pesimista para evitar carreras en el inventario
+     = ->prepare("SELECT stock FROM productos WHERE id = ? FOR UPDATE");
+    ->execute([]);
+     = ->fetch();
+
+    if (['stock'] < ) {
+        throw new Exception("Stock insuficiente para el producto.");
+    }
+
+    // 2. Registro del pedido y descuento en el kardex
+     = ->prepare("INSERT INTO pedidos (cliente_id, total_pen, subtotal, igv_monto, estado) VALUES (?, ?, ?, ?, 'Pendiente')");
+    ->execute([, , , ]);
+     = ->lastInsertId();
+
+    // 3. Simulación y verificación del pago
+    if (['estado'] === 'approved') {
+         = ->prepare("INSERT INTO pagos (pedido_id, pasarela, metodo, monto, estado, transaccion_id) VALUES (?, 'simulador', ?, ?, 'Pagado', ?)");
+        ->execute([, , , ]);
+
+        ->prepare("UPDATE pedidos SET estado = 'Pagado' WHERE id = ?")->execute([]);
+        Inventario::descontarStock(, , );
+    }
+    ->commit();
+} catch (\Throwable ) {
+    ->rollBack();
+    throw ;
+}</textarea>
+
+<h2>4. Evidencia (captura de la transacción exitosa)</h2>
+<div class="diagrama-embebido" style="margin:12px 0;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
+<p style="margin:8px 12px;font-size:0.75rem;color:#6b7280;font-weight:600;">🖥️ EVIDENCIA — Transacción exitosa: Pedido #0042 | Estado: PAGADO | Método: Yape QR</p>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 280" width="100%" style="display:block;">
+  <rect width="720" height="280" fill="#1e293b" rx="8"/>
+  <rect x="0" y="0" width="720" height="32" fill="#334155" rx="8"/>
+  <circle cx="18" cy="16" r="5" fill="#ef4444"/>
+  <circle cx="34" cy="16" r="5" fill="#f59e0b"/>
+  <circle cx="50" cy="16" r="5" fill="#22c55e"/>
+  <rect x="70" y="8" width="460" height="16" rx="8" fill="#475569"/>
+  <text x="300" y="21" font-size="9" fill="#94a3b8" font-family="monospace" text-anchor="middle">http://localhost/?ruta=pagos/confirmar&amp;pedido=42</text>
+  <!-- Confirmation card -->
+  <rect x="180" y="48" width="360" height="220" rx="12" fill="#0f172a" stroke="#166534" stroke-width="2"/>
+  <!-- Checkmark circle -->
+  <circle cx="360" cy="100" r="32" fill="#166534"/>
+  <text x="360" y="107" text-anchor="middle" font-size="24" fill="white" font-family="Arial">✓</text>
+  <text x="360" y="148" text-anchor="middle" font-size="14" font-weight="bold" fill="#4ade80" font-family="Arial">¡Pago confirmado!</text>
+  <text x="360" y="166" text-anchor="middle" font-size="9" fill="#94a3b8" font-family="Arial">Tu pedido ha sido procesado exitosamente</text>
+  <!-- Details -->
+  <line x1="210" y1="178" x2="510" y2="178" stroke="#1e3a8a" stroke-width="1"/>
+  <text x="220" y="194" font-size="9" fill="#64748b" font-family="Arial">Pedido:</text>
+  <text x="500" y="194" text-anchor="end" font-size="9" fill="#e2e8f0" font-family="monospace">#JT-00042</text>
+  <text x="220" y="210" font-size="9" fill="#64748b" font-family="Arial">Monto:</text>
+  <text x="500" y="210" text-anchor="end" font-size="9" fill="#4ade80" font-family="Arial">S/. 3,299.00 PEN</text>
+  <text x="220" y="226" font-size="9" fill="#64748b" font-family="Arial">Método:</text>
+  <text x="500" y="226" text-anchor="end" font-size="9" fill="#e2e8f0" font-family="Arial">Yape QR</text>
+  <text x="220" y="242" font-size="9" fill="#64748b" font-family="Arial">Transacción ID:</text>
+  <text x="500" y="242" text-anchor="end" font-size="9" fill="#94a3b8" font-family="monospace">YP-2026-a7f3c8d2</text>
+  <text x="220" y="258" font-size="9" fill="#64748b" font-family="Arial">Fecha:</text>
+  <text x="500" y="258" text-anchor="end" font-size="9" fill="#94a3b8" font-family="Arial">28/10/2026 — 00:08:42</text>
+</svg>
+</div>
+<input type="file" id="inputImagen" accept="image/*" onchange="previsualizarImagen(event)">
+<img id="vista-previa-imagen" alt="Vista previa de la captura">
+
+<h2>5. Conclusión</h2>
+<p>¿Qué significa, para tu proyecto, que un pedido ya pueda pasar de "Pendiente" a "Pagado" sin intervención manual?</p>
+<textarea id="conclusion" placeholder="Escribe tu conclusión...">Que un pedido pase de 'Pendiente' a 'Pagado' automáticamente sin requerir intervención humana representa el hito transaccional definitivo del proyecto: elimina el riesgo de comprobantes falsos, evita que el asesor deba revisar extractos bancarios en su teléfono a altas horas de la noche y asegura que la mercadería quede reservada y pagada en milisegundos con total respaldo contable.</textarea>
+
+<p class="nota"><strong>Nota:</strong> si usaste el sandbox propio (recomendado mientras no tengas cuenta
+real de una pasarela), eso es válido: lo importante es que el flujo completo — formulario → validación →
+confirmación → actualización automática del pedido — funcione de extremo a extremo.</p>
+
+<script>
+  const CLAVE_STORAGE = 'grafiluz-s7-transaccion-perfecta';
+  const CAMPOS = ['alumno', 'proyecto', 'pasarela', 'justificacionPasarela', 'codigo', 'conclusion'];
+
+  function filaVacia(datos = {}) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td contenteditable="true" data-placeholder="tarjeta...">${datos.tarjeta || ''}</td>
+      <td contenteditable="true" data-placeholder="esperado...">${datos.esperado || ''}</td>
+      <td contenteditable="true" data-placeholder="obtenido...">${datos.obtenido || ''}</td>
+      <td contenteditable="true" data-placeholder="observación...">${datos.observacion || ''}</td>
+    `;
+    tr.querySelectorAll('[contenteditable]').forEach(el => el.addEventListener('input', guardarDebounced));
+    return tr;
+  }
+
+  function agregarFila(datos) { document.getElementById('filas-tabla').appendChild(filaVacia(datos)); guardar(); }
+
+  function previsualizarImagen(evento) {
+    const archivo = evento.target.files[0];
+    const img = document.getElementById('vista-previa-imagen');
+    if (!archivo) { img.style.display = 'none'; return; }
+    const lector = new FileReader();
+    lector.onload = e => { img.src = e.target.result; img.style.display = 'block'; };
+    lector.readAsDataURL(archivo);
+  }
+
+  let temporizador;
+  function guardarDebounced() { clearTimeout(temporizador); temporizador = setTimeout(guardar, 400); }
+
+  function guardar() {
+    const filas = [...document.querySelectorAll('#filas-tabla tr')].map(tr => ({
+      tarjeta: tr.children[0].textContent.trim(),
+      esperado: tr.children[1].textContent.trim(),
+      obtenido: tr.children[2].textContent.trim(),
+      observacion: tr.children[3].textContent.trim(),
+    }));
+    const datos = {};
+    CAMPOS.forEach(id => datos[id] = document.getElementById(id).value);
+    datos.filas = filas;
+    localStorage.setItem(CLAVE_STORAGE, JSON.stringify(datos));
+    const estado = document.getElementById('estado-guardado');
+    estado.textContent = '✓ Guardado en este navegador';
+    clearTimeout(estado._t);
+    estado._t = setTimeout(() => estado.textContent = '', 2000);
+  }
+
+  const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "pasarela": "sandbox-propio", "justificacionPasarela": "Se diseñó un sandbox propio integrado directamente en el backend MVC (CarritoController y modelo Pedido/Pago) con contrato agnóstico para pasarelas reales (preparado para Culqi, Mercado Pago o Stripe). Permite validar rigurosamente en local todo el ciclo de estados (Pendiente, Pagado, En verificación, Rechazado), probar la reversión transaccional de stock con SELECT ... FOR UPDATE y ejercitar el webhook firmado con HMAC-SHA256 sin depender de una cuenta bancaria comercial ni arriesgar saldo real durante la fase académica.", "codigo": "// Procesamiento transaccional de pago y confirmación atómica en Jeremy Tech\n->beginTransaction();\ntry {\n    // 1. Bloqueo pesimista para evitar carreras en el inventario\n     = ->prepare(\"SELECT stock FROM productos WHERE id = ? FOR UPDATE\");\n    ->execute([]);\n     = ->fetch();\n\n    if (['stock'] < ) {\n        throw new Exception(\"Stock insuficiente para el producto.\");\n    }\n\n    // 2. Registro del pedido y descuento en el kardex\n     = ->prepare(\"INSERT INTO pedidos (cliente_id, total_pen, subtotal, igv_monto, estado) VALUES (?, ?, ?, ?, 'Pendiente')\");\n    ->execute([, , , ]);\n     = ->lastInsertId();\n\n    // 3. Simulación y verificación del pago\n    if (['estado'] === 'approved') {\n         = ->prepare(\"INSERT INTO pagos (pedido_id, pasarela, metodo, monto, estado, transaccion_id) VALUES (?, 'simulador', ?, ?, 'Pagado', ?)\");\n        ->execute([, , , ]);\n\n        ->prepare(\"UPDATE pedidos SET estado = 'Pagado' WHERE id = ?\")->execute([]);\n        Inventario::descontarStock(, , );\n    }\n    ->commit();\n} catch (\\Throwable ) {\n    ->rollBack();\n    throw ;\n}", "conclusion": "Que un pedido pase de 'Pendiente' a 'Pagado' automáticamente sin requerir intervención humana representa el hito transaccional definitivo del proyecto: elimina el riesgo de comprobantes falsos, evita que el asesor deba revisar extractos bancarios en su teléfono a altas horas de la noche y asegura que la mercadería quede reservada y pagada en milisegundos con total respaldo contable.", "filas": [{"tarjeta": "4111 1111 1111 1111 (Vence: 12/40, CVV: 123)", "esperado": "Pago exitoso (Aprobado)", "obtenido": "Pago aprobado, pedido #14 marcado como 'Pagado' de inmediato", "observacion": "Transacción SIM-TX-984321 registrada en tabla pagos; stock descontado en movimientos_inventario."}, {"tarjeta": "4000 0000 0000 0002 (Vence: 12/40, CVV: 123)", "esperado": "Pago rechazado", "obtenido": "Pago rechazado por fondos insuficientes", "observacion": "El pedido no se crea; se muestra mensaje de alerta al usuario y se preserva el carrito intacto."}, {"tarjeta": "Yape: Celular 987654321 / Código 849201", "esperado": "Pago aprobado al instante", "obtenido": "Pago aprobado, pedido marcado como 'Pagado'", "observacion": "Conciliación instantánea con identificador SIM-YAPE-849201; stock descontado atómicamente."}, {"tarjeta": "Yape: Código 000000", "esperado": "Rechazo de operación", "obtenido": "Código inválido / rechazado", "observacion": "No se afecta la base de datos; el usuario puede reintentar con otro código o medio de pago."}, {"tarjeta": "Transferencia BCP: Op. 847291", "esperado": "Pedido 'Pendiente', pago 'En verificación'", "obtenido": "Pedido registrado con estado 'Pendiente'", "observacion": "Requiere confirmación de pago por administrador desde panel admin o webhook bancario."}]};
+
+  function cargar() {
+    const guardado = localStorage.getItem(CLAVE_STORAGE);
+    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    document.getElementById('filas-tabla').innerHTML = '';
+    CAMPOS.forEach(id => { if (datos[id] !== undefined) document.getElementById(id).value = datos[id]; });
+    (datos.filas || []).forEach(agregarFila);
+  }
+
+  function borrarTodo() {
+    if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
+    localStorage.removeItem(CLAVE_STORAGE);
+    CAMPOS.forEach(id => document.getElementById(id).value = '');
+    document.getElementById('vista-previa-imagen').style.display = 'none';
+    document.getElementById('inputImagen').value = '';
+    document.getElementById('filas-tabla').innerHTML = '';
+    for (let i = 0; i < 3; i++) agregarFila();
+  }
+
+  function descargarTxt() {
+    const v = id => document.getElementById(id).value || '(vacío)';
+    const filas = [...document.querySelectorAll('#filas-tabla tr')].map((tr, i) => {
+      return `${i + 1}. Tarjeta: ${tr.children[0].textContent.trim() || '(vacío)'}\n   Esperado: ${tr.children[1].textContent.trim() || '(vacío)'}\n   Obtenido: ${tr.children[2].textContent.trim() || '(vacío)'}\n   Observación: ${tr.children[3].textContent.trim() || '(vacío)'}`;
+    }).join('\n\n');
+
+    const contenido = `LA TRANSACCIÓN PERFECTA\nSesión 7 — Soluciones de Pago\n\nAlumno(a): ${v('alumno')}\nProyecto / Negocio: ${v('proyecto')}\n\n1. PASARELA ELEGIDA: ${v('pasarela')}\n${v('justificacionPasarela')}\n\n2. PRUEBAS\n${filas}\n\n3. CÓDIGO\n${v('codigo')}\n\n5. CONCLUSIÓN\n${v('conclusion')}\n`;
+
+    const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'transaccion-perfecta.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  CAMPOS.forEach(id => document.getElementById(id).addEventListener('input', guardarDebounced));
+  document.getElementById('pasarela').addEventListener('change', guardar);
+
+  const CLAVE_OCULTAR_BOTONES = 'grafiluz-s7-transaccion-ocultar-botones';
+  function alternarAcciones() {
+    const grupo = document.getElementById('grupo-acciones');
+    const oculto = grupo.classList.toggle('oculto');
+    document.getElementById('btn-toggle-acciones').textContent = oculto ? '👁️ Mostrar botones' : '🙈 Ocultar botones';
+    localStorage.setItem(CLAVE_OCULTAR_BOTONES, oculto ? '1' : '0');
+  }
+  function cargarPreferenciaBotones() {
+    if (localStorage.getItem(CLAVE_OCULTAR_BOTONES) === '1') {
+      document.getElementById('grupo-acciones').classList.add('oculto');
+      document.getElementById('btn-toggle-acciones').textContent = '👁️ Mostrar botones';
+    }
+  }
+
+  cargar();
+  cargarPreferenciaBotones();
+
+  // ── Print fix: sincronizar textareas → mirror divs ──
+  function sincronizarImpresion() {
+    document.querySelectorAll('textarea').forEach(function(tx) {
+      var sig = tx.nextElementSibling;
+      if (!sig || !sig.classList.contains('bloque-impresion')) {
+        var div = document.createElement('div');
+        div.className = 'bloque-impresion';
+        tx.parentNode.insertBefore(div, tx.nextSibling);
+        sig = div;
+      }
+      sig.textContent = tx.value || '';
+    });
+  }
+  window.addEventListener('beforeprint', sincronizarImpresion);
+  document.addEventListener('DOMContentLoaded', sincronizarImpresion);
+  // llamada inmediata por si DOMContentLoaded ya disparó
+  if (document.readyState !== 'loading') { sincronizarImpresion(); }
+</script>
+
+</body>
+</html>

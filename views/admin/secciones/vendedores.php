@@ -51,6 +51,7 @@ $totalSaldo = round($totalGanancias - $totalLiquidado, 2);
             <h2 class="admin-titulo">Vendedores</h2>
             <p class="admin-nota">
                 Fichas comerciales del marketplace: comisión, verificación y saldo por liquidar.
+                Incluye a los vendedores y a los clientes con tipo <strong>C2C</strong>.
                 El alta y el rol se asignan en <a href="?ruta=admin/usuarios">Usuarios</a>.
             </p>
         </div>
@@ -77,6 +78,7 @@ $totalSaldo = round($totalGanancias - $totalLiquidado, 2);
     <!-- Ficha comercial -->
     <dialog class="admin-modal" id="modalFicha"<?= $editando ? ' data-modal-auto="1"' : '' ?>>
         <form method="post" action="?ruta=admin/vendedores/guardar" class="admin-formulario">
+            <?= \Security\Proteccion::campo() ?>
             <div class="admin-modal-cabecera">
                 <h3>Ficha del vendedor</h3>
                 <button type="button" class="admin-modal-cerrar" data-modal-cerrar aria-label="Cerrar">&times;</button>
@@ -96,7 +98,7 @@ $totalSaldo = round($totalGanancias - $totalLiquidado, 2);
                 </label>
                 <label class="admin-check">
                     <input type="checkbox" name="activo" value="1" <?= (int) ($editando['activo'] ?? 0) === 1 ? 'checked' : '' ?>>
-                    Activo (puede entrar al panel y vender)
+                    Activo (puede entrar y vender)
                 </label>
                 <p class="admin-nota">Deja la comisión como está para conservarla; el reparto se calcula sobre la base sin IGV.</p>
             </div>
@@ -110,6 +112,7 @@ $totalSaldo = round($totalGanancias - $totalLiquidado, 2);
     <!-- Liquidación al saldo pendiente -->
     <dialog class="admin-modal" id="modalLiquidar"<?= $liquidando ? ' data-modal-auto="1"' : '' ?>>
         <form method="post" action="?ruta=admin/vendedores/liquidar" class="admin-formulario">
+            <?= \Security\Proteccion::campo() ?>
             <div class="admin-modal-cabecera">
                 <h3>Registrar liquidación</h3>
                 <button type="button" class="admin-modal-cerrar" data-modal-cerrar aria-label="Cerrar">&times;</button>
@@ -157,8 +160,14 @@ $totalSaldo = round($totalGanancias - $totalLiquidado, 2);
                     $saldo = round((float) $v['ganancias'] - (float) $v['liquidado'], 2); ?>
                     <tr>
                         <td>
-                            <strong><?= $e($v['name']) ?> <?= $e($v['apellidos']) ?></strong><br>
-                            <small class="admin-secundario">@<?= $e($v['usuario']) ?> · <?= $e($v['email']) ?></small>
+                            <strong><?= $e($v['name']) ?> <?= $e($v['apellidos']) ?></strong>
+                            <?php if ((string) ($v['tipo'] ?? '') === 'C2C'): ?>
+                                <span class="etiqueta etiqueta-info">C2C</span>
+                            <?php endif; ?>
+                            <br>
+                            <small class="admin-secundario">
+                                <?php if (($v['usuario'] ?? '') !== null && $v['usuario'] !== ''): ?>@<?= $e($v['usuario']) ?> · <?php endif; ?><?= $e($v['email']) ?>
+                            </small>
                         </td>
                         <td><?= $v['comision_porcentaje'] !== null ? $e($v['comision_porcentaje']) . ' %' : '<span class="admin-secundario">global</span>' ?></td>
                         <td><?= (int) $v['productos'] ?></td>
@@ -185,8 +194,9 @@ $totalSaldo = round($totalGanancias - $totalLiquidado, 2);
                 <?php endforeach; ?>
                 <?php if (!$vendedores): ?>
                     <tr><td colspan="10" class="admin-vacio">
-                        Aún no hay vendedores. Asigna el rol <code>vendedor</code> a un usuario en
-                        <a href="?ruta=admin/usuarios">Usuarios</a> para empezar.
+                        Aún no hay vendedores. Asigna el rol <code>vendedor</code> o el tipo
+                        <code>C2C</code> a un usuario en <a href="?ruta=admin/usuarios">Usuarios</a>
+                        para empezar.
                     </td></tr>
                 <?php endif; ?>
                 </tbody>

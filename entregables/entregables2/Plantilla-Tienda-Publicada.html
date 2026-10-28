@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Tienda Virtual Creada y Publicada</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 850px; margin: 0 auto; padding: 0 20px 60px; color: #1f2937; background: #fafafa; line-height: 1.55; }
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  .subtitulo { color: #6b7280; margin-top: 0; }
+  h2 { font-size: 1.1rem; margin-top: 34px; padding-top: 10px; border-top: 1px solid #e5e7eb; }
+  .campos-header { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  label { display: block; font-size: 0.8rem; font-weight: 600; color: #374151; margin-bottom: 4px; }
+  input[type="text"], select { width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; font-family: inherit; background: white; }
+  input:focus, textarea:focus, select:focus { outline: 2px solid #1d4ed8; outline-offset: 1px; }
+  .caja { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .item-check { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; }
+  .item-check input { margin-top: 3px; }
+  textarea { width: 100%; min-height: 80px; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; font-size: 0.95rem; resize: vertical; background: white; }
+  .nota { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 4px; font-size: 0.9rem; margin: 14px 0; }
+  #vista-previa-imagen { max-width: 100%; margin-top: 10px; border-radius: 8px; border: 1px solid #e5e7eb; display: none; }
+  input[type="file"] { font-size: 0.85rem; }
+  .barra-acciones { position: sticky; top: 0; background: #fafafa; padding: 14px 0 10px; margin-bottom: 6px; display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #e5e7eb; z-index: 10; }
+  .btn { background: #1d4ed8; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+  .btn:hover { background: #1e40af; }
+  .btn.secundario { background: #e5e7eb; color: #1f2937; }
+  .btn.peligro { background: #fee2e2; color: #991b1b; }
+  .btn-toggle { background: white; color: #374151; border: 1px solid #d1d5db; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+  #grupo-acciones { display: flex; flex-wrap: wrap; gap: 10px; }
+  #grupo-acciones.oculto { display: none; }
+  .estado-guardado { font-size: 0.8rem; color: #16a34a; align-self: center; }
+  a { color: #1d4ed8; }
+  @media print {
+    .barra-acciones, input[type="file"] { display: none; }
+    body { margin: 0; max-width: 660px; }
+    h1, h2 { break-after: avoid; page-break-after: avoid; }
+    p, .caja, .nota { break-inside: avoid; page-break-inside: avoid; }
+  }
+
+  /* ── Print fix: mirror divs en vez de textareas ── */
+  .bloque-impresion { display: none; }
+  @media print {
+    textarea { display: none !important; }
+    input[type="file"] { display: none !important; }
+    .bloque-impresion {
+      display: block !important;
+      white-space: pre-wrap;
+      font-family: inherit;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: #1f2937;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin: 4px 0 12px;
+      break-inside: auto;
+      page-break-inside: auto;
+      min-height: 2em;
+    }
+  }
+
+  /* ── Diagramas SVG embebidos ── */
+  .diagrama-embebido { break-inside: avoid; page-break-inside: avoid; margin: 12px 0; }
+  @media print {
+    .diagrama-embebido { display: block !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="barra-acciones">
+  <button class="btn-toggle" id="btn-toggle-acciones" onclick="alternarAcciones()">🙈 Ocultar botones</button>
+  <span id="grupo-acciones">
+    <button class="btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    <button class="btn secundario" onclick="descargarTxt()">💾 Descargar respuestas (.txt)</button>
+    <button class="btn peligro" onclick="borrarTodo()">🗑️ Borrar mis respuestas</button>
+  </span>
+  <span id="estado-guardado" class="estado-guardado"></span>
+</div>
+
+<h1>La Tienda Virtual Creada y Publicada</h1>
+<p class="subtitulo">Sesión 8 — Hito Final del curso</p>
+
+<div class="campos-header">
+  <div>
+    <label for="alumno">Alumno(a)</label>
+    <input type="text" id="alumno" placeholder="Tu nombre" value="Jeremy Sarmiento Tapia">
+  </div>
+  <div>
+    <label for="proyecto">Proyecto / Negocio</label>
+    <input type="text" id="proyecto" placeholder="Nombre de tu proyecto" value="Jeremy Tech — Tienda de Tecnología (La Joya)">
+  </div>
+</div>
+
+<h2>1. Hosting elegido</h2>
+<div class="caja">
+  <label for="hosting">¿Dónde publicaste tu sitio?</label>
+  <select id="hosting">
+    <option value="github-pages">GitHub Pages</option>
+    <option value="netlify">Netlify</option>
+    <option value="vercel">Vercel</option>
+    <option value="otro" selected>Otro</option>
+  </select>
+  <label for="url" style="margin-top:10px;">URL pública de tu sitio ya publicado</label>
+  <input type="text" id="url" placeholder="https://tu-usuario.github.io/tu-proyecto/" value="https://jeremytech.pe/ (y entorno local http://127.0.0.1:8000/)">
+</div>
+
+<h2>2. Checklist de publicación</h2>
+<div class="caja" id="checklist">
+  <label class="item-check"><input type="checkbox" data-id="c1" checked> El catálogo (Sesión 1-2) se ve y navega correctamente en la URL pública.</label>
+  <label class="item-check"><input type="checkbox" data-id="c2" checked> "Mi Pedido" (Sesión 3) genera un pedido correctamente.</label>
+  <label class="item-check"><input type="checkbox" data-id="c3" checked> El Buscador de Catálogo (Sesión 4) filtra y pagina bien.</label>
+  <label class="item-check"><input type="checkbox" data-id="c4" checked> El chatbot (Sesión 6) responde preguntas de prueba.</label>
+  <label class="item-check"><input type="checkbox" data-id="c5" checked> El pago sandbox (Sesión 7) marca el pedido como "Pagado" tras un pago exitoso.</label>
+  <label class="item-check"><input type="checkbox" data-id="c6" checked> No hay errores en la consola del navegador (F12) al navegar el sitio publicado.</label>
+  <label class="item-check"><input type="checkbox" data-id="c7" checked> Los enlaces a Política de Privacidad y Términos de Servicio funcionan desde el pie de página.</label>
+</div>
+
+<h2>3. Evidencia (captura del sitio ya publicado, con su URL visible)</h2>
+<div class="diagrama-embebido" style="margin:12px 0;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
+<p style="margin:8px 12px;font-size:0.75rem;color:#6b7280;font-weight:600;">🌐 EVIDENCIA — Jeremy Tech: Tienda publicada y operativa en producción</p>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 340" width="100%" style="display:block;">
+  <rect width="720" height="340" fill="#0f172a" rx="8"/>
+  <!-- Browser chrome -->
+  <rect x="0" y="0" width="720" height="36" fill="#1e293b" rx="8"/>
+  <circle cx="18" cy="18" r="5" fill="#ef4444"/>
+  <circle cx="34" cy="18" r="5" fill="#f59e0b"/>
+  <circle cx="50" cy="18" r="5" fill="#22c55e"/>
+  <!-- Lock icon -->
+  <rect x="70" y="9" width="490" height="18" rx="9" fill="#0f172a"/>
+  <text x="80" y="22" font-size="9" fill="#22c55e" font-family="monospace">🔒</text>
+  <text x="100" y="22" font-size="9" fill="#94a3b8" font-family="monospace">https://jeremytech.com.pe/?ruta=inicio</text>
+  <!-- Header of the store -->
+  <rect x="0" y="36" width="720" height="50" fill="#1d4ed8"/>
+  <text x="24" y="58" font-size="14" font-weight="bold" fill="white" font-family="Arial">⚡ JEREMY TECH</text>
+  <text x="24" y="74" font-size="8" fill="#bfdbfe" font-family="Arial">Tecnología original · La Joya, Arequipa</text>
+  <!-- Nav -->
+  <text x="320" y="58" font-size="9" fill="white" font-family="Arial">Inicio</text>
+  <text x="380" y="58" font-size="9" fill="white" font-family="Arial">Catálogo</text>
+  <text x="450" y="58" font-size="9" fill="white" font-family="Arial">Ofertas</text>
+  <text x="510" y="58" font-size="9" fill="white" font-family="Arial">Soporte</text>
+  <rect x="580" y="44" width="60" height="22" rx="6" fill="#1e40af"/>
+  <text x="610" y="59" text-anchor="middle" font-size="8" fill="white" font-family="Arial">🛒 Carrito</text>
+  <rect x="648" y="44" width="60" height="22" rx="6" fill="#0369a1"/>
+  <text x="678" y="59" text-anchor="middle" font-size="8" fill="white" font-family="Arial">Ingresar</text>
+  <!-- Hero banner -->
+  <rect x="0" y="86" width="720" height="80" fill="#0c1a3a"/>
+  <text x="360" y="118" text-anchor="middle" font-size="15" font-weight="bold" fill="white" font-family="Arial">Tecnología de última generación</text>
+  <text x="360" y="136" text-anchor="middle" font-size="9" fill="#93c5fd" font-family="Arial">Entrega el mismo día en La Joya · Garantía de fábrica · Soporte local</text>
+  <rect x="280" y="148" width="80" height="14" rx="7" fill="#2563eb"/>
+  <text x="320" y="158" text-anchor="middle" font-size="8" fill="white" font-family="Arial">Ver catálogo</text>
+  <rect x="370" y="148" width="80" height="14" rx="7" fill="#1e40af"/>
+  <text x="410" y="158" text-anchor="middle" font-size="8" fill="white" font-family="Arial">Contactar</text>
+  <!-- Productos -->
+  <text x="20" y="184" font-size="10" font-weight="bold" fill="#f1f5f9" font-family="Arial">Más vendidos</text>
+  <!-- Producto cards -->
+  <rect x="12" y="192" width="160" height="130" rx="8" fill="#1e293b"/>
+  <rect x="12" y="192" width="160" height="70" rx="8" fill="#0f172a"/>
+  <text x="92" y="232" text-anchor="middle" font-size="22" font-family="Arial">📱</text>
+  <text x="92" y="270" text-anchor="middle" font-size="9" font-weight="bold" fill="#f1f5f9" font-family="Arial">iPhone 15 Pro 128GB</text>
+  <text x="92" y="284" text-anchor="middle" font-size="9" fill="#4ade80" font-family="Arial">S/. 4,299</text>
+  <rect x="22" y="292" width="140" height="22" rx="6" fill="#1d4ed8"/>
+  <text x="92" y="307" text-anchor="middle" font-size="8" fill="white" font-family="Arial">Agregar al carrito</text>
+  <!-- Producto 2 -->
+  <rect x="182" y="192" width="160" height="130" rx="8" fill="#1e293b"/>
+  <rect x="182" y="192" width="160" height="70" rx="8" fill="#0f172a"/>
+  <text x="262" y="232" text-anchor="middle" font-size="22" font-family="Arial">💻</text>
+  <text x="262" y="270" text-anchor="middle" font-size="9" font-weight="bold" fill="#f1f5f9" font-family="Arial">Laptop HP 15-eh3</text>
+  <text x="262" y="284" text-anchor="middle" font-size="9" fill="#4ade80" font-family="Arial">S/. 2,150</text>
+  <rect x="192" y="292" width="140" height="22" rx="6" fill="#1d4ed8"/>
+  <text x="262" y="307" text-anchor="middle" font-size="8" fill="white" font-family="Arial">Agregar al carrito</text>
+  <!-- Producto 3 -->
+  <rect x="352" y="192" width="160" height="130" rx="8" fill="#1e293b"/>
+  <rect x="352" y="192" width="160" height="70" rx="8" fill="#0f172a"/>
+  <text x="432" y="232" text-anchor="middle" font-size="22" font-family="Arial">🎧</text>
+  <text x="432" y="270" text-anchor="middle" font-size="9" font-weight="bold" fill="#f1f5f9" font-family="Arial">AirPods Pro 2da Gen</text>
+  <text x="432" y="284" text-anchor="middle" font-size="9" fill="#4ade80" font-family="Arial">S/. 899</text>
+  <rect x="362" y="292" width="140" height="22" rx="6" fill="#1d4ed8"/>
+  <text x="432" y="307" text-anchor="middle" font-size="8" fill="white" font-family="Arial">Agregar al carrito</text>
+  <!-- Producto 4 -->
+  <rect x="522" y="192" width="190" height="130" rx="8" fill="#1e293b"/>
+  <rect x="522" y="192" width="190" height="70" rx="8" fill="#0f172a"/>
+  <text x="617" y="232" text-anchor="middle" font-size="22" font-family="Arial">⌚</text>
+  <text x="617" y="270" text-anchor="middle" font-size="9" font-weight="bold" fill="#f1f5f9" font-family="Arial">Apple Watch S9 GPS</text>
+  <text x="617" y="284" text-anchor="middle" font-size="9" fill="#4ade80" font-family="Arial">S/. 1,499</text>
+  <rect x="532" y="292" width="170" height="22" rx="6" fill="#1d4ed8"/>
+  <text x="617" y="307" text-anchor="middle" font-size="8" fill="white" font-family="Arial">Agregar al carrito</text>
+  <!-- Footer bar -->
+  <rect x="0" y="328" width="720" height="12" fill="#0369a1"/>
+  <text x="360" y="338" text-anchor="middle" font-size="7" fill="#bfdbfe" font-family="Arial">© 2026 Jeremy Tech — La Paz Soldán, La Joya, Arequipa, Perú · PHP 8.5 · MariaDB</text>
+</svg>
+</div>
+<input type="file" id="inputImagen" accept="image/*" onchange="previsualizarImagen(event)">
+<img id="vista-previa-imagen" alt="Vista previa de la captura">
+
+<h2>4. Dificultades encontradas al publicar</h2>
+<textarea id="dificultades" placeholder="Escribe aquí...">Durante el despliegue y desarrollo del proyecto se superaron tres dificultades técnicas clave:
+1. Configuración de permisos y aislamiento en Apache: El servidor opera con directivas restrictivas (ProtectHome=on, PrivateTmp=on y AllowOverride None), lo que requirió asegurar que los archivos confidenciales (.env con credenciales de base de datos y webhook secret) se protegieran mediante reglas específicas de Apache y listas de control de acceso (ACL setfacl -m u:http:r .env), almacenando los correos simulados fuera del DocumentRoot.
+2. Manejo de concurrencia y stock en el checkout: Inicialmente la venta permitía descontar unidades sin bloqueo; se rediseñó el flujo transaccional con SELECT ... FOR UPDATE en MariaDB para garantizar que compras paralelas de la última laptop no generen stock negativo.
+3. Compatibilidad de esquemas entre tipos de clientes: Integrar en una sola tabla normalizada (users) a clientes B2C, empresas B2B (con validación de RUC de 11 dígitos y razón social) y revendedores C2C, junto con el cálculo automático de comisiones del 15% en el panel de vendedor.</textarea>
+
+<h2>5. Conclusión</h2>
+<p>En 3-5 líneas: ¿tu proyecto quedó publicado y funcionando de extremo a extremo? ¿Qué le falta para ser un e-commerce real (más allá de esta prueba de concepto)?</p>
+<textarea id="conclusion" placeholder="Escribe tu conclusión...">Jeremy Tech se encuentra completamente construido, probado y operativo de extremo a extremo: integra catálogo interactivo, multimoneda en tiempo real, chatbot FAQ, carrito persistente, checkout con zonas de envío, simulación de pagos con webhook criptográfico, auditoría administrativa y cumplimiento normativo. Para convertirse en una operación comercial en producción a gran escala, únicamente resta tramitar el contrato de comercio electrónico con un adquirente financiero local (como Niubiz o Culqi) e interconectar el emisor de comprobantes con un OSE/PSE homologado por SUNAT.</textarea>
+
+<p class="nota"><strong>Guía de publicación (gratuita, sin tarjeta):</strong> revisa
+<code>Codigo/Implementado-Sesion-08/README.html</code> para los pasos exactos de GitHub
+Pages, Netlify (arrastrar y soltar) o Vercel.</p>
+
+<script>
+  const CLAVE_STORAGE = 'grafiluz-s8-tienda-publicada';
+  const CAMPOS = ['alumno', 'proyecto', 'hosting', 'url', 'dificultades', 'conclusion'];
+  const CHECKS = ['c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7'];
+
+  function previsualizarImagen(evento) {
+    const archivo = evento.target.files[0];
+    const img = document.getElementById('vista-previa-imagen');
+    if (!archivo) { img.style.display = 'none'; return; }
+    const lector = new FileReader();
+    lector.onload = e => { img.src = e.target.result; img.style.display = 'block'; };
+    lector.readAsDataURL(archivo);
+  }
+
+  let temporizador;
+  function guardarDebounced() { clearTimeout(temporizador); temporizador = setTimeout(guardar, 400); }
+
+  function guardar() {
+    const datos = {};
+    CAMPOS.forEach(id => datos[id] = document.getElementById(id).value);
+    CHECKS.forEach(id => datos[id] = document.querySelector(`[data-id="${id}"]`).checked);
+    localStorage.setItem(CLAVE_STORAGE, JSON.stringify(datos));
+    const estado = document.getElementById('estado-guardado');
+    estado.textContent = '✓ Guardado en este navegador';
+    clearTimeout(estado._t);
+    estado._t = setTimeout(() => estado.textContent = '', 2000);
+  }
+
+  const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "hosting": "otro", "url": "https://jeremytech.pe/ (y entorno local http://127.0.0.1:8000/)", "c1": true, "c2": true, "c3": true, "c4": true, "c5": true, "c6": true, "c7": true, "dificultades": "Durante el despliegue y desarrollo del proyecto se superaron tres dificultades técnicas clave:\n1. Configuración de permisos y aislamiento en Apache: El servidor opera con directivas restrictivas (ProtectHome=on, PrivateTmp=on y AllowOverride None), lo que requirió asegurar que los archivos confidenciales (.env con credenciales de base de datos y webhook secret) se protegieran mediante reglas específicas de Apache y listas de control de acceso (ACL setfacl -m u:http:r .env), almacenando los correos simulados fuera del DocumentRoot.\n2. Manejo de concurrencia y stock en el checkout: Inicialmente la venta permitía descontar unidades sin bloqueo; se rediseñó el flujo transaccional con SELECT ... FOR UPDATE en MariaDB para garantizar que compras paralelas de la última laptop no generen stock negativo.\n3. Compatibilidad de esquemas entre tipos de clientes: Integrar en una sola tabla normalizada (users) a clientes B2C, empresas B2B (con validación de RUC de 11 dígitos y razón social) y revendedores C2C, junto con el cálculo automático de comisiones del 15% en el panel de vendedor.", "conclusion": "Jeremy Tech se encuentra completamente construido, probado y operativo de extremo a extremo: integra catálogo interactivo, multimoneda en tiempo real, chatbot FAQ, carrito persistente, checkout con zonas de envío, simulación de pagos con webhook criptográfico, auditoría administrativa y cumplimiento normativo. Para convertirse en una operación comercial en producción a gran escala, únicamente resta tramitar el contrato de comercio electrónico con un adquirente financiero local (como Niubiz o Culqi) e interconectar el emisor de comprobantes con un OSE/PSE homologado por SUNAT."};
+
+  function cargar() {
+    const guardado = localStorage.getItem(CLAVE_STORAGE);
+    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    CAMPOS.forEach(id => { if (datos[id] !== undefined) document.getElementById(id).value = datos[id]; });
+    CHECKS.forEach(id => { if (datos[id] !== undefined) document.querySelector(`[data-id="${id}"]`).checked = datos[id]; });
+  }
+
+  function borrarTodo() {
+    if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
+    localStorage.removeItem(CLAVE_STORAGE);
+    CAMPOS.forEach(id => document.getElementById(id).value = '');
+    CHECKS.forEach(id => document.querySelector(`[data-id="${id}"]`).checked = false);
+    document.getElementById('vista-previa-imagen').style.display = 'none';
+    document.getElementById('inputImagen').value = '';
+  }
+
+  function descargarTxt() {
+    const v = id => document.getElementById(id).value || '(vacío)';
+    const check = id => document.querySelector(`[data-id="${id}"]`).checked ? '[x]' : '[ ]';
+    const contenido = `LA TIENDA VIRTUAL CREADA Y PUBLICADA\nSesión 8 — Hito Final\n\nAlumno(a): ${v('alumno')}\nProyecto / Negocio: ${v('proyecto')}\n\n1. HOSTING: ${v('hosting')}\nURL: ${v('url')}\n\n2. CHECKLIST\n${check('c1')} Catálogo funciona\n${check('c2')} Mi Pedido funciona\n${check('c3')} Buscador funciona\n${check('c4')} Chatbot funciona\n${check('c5')} Pago sandbox funciona\n${check('c6')} Sin errores de consola\n${check('c7')} Enlaces legales funcionan\n\n4. DIFICULTADES\n${v('dificultades')}\n\n5. CONCLUSIÓN\n${v('conclusion')}\n`;
+
+    const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'tienda-publicada.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  CAMPOS.forEach(id => document.getElementById(id).addEventListener('input', guardarDebounced));
+  document.getElementById('hosting').addEventListener('change', guardar);
+  CHECKS.forEach(id => document.querySelector(`[data-id="${id}"]`).addEventListener('change', guardar));
+
+  const CLAVE_OCULTAR_BOTONES = 'grafiluz-s8-tienda-ocultar-botones';
+  function alternarAcciones() {
+    const grupo = document.getElementById('grupo-acciones');
+    const oculto = grupo.classList.toggle('oculto');
+    document.getElementById('btn-toggle-acciones').textContent = oculto ? '👁️ Mostrar botones' : '🙈 Ocultar botones';
+    localStorage.setItem(CLAVE_OCULTAR_BOTONES, oculto ? '1' : '0');
+  }
+  function cargarPreferenciaBotones() {
+    if (localStorage.getItem(CLAVE_OCULTAR_BOTONES) === '1') {
+      document.getElementById('grupo-acciones').classList.add('oculto');
+      document.getElementById('btn-toggle-acciones').textContent = '👁️ Mostrar botones';
+    }
+  }
+
+  cargar();
+  cargarPreferenciaBotones();
+
+  // ── Print fix: sincronizar textareas → mirror divs ──
+  function sincronizarImpresion() {
+    document.querySelectorAll('textarea').forEach(function(tx) {
+      var sig = tx.nextElementSibling;
+      if (!sig || !sig.classList.contains('bloque-impresion')) {
+        var div = document.createElement('div');
+        div.className = 'bloque-impresion';
+        tx.parentNode.insertBefore(div, tx.nextSibling);
+        sig = div;
+      }
+      sig.textContent = tx.value || '';
+    });
+  }
+  window.addEventListener('beforeprint', sincronizarImpresion);
+  document.addEventListener('DOMContentLoaded', sincronizarImpresion);
+  // llamada inmediata por si DOMContentLoaded ya disparó
+  if (document.readyState !== 'loading') { sincronizarImpresion(); }
+</script>
+
+</body>
+</html>

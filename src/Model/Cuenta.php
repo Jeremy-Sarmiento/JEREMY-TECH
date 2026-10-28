@@ -30,9 +30,7 @@ class Cuenta
      */
     private static function arrancarSesion(): void
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        \Security\Proteccion::iniciarSesion();
     }
 
     /**
@@ -51,6 +49,39 @@ class Cuenta
     }
 
     /**
+     * ¿La cuenta autenticada puede publicar en el marketplace?
+     *
+     * Publican dos perfiles:
+     *   * `rol = 'vendedor'`: vendedores dados de alta desde el panel.
+     *   * `rol = 'cliente'` + `tipo = 'C2C'`: revendedores que se registran
+     *     como C2C y publican su propio catálogo desde "Mis productos".
+     *
+     * Se consulta en cada petición para que un cambio de rol o de tipo
+     * surta efecto sin reabrir la sesión.
+     *
+     * @param array<string, mixed>|null $usuario Fila ya cargada (evita una
+     *        consulta extra en el header); null = leer de la sesión.
+     */
+    public static function puedePublicar(?array $usuario = null): bool
+    {
+        $usuario ??= self::usuarioActual();
+        if ($usuario === null) {
+            return false;
+        }
+
+        $rol  = (string) ($usuario['rol'] ?? '');
+        $tipo = strtoupper((string) ($usuario['tipo'] ?? ''));
+
+        return $rol === 'vendedor' || ($rol === 'cliente' && $tipo === 'C2C');
+    }
+
+    /** Alias histórico usado por la navegación y el panel de publicaciones. */
+    public static function esVendedor(): bool
+    {
+        return self::puedePublicar();
+    }
+
+    /**
      * Datos del cliente autenticado (o null si es invitado).
      * @return array<string, mixed>|null
      */
@@ -62,7 +93,8 @@ class Cuenta
         }
 
         $stmt = conexion()->prepare(
-            'SELECT id, name AS nombre, apellidos, email, telefono, direccion, dni, ruc, empresa, tipo
+            'SELECT id, name AS nombre, apellidos, email, telefono, direccion, dni, ruc, empresa,
+                    plataforma_reventa, tipo, rol, verificado
              FROM users WHERE id = ? AND activo = 1 AND deleted_at IS NULL LIMIT 1'
         );
         $stmt->execute([$id]);
@@ -89,30 +121,86 @@ class Cuenta
 
     /**
      * Crea una cuenta de cliente y deja la sesión iniciada.
-     * Validate email único y formato, nombre/apellidos y contraseña.
+     *
+     * El registro pide los mismos datos que la Sesión 8: nombre/razón social,
+     * apellidos, DNI, teléfono, dirección de envío, correo (usuario),
+     * contraseña + confirmación, tipo de cliente (B2C/B2B/C2C), RUC para
+     * empresas, plataforma de reventa para C2C y coordenadas opcionales.
+     * La primera dirección se guarda en `direcciones` para que el checkout
+     * ya tenga un destino preseleccionado.
      *
      * @param array<string, mixed> $datos
      * @return string|null null si todo salió bien, o un mensaje de error.
      */
     public static function registrar(array $datos): ?string
     {
-        $nombre     = trim((string) ($datos['nombre'] ?? ''));
-        $apellidos  = trim((string) ($datos['apellidos'] ?? ''));
-        $email      = strtolower(trim((string) ($datos['email'] ?? '')));
-        $telefono   = trim((string) ($datos['telefono'] ?? ''));
-        $password   = (string) ($datos['password'] ?? '');
-        $confirmar  = (string) ($datos['confirmar'] ?? '');
-        $pregunta   = trim((string) ($datos['pregunta_secreta'] ?? ''));
-        $respuesta  = trim((string) ($datos['respuesta_secreta'] ?? ''));
+        $nombre        = trim((string) ($datos['nombre'] ?? ''));
+        $apellidos     = trim((string) ($datos['apellidos'] ?? ''));
+        $email         = strtolower(trim((string) ($datos['email'] ?? '')));
+        $telefono      = trim((string) ($datos['telefono'] ?? ''));
+        $dni           = trim((string) ($datos['dni'] ?? ''));
+        $direccion     = trim((string) ($datos['direccion'] ?? ''));
+        $latitud       = trim((string) ($datos['latitud'] ?? ''));
+        $longitud      = trim((string) ($datos['longitud'] ?? ''));
+        $tipo          = strtoupper(trim((string) ($datos['tipo_cliente'] ?? $datos['tipo'] ?? 'B2C')));
+        $ruc           = trim((string) ($datos['ruc'] ?? ''));
+        $plataforma    = trim((string) ($datos['plataforma_reventa'] ?? ''));
+        $tarifaId      = (int) ($datos['tarifa_envio_id'] ?? 0);
+        $password      = (string) ($datos['password'] ?? '');
+        $confirmar     = (string) ($datos['confirmar'] ?? '');
+        $pregunta      = trim((string) ($datos['pregunta_secreta'] ?? ''));
+        $respuesta     = trim((string) ($datos['respuesta_secreta'] ?? ''));
 
-        if ($nombre === '' || $apellidos === '') {
-            return 'Ingresa tu nombre y apellidos';
+        if ($nombre === '') {
+            return 'Ingresa tu nombre o razón social';
+        }
+        if (mb_strlen($nombre) > 255) {
+            return 'El nombre o razón social es demasiado largo';
+        }
+        if ($apellidos !== '' && mb_strlen($apellidos) > 180) {
+            return 'Los apellidos son demasiado largos';
         }
         if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return 'Ingresa un correo electrónico válido';
         }
         if (self::porEmail($email)) {
             return 'Ya existe una cuenta con ese correo';
+        }
+        if ($telefono === '') {
+            return 'Ingresa tu teléfono';
+        }
+        if (mb_strlen($telefono) > 20) {
+            return 'El teléfono no puede superar los 20 caracteres';
+        }
+        if ($dni === '') {
+            return 'Ingresa tu DNI';
+        }
+        if (!preg_match('/^\d{8}$/', $dni)) {
+            return 'El DNI debe tener exactamente 8 dígitos';
+        }
+        if ($direccion === '') {
+            return 'Ingresa tu dirección de envío';
+        }
+        if (mb_strlen($direccion) > 255) {
+            return 'La dirección no puede superar los 255 caracteres';
+        }
+        if (!in_array($tipo, ['B2C', 'B2B', 'C2C'], true)) {
+            return 'Elige un tipo de cliente válido';
+        }
+        if ($tipo === 'B2B' && $ruc !== '' && !preg_match('/^\d{11}$/', $ruc)) {
+            return 'El RUC debe tener exactamente 11 dígitos';
+        }
+        if (mb_strlen($plataforma) > 120) {
+            return 'La plataforma de reventa no puede superar los 120 caracteres';
+        }
+        if ($latitud !== '' && (!is_numeric($latitud) || (float) $latitud < -90 || (float) $latitud > 90)) {
+            return 'La latitud debe ser un número entre -90 y 90';
+        }
+        if ($longitud !== '' && (!is_numeric($longitud) || (float) $longitud < -180 || (float) $longitud > 180)) {
+            return 'La longitud debe ser un número entre -180 y 180';
+        }
+        if (($latitud === '') !== ($longitud === '')) {
+            return 'Marca la ubicación completa (latitud y longitud) o deja ambas vacías';
         }
         if (strlen($password) < 6) {
             return 'La contraseña debe tener al menos 6 caracteres';
@@ -127,26 +215,137 @@ class Cuenta
             return 'La respuesta de seguridad debe tener al menos 3 caracteres';
         }
 
-        $stmt = conexion()->prepare(
-            'INSERT INTO users (name, apellidos, email, telefono, password,
-                                pregunta_secreta, respuesta_secreta_hash, rol, tipo)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
-        );
-        $stmt->execute([
-            $nombre,
-            $apellidos,
-            $email,
-            $telefono,
-            password_hash($password, PASSWORD_DEFAULT),
-            $pregunta,
-            password_hash(strtolower($respuesta), PASSWORD_DEFAULT),
-            'cliente',
-            'B2C',
-        ]);
+        $pdo = conexion();
+        $pdo->beginTransaction();
+        try {
+            $stmt = $pdo->prepare(
+                'INSERT INTO users
+                    (name, apellidos, email, telefono, direccion, dni, tipo, empresa,
+                     ruc, plataforma_reventa, password, pregunta_secreta,
+                     respuesta_secreta_hash, rol)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            );
+            $stmt->execute([
+                $nombre,
+                $apellidos,
+                $email,
+                $telefono,
+                $direccion,
+                $dni,
+                $tipo,
+                $tipo === 'B2B' ? $nombre : '',
+                $tipo === 'B2B' ? $ruc : '',
+                $tipo === 'C2C' ? $plataforma : '',
+                password_hash($password, PASSWORD_DEFAULT),
+                $pregunta,
+                password_hash(strtolower($respuesta), PASSWORD_DEFAULT),
+                'cliente',
+            ]);
+
+            $clienteId = (int) $pdo->lastInsertId();
+            $errorDireccion = Direccion::registrarInicial($clienteId, [
+                'direccion'       => $direccion,
+                'tarifa_envio_id' => $tarifaId,
+                'latitud'         => $latitud !== '' ? (float) $latitud : null,
+                'longitud'        => $longitud !== '' ? (float) $longitud : null,
+            ]);
+            if ($errorDireccion !== null) {
+                $pdo->rollBack();
+                return $errorDireccion;
+            }
+
+            $pdo->commit();
+        } catch (\PDOException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            if ((string) $e->getCode() === '23000') {
+                return 'Ya existe una cuenta con ese correo';
+            }
+            return 'No se pudo crear la cuenta. Inténtalo de nuevo.';
+        }
 
         self::arrancarSesion();
         session_regenerate_id(true);
-        $_SESSION[self::SESION_CLAVE] = (int) conexion()->lastInsertId();
+        \Security\Proteccion::rotarToken();
+        $_SESSION[self::SESION_CLAVE] = $clienteId;
+
+        return null;
+    }
+
+    /**
+     * Actualiza los datos de contacto/facturación del cliente autenticado.
+     *
+     * @param array<string, mixed> $datos
+     * @return string|null null si todo salió bien, o un mensaje de error.
+     */
+    public static function actualizarPerfil(int $clienteId, array $datos): ?string
+    {
+        if ($clienteId <= 0) {
+            return 'La sesión no es válida. Vuelve a iniciar sesión.';
+        }
+
+        $nombre     = trim((string) ($datos['nombre'] ?? ''));
+        $apellidos  = trim((string) ($datos['apellidos'] ?? ''));
+        $email      = strtolower(trim((string) ($datos['email'] ?? '')));
+        $telefono   = trim((string) ($datos['telefono'] ?? ''));
+        $direccion  = trim((string) ($datos['direccion'] ?? ''));
+        $dni        = trim((string) ($datos['dni'] ?? ''));
+        $ruc        = trim((string) ($datos['ruc'] ?? ''));
+        $empresa    = trim((string) ($datos['empresa'] ?? ''));
+        $plataforma = trim((string) ($datos['plataforma_reventa'] ?? ''));
+        $tipo       = strtoupper(trim((string) ($datos['tipo'] ?? 'B2C')));
+
+        if ($nombre === '') {
+            return 'Ingresa tu nombre o razón social.';
+        }
+        if (mb_strlen($nombre) > 255 || mb_strlen($apellidos) > 180) {
+            return 'El nombre o los apellidos son demasiado largos.';
+        }
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 190) {
+            return 'Ingresa un correo electrónico válido.';
+        }
+        if (mb_strlen($telefono) > 20) {
+            return 'El teléfono no puede superar los 20 caracteres.';
+        }
+        if (mb_strlen($direccion) > 255) {
+            return 'La dirección no puede superar los 255 caracteres.';
+        }
+        if ($dni !== '' && !preg_match('/^\d{8}$/', $dni)) {
+            return 'El DNI debe tener exactamente 8 dígitos.';
+        }
+        if ($ruc !== '' && !preg_match('/^\d{11}$/', $ruc)) {
+            return 'El RUC debe tener exactamente 11 dígitos.';
+        }
+        if (mb_strlen($empresa) > 120) {
+            return 'La razón social no puede superar los 120 caracteres.';
+        }
+        if (mb_strlen($plataforma) > 120) {
+            return 'La plataforma de reventa no puede superar los 120 caracteres.';
+        }
+        if (!in_array($tipo, ['B2C', 'B2B', 'C2C'], true)) {
+            return 'El tipo de cuenta no es válido.';
+        }
+
+        // El correo es el identificador de acceso: debe seguir siendo único,
+        // incluso frente a cuentas dadas de baja (el índice UNIQUE no las
+        // excluye).
+        $stmt = conexion()->prepare('SELECT COUNT(*) FROM users WHERE email = ? AND id <> ?');
+        $stmt->execute([$email, $clienteId]);
+        if ((int) $stmt->fetchColumn() > 0) {
+            return 'Ya existe otra cuenta con ese correo electrónico.';
+        }
+
+        $stmt = conexion()->prepare(
+            'UPDATE users
+                SET name = ?, apellidos = ?, email = ?, telefono = ?, direccion = ?,
+                    dni = ?, ruc = ?, empresa = ?, plataforma_reventa = ?, tipo = ?
+              WHERE id = ? AND activo = 1 AND deleted_at IS NULL'
+        );
+        $stmt->execute([
+            $nombre, $apellidos, $email, $telefono, $direccion,
+            $dni, $ruc, $empresa, $tipo === 'C2C' ? $plataforma : '', $tipo, $clienteId,
+        ]);
 
         return null;
     }
@@ -169,6 +368,7 @@ class Cuenta
 
         self::arrancarSesion();
         session_regenerate_id(true);
+        \Security\Proteccion::rotarToken();
         $_SESSION[self::SESION_CLAVE] = (int) $cuenta['id'];
 
         return true;
@@ -182,6 +382,7 @@ class Cuenta
         self::arrancarSesion();
         unset($_SESSION[self::SESION_CLAVE]);
         session_regenerate_id(true);
+        \Security\Proteccion::rotarToken();
     }
 
     /**
@@ -239,6 +440,11 @@ class Cuenta
 
         conexion()->prepare('UPDATE users SET password = ? WHERE id = ?')
             ->execute([password_hash($nueva, PASSWORD_DEFAULT), (int) $cliente['id']]);
+
+        // Cambiar la contraseña invalida cualquier enlace de recuperación
+        // pendiente: si el token estaba en manos de un tercero, deja de servir.
+        conexion()->prepare('UPDATE tokens_recuperacion SET usado = 1 WHERE usuario_id = ? AND usado = 0')
+            ->execute([(int) $cliente['id']]);
 
         return null;
     }

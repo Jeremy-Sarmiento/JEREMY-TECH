@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Benchmark Tecnológico</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 950px; margin: 0 auto; padding: 0 20px 60px; color: #1f2937; background: #fafafa; line-height: 1.55; }
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  .subtitulo { color: #6b7280; margin-top: 0; }
+  h2 { font-size: 1.1rem; margin-top: 34px; padding-top: 10px; border-top: 1px solid #e5e7eb; }
+  .campos-header { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  label { display: block; font-size: 0.8rem; font-weight: 600; color: #374151; margin-bottom: 4px; }
+  input[type="text"] { width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; font-family: inherit; background: white; }
+  input:focus, [contenteditable]:focus, textarea:focus { outline: 2px solid #1d4ed8; outline-offset: 1px; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.84rem; background: white; }
+  th, td { border: 1px solid #e5e7eb; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #f3f4f6; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.02em; }
+  td[contenteditable="true"] { min-width: 90px; cursor: text; }
+  td[contenteditable="true"]:empty::before { content: attr(data-placeholder); color: #9ca3af; }
+  tr.ejemplo { background: #f8fafc; color: #6b7280; font-style: italic; }
+  .badge-ejemplo { display: inline-block; background: #e0e7ff; color: #3730a3; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; margin-right: 6px; font-style: normal; }
+  td.acciones { text-align: center; }
+  .btn-fila-eliminar { background: none; border: none; color: #dc2626; cursor: pointer; font-size: 1rem; }
+  .btn-fila-eliminar:hover { color: #991b1b; }
+  textarea { width: 100%; min-height: 90px; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; font-size: 0.95rem; resize: vertical; background: white; }
+  .nota { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 4px; font-size: 0.88rem; margin: 12px 0; }
+  .barra-acciones { position: sticky; top: 0; background: #fafafa; padding: 14px 0 10px; margin-bottom: 6px; display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #e5e7eb; z-index: 10; }
+  .btn { background: #1d4ed8; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+  .btn:hover { background: #1e40af; }
+  .btn.secundario { background: #e5e7eb; color: #1f2937; }
+  .btn.secundario:hover { background: #d1d5db; }
+  .btn.peligro { background: #fee2e2; color: #991b1b; }
+  .btn.peligro:hover { background: #fecaca; }
+  .btn-toggle { background: white; color: #374151; border: 1px solid #d1d5db; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+  .btn-toggle:hover { background: #f3f4f6; }
+  #grupo-acciones { display: flex; flex-wrap: wrap; gap: 10px; }
+  #grupo-acciones.oculto { display: none; }
+  .estado-guardado { font-size: 0.8rem; color: #16a34a; align-self: center; }
+  @media print {
+    .barra-acciones, .btn-fila-eliminar, .btn-agregar-wrap { display: none; }
+    body { margin: 0; max-width: 100%; }
+    table { font-size: 0.72rem; }
+    th, td { padding: 5px 6px; }
+    h1, h2 { break-after: avoid; page-break-after: avoid; }
+    p, .nota, tr { break-inside: avoid; page-break-inside: avoid; }
+  }
+
+  /* ── Print fix: mirror divs en vez de textareas ── */
+  .bloque-impresion { display: none; }
+  @media print {
+    textarea { display: none !important; }
+    input[type="file"] { display: none !important; }
+    .bloque-impresion {
+      display: block !important;
+      white-space: pre-wrap;
+      font-family: inherit;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: #1f2937;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin: 4px 0 12px;
+      break-inside: auto;
+      page-break-inside: auto;
+      min-height: 2em;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="barra-acciones">
+  <button class="btn-toggle" id="btn-toggle-acciones" onclick="alternarAcciones()">🙈 Ocultar botones</button>
+  <span id="grupo-acciones">
+    <button class="btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    <button class="btn secundario" onclick="descargarTxt()">💾 Descargar respuestas (.txt)</button>
+    <button class="btn peligro" onclick="borrarTodo()">🗑️ Borrar mis respuestas</button>
+  </span>
+  <span id="estado-guardado" class="estado-guardado"></span>
+</div>
+
+<h1>El Benchmark Tecnológico</h1>
+<p class="subtitulo">Sesión 6 — Herramientas, Análisis de Mercado y Chatbots con IA</p>
+
+<div class="campos-header">
+  <div>
+    <label for="alumno">Alumno(a)</label>
+    <input type="text" id="alumno" placeholder="Tu nombre" value="Jeremy Sarmiento Tapia">
+  </div>
+  <div>
+    <label for="proyecto">Proyecto / Negocio</label>
+    <input type="text" id="proyecto" placeholder="Nombre de tu proyecto" value="Jeremy Tech — Tienda de Tecnología (La Joya)">
+  </div>
+</div>
+
+<p>Analiza herramientas <strong>libres o gratuitas</strong> de e-commerce que podrían complementar o
+validar la arquitectura de tu proyecto (la definida en la Sesión 4). No tienen que estar instaladas
+todavía: el objetivo es evaluarlas de forma crítica.</p>
+
+<h2>Cuadro comparativo</h2>
+<table id="tabla-benchmark">
+  <thead>
+    <tr>
+      <th style="width:14%">Herramienta</th>
+      <th style="width:12%">Categoría</th>
+      <th style="width:22%">¿Qué problema resuelve?</th>
+      <th style="width:10%">Costo</th>
+      <th>¿La aplicarías a tu proyecto? ¿Por qué?</th>
+      <th style="width:4%"></th>
+    </tr>
+  </thead>
+  <tbody id="filas-ejemplo">
+    <tr class="ejemplo">
+      <td><span class="badge-ejemplo">Ejemplo</span>Tidio (plan gratuito)</td>
+      <td>Chat en vivo</td>
+      <td>Atención en tiempo real sin depender solo de WhatsApp.</td>
+      <td>Gratis (límite de conversaciones)</td>
+      <td>Podría complementar al chatbot propio para casos que requieren un humano, una vez el sitio esté publicado.</td>
+      <td></td>
+    </tr>
+  </tbody>
+  <tbody id="filas-tabla">
+    <tr>
+      <td contenteditable="true" data-placeholder="nombre...">Tidio (Free Tier)</td>
+      <td contenteditable="true" data-placeholder="categoría...">Chat en vivo y bots</td>
+      <td contenteditable="true" data-placeholder="¿qué resuelve?">Atención en tiempo real con disparadores automáticos para saludar y capturar leads antes de abandonar la tienda.</td>
+      <td contenteditable="true" data-placeholder="costo...">Gratuito (hasta 50 conversaciones/mes)</td>
+      <td contenteditable="true" data-placeholder="¿la aplicarías?">Sí, como respaldo omnicanal de tercera capa para transferir a un agente humano cuando el chatbot local no resuelva una consulta compleja.</td>
+      <td class="acciones"><button class="btn-fila-eliminar" onclick="this.closest('tr').remove(); guardar();">✕</button></td>
+    </tr>
+    <tr>
+      <td contenteditable="true" data-placeholder="nombre...">ExchangeRate-API</td>
+      <td contenteditable="true" data-placeholder="categoría...">Finanzas / Multi-divisa</td>
+      <td contenteditable="true" data-placeholder="¿qué resuelve?">Sincronización en tiempo real de tasas de cambio internacionales para mostrar precios en USD, EUR, etc.</td>
+      <td contenteditable="true" data-placeholder="costo...">Gratuito (Open Access Endpoint)</td>
+      <td contenteditable="true" data-placeholder="¿la aplicarías?">Ya aplicada exitosamente en el proyecto (Sesión 2); permite a usuarios corporativos y turistas calcular presupuestos en dólares de forma transparente.</td>
+      <td class="acciones"><button class="btn-fila-eliminar" onclick="this.closest('tr').remove(); guardar();">✕</button></td>
+    </tr>
+    <tr>
+      <td contenteditable="true" data-placeholder="nombre...">Leaflet + OpenStreetMap</td>
+      <td contenteditable="true" data-placeholder="categoría...">Logística / Mapas</td>
+      <td contenteditable="true" data-placeholder="¿qué resuelve?">Geolocalización interactiva para selección de dirección de envío sin consumir la costosa cuota de Google Maps API.</td>
+      <td contenteditable="true" data-placeholder="costo...">Open Source / 100% Gratuito</td>
+      <td contenteditable="true" data-placeholder="¿la aplicarías?">Ya aplicada en el formulario de registro y checkout de Jeremy Tech; permite a los clientes de La Joya ubicar exactamente su domicilio en el mapa.</td>
+      <td class="acciones"><button class="btn-fila-eliminar" onclick="this.closest('tr').remove(); guardar();">✕</button></td>
+    </tr>
+    <tr>
+      <td contenteditable="true" data-placeholder="nombre...">UptimeRobot</td>
+      <td contenteditable="true" data-placeholder="categoría...">Monitoreo de Infraestructura</td>
+      <td contenteditable="true" data-placeholder="¿qué resuelve?">Verifica cada 5 minutos que el servidor web Apache y la tienda estén online, enviando alertas por correo si cae.</td>
+      <td contenteditable="true" data-placeholder="costo...">Gratuito (hasta 50 monitores)</td>
+      <td contenteditable="true" data-placeholder="¿la aplicarías?">Sí, es indispensable para garantizar el cumplimiento de disponibilidad 24/7 que exige la propuesta de valor E-business.</td>
+      <td class="acciones"><button class="btn-fila-eliminar" onclick="this.closest('tr').remove(); guardar();">✕</button></td>
+    </tr>
+    <tr>
+      <td contenteditable="true" data-placeholder="nombre...">Stripe Sandbox / Mock Gateway</td>
+      <td contenteditable="true" data-placeholder="categoría...">Soluciones de Pago</td>
+      <td contenteditable="true" data-placeholder="¿qué resuelve?">Simulación integral de pasarela de pagos con tarjetas de prueba (éxito, fondos insuficientes, fraude) y webhooks.</td>
+      <td contenteditable="true" data-placeholder="costo...">Gratuito en modo Sandbox / Test</td>
+      <td contenteditable="true" data-placeholder="¿la aplicarías?">Ya aplicada conceptualmente mediante el motor simulado y el webhook HMAC-SHA256 del proyecto, validando el ciclo de pago sin riesgos económicos.</td>
+      <td class="acciones"><button class="btn-fila-eliminar" onclick="this.closest('tr').remove(); guardar();">✕</button></td>
+    </tr>
+    <tr>
+      <td contenteditable="true" data-placeholder="nombre...">Google Lighthouse</td>
+      <td contenteditable="true" data-placeholder="categoría...">Auditoría y Rendimiento</td>
+      <td contenteditable="true" data-placeholder="¿qué resuelve?">Analiza rendimiento, accesibilidad, mejores prácticas de seguridad y SEO técnico de la plataforma.</td>
+      <td contenteditable="true" data-placeholder="costo...">Gratuito (integrado en DevTools de Chrome)</td>
+      <td contenteditable="true" data-placeholder="¿la aplicarías?">Sí, se utiliza para auditar tiempos de carga de imágenes en dispositivos móviles de clientes con conexiones 3G/4G en La Joya.</td>
+      <td class="acciones"><button class="btn-fila-eliminar" onclick="this.closest('tr').remove(); guardar();">✕</button></td>
+    </tr>
+  </tbody>
+</table>
+<div class="btn-agregar-wrap"><button class="btn secundario" onclick="agregarFila()">+ Agregar herramienta</button></div>
+<p class="nota">Sugerencias de categorías a cubrir: chat/atención, analítica, SEO, pagos, envíos,
+generación de imágenes/banners, gestión de inventario.</p>
+
+<h2>Conclusión</h2>
+<p>¿Qué herramienta priorizarías integrar primero y por qué, considerando el estado actual de tu proyecto?</p>
+<textarea id="conclusion" placeholder="Escribe aquí tu conclusión...">Para la etapa actual de Jeremy Tech, la herramienta de mayor prioridad fue consolidar la pasarela de pagos simulada con webhook HMAC y la integración de mapas de bajo costo (Leaflet/OSM). Al no pagar licencias propietarias recurrentes, Jeremy Tech mantiene una estructura de costos extraordinariamente ágil, reservando su capital operativo para inventario y logística de entrega rápida.</textarea>
+
+<script>
+  const CLAVE_STORAGE = 'grafiluz-s6-benchmark-tecnologico';
+
+  function filaVacia(datos = {}) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td contenteditable="true" data-placeholder="nombre...">${datos.herramienta || ''}</td>
+      <td contenteditable="true" data-placeholder="categoría...">${datos.categoria || ''}</td>
+      <td contenteditable="true" data-placeholder="¿qué resuelve?">${datos.problema || ''}</td>
+      <td contenteditable="true" data-placeholder="costo...">${datos.costo || ''}</td>
+      <td contenteditable="true" data-placeholder="¿la aplicarías?">${datos.aplicacion || ''}</td>
+      <td class="acciones"><button class="btn-fila-eliminar" onclick="this.closest('tr').remove(); guardar();">✕</button></td>
+    `;
+    tr.querySelectorAll('[contenteditable]').forEach(el => el.addEventListener('input', guardarDebounced));
+    return tr;
+  }
+
+  function agregarFila(datos) { document.getElementById('filas-tabla').appendChild(filaVacia(datos)); guardar(); }
+
+  let temporizador;
+  function guardarDebounced() { clearTimeout(temporizador); temporizador = setTimeout(guardar, 400); }
+
+  function guardar() {
+    const filas = [...document.querySelectorAll('#filas-tabla tr')].map(tr => ({
+      herramienta: tr.children[0].textContent.trim(),
+      categoria: tr.children[1].textContent.trim(),
+      problema: tr.children[2].textContent.trim(),
+      costo: tr.children[3].textContent.trim(),
+      aplicacion: tr.children[4].textContent.trim(),
+    }));
+    const datos = {
+      alumno: document.getElementById('alumno').value,
+      proyecto: document.getElementById('proyecto').value,
+      conclusion: document.getElementById('conclusion').value,
+      filas,
+    };
+    localStorage.setItem(CLAVE_STORAGE, JSON.stringify(datos));
+    const estado = document.getElementById('estado-guardado');
+    estado.textContent = '✓ Guardado en este navegador';
+    clearTimeout(estado._t);
+    estado._t = setTimeout(() => estado.textContent = '', 2000);
+  }
+
+  const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "conclusion": "Para la etapa actual de Jeremy Tech, la herramienta de mayor prioridad fue consolidar la pasarela de pagos simulada con webhook HMAC y la integración de mapas de bajo costo (Leaflet/OSM). Al no pagar licencias propietarias recurrentes, Jeremy Tech mantiene una estructura de costos extraordinariamente ágil, reservando su capital operativo para inventario y logística de entrega rápida.", "filas": [{"herramienta": "Tidio (Free Tier)", "categoria": "Chat en vivo y bots", "problema": "Atención en tiempo real con disparadores automáticos para saludar y capturar leads antes de abandonar la tienda.", "costo": "Gratuito (hasta 50 conversaciones/mes)", "aplicacion": "Sí, como respaldo omnicanal de tercera capa para transferir a un agente humano cuando el chatbot local no resuelva una consulta compleja."}, {"herramienta": "ExchangeRate-API", "categoria": "Finanzas / Multi-divisa", "problema": "Sincronización en tiempo real de tasas de cambio internacionales para mostrar precios en USD, EUR, etc.", "costo": "Gratuito (Open Access Endpoint)", "aplicacion": "Ya aplicada exitosamente en el proyecto (Sesión 2); permite a usuarios corporativos y turistas calcular presupuestos en dólares de forma transparente."}, {"herramienta": "Leaflet + OpenStreetMap", "categoria": "Logística / Mapas", "problema": "Geolocalización interactiva para selección de dirección de envío sin consumir la costosa cuota de Google Maps API.", "costo": "Open Source / 100% Gratuito", "aplicacion": "Ya aplicada en el formulario de registro y checkout de Jeremy Tech; permite a los clientes de La Joya ubicar exactamente su domicilio en el mapa."}, {"herramienta": "UptimeRobot", "categoria": "Monitoreo de Infraestructura", "problema": "Verifica cada 5 minutos que el servidor web Apache y la tienda estén online, enviando alertas por correo si cae.", "costo": "Gratuito (hasta 50 monitores)", "aplicacion": "Sí, es indispensable para garantizar el cumplimiento de disponibilidad 24/7 que exige la propuesta de valor E-business."}, {"herramienta": "Stripe Sandbox / Mock Gateway", "categoria": "Soluciones de Pago", "problema": "Simulación integral de pasarela de pagos con tarjetas de prueba (éxito, fondos insuficientes, fraude) y webhooks.", "costo": "Gratuito en modo Sandbox / Test", "aplicacion": "Ya aplicada conceptualmente mediante el motor simulado y el webhook HMAC-SHA256 del proyecto, validando el ciclo de pago sin riesgos económicos."}, {"herramienta": "Google Lighthouse", "categoria": "Auditoría y Rendimiento", "problema": "Analiza rendimiento, accesibilidad, mejores prácticas de seguridad y SEO técnico de la plataforma.", "costo": "Gratuito (integrado en DevTools de Chrome)", "aplicacion": "Sí, se utiliza para auditar tiempos de carga de imágenes en dispositivos móviles de clientes con conexiones 3G/4G en La Joya."}]};
+
+  function cargar() {
+    const guardado = localStorage.getItem(CLAVE_STORAGE);
+    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    document.getElementById('filas-tabla').innerHTML = '';
+    document.getElementById('alumno').value = datos.alumno || '';
+    document.getElementById('proyecto').value = datos.proyecto || '';
+    document.getElementById('conclusion').value = datos.conclusion || '';
+    (datos.filas || []).forEach(agregarFila);
+  }
+
+  function borrarTodo() {
+    if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
+    localStorage.removeItem(CLAVE_STORAGE);
+    document.getElementById('alumno').value = '';
+    document.getElementById('proyecto').value = '';
+    document.getElementById('conclusion').value = '';
+    document.getElementById('filas-tabla').innerHTML = '';
+    for (let i = 0; i < 4; i++) agregarFila();
+  }
+
+  function descargarTxt() {
+    const v = id => document.getElementById(id).value || '(vacío)';
+    const filas = [...document.querySelectorAll('#filas-tabla tr')].map((tr, i) => {
+      return `${i + 1}. ${tr.children[0].textContent.trim() || '(vacío)'} (${tr.children[1].textContent.trim() || '(vacío)'})\n   Resuelve: ${tr.children[2].textContent.trim() || '(vacío)'}\n   Costo: ${tr.children[3].textContent.trim() || '(vacío)'}\n   ¿La aplicarías?: ${tr.children[4].textContent.trim() || '(vacío)'}`;
+    }).join('\n\n');
+
+    const contenido = `EL BENCHMARK TECNOLÓGICO\nSesión 6 — Herramientas, Análisis de Mercado y Chatbots con IA\n\nAlumno(a): ${v('alumno')}\nProyecto / Negocio: ${v('proyecto')}\n\nCUADRO COMPARATIVO\n${filas}\n\nCONCLUSIÓN\n${v('conclusion')}\n`;
+
+    const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'benchmark-tecnologico.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  document.getElementById('alumno').addEventListener('input', guardarDebounced);
+  document.getElementById('proyecto').addEventListener('input', guardarDebounced);
+  document.getElementById('conclusion').addEventListener('input', guardarDebounced);
+
+  const CLAVE_OCULTAR_BOTONES = 'grafiluz-s6-benchmark-ocultar-botones';
+  function alternarAcciones() {
+    const grupo = document.getElementById('grupo-acciones');
+    const oculto = grupo.classList.toggle('oculto');
+    document.getElementById('btn-toggle-acciones').textContent = oculto ? '👁️ Mostrar botones' : '🙈 Ocultar botones';
+    localStorage.setItem(CLAVE_OCULTAR_BOTONES, oculto ? '1' : '0');
+  }
+  function cargarPreferenciaBotones() {
+    if (localStorage.getItem(CLAVE_OCULTAR_BOTONES) === '1') {
+      document.getElementById('grupo-acciones').classList.add('oculto');
+      document.getElementById('btn-toggle-acciones').textContent = '👁️ Mostrar botones';
+    }
+  }
+
+  cargar();
+  cargarPreferenciaBotones();
+
+  // ── Print fix: sincronizar textareas → mirror divs ──
+  function sincronizarImpresion() {
+    document.querySelectorAll('textarea').forEach(function(tx) {
+      var sig = tx.nextElementSibling;
+      if (!sig || !sig.classList.contains('bloque-impresion')) {
+        var div = document.createElement('div');
+        div.className = 'bloque-impresion';
+        tx.parentNode.insertBefore(div, tx.nextSibling);
+        sig = div;
+      }
+      sig.textContent = tx.value || '';
+    });
+  }
+  window.addEventListener('beforeprint', sincronizarImpresion);
+  document.addEventListener('DOMContentLoaded', sincronizarImpresion);
+  // llamada inmediata por si DOMContentLoaded ya disparó
+  if (document.readyState !== 'loading') { sincronizarImpresion(); }
+</script>
+
+</body>
+</html>

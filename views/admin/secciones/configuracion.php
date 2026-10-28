@@ -18,6 +18,7 @@ $v = static fn($k) => htmlspecialchars((string) ($config[$k] ?? ''), ENT_QUOTES,
     </div>
 
     <form method="post" action="?ruta=admin/configuracion" class="admin-formulario admin-formulario-ancho">
+        <?= \Security\Proteccion::campo() ?>
         <label>Nombre de la tienda
             <input type="text" name="nombre_tienda" value="<?= $v('nombre_tienda') ?>">
         </label>

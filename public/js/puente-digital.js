@@ -70,6 +70,19 @@ function convertirPrecio(precioPEN, moneda) {
 }
 
 /**
+ * Refleja la moneda seleccionada en el footer global.
+ * El elemento es opcional: solo existe cuando se renderiza el layout público.
+ * @function actualizarMonedaFooter
+ * @returns {void}
+ */
+function actualizarMonedaFooter() {
+  var el = document.getElementById("footerMoneda");
+  if (el) {
+    el.textContent = monedaActual;
+  }
+}
+
+/**
  * Recorre todas las etiquetas de precio en el DOM (`.price[data-precio]`)
  * y actualiza su texto visible según la moneda seleccionada actualmente.
  * También notifica al carrito de compras si la función global existe.
@@ -84,6 +97,7 @@ function actualizarPreciosEnTarjetas() {
     var simbolo = MONEDAS[monedaActual] ? MONEDAS[monedaActual].simbolo : monedaActual;
     el.textContent = simbolo + " " + precio.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   });
+  actualizarMonedaFooter();
   if (typeof window.actualizarPreciosEnCarrito === "function") {
     window.actualizarPreciosEnCarrito();
   }
@@ -100,20 +114,33 @@ function initDropdownMoneda() {
   var dropdown = document.getElementById("monedaDropdown");
   if (!btn || !dropdown) return;
 
+  function setDropdownOpen(open) {
+    dropdown.classList.toggle("open", open);
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+
   // Alternar apertura/cierre del dropdown al hacer clic en el botón
   btn.addEventListener("click", function (e) {
     e.stopPropagation();
-    dropdown.classList.toggle("open");
+    setDropdownOpen(!dropdown.classList.contains("open"));
   });
 
   // Cerrar el dropdown si se hace clic fuera de él
   document.addEventListener("click", function () {
-    dropdown.classList.remove("open");
+    setDropdownOpen(false);
   });
 
   // Evitar cierre accidental al hacer clic dentro del contenedor
   dropdown.addEventListener("click", function (e) {
     e.stopPropagation();
+  });
+
+  // Escape cierra el selector y devuelve el foco al botón.
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && dropdown.classList.contains("open")) {
+      setDropdownOpen(false);
+      btn.focus();
+    }
   });
 
   // Escuchar selección de cada opción de divisa
@@ -123,14 +150,18 @@ function initDropdownMoneda() {
       var nuevaMoneda = this.getAttribute("data-moneda");
       monedaActual = nuevaMoneda;
 
-      opciones.forEach(function (o) { o.classList.remove("active"); });
+      opciones.forEach(function (o) {
+        o.classList.remove("active");
+        o.setAttribute("aria-pressed", "false");
+      });
       this.classList.add("active");
+      this.setAttribute("aria-pressed", "true");
 
       var info = MONEDAS[nuevaMoneda];
       btn.textContent = info.flag + " " + info.simbolo;
 
       actualizarPreciosEnTarjetas();
-      dropdown.classList.remove("open");
+      setDropdownOpen(false);
     });
   });
 }
@@ -138,6 +169,7 @@ function initDropdownMoneda() {
 // Inicialización al cargar el árbol DOM
 document.addEventListener("DOMContentLoaded", function () {
   initDropdownMoneda();
+  actualizarMonedaFooter();
   cargarTasas().then(function (ok) {
     if (ok && monedaActual !== "PEN") {
       actualizarPreciosEnTarjetas();

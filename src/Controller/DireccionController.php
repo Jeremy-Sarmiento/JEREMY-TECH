@@ -84,13 +84,14 @@ class DireccionController
      */
     public function eliminar(): void
     {
+        \Security\Proteccion::exigirPost();
         $clienteId = Cuenta::idSesion();
         if ($clienteId === null) {
             header('Location: ?ruta=login');
             exit;
         }
 
-        $id = (int) ($_GET['id'] ?? 0);
+        $id = (int) ($_POST['id'] ?? 0);
         $ok = $id > 0 && Direccion::eliminar($id, $clienteId);
         self::guardarFlash($ok ? 'Dirección eliminada.' : 'No se pudo eliminar esa dirección.', !$ok);
         header('Location: ?ruta=direcciones');
@@ -102,13 +103,14 @@ class DireccionController
      */
     public function predeterminada(): void
     {
+        \Security\Proteccion::exigirPost();
         $clienteId = Cuenta::idSesion();
         if ($clienteId === null) {
             header('Location: ?ruta=login');
             exit;
         }
 
-        $id = (int) ($_GET['id'] ?? 0);
+        $id = (int) ($_POST['id'] ?? 0);
         if ($id > 0 && Direccion::porId($id, $clienteId) !== null) {
             Direccion::marcarPredeterminada($id, $clienteId);
             self::guardarFlash('Dirección predeterminada actualizada.', false);
@@ -121,9 +123,7 @@ class DireccionController
 
     private static function guardarFlash(string $mensaje, bool $esError): void
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        \Security\Proteccion::iniciarSesion();
         $_SESSION['flash_direcciones'] = [
             'tipo'    => $esError ? 'error' : 'ok',
             'mensaje' => $mensaje,
@@ -135,9 +135,7 @@ class DireccionController
      */
     private static function tomarFlash(): array
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        \Security\Proteccion::iniciarSesion();
         $flash = $_SESSION['flash_direcciones'] ?? null;
         unset($_SESSION['flash_direcciones']);
 

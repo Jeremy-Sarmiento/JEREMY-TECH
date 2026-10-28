@@ -102,6 +102,7 @@ if ($idTramo > 0) {
 
     <dialog class="admin-modal" id="modalVariante"<?= $editandoVariante ? ' data-modal-auto="1"' : '' ?>>
         <form method="post" action="?ruta=admin/variantes/variantes/guardar" class="admin-formulario">
+            <?= \Security\Proteccion::campo() ?>
             <div class="admin-modal-cabecera">
                 <h3><?= $editandoVariante ? 'Editar variante' : 'Nueva variante' ?></h3>
                 <button type="button" class="admin-modal-cerrar" data-modal-cerrar aria-label="Cerrar">&times;</button>
@@ -141,6 +142,7 @@ if ($idTramo > 0) {
 
     <dialog class="admin-modal" id="modalTramo"<?= $editandoTramo ? ' data-modal-auto="1"' : '' ?>>
         <form method="post" action="?ruta=admin/variantes/volumen/guardar" class="admin-formulario">
+            <?= \Security\Proteccion::campo() ?>
             <div class="admin-modal-cabecera">
                 <h3><?= $editandoTramo ? 'Editar tramo' : 'Nuevo tramo de volumen' ?></h3>
                 <button type="button" class="admin-modal-cerrar" data-modal-cerrar aria-label="Cerrar">&times;</button>
@@ -202,8 +204,8 @@ if ($idTramo > 0) {
                         <td><span class="etiqueta <?= (int) $v['activo'] ? 'etiqueta-ok' : 'etiqueta-off' ?>"><?= (int) $v['activo'] ? 'Visible' : 'Oculta' ?></span></td>
                         <td class="admin-acciones">
                             <a class="btn-mini" href="?ruta=admin/variantes&p=<?= urlencode((string) $producto['slug']) ?>&editar-variante=<?= (int) $v['id'] ?>">Editar</a>
-                            <a class="btn-mini" href="?ruta=admin/variantes/variantes/estado&id=<?= (int) $v['id'] ?>&p=<?= urlencode((string) $producto['slug']) ?>"><?= (int) $v['activo'] ? 'Ocultar' : 'Mostrar' ?></a>
-                            <a class="btn-mini btn-mini-peligro" href="?ruta=admin/variantes/variantes/eliminar&id=<?= (int) $v['id'] ?>&p=<?= urlencode((string) $producto['slug']) ?>" onclick="return confirm('¿Eliminar esta variante?')">Eliminar</a>
+                            <?= \Security\Proteccion::botonPost('admin/variantes/variantes/estado', ['id' => (int) $v['id'], 'p' => (string) $producto['slug']], (int) $v['activo'] ? 'Ocultar' : 'Mostrar') ?>
+                            <?= \Security\Proteccion::botonPost('admin/variantes/variantes/eliminar', ['id' => (int) $v['id'], 'p' => (string) $producto['slug']], 'Eliminar', 'btn-mini btn-mini-peligro', '¿Eliminar esta variante?') ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -237,7 +239,7 @@ if ($idTramo > 0) {
                         <td><?= $ahorro > 0 ? 'S/ ' . $fmt($ahorro) : '—' ?></td>
                         <td class="admin-acciones">
                             <a class="btn-mini" href="?ruta=admin/variantes&p=<?= urlencode((string) $producto['slug']) ?>&editar-tramo=<?= (int) $t['id'] ?>">Editar</a>
-                            <a class="btn-mini btn-mini-peligro" href="?ruta=admin/variantes/volumen/eliminar&id=<?= (int) $t['id'] ?>&p=<?= urlencode((string) $producto['slug']) ?>" onclick="return confirm('¿Eliminar este tramo?')">Eliminar</a>
+                            <?= \Security\Proteccion::botonPost('admin/variantes/volumen/eliminar', ['id' => (int) $t['id'], 'p' => (string) $producto['slug']], 'Eliminar', 'btn-mini btn-mini-peligro', '¿Eliminar este tramo?') ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>

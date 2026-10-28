@@ -29,6 +29,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 
     <dialog class="admin-modal" id="modalForm"<?= $editando ? ' data-modal-auto="1"' : '' ?>>
         <form method="post" action="?ruta=admin/marcas/guardar" class="admin-formulario">
+            <?= \Security\Proteccion::campo() ?>
             <div class="admin-modal-cabecera">
                 <h3><?= $editando ? 'Editar marca' : 'Nueva marca' ?></h3>
                 <button type="button" class="admin-modal-cerrar" data-modal-cerrar aria-label="Cerrar">&times;</button>
@@ -63,7 +64,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
                         <td><span class="etiqueta <?= (int) $m['activo'] ? 'etiqueta-ok' : 'etiqueta-off' ?>"><?= (int) $m['activo'] ? 'Activa' : 'Inactiva' ?></span></td>
                         <td class="admin-acciones">
                             <a class="btn-mini" href="?ruta=admin/marcas&editar=<?= (int) $m['id'] ?>">Editar</a>
-                            <a class="btn-mini btn-mini-peligro" href="?ruta=admin/marcas/eliminar&id=<?= (int) $m['id'] ?>" onclick="return confirm('¿Eliminar esta marca?')">Eliminar</a>
+                            <?= \Security\Proteccion::botonPost('admin/marcas/eliminar', ['id' => (int) $m['id']], 'Eliminar', 'btn-mini btn-mini-peligro', '¿Eliminar esta marca?') ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>

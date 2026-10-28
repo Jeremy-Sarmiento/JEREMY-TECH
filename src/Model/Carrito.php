@@ -23,9 +23,7 @@ class Carrito
      */
     private static function iniciarSesion(): void
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        \Security\Proteccion::iniciarSesion();
     }
 
     /**
@@ -68,9 +66,11 @@ class Carrito
     public static function agregar(string $productoId, int $cantidad = 1, ?int $varianteId = null): void
     {
         self::iniciarSesion();
-        if (Producto::porId((int) $productoId) === null) {
-            // Ignora identificadores que no existen: si entraran, la sesión
-            // quedaría "no vacía" y el checkout crearía un pedido en 0.
+        $producto = Producto::porId((int) $productoId);
+        if ($producto === null || !empty($producto['archivado'])) {
+            // Ignora identificadores que no existen o publicaciones
+            // archivadas: si entraran, la sesión quedaría "no vacía" y el
+            // checkout crearía un pedido en 0 (o vendería algo retirado).
             return;
         }
         if ($varianteId !== null) {
@@ -306,17 +306,17 @@ class Carrito
 
     /**
      * Registra el pedido completo de forma atómica:
-     * cliente (autenticado, se actualiza su contacto) -> pedido ->
-     * detalle_pedido -> pago. Exige una cuenta iniciada: si la sesión es de
-     * invitado lanza una excepción (el checkout es obligatorio con sesión).
+     * pedido -> detalle_pedido -> pago. Exige una cuenta iniciada: si la sesión
+     * es de invitado lanza una excepción (el checkout es obligatorio con
+     * sesión). No escribe en `users`: los datos de contacto y de SUNAT son del
+     * pedido, no del perfil.
      *
-     * @param array<string, mixed> $cliente  nombre, tipo, empresa, ruc, dni, telefono
      * @param array<string, mixed> $pago     metodo, comprobante, modalidad,
      *                                        direccion_id, tarifa_envio_id,
      *                                        nueva_etiqueta, nueva_direccion, nueva_referencia
      * @return int|null ID del pedido creado, o null si el carrito está vacío.
      */
-    public static function checkout(array $cliente, array $pago): ?int
+    public static function checkout(array $pago): ?int
     {
         if (self::estaVacio()) {
             return null;
@@ -335,7 +335,6 @@ class Carrito
             return null;
         }
         $modalidad = (string) ($pago['modalidad'] ?? self::MODALIDAD_RECOJO);
-        $comprobante = (string) ($pago['comprobante'] ?? 'boleta');
         $subtotal = self::subtotalPEN();
         $cupon = self::cuponActivo();
         $descuento = self::montoDescuentoPEN();
@@ -354,28 +353,21 @@ class Carrito
         $direccionId = $destino['direccion_id'];
         $total = round($subtotal - $descuento + $envioCosto, 2);
 
+        // El controlador decide el resultado del pago simulado. Se aceptan solo
+        // estados conocidos para que un valor externo no pueda falsear el flujo.
+        $estadoPedido = (string) ($pago['estado_pedido'] ?? 'Pagado');
+        if (!in_array($estadoPedido, ['Pendiente', 'Pagado'], true)) {
+            $estadoPedido = 'Pendiente';
+        }
+        $estadoPago = (string) ($pago['estado_pago'] ?? 'Pagado');
+        if (!in_array($estadoPago, ['Pendiente', 'Pagado', 'En verificación', 'Rechazado'], true)) {
+            $estadoPago = 'Pendiente';
+        }
+        $transaccionId = mb_substr((string) ($pago['transaccion_id'] ?? ''), 0, 60);
+
         $pdo->beginTransaction();
         try {
-            // 1. Actualizar datos de contacto del cliente autenticado (el
-            //    correo de la cuenta queda intacto porque es su identidad).
-            //    `direccion` guarda el último destino usado.
-            $tipo = ($cliente['tipo'] ?? 'B2C') === 'B2B' ? 'B2B' : 'B2C';
-            $stmtCliente = $pdo->prepare(
-                'UPDATE users SET name = ?, tipo = ?, empresa = ?, ruc = ?, dni = ?, telefono = ?, direccion = ?
-                 WHERE id = ?'
-            );
-            $stmtCliente->execute([
-                $cliente['nombre'] ?? '',
-                $tipo,
-                $cliente['empresa'] ?? '',
-                $cliente['ruc'] ?? '',
-                $cliente['dni'] ?? '',
-                $cliente['telefono'] ?? '',
-                $destino['texto'] !== '' ? $destino['texto'] : ($cliente['direccion'] ?? ''),
-                $clienteId,
-            ]);
-
-            // 2. Si el destino era una dirección nueva, se persiste aquí mismo
+            // 1. Si el destino era una dirección nueva, se persiste aquí mismo
             //    (misma transacción que el pedido). La primera del cliente
             //    queda como predeterminada.
             if ($destino['nueva'] !== null) {
@@ -399,7 +391,7 @@ class Carrito
                 $direccionId = (int) $pdo->lastInsertId();
             }
 
-            // 3. Pedido (desglose de subtotal/IGV/envío/descuento + snapshot
+            // 2. Pedido (desglose de subtotal/IGV/envío/descuento + snapshot
             //    inmutable del destino, Etapa 5).
             $stmtPedido = $pdo->prepare(
                 'INSERT INTO pedidos (cliente_id, total_pen, subtotal, igv_monto, envio_costo, envio_zona,
@@ -417,7 +409,7 @@ class Carrito
                 $cupon ? $cupon['id'] : null,
                 $direccionId,
                 $destino['texto'] !== '' ? $destino['texto'] : null,
-                'Pagado',
+                $estadoPedido,
             ]);
             $pedidoId = (int) $pdo->lastInsertId();
 
@@ -427,7 +419,7 @@ class Carrito
                     ->execute([$cupon['id']]);
             }
 
-            // 4. Detalle del pedido. `vendedor_id` se copia del producto en
+            // 3. Detalle del pedido. `vendedor_id` se copia del producto en
             //    el momento de la compra: una línea histórica no cambia de
             //    dueño aunque el producto se reasigne después.
             $stmtDetalle = $pdo->prepare(
@@ -468,7 +460,7 @@ class Carrito
             // que dos compras simultáneas vendan la misma última unidad.
             Inventario::descontar($pdo, $lineas, $pedidoId);
 
-            // 5. Reparto de comisiones (Etapa 6): UNA fila por pedido y
+            // 4. Reparto de comisiones (Etapa 6): UNA fila por pedido y
             //    vendedor, con el porcentaje congelado al comprar. El reparto
             //    se hace sobre la base SIN IGV.
             $stmtComision = $pdo->prepare(
@@ -491,16 +483,38 @@ class Carrito
                 ]);
             }
 
-            // 6. Pago
+            // 5. Pago (simulado: se guarda el estado decidido por PagoSimulado)
             $stmtPago = $pdo->prepare(
-                'INSERT INTO pagos (pedido_id, metodo, monto_pen, estado) VALUES (?, ?, ?, ?)'
+                'INSERT INTO pagos (pedido_id, metodo, monto_pen, transaccion_id, estado)
+                 VALUES (?, ?, ?, ?, ?)'
             );
             $stmtPago->execute([
                 $pedidoId,
                 $pago['metodo'] ?? '',
                 $total,
-                'Pagado',
+                $transaccionId,
+                $estadoPago,
             ]);
+
+            // 6. Línea de tiempo del pedido. Se escribe con la misma
+            //    transacción: si el pedido hace rollback, no queda un hito
+            //    suelto en el historial.
+            PedidoEvento::registrar(
+                $pdo,
+                $pedidoId,
+                PedidoEvento::CREADO,
+                $estadoPedido,
+                'Pedido registrado en la tienda.'
+            );
+            if ($estadoPago === 'Pagado') {
+                PedidoEvento::registrar(
+                    $pdo,
+                    $pedidoId,
+                    PedidoEvento::PAGO_CONFIRMADO,
+                    'Pagado',
+                    'Pago aprobado en el checkout simulado.'
+                );
+            }
 
             $pdo->commit();
         } catch (\Throwable $error) {
@@ -588,36 +602,145 @@ class Carrito
 
     /**
      * Historial de pedidos de un cliente (los más recientes primero) con su
-     * detalle.
+     * detalle, pago y eventos de seguimiento.
+     *
+     * El filtro `$estado` se valida contra los estados reales del pedido:
+     * cualquier otro valor se ignora en lugar de llegar al SQL.
+     *
      * @return array<int, array<string, mixed>>
      */
-    public static function historial(int $clienteId, int $limite = 50): array
+    public static function historial(int $clienteId, int $limite = 50, ?string $estado = null): array
     {
+        if ($clienteId <= 0) {
+            return [];
+        }
+
         $pdo = conexion();
+        $limite = max(1, min(200, $limite));
+
+        $where = 'cliente_id = ?';
+        $parametros = [$clienteId];
+
+        $estadosValidos = array_merge(Pedido::ESTADOS, [Pedido::CANCELADO]);
+        if ($estado !== null && in_array($estado, $estadosValidos, true)) {
+            $where .= ' AND estado = ?';
+            $parametros[] = $estado;
+        }
 
         $stmtPedidos = $pdo->prepare(
-            'SELECT id, cliente_id, total_pen, estado, envio_zona, direccion_entrega, creado_en
-             FROM pedidos WHERE cliente_id = ? ORDER BY id DESC LIMIT ' . max(1, $limite)
+            "SELECT id, cliente_id, total_pen, subtotal, igv_monto, envio_costo,
+                    envio_zona, descuento_aplicado, direccion_entrega, courier,
+                    guia_numero, fecha_envio, estado, creado_en
+               FROM pedidos
+              WHERE $where
+              ORDER BY id DESC
+              LIMIT $limite"
         );
-        $stmtPedidos->execute([$clienteId]);
+        $stmtPedidos->execute($parametros);
         $pedidos = $stmtPedidos->fetchAll();
 
-        $detalles = $pdo
-            ->query('SELECT pedido_id, producto_id, producto_nombre, cantidad, precio_unitario_pen,
-                            variante_id, variante_nombre
-                       FROM detalle_pedido ORDER BY id')
-            ->fetchAll();
-
-        $porPedido = [];
-        foreach ($detalles as $d) {
-            $porPedido[$d['pedido_id']][] = $d;
+        if ($pedidos === []) {
+            return [];
         }
+
+        // Solo se consultan los pedidos de esta página: antes se traían todos
+        // los pagos y detalles de la base y se filtraban en PHP.
+        $ids = array_values(array_unique(array_map(
+            static fn (array $pedido): int => (int) $pedido['id'],
+            $pedidos
+        )));
+        $marcas = implode(',', array_fill(0, count($ids), '?'));
+
+        $stmtPagos = $pdo->prepare(
+            "SELECT pedido_id, metodo, estado, transaccion_id, creado_en
+               FROM pagos
+              WHERE pedido_id IN ($marcas)
+              ORDER BY id"
+        );
+        $stmtPagos->execute($ids);
+        $porPedidoPago = [];
+        foreach ($stmtPagos->fetchAll() as $pago) {
+            $porPedidoPago[(int) $pago['pedido_id']] = $pago;
+        }
+
+        $stmtDetalles = $pdo->prepare(
+            "SELECT dp.pedido_id, dp.producto_id, dp.producto_nombre, dp.cantidad,
+                    dp.precio_unitario_pen, dp.variante_id, dp.variante_nombre,
+                    dp.vendedor_id, vu.name AS vendedor_nombre
+               FROM detalle_pedido dp
+          LEFT JOIN users vu ON vu.id = dp.vendedor_id
+              WHERE dp.pedido_id IN ($marcas)
+              ORDER BY dp.id"
+        );
+        $stmtDetalles->execute($ids);
+        $porPedido = [];
+        foreach ($stmtDetalles->fetchAll() as $detalle) {
+            $porPedido[(int) $detalle['pedido_id']][] = $detalle;
+        }
+
+        $eventos = PedidoEvento::paraPedidos($ids);
 
         foreach ($pedidos as &$pedido) {
-            $pedido['detalle'] = $porPedido[$pedido['id']] ?? [];
+            $pedidoId = (int) $pedido['id'];
+            $pedido['detalle'] = $porPedido[$pedidoId] ?? [];
+            $pedido['pago'] = $porPedidoPago[$pedidoId] ?? null;
+            $pedido['eventos'] = $eventos[$pedidoId] ?? [];
         }
+        unset($pedido);
 
         return $pedidos;
+    }
+
+    /**
+     * Conteo de pedidos por estado y monto acumulado del cliente.
+     *
+     * Los pedidos cancelados se cuentan, pero no suman al gasto total.
+     *
+     * @return array{porEstado: array<string, int>, total: int, gastado: float, enCurso: int, entregados: int}
+     */
+    public static function resumenPedidos(int $clienteId): array
+    {
+        $resumen = [
+            'porEstado'  => [],
+            'total'      => 0,
+            'gastado'    => 0.0,
+            'enCurso'    => 0,
+            'entregados' => 0,
+        ];
+        if ($clienteId <= 0) {
+            return $resumen;
+        }
+
+        $stmt = conexion()->prepare(
+            'SELECT estado, COUNT(*) AS total, COALESCE(SUM(total_pen), 0) AS monto
+               FROM pedidos
+              WHERE cliente_id = ?
+              GROUP BY estado'
+        );
+        $stmt->execute([$clienteId]);
+
+        $enCurso = ['Pendiente', 'Pagado', 'Enviado'];
+        foreach ($stmt->fetchAll() as $fila) {
+            $estado = (string) $fila['estado'];
+            $cantidad = (int) $fila['total'];
+
+            $resumen['porEstado'][$estado] = $cantidad;
+            $resumen['total'] += $cantidad;
+
+            if ($estado !== Pedido::CANCELADO) {
+                $resumen['gastado'] += (float) $fila['monto'];
+            }
+            if (in_array($estado, $enCurso, true)) {
+                $resumen['enCurso'] += $cantidad;
+            }
+            if ($estado === 'Entregado') {
+                $resumen['entregados'] += $cantidad;
+            }
+        }
+
+        $resumen['gastado'] = round($resumen['gastado'], 2);
+
+        return $resumen;
     }
 
     /**

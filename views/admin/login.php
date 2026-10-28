@@ -15,6 +15,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
         <?php endif; ?>
 
         <form method="post" action="?ruta=admin/login/autenticar" class="login-forma">
+            <?= \Security\Proteccion::campo() ?>
             <label for="usuario">Usuario</label>
             <input type="text" id="usuario" name="usuario" value="<?= $usuario ?>"
                    required autofocus autocomplete="username">
@@ -24,6 +25,10 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 
             <button type="submit" class="btn btn-primario">Entrar</button>
         </form>
+
+        <p class="login-volver">
+            <a href="?ruta=admin/recuperar">¿Olvidaste tu contraseña?</a>
+        </p>
 
         <p class="login-volver">
             <a href="?ruta=catalogo">&larr; Volver a la tienda</a>

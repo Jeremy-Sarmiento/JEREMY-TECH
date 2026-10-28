@@ -29,6 +29,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 
     <dialog class="admin-modal" id="modalForm"<?= $editando ? ' data-modal-auto="1"' : '' ?>>
         <form method="post" action="?ruta=admin/envios/guardar" class="admin-formulario">
+            <?= \Security\Proteccion::campo() ?>
             <div class="admin-modal-cabecera">
                 <h3><?= $editando ? 'Editar tarifa' : 'Nueva tarifa' ?></h3>
                 <button type="button" class="admin-modal-cerrar" data-modal-cerrar aria-label="Cerrar">&times;</button>
@@ -70,8 +71,8 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
                         <td><span class="etiqueta <?= (int) $v['activo'] ? 'etiqueta-ok' : 'etiqueta-off' ?>"><?= (int) $v['activo'] ? 'Activa' : 'Inactiva' ?></span></td>
                         <td class="admin-acciones">
                             <a class="btn-mini" href="?ruta=admin/envios&editar=<?= (int) $v['id'] ?>">Editar</a>
-                            <a class="btn-mini" href="?ruta=admin/envios/estado&id=<?= (int) $v['id'] ?>"><?= (int) $v['activo'] ? 'Desactivar' : 'Activar' ?></a>
-                            <a class="btn-mini btn-mini-peligro" href="?ruta=admin/envios/eliminar&id=<?= (int) $v['id'] ?>" onclick="return confirm('¿Eliminar esta tarifa?')">Eliminar</a>
+                            <?= \Security\Proteccion::botonPost('admin/envios/estado', ['id' => (int) $v['id']], (int) $v['activo'] ? 'Desactivar' : 'Activar') ?>
+                            <?= \Security\Proteccion::botonPost('admin/envios/eliminar', ['id' => (int) $v['id']], 'Eliminar', 'btn-mini btn-mini-peligro', '¿Eliminar esta tarifa?') ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>

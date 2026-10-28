@@ -33,6 +33,73 @@ class Pedido
     public const CANCELABLES_DESDE = ['Pendiente', 'Pagado'];
 
     /**
+     * ¿El pago de un pedido se puede reembolsar?
+     *
+     * La condición real es el estado del PAGO, no el del pedido: un pedido
+     * enviado o entregado ya no se puede "cancelar" logísticamente, pero sí
+     * se puede reembolsar al cliente. También cubre el caso de un pedido
+     * cancelado cuyo pago quedó confirmado sin marcar como reembolsado.
+     * El stock se devuelve con `Inventario::devolver()`, que es idempotente
+     * y no duplica la entrada si ya se había devuelto al cancelar.
+     */
+    public static function pagoReembolsable(string $pagoEstado): bool
+    {
+        return trim($pagoEstado) === 'Pagado';
+    }
+
+    /**
+     * Código visible del pedido. El panel y el historial del cliente usan el
+     * mismo formato: `#JT-00006`.
+     */
+    public static function codigo(int $pedidoId): string
+    {
+        return '#JT-' . str_pad((string) max(0, $pedidoId), 5, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Extrae el id numérico de un código `#JT-00006` o `JT-00006`.
+     * Devuelve null si el texto no tiene el formato esperado.
+     */
+    public static function idDesdeCodigo(string $codigo): ?int
+    {
+        if (!preg_match('/^\s*#?\s*JT\s*-\s*(\d{1,10})\s*$/iu', $codigo, $coincidencia)) {
+            return null;
+        }
+
+        $id = (int) $coincidencia[1];
+        return $id > 0 ? $id : null;
+    }
+
+    /**
+     * Pedido de un cliente concreto a partir del código visible.
+     *
+     * El chatbot NUNCA debe usar una búsqueda global por código: el código es
+     * derivado del id y sería posible enumerar pedidos ajenos. El `cliente_id`
+     * limita el resultado a la cuenta autenticada.
+     *
+     * @return array<string, mixed>|null
+     */
+    public static function porCodigoDeCliente(string $codigo, int $clienteId): ?array
+    {
+        $id = self::idDesdeCodigo($codigo);
+        if ($id === null || $clienteId <= 0) {
+            return null;
+        }
+
+        $stmt = conexion()->prepare(
+            'SELECT id, cliente_id, total_pen, estado, envio_zona, courier,
+                    guia_numero, fecha_envio, creado_en
+               FROM pedidos
+              WHERE id = ? AND cliente_id = ?
+              LIMIT 1'
+        );
+        $stmt->execute([$id, $clienteId]);
+        $pedido = $stmt->fetch();
+
+        return $pedido ?: null;
+    }
+
+    /**
      * ¿Se permite cambiar un pedido de $de a $a?
      *
      * Reglas:

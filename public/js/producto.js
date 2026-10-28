@@ -12,6 +12,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const P = window.JT_PRODUCTO;
   if (!P) return;
 
+  // (Bloque 8) La ficha registra una vista de producto para el dashboard de
+  // analítica (top de productos por interacción).
+  if (window.JeremyTechAnalitica) {
+    JeremyTechAnalitica.registrar('producto_visto', { producto_id: Number(P.id) }, 'producto').catch(function () {});
+  }
+
   const elPrecio    = document.getElementById('prodPrecio');
   const elAhorro    = document.getElementById('prodAhorro');
   const elStock     = document.getElementById('prodStock');

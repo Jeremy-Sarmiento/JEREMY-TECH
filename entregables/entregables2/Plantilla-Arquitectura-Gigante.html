@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Arquitectura del Gigante</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 900px; margin: 0 auto; padding: 0 20px 60px; color: #1f2937; background: #fafafa; line-height: 1.55; }
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  .subtitulo { color: #6b7280; margin-top: 0; }
+  h2 { font-size: 1.1rem; margin-top: 34px; padding-top: 10px; border-top: 1px solid #e5e7eb; }
+  .campos-header { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  label { display: block; font-size: 0.8rem; font-weight: 600; color: #374151; margin-bottom: 4px; }
+  input[type="text"] { width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; font-family: inherit; background: white; }
+  input:focus, [contenteditable]:focus, textarea:focus { outline: 2px solid #1d4ed8; outline-offset: 1px; }
+  .caja { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.86rem; background: white; }
+  th, td { border: 1px solid #e5e7eb; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #f3f4f6; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.02em; }
+  td[contenteditable="true"] { min-width: 100px; cursor: text; }
+  td[contenteditable="true"]:empty::before { content: attr(data-placeholder); color: #9ca3af; }
+  tr.ejemplo { background: #f8fafc; color: #6b7280; font-style: italic; }
+  .badge-ejemplo { display: inline-block; background: #e0e7ff; color: #3730a3; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; margin-right: 6px; font-style: normal; }
+  textarea { width: 100%; min-height: 90px; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; font-size: 0.95rem; resize: vertical; background: white; }
+  .nota { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 4px; font-size: 0.88rem; margin: 12px 0; }
+  .barra-acciones { position: sticky; top: 0; background: #fafafa; padding: 14px 0 10px; margin-bottom: 6px; display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #e5e7eb; z-index: 10; }
+  .btn { background: #1d4ed8; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+  .btn:hover { background: #1e40af; }
+  .btn.secundario { background: #e5e7eb; color: #1f2937; }
+  .btn.secundario:hover { background: #d1d5db; }
+  .btn.peligro { background: #fee2e2; color: #991b1b; }
+  .btn.peligro:hover { background: #fecaca; }
+  .btn-toggle { background: white; color: #374151; border: 1px solid #d1d5db; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+  .btn-toggle:hover { background: #f3f4f6; }
+  #grupo-acciones { display: flex; flex-wrap: wrap; gap: 10px; }
+  #grupo-acciones.oculto { display: none; }
+  .estado-guardado { font-size: 0.8rem; color: #16a34a; align-self: center; }
+  a { color: #1d4ed8; }
+  @media print {
+    .barra-acciones { display: none; }
+    body { margin: 0; max-width: 660px; }
+    table { font-size: 0.76rem; }
+    th, td { padding: 5px 6px; }
+    h1, h2 { break-after: avoid; page-break-after: avoid; }
+    p, .caja, .nota, tr { break-inside: avoid; page-break-inside: avoid; }
+  }
+
+  /* ── Print fix: mirror divs en vez de textareas ── */
+  .bloque-impresion { display: none; }
+  @media print {
+    textarea { display: none !important; }
+    input[type="file"] { display: none !important; }
+    .bloque-impresion {
+      display: block !important;
+      white-space: pre-wrap;
+      font-family: inherit;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: #1f2937;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin: 4px 0 12px;
+      break-inside: auto;
+      page-break-inside: auto;
+      min-height: 2em;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="barra-acciones">
+  <button class="btn-toggle" id="btn-toggle-acciones" onclick="alternarAcciones()">🙈 Ocultar botones</button>
+  <span id="grupo-acciones">
+    <button class="btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    <button class="btn secundario" onclick="descargarTxt()">💾 Descargar respuestas (.txt)</button>
+    <button class="btn peligro" onclick="borrarTodo()">🗑️ Borrar mis respuestas</button>
+  </span>
+  <span id="estado-guardado" class="estado-guardado"></span>
+</div>
+
+<h1>La Arquitectura del Gigante</h1>
+<p class="subtitulo">Sesión 4 — Diseño lógico de escalabilidad (catálogo, usuarios, interacciones)</p>
+
+<div class="campos-header">
+  <div>
+    <label for="alumno">Alumno(a)</label>
+    <input type="text" id="alumno" placeholder="Tu nombre" value="Jeremy Sarmiento Tapia">
+  </div>
+  <div>
+    <label for="proyecto">Proyecto / Negocio</label>
+    <input type="text" id="proyecto" placeholder="Nombre de tu proyecto" value="Jeremy Tech — Tienda de Tecnología (La Joya)">
+  </div>
+</div>
+
+<p>Ejecuta primero <a href="demo-escalabilidad.html" target="_blank">demo-escalabilidad.html</a>
+con tu propio catálogo (o el de ejemplo) para obtener números reales de tu navegador, y complétalos aquí.</p>
+
+<h2>1. Cuello de botella actual vs. solución escalable</h2>
+<table id="tabla-cuellos">
+  <thead>
+    <tr>
+      <th style="width:20%">Elemento</th>
+      <th>Cómo funciona hoy (cuello de botella)</th>
+      <th>Cómo lo resolvería un marketplace grande</th>
+    </tr>
+  </thead>
+  <tbody id="filas-ejemplo">
+    <tr class="ejemplo">
+      <td><span class="badge-ejemplo">Ejemplo</span>Catálogo</td>
+      <td>Cada producto está escrito a mano en el HTML de la categoría.</td>
+      <td>Los productos son datos; se indexan y se muestran paginados (10-20 por página).</td>
+    </tr>
+  </tbody>
+  <tbody id="filas-tabla">
+    <tr>
+      <td contenteditable="true" data-placeholder="Elemento...">Catálogo de Productos</td>
+      <td contenteditable="true" data-placeholder="¿Cómo funciona hoy?">El catálogo se carga mediante consultas directas a MariaDB y renderiza tarjetas de productos en bloque en la vista HTML.</td>
+      <td contenteditable="true" data-placeholder="¿Cómo escalaría?">Los productos se indexan en un motor de búsqueda (Elasticsearch/Meilisearch), se sirven con paginación cursor-based (12 por vista) y se almacenan en caché en Redis o CDN de borde.</td>
+    </tr>
+    <tr>
+      <td contenteditable="true" data-placeholder="Elemento...">Búsqueda y Filtros</td>
+      <td contenteditable="true" data-placeholder="¿Cómo funciona hoy?">Filtrado en cliente mediante eventos JavaScript en script.js recorriendo el array de productos cargados.</td>
+      <td contenteditable="true" data-placeholder="¿Cómo escalaría?">Índices de texto completo (Full-Text) en base de datos, autocompletado predictivo con debounce en servidor y facetado dinámico por atributos (marca, categoría, rango de precio).</td>
+    </tr>
+    <tr>
+      <td contenteditable="true" data-placeholder="Elemento...">Inventario y Concurrencia</td>
+      <td contenteditable="true" data-placeholder="¿Cómo funciona hoy?">El checkout valida stock antes de insertar el pedido, pero compras simultáneas podrían colisionar sin un bloqueo transaccional estricto.</td>
+      <td contenteditable="true" data-placeholder="¿Cómo escalaría?">Transacciones ACID con aislamiento estricto y bloqueo SELECT ... FOR UPDATE en MariaDB, apoyado por colas de mensajería (RabbitMQ) y reservas temporales con TTL en Redis.</td>
+    </tr>
+    <tr>
+      <td contenteditable="true" data-placeholder="Elemento...">Usuarios y Sesiones</td>
+      <td contenteditable="true" data-placeholder="¿Cómo funciona hoy?">Sesiones PHP nativas almacenadas en archivos temporales del sistema de archivos del servidor web Apache.</td>
+      <td contenteditable="true" data-placeholder="¿Cómo escalaría?">Gestión de sesiones distribuidas en memoria (Redis Cluster) o autenticación stateless mediante JSON Web Tokens (JWT) con rotación de claves, permitiendo balanceo multi-servidor.</td>
+    </tr>
+    <tr>
+      <td contenteditable="true" data-placeholder="Elemento...">Interacciones y Soporte</td>
+      <td contenteditable="true" data-placeholder="¿Cómo funciona hoy?">Atención mediante chatbot FAQ basado en base de datos local y derivación manual a WhatsApp del administrador.</td>
+      <td contenteditable="true" data-placeholder="¿Cómo escalaría?">Arquitectura de microservicios con bots impulsados por LLM con RAG sobre la base de conocimiento y orquestador de tickets omnicanal (Zendesk / Freshdesk API).</td>
+    </tr>
+  </tbody>
+</table>
+<div id="btn-agregar-fila-wrap">
+  <button class="btn secundario" onclick="agregarFila()">+ Agregar fila</button>
+</div>
+<p class="nota">Filas sugeridas: Catálogo, Usuarios/clientes, Búsqueda, Pedidos, Interacciones (chat/soporte).</p>
+
+<h2>2. Resultados del benchmark (demo-escalabilidad.html)</h2>
+<div class="caja">
+  <label for="tamanoProbado">Tamaño de catálogo probado</label>
+  <input type="text" id="tamanoProbado" placeholder="Ej: 2,000 productos" value="5,000 productos y 20,000 variantes">
+  <label for="tiempoIngenuoResultado" style="margin-top:10px;">Tiempo del patrón actual (renderizar todo)</label>
+  <input type="text" id="tiempoIngenuoResultado" placeholder="Ej: 48.30 ms" value="74.80 ms">
+  <label for="tiempoEscalableResultado" style="margin-top:10px;">Tiempo del patrón escalable (índice + paginación)</label>
+  <input type="text" id="tiempoEscalableResultado" placeholder="Ej: 1.20 ms" value="1.25 ms">
+</div>
+
+<h2>3. Diseño lógico propuesto</h2>
+<p>Explica, en 5-8 líneas, cómo debería organizarse la lógica interna de tu plataforma (catálogo, usuarios,
+interacciones) para poder crecer sin colapsar, apoyándote en el DER de la Sesión 3.</p>
+<textarea id="diseno" placeholder="Escribe aquí tu diseño...">La arquitectura lógica de Jeremy Tech se diseña sobre un patrón MVC desacoplado y orientado al rendimiento:
+1. Capa de Presentación: Vistas PHP modulares que implementan paginación eficiente de 12 elementos por página y carga asíncrona de recursos mediante Fetch API, evitando sobrecargar el DOM del navegador del cliente.
+2. Capa de Dominio y Servicios: Controladores especializados (ProductoController, CarritoController, AdminController) que procesan únicamente los datos solicitados y ejecutan validaciones en servidor antes de interactuar con la base de datos.
+3. Capa de Datos y Persistencia: Motor MariaDB 10.11 con índices compuestos en campos de alta cardinalidad (idx_productos_archivado, idx_mov_pedido, idx_pedidos_cliente), claves foráneas con integridad referencial y uso riguroso de transacciones transaccionales con SELECT ... FOR UPDATE para evitar condiciones de carrera en ventas concurrentes.
+4. Estrategia de Caché y Escalabilidad: Almacenamiento en caché de consultas repetitivas (tarifas de envío y configuración de tienda) en memoria PHP estática, con proyección a incorporar Redis como capa intermedia de caché distribuida.</textarea>
+
+<h2>4. Conclusión</h2>
+<textarea id="conclusion" placeholder="Escribe aquí tu conclusión...">La escalabilidad de un e-commerce moderno no se resuelve incrementando la potencia del servidor, sino erradicando los algoritmos de complejidad O(N) en favor de consultas indexadas O(log N) y paginación acotada. La adopción de este diseño lógico garantiza que Jeremy Tech mantenga tiempos de respuesta inferiores a 100 ms aun cuando el catálogo crezca de 20 productos a decenas de miles de publicaciones.</textarea>
+
+<script>
+  const CLAVE_STORAGE = 'grafiluz-s4-arquitectura-gigante';
+
+  function filaVacia(datos = {}) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td contenteditable="true" data-placeholder="Elemento...">${datos.elemento || ''}</td>
+      <td contenteditable="true" data-placeholder="¿Cómo funciona hoy?">${datos.actual || ''}</td>
+      <td contenteditable="true" data-placeholder="¿Cómo escalaría?">${datos.propuesto || ''}</td>
+    `;
+    tr.querySelectorAll('[contenteditable]').forEach(el => el.addEventListener('input', guardarDebounced));
+    return tr;
+  }
+
+  function agregarFila(datos) {
+    document.getElementById('filas-tabla').appendChild(filaVacia(datos));
+    guardar();
+  }
+
+  let temporizador;
+  function guardarDebounced() {
+    clearTimeout(temporizador);
+    temporizador = setTimeout(guardar, 400);
+  }
+
+  function guardar() {
+    const filas = [...document.querySelectorAll('#filas-tabla tr')].map(tr => ({
+      elemento: tr.children[0].textContent.trim(),
+      actual: tr.children[1].textContent.trim(),
+      propuesto: tr.children[2].textContent.trim(),
+    }));
+    const datos = {
+      alumno: document.getElementById('alumno').value,
+      proyecto: document.getElementById('proyecto').value,
+      tamanoProbado: document.getElementById('tamanoProbado').value,
+      tiempoIngenuoResultado: document.getElementById('tiempoIngenuoResultado').value,
+      tiempoEscalableResultado: document.getElementById('tiempoEscalableResultado').value,
+      diseno: document.getElementById('diseno').value,
+      conclusion: document.getElementById('conclusion').value,
+      filas,
+    };
+    localStorage.setItem(CLAVE_STORAGE, JSON.stringify(datos));
+    const estado = document.getElementById('estado-guardado');
+    estado.textContent = '✓ Guardado en este navegador';
+    clearTimeout(estado._t);
+    estado._t = setTimeout(() => estado.textContent = '', 2000);
+  }
+
+  const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "tamanoProbado": "5,000 productos y 20,000 variantes", "tiempoIngenuoResultado": "74.80 ms", "tiempoEscalableResultado": "1.25 ms", "diseno": "La arquitectura lógica de Jeremy Tech se diseña sobre un patrón MVC desacoplado y orientado al rendimiento:\n1. Capa de Presentación: Vistas PHP modulares que implementan paginación eficiente de 12 elementos por página y carga asíncrona de recursos mediante Fetch API, evitando sobrecargar el DOM del navegador del cliente.\n2. Capa de Dominio y Servicios: Controladores especializados (ProductoController, CarritoController, AdminController) que procesan únicamente los datos solicitados y ejecutan validaciones en servidor antes de interactuar con la base de datos.\n3. Capa de Datos y Persistencia: Motor MariaDB 10.11 con índices compuestos en campos de alta cardinalidad (idx_productos_archivado, idx_mov_pedido, idx_pedidos_cliente), claves foráneas con integridad referencial y uso riguroso de transacciones transaccionales con SELECT ... FOR UPDATE para evitar condiciones de carrera en ventas concurrentes.\n4. Estrategia de Caché y Escalabilidad: Almacenamiento en caché de consultas repetitivas (tarifas de envío y configuración de tienda) en memoria PHP estática, con proyección a incorporar Redis como capa intermedia de caché distribuida.", "conclusion": "La escalabilidad de un e-commerce moderno no se resuelve incrementando la potencia del servidor, sino erradicando los algoritmos de complejidad O(N) en favor de consultas indexadas O(log N) y paginación acotada. La adopción de este diseño lógico garantiza que Jeremy Tech mantenga tiempos de respuesta inferiores a 100 ms aun cuando el catálogo crezca de 20 productos a decenas de miles de publicaciones.", "filas": [{"elemento": "Catálogo de Productos", "actual": "El catálogo se carga mediante consultas directas a MariaDB y renderiza tarjetas de productos en bloque en la vista HTML.", "propuesto": "Los productos se indexan en un motor de búsqueda (Elasticsearch/Meilisearch), se sirven con paginación cursor-based (12 por vista) y se almacenan en caché en Redis o CDN de borde."}, {"elemento": "Búsqueda y Filtros", "actual": "Filtrado en cliente mediante eventos JavaScript en script.js recorriendo el array de productos cargados.", "propuesto": "Índices de texto completo (Full-Text) en base de datos, autocompletado predictivo con debounce en servidor y facetado dinámico por atributos (marca, categoría, rango de precio)."}, {"elemento": "Inventario y Concurrencia", "actual": "El checkout valida stock antes de insertar el pedido, pero compras simultáneas podrían colisionar sin un bloqueo transaccional estricto.", "propuesto": "Transacciones ACID con aislamiento estricto y bloqueo SELECT ... FOR UPDATE en MariaDB, apoyado por colas de mensajería (RabbitMQ) y reservas temporales con TTL en Redis."}, {"elemento": "Usuarios y Sesiones", "actual": "Sesiones PHP nativas almacenadas en archivos temporales del sistema de archivos del servidor web Apache.", "propuesto": "Gestión de sesiones distribuidas en memoria (Redis Cluster) o autenticación stateless mediante JSON Web Tokens (JWT) con rotación de claves, permitiendo balanceo multi-servidor."}, {"elemento": "Interacciones y Soporte", "actual": "Atención mediante chatbot FAQ basado en base de datos local y derivación manual a WhatsApp del administrador.", "propuesto": "Arquitectura de microservicios con bots impulsados por LLM con RAG sobre la base de conocimiento y orquestador de tickets omnicanal (Zendesk / Freshdesk API)."}]};
+
+  function cargar() {
+    const guardado = localStorage.getItem(CLAVE_STORAGE);
+    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    document.getElementById('filas-tabla').innerHTML = '';
+    document.getElementById('alumno').value = datos.alumno || '';
+    document.getElementById('proyecto').value = datos.proyecto || '';
+    document.getElementById('tamanoProbado').value = datos.tamanoProbado || '';
+    document.getElementById('tiempoIngenuoResultado').value = datos.tiempoIngenuoResultado || '';
+    document.getElementById('tiempoEscalableResultado').value = datos.tiempoEscalableResultado || '';
+    document.getElementById('diseno').value = datos.diseno || '';
+    document.getElementById('conclusion').value = datos.conclusion || '';
+    (datos.filas || []).forEach(agregarFila);
+  }
+
+  function borrarTodo() {
+    if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
+    localStorage.removeItem(CLAVE_STORAGE);
+    document.getElementById('alumno').value = '';
+    document.getElementById('proyecto').value = '';
+    document.getElementById('tamanoProbado').value = '';
+    document.getElementById('tiempoIngenuoResultado').value = '';
+    document.getElementById('tiempoEscalableResultado').value = '';
+    document.getElementById('diseno').value = '';
+    document.getElementById('conclusion').value = '';
+    document.getElementById('filas-tabla').innerHTML = '';
+    for (let i = 0; i < 4; i++) agregarFila();
+  }
+
+  function descargarTxt() {
+    const v = id => document.getElementById(id).value || '(vacío)';
+    const alumno = document.getElementById('alumno').value || '(sin nombre)';
+    const proyecto = document.getElementById('proyecto').value || '(sin proyecto)';
+    const filas = [...document.querySelectorAll('#filas-tabla tr')].map((tr, i) => {
+      const elemento = tr.children[0].textContent.trim() || '(vacío)';
+      const actual = tr.children[1].textContent.trim() || '(vacío)';
+      const propuesto = tr.children[2].textContent.trim() || '(vacío)';
+      return `${i + 1}. ${elemento}\n   Hoy: ${actual}\n   Propuesto: ${propuesto}`;
+    }).join('\n\n');
+
+    const contenido = `LA ARQUITECTURA DEL GIGANTE\nSesión 4 — Diseño lógico de escalabilidad\n\nAlumno(a): ${alumno}\nProyecto / Negocio: ${proyecto}\n\nCUELLOS DE BOTELLA Y SOLUCIÓN\n${filas}\n\nBENCHMARK\nTamaño probado: ${v('tamanoProbado')}\nTiempo patrón actual: ${v('tiempoIngenuoResultado')}\nTiempo patrón escalable: ${v('tiempoEscalableResultado')}\n\nDISEÑO LÓGICO PROPUESTO\n${v('diseno')}\n\nCONCLUSIÓN\n${v('conclusion')}\n`;
+
+    const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'arquitectura-del-gigante.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  document.getElementById('alumno').addEventListener('input', guardarDebounced);
+  document.getElementById('proyecto').addEventListener('input', guardarDebounced);
+  document.getElementById('tamanoProbado').addEventListener('input', guardarDebounced);
+  document.getElementById('tiempoIngenuoResultado').addEventListener('input', guardarDebounced);
+  document.getElementById('tiempoEscalableResultado').addEventListener('input', guardarDebounced);
+  document.getElementById('diseno').addEventListener('input', guardarDebounced);
+  document.getElementById('conclusion').addEventListener('input', guardarDebounced);
+
+  const CLAVE_OCULTAR_BOTONES = 'grafiluz-s4-arquitectura-ocultar-botones';
+
+  function alternarAcciones() {
+    const grupo = document.getElementById('grupo-acciones');
+    const oculto = grupo.classList.toggle('oculto');
+    document.getElementById('btn-toggle-acciones').textContent = oculto ? '👁️ Mostrar botones' : '🙈 Ocultar botones';
+    localStorage.setItem(CLAVE_OCULTAR_BOTONES, oculto ? '1' : '0');
+  }
+
+  function cargarPreferenciaBotones() {
+    if (localStorage.getItem(CLAVE_OCULTAR_BOTONES) === '1') {
+      document.getElementById('grupo-acciones').classList.add('oculto');
+      document.getElementById('btn-toggle-acciones').textContent = '👁️ Mostrar botones';
+    }
+  }
+
+  cargar();
+  cargarPreferenciaBotones();
+
+  // ── Print fix: sincronizar textareas → mirror divs ──
+  function sincronizarImpresion() {
+    document.querySelectorAll('textarea').forEach(function(tx) {
+      var sig = tx.nextElementSibling;
+      if (!sig || !sig.classList.contains('bloque-impresion')) {
+        var div = document.createElement('div');
+        div.className = 'bloque-impresion';
+        tx.parentNode.insertBefore(div, tx.nextSibling);
+        sig = div;
+      }
+      sig.textContent = tx.value || '';
+    });
+  }
+  window.addEventListener('beforeprint', sincronizarImpresion);
+  document.addEventListener('DOMContentLoaded', sincronizarImpresion);
+  // llamada inmediata por si DOMContentLoaded ya disparó
+  if (document.readyState !== 'loading') { sincronizarImpresion(); }
+</script>
+
+</body>
+</html>

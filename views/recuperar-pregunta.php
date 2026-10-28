@@ -26,6 +26,7 @@ $pregunta = $pregunta ?? null;
    <?php if ($pregunta !== null): ?>
 
    <form class="auth-form" action="?ruta=login/recuperar-pregunta" method="post">
+       <?= \Security\Proteccion::campo() ?>
     <input type="hidden" name="email" value="<?= htmlspecialchars($email) ?>"/>
     <div class="form-group">
      <label>Tu pregunta de seguridad</label>
@@ -46,17 +47,20 @@ $pregunta = $pregunta ?? null;
      </div>
     </div>
     <button type="submit" class="btn-auth">Cambiar mi contraseña</button>
+    <a class="auth-link" href="?ruta=login/recuperar">Prefiero recibir un enlace por correo</a>
     <a class="auth-link" href="?ruta=login">← Volver a iniciar sesión</a>
    </form>
 
    <?php else: ?>
 
    <form class="auth-form" action="?ruta=login/recuperar-pregunta" method="post">
+       <?= \Security\Proteccion::campo() ?>
     <div class="form-group">
      <label for="reEmail">Correo electrónico *</label>
      <input type="email" id="reEmail" name="email" value="<?= htmlspecialchars($email) ?>" placeholder="correo@ejemplo.com" required/>
     </div>
     <button type="submit" class="btn-auth">Continuar</button>
+    <a class="auth-link" href="?ruta=login/recuperar">Prefiero recibir un enlace por correo</a>
     <a class="auth-link" href="?ruta=login">← Volver a iniciar sesión</a>
    </form>
 

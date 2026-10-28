@@ -59,10 +59,9 @@ $zonaIdEditando = $editando !== null && $editando['tarifa_envio_id'] !== null
     <footer class="addr-acciones">
      <a class="btn-mini" href="?ruta=direcciones&editar=<?= (int) $d['id'] ?>">Editar</a>
      <?php if ((int) $d['predeterminada'] !== 1): ?>
-     <a class="btn-mini" href="?ruta=direcciones/predeterminada&id=<?= (int) $d['id'] ?>">Usar por defecto</a>
+     <?= \Security\Proteccion::botonPost('direcciones/predeterminada', ['id' => (int) $d['id']], 'Usar por defecto') ?>
      <?php endif; ?>
-     <a class="btn-mini btn-mini-peligro" href="?ruta=direcciones/eliminar&id=<?= (int) $d['id'] ?>"
-        onclick="return confirm('¿Eliminar esta dirección?')">Eliminar</a>
+     <?= \Security\Proteccion::botonPost('direcciones/eliminar', ['id' => (int) $d['id']], 'Eliminar', 'btn-mini btn-mini-peligro', '¿Eliminar esta dirección?') ?>
     </footer>
    </article>
    <?php endforeach; ?>
@@ -85,6 +84,7 @@ $zonaIdEditando = $editando !== null && $editando['tarifa_envio_id'] !== null
   </div>
   <?php else: ?>
   <form method="post" action="?ruta=direcciones/guardar" class="addr-form">
+      <?= \Security\Proteccion::campo() ?>
    <input type="hidden" name="id" value="<?= (int) ($editando['id'] ?? 0) ?>">
 
    <div class="form-row">

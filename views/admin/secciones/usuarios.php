@@ -3,7 +3,7 @@ $pdo = conexion();
 $yoId = (int) (\Model\Administrador::usuarioActual()['id'] ?? 0);
 
 $usuarios = $pdo->query(
-    'SELECT id, name, apellidos, email, usuario, rol, activo, ultimo_ingreso, created_at
+    'SELECT id, name, apellidos, email, usuario, rol, tipo, activo, ultimo_ingreso, created_at
      FROM users WHERE deleted_at IS NULL
      ORDER BY FIELD(rol, "admin", "vendedor", "cliente"), id'
 )->fetchAll();
@@ -11,7 +11,7 @@ $usuarios = $pdo->query(
 $editando = null;
 $idEditar = (int) ($_GET['editar'] ?? 0);
 if ($idEditar > 0) {
-    $q = $pdo->prepare('SELECT id, name, apellidos, email, usuario, rol, activo FROM users WHERE id = ? AND deleted_at IS NULL LIMIT 1');
+    $q = $pdo->prepare('SELECT id, name, apellidos, email, usuario, rol, tipo, activo FROM users WHERE id = ? AND deleted_at IS NULL LIMIT 1');
     $q->execute([$idEditar]);
     $editando = $q->fetch() ?: null;
 }
@@ -41,6 +41,7 @@ $etiquetaRol = static function (string $rol): string {
 
     <dialog class="admin-modal" id="modalForm"<?= $editando ? ' data-modal-auto="1"' : '' ?>>
         <form method="post" action="?ruta=admin/usuarios/guardar" class="admin-formulario">
+            <?= \Security\Proteccion::campo() ?>
             <div class="admin-modal-cabecera">
                 <h3><?= $editando ? 'Editar usuario' : 'Nuevo usuario' ?></h3>
                 <button type="button" class="admin-modal-cerrar" data-modal-cerrar aria-label="Cerrar">&times;</button>
@@ -70,6 +71,13 @@ $etiquetaRol = static function (string $rol): string {
                         <?php endforeach; ?>
                     </select>
                 </label>
+                <label>Tipo de cliente
+                    <select name="tipo">
+                        <?php foreach (['B2C' => 'Persona (B2C)', 'B2B' => 'Empresa (B2B)', 'C2C' => 'Revendedor (C2C)'] as $valorTipo => $textoTipo): ?>
+                            <option value="<?= $valorTipo ?>" <?= ($editando['tipo'] ?? 'B2C') === $valorTipo ? 'selected' : '' ?>><?= $textoTipo ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </label>
                 <label class="admin-check">
                     <input type="checkbox" name="activo" value="1" <?= !isset($editando['activo']) || $editando['activo'] ? 'checked' : '' ?>>
                     Activo
@@ -91,6 +99,7 @@ $etiquetaRol = static function (string $rol): string {
                         <th>Nombre</th>
                         <th>Usuario</th>
                         <th>Rol</th>
+                        <th>Tipo</th>
                         <th>Activo</th>
                         <th>Último ingreso</th>
                         <th>Acciones</th>
@@ -107,20 +116,23 @@ $etiquetaRol = static function (string $rol): string {
                         </td>
                         <td><?= $u['usuario'] !== null && $u['usuario'] !== '' ? $e($u['usuario']) : '—' ?></td>
                         <td><span class="<?= $etiquetaRol((string) $u['rol']) ?>"><?= $e($u['rol']) ?></span></td>
+                        <td>
+                            <?php $tipoUsuario = (string) ($u['tipo'] ?? 'B2C'); ?>
+                            <span class="etiqueta<?= $tipoUsuario === 'C2C' ? ' etiqueta-info' : '' ?>"><?= $e($tipoUsuario) ?></span>
+                        </td>
                         <td><span class="etiqueta <?= (int) $u['activo'] ? 'etiqueta-ok' : 'etiqueta-off' ?>"><?= (int) $u['activo'] ? 'Sí' : 'No' ?></span></td>
                         <td><?= $e($u['ultimo_ingreso'] ?: 'nunca') ?></td>
                         <td class="admin-acciones">
                             <a class="btn-mini" href="?ruta=admin/usuarios&editar=<?= (int) $u['id'] ?>">Editar</a>
                             <?php if (!$esYo): ?>
-                                <a class="btn-mini" href="?ruta=admin/usuarios/estado&id=<?= (int) $u['id'] ?>"><?= (int) $u['activo'] ? 'Desactivar' : 'Activar' ?></a>
-                                <a class="btn-mini" href="?ruta=admin/usuarios/eliminar&id=<?= (int) $u['id'] ?>"
-                                   onclick="return confirm('¿Dar de baja a este usuario?')">Baja</a>
+                                <?= \Security\Proteccion::botonPost('admin/usuarios/estado', ['id' => (int) $u['id']], (int) $u['activo'] ? 'Desactivar' : 'Activar') ?>
+                                <?= \Security\Proteccion::botonPost('admin/usuarios/eliminar', ['id' => (int) $u['id']], 'Baja', 'btn-mini', '¿Dar de baja a este usuario?') ?>
                             <?php endif; ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$usuarios): ?>
-                    <tr><td colspan="7" class="admin-vacio">No hay usuarios registrados.</td></tr>
+                    <tr><td colspan="8" class="admin-vacio">No hay usuarios registrados.</td></tr>
                 <?php endif; ?>
                 </tbody>
             </table>

@@ -116,6 +116,68 @@ class Direccion
     }
 
     /**
+     * Crea la primera dirección de una cuenta recién registrada.
+     *
+     * A diferencia de `crear()`, la zona es opcional: el registro pide la
+     * dirección antes de que el cliente haya elegido una zona de envío. Si
+     * se indica una zona, se valida contra las tarifas activas.
+     *
+     * @param array<string, mixed> $datos direccion, tarifa_envio_id, latitud, longitud
+     * @return string|null null si salió bien, o un mensaje de error.
+     */
+    public static function registrarInicial(int $clienteId, array $datos): ?string
+    {
+        if ($clienteId <= 0) {
+            return 'La cuenta no es válida.';
+        }
+
+        $direccion = trim((string) ($datos['direccion'] ?? ''));
+        if ($direccion === '') {
+            return 'La dirección es obligatoria.';
+        }
+        if (mb_strlen($direccion) > 255) {
+            return 'La dirección no puede superar los 255 caracteres.';
+        }
+
+        $tarifaId = (int) ($datos['tarifa_envio_id'] ?? 0);
+        if ($tarifaId > 0 && Envio::tarifa($tarifaId) === null) {
+            return 'La zona de envío no es válida.';
+        }
+
+        $latitud = isset($datos['latitud']) && is_numeric($datos['latitud'])
+            ? (float) $datos['latitud']
+            : null;
+        $longitud = isset($datos['longitud']) && is_numeric($datos['longitud'])
+            ? (float) $datos['longitud']
+            : null;
+
+        if (($latitud === null) !== ($longitud === null)) {
+            return 'Marca la ubicación completa (latitud y longitud) o deja ambas vacías.';
+        }
+        if ($latitud !== null && ($latitud < -90 || $latitud > 90)) {
+            return 'La latitud debe estar entre -90 y 90.';
+        }
+        if ($longitud !== null && ($longitud < -180 || $longitud > 180)) {
+            return 'La longitud debe estar entre -180 y 180.';
+        }
+
+        conexion()->prepare(
+            'INSERT INTO direcciones
+                (cliente_id, etiqueta, direccion, referencia, tarifa_envio_id, latitud, longitud, predeterminada)
+             VALUES (?, ?, ?, NULL, ?, ?, ?, 1)'
+        )->execute([
+            $clienteId,
+            'Principal',
+            $direccion,
+            $tarifaId > 0 ? $tarifaId : null,
+            $latitud,
+            $longitud,
+        ]);
+
+        return null;
+    }
+
+    /**
      * Actualiza una dirección del cliente.
      *
      * @param array<string, mixed> $datos

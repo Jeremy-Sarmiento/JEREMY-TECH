@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Lanzamiento Invisible — Plan de Tráfico</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 900px; margin: 0 auto; padding: 0 20px 60px; color: #1f2937; background: #fafafa; line-height: 1.55; }
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  .subtitulo { color: #6b7280; margin-top: 0; }
+  h2 { font-size: 1.1rem; margin-top: 34px; padding-top: 10px; border-top: 1px solid #e5e7eb; }
+  .campos-header { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  label { display: block; font-size: 0.8rem; font-weight: 600; color: #374151; margin-bottom: 4px; }
+  input[type="text"] { width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; font-family: inherit; background: white; }
+  input:focus, [contenteditable]:focus, textarea:focus { outline: 2px solid #1d4ed8; outline-offset: 1px; }
+  .caja { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.86rem; background: white; }
+  th, td { border: 1px solid #e5e7eb; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #f3f4f6; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.02em; }
+  td[contenteditable="true"] { min-width: 100px; cursor: text; }
+  td[contenteditable="true"]:empty::before { content: attr(data-placeholder); color: #9ca3af; }
+  tr.ejemplo { background: #f8fafc; color: #6b7280; font-style: italic; }
+  .badge-ejemplo { display: inline-block; background: #e0e7ff; color: #3730a3; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; margin-right: 6px; font-style: normal; }
+  td.acciones { text-align: center; }
+  .btn-fila-eliminar { background: none; border: none; color: #dc2626; cursor: pointer; font-size: 1rem; }
+  .btn-fila-eliminar:hover { color: #991b1b; }
+  textarea { width: 100%; min-height: 90px; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; font-size: 0.95rem; resize: vertical; background: white; }
+  .nota { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 4px; font-size: 0.88rem; margin: 12px 0; }
+  .barra-acciones { position: sticky; top: 0; background: #fafafa; padding: 14px 0 10px; margin-bottom: 6px; display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #e5e7eb; z-index: 10; }
+  .btn { background: #1d4ed8; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+  .btn:hover { background: #1e40af; }
+  .btn.secundario { background: #e5e7eb; color: #1f2937; }
+  .btn.secundario:hover { background: #d1d5db; }
+  .btn.peligro { background: #fee2e2; color: #991b1b; }
+  .btn.peligro:hover { background: #fecaca; }
+  .btn-toggle { background: white; color: #374151; border: 1px solid #d1d5db; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+  .btn-toggle:hover { background: #f3f4f6; }
+  #grupo-acciones { display: flex; flex-wrap: wrap; gap: 10px; }
+  #grupo-acciones.oculto { display: none; }
+  .estado-guardado { font-size: 0.8rem; color: #16a34a; align-self: center; }
+  @media print {
+    .barra-acciones, .btn-fila-eliminar, .btn-agregar-wrap { display: none; }
+    body { margin: 0; max-width: 660px; }
+    table { font-size: 0.76rem; }
+    th, td { padding: 5px 6px; }
+    h1, h2 { break-after: avoid; page-break-after: avoid; }
+    p, .caja, .nota, tr { break-inside: avoid; page-break-inside: avoid; }
+  }
+
+  /* ── Print fix: mirror divs en vez de textareas ── */
+  .bloque-impresion { display: none; }
+  @media print {
+    textarea { display: none !important; }
+    input[type="file"] { display: none !important; }
+    .bloque-impresion {
+      display: block !important;
+      white-space: pre-wrap;
+      font-family: inherit;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: #1f2937;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin: 4px 0 12px;
+      break-inside: auto;
+      page-break-inside: auto;
+      min-height: 2em;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="barra-acciones">
+  <button class="btn-toggle" id="btn-toggle-acciones" onclick="alternarAcciones()">🙈 Ocultar botones</button>
+  <span id="grupo-acciones">
+    <button class="btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    <button class="btn secundario" onclick="descargarTxt()">💾 Descargar respuestas (.txt)</button>
+    <button class="btn peligro" onclick="borrarTodo()">🗑️ Borrar mis respuestas</button>
+  </span>
+  <span id="estado-guardado" class="estado-guardado"></span>
+</div>
+
+<h1>El Lanzamiento Invisible — Plan de Tráfico</h1>
+<p class="subtitulo">Sesión 5 — Marketing y Tecnologías Digitales</p>
+
+<div class="campos-header">
+  <div>
+    <label for="alumno">Alumno(a)</label>
+    <input type="text" id="alumno" placeholder="Tu nombre" value="Jeremy Sarmiento Tapia">
+  </div>
+  <div>
+    <label for="proyecto">Proyecto / Negocio</label>
+    <input type="text" id="proyecto" placeholder="Nombre de tu proyecto" value="Jeremy Tech — Tienda de Tecnología (La Joya)">
+  </div>
+</div>
+
+<h2>1. Público objetivo y nicho</h2>
+<p>Basado en tu Radiografía Comercial (Sesión 3) y tu Canvas (Sesión 4): ¿a quién le vas a atraer tráfico? ¿Qué buscan antes de encontrarte?</p>
+<textarea id="publico" placeholder="Escribe aquí tu público objetivo...">Nuestro público objetivo comprende dos perfiles principales: 1) Consumidores finales (estudiantes, jóvenes profesionales, agricultores y familias de 18 a 45 años residentes en La Joya, San Camilo, El Triunfo y Arequipa) que buscan adquirir smartphones (iPhone, Samsung Galaxy, Xiaomi), laptops para estudio o trabajo y accesorios originales sin tener que desplazarse hasta Arequipa ciudad, valorando la inmediatez de la entrega local y la garantía física en tienda. 2) Compradores corporativos y administradores de fundos agroindustriales o instituciones educativas locales que buscan lotes de equipamiento tecnológico con factura formal con RUC y soporte técnico in situ. Antes de encontrarnos, buscan en Google y Facebook términos de tecnología con entrega express local o consultan en grupos de compra/venta de La Joya.</textarea>
+
+<h2>2. Palabras clave (SEO)</h2>
+<table id="tabla-seo">
+  <thead>
+    <tr>
+      <th style="width:22%">Palabra clave</th>
+      <th style="width:30%">¿Qué busca la persona?</th>
+      <th>¿Dónde la usarías? (título, meta descripción, contenido)</th>
+      <th style="width:4%"></th>
+    </tr>
+  </thead>
+  <tbody id="filas-ejemplo-seo">
+    <tr class="ejemplo">
+      <td><span class="badge-ejemplo">Ejemplo</span>artículos publicitarios personalizados Arequipa</td>
+      <td>Una empresa busca proveedor local para merchandising corporativo.</td>
+      <td>Título de la página de inicio y meta descripción.</td>
+      <td></td>
+    </tr>
+  </tbody>
+  <tbody id="filas-seo">
+    <tr>
+      <td contenteditable="true" data-placeholder="palabra clave...">tienda de tecnologia en la joya arequipa</td>
+      <td contenteditable="true" data-placeholder="¿qué busca?">Residentes que buscan un establecimiento físico y digital confiable para comprar celulares y laptops en su distrito.</td>
+      <td contenteditable="true" data-placeholder="¿dónde la usarías?">Título H1 de la página de inicio, meta etiqueta title y párrafo introductorio del catálogo.</td>
+      <td class="acciones"><button class="btn-fila-eliminar" onclick="this.closest('tr').remove(); guardar();">✕</button></td>
+    </tr>
+    <tr>
+      <td contenteditable="true" data-placeholder="palabra clave...">comprar iphone samsung la joya entrega hoy</td>
+      <td contenteditable="true" data-placeholder="¿qué busca?">Clientes con alta intención de compra inmediata de smartphones con entrega en el mismo día.</td>
+      <td contenteditable="true" data-placeholder="¿dónde la usarías?">Meta descripción del catálogo, títulos de categoría de celulares y banners promocionales.</td>
+      <td class="acciones"><button class="btn-fila-eliminar" onclick="this.closest('tr').remove(); guardar();">✕</button></td>
+    </tr>
+    <tr>
+      <td contenteditable="true" data-placeholder="palabra clave...">laptops hp thinkpad baratas arequipa provincia</td>
+      <td contenteditable="true" data-placeholder="¿qué busca?">Estudiantes y profesionales que comparan precios de computadoras portátiles con garantía oficial.</td>
+      <td contenteditable="true" data-placeholder="¿dónde la usarías?">Encabezados H2 de categoría Laptops, fichas técnicas de producto y etiquetas alt de imágenes.</td>
+      <td class="acciones"><button class="btn-fila-eliminar" onclick="this.closest('tr').remove(); guardar();">✕</button></td>
+    </tr>
+    <tr>
+      <td contenteditable="true" data-placeholder="palabra clave...">venta de tecnologia por mayor ruc la joya</td>
+      <td contenteditable="true" data-placeholder="¿qué busca?">Empresas agrícolas y pymes que buscan cotizar suministros de oficina o tecnología con factura.</td>
+      <td contenteditable="true" data-placeholder="¿dónde la usarías?">Página de contacto B2B, pie de página institucional y descripción de registro para empresas.</td>
+      <td class="acciones"><button class="btn-fila-eliminar" onclick="this.closest('tr').remove(); guardar();">✕</button></td>
+    </tr>
+  </tbody>
+</table>
+<div class="btn-agregar-wrap"><button class="btn secundario" onclick="agregarFilaSeo()">+ Agregar palabra clave</button></div>
+
+<h2>3. Campañas de anuncios simuladas</h2>
+<table id="tabla-campanas">
+  <thead>
+    <tr>
+      <th style="width:16%">Canal</th>
+      <th style="width:20%">Público objetivo del anuncio</th>
+      <th style="width:14%">Presupuesto simulado</th>
+      <th>Mensaje / creatividad</th>
+      <th style="width:4%"></th>
+    </tr>
+  </thead>
+  <tbody id="filas-ejemplo-camp">
+    <tr class="ejemplo">
+      <td><span class="badge-ejemplo">Ejemplo</span>Facebook / Instagram Ads</td>
+      <td>Áreas de marketing de empresas mineras y corporativas en Arequipa</td>
+      <td>S/ 300 / mes</td>
+      <td>"Regala tu marca: artículos publicitarios personalizados con entrega en Arequipa"</td>
+      <td></td>
+    </tr>
+  </tbody>
+  <tbody id="filas-camp">
+    <tr>
+      <td contenteditable="true" data-placeholder="canal...">Facebook & Instagram Ads (Meta)</td>
+      <td contenteditable="true" data-placeholder="público...">Hombres y mujeres de 18 a 45 años en un radio de 25 km de La Joya y valles aledaños interesados en tecnología, smartphones y gaming.</td>
+      <td contenteditable="true" data-placeholder="presupuesto...">S/ 250 / mes (simulado)</td>
+      <td contenteditable="true" data-placeholder="mensaje...">"¡Tecnología original en tus manos hoy mismo! Estrena tu iPhone, Samsung o Laptop en La Joya con entrega en menos de 2 horas y garantía local en La Paz Soldán. Compra online en Jeremy Tech."</td>
+      <td class="acciones"><button class="btn-fila-eliminar" onclick="this.closest('tr').remove(); guardar();">✕</button></td>
+    </tr>
+    <tr>
+      <td contenteditable="true" data-placeholder="canal...">Google Search Ads (Búsqueda)</td>
+      <td contenteditable="true" data-placeholder="público...">Personas que buscan activamente términos de compra como 'celulares La Joya', 'reparación laptops La Joya' o 'audífonos bluetooth Arequipa'.</td>
+      <td contenteditable="true" data-placeholder="presupuesto...">S/ 200 / mes (simulado)</td>
+      <td contenteditable="true" data-placeholder="mensaje...">"Jeremy Tech La Joya | Laptops y Celulares con Entrega Inmediata. Precios justos, garantía real y atención 24/7. ¡Visítanos o compra online aquí!"</td>
+      <td class="acciones"><button class="btn-fila-eliminar" onclick="this.closest('tr').remove(); guardar();">✕</button></td>
+    </tr>
+    <tr>
+      <td contenteditable="true" data-placeholder="canal...">WhatsApp Marketing y Comunidad Local</td>
+      <td contenteditable="true" data-placeholder="público...">Base de clientes recurrentes y grupos vecinales/agroindustriales de La Joya.</td>
+      <td contenteditable="true" data-placeholder="presupuesto...">S/ 50 / mes (simulado)</td>
+      <td contenteditable="true" data-placeholder="mensaje...">"📢 Ofertas exclusivas de fin de mes en Jeremy Tech: Llévate tus AirPods o audífonos Sony con 15% de descuento usando el cupón JEREMYTECH10. Stock limitado en tienda La Paz Soldán."</td>
+      <td class="acciones"><button class="btn-fila-eliminar" onclick="this.closest('tr').remove(); guardar();">✕</button></td>
+    </tr>
+  </tbody>
+</table>
+<div class="btn-agregar-wrap"><button class="btn secundario" onclick="agregarFilaCampana()">+ Agregar campaña</button></div>
+<p class="nota">Estas campañas son <strong>simuladas</strong> (no se paga presupuesto real). Lo importante es
+que la estrategia esté diseñada específicamente para tu nicho, no genérica.</p>
+
+<h2>4. Metadatos SEO reales agregados a tu sitio</h2>
+<p>Copia aquí el <code>&lt;title&gt;</code> y la <code>&lt;meta name="description"&gt;</code> que
+realmente pusiste en el <code>&lt;head&gt;</code> de tu proyecto (ver
+<code>Codigo/Implementado-Sesion-05-en-Sesion-04/index.html</code> como referencia).</p>
+<textarea id="metadatos" placeholder="<title>...</title>&#10;<meta name=&quot;description&quot; content=&quot;...&quot;>"></textarea>
+
+<h2>5. Conclusión</h2>
+<p>En 3-5 líneas: ¿por qué esta estrategia de tráfico es coherente con tu modelo de negocio (Canvas de la Sesión 4)?</p>
+<textarea id="conclusion" placeholder="Escribe aquí tu conclusión...">Esta estrategia de tráfico es directamente coherente con la propuesta de valor y los segmentos identificados en el Modelo Canvas (Sesión 4). En lugar de competir por palabras clave hiper-genéricas a nivel nacional contra gigantes del retail, nos enfocamos en el SEO local geolocalizado en La Joya y campañas hiper-segmentadas de alta conversión. Al dirigir tráfico cualificado directamente al catálogo online con checkout automatizado, se maximiza el retorno sobre el presupuesto invertido.</textarea>
+
+<script>
+  const CLAVE_STORAGE = 'grafiluz-s5-plan-trafico';
+
+  function filaSeoVacia(datos = {}) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td contenteditable="true" data-placeholder="palabra clave...">${datos.palabra || ''}</td>
+      <td contenteditable="true" data-placeholder="¿qué busca?">${datos.intencion || ''}</td>
+      <td contenteditable="true" data-placeholder="¿dónde la usarías?">${datos.uso || ''}</td>
+      <td class="acciones"><button class="btn-fila-eliminar" onclick="this.closest('tr').remove(); guardar();">✕</button></td>
+    `;
+    tr.querySelectorAll('[contenteditable]').forEach(el => el.addEventListener('input', guardarDebounced));
+    return tr;
+  }
+
+  function filaCampanaVacia(datos = {}) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td contenteditable="true" data-placeholder="canal...">${datos.canal || ''}</td>
+      <td contenteditable="true" data-placeholder="público...">${datos.publico || ''}</td>
+      <td contenteditable="true" data-placeholder="presupuesto...">${datos.presupuesto || ''}</td>
+      <td contenteditable="true" data-placeholder="mensaje...">${datos.mensaje || ''}</td>
+      <td class="acciones"><button class="btn-fila-eliminar" onclick="this.closest('tr').remove(); guardar();">✕</button></td>
+    `;
+    tr.querySelectorAll('[contenteditable]').forEach(el => el.addEventListener('input', guardarDebounced));
+    return tr;
+  }
+
+  function agregarFilaSeo(datos) { document.getElementById('filas-seo').appendChild(filaSeoVacia(datos)); guardar(); }
+  function agregarFilaCampana(datos) { document.getElementById('filas-camp').appendChild(filaCampanaVacia(datos)); guardar(); }
+
+  let temporizador;
+  function guardarDebounced() {
+    clearTimeout(temporizador);
+    temporizador = setTimeout(guardar, 400);
+  }
+
+  function guardar() {
+    const filasSeo = [...document.querySelectorAll('#filas-seo tr')].map(tr => ({
+      palabra: tr.children[0].textContent.trim(),
+      intencion: tr.children[1].textContent.trim(),
+      uso: tr.children[2].textContent.trim(),
+    }));
+    const filasCamp = [...document.querySelectorAll('#filas-camp tr')].map(tr => ({
+      canal: tr.children[0].textContent.trim(),
+      publico: tr.children[1].textContent.trim(),
+      presupuesto: tr.children[2].textContent.trim(),
+      mensaje: tr.children[3].textContent.trim(),
+    }));
+    const datos = {
+      alumno: document.getElementById('alumno').value,
+      proyecto: document.getElementById('proyecto').value,
+      publico: document.getElementById('publico').value,
+      metadatos: document.getElementById('metadatos').value,
+      conclusion: document.getElementById('conclusion').value,
+      filasSeo, filasCamp,
+    };
+    localStorage.setItem(CLAVE_STORAGE, JSON.stringify(datos));
+    const estado = document.getElementById('estado-guardado');
+    estado.textContent = '✓ Guardado en este navegador';
+    clearTimeout(estado._t);
+    estado._t = setTimeout(() => estado.textContent = '', 2000);
+  }
+
+  const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "publico": "Nuestro público objetivo comprende dos perfiles principales: 1) Consumidores finales (estudiantes, jóvenes profesionales, agricultores y familias de 18 a 45 años residentes en La Joya, San Camilo, El Triunfo y Arequipa) que buscan adquirir smartphones (iPhone, Samsung Galaxy, Xiaomi), laptops para estudio o trabajo y accesorios originales sin tener que desplazarse hasta Arequipa ciudad, valorando la inmediatez de la entrega local y la garantía física en tienda. 2) Compradores corporativos y administradores de fundos agroindustriales o instituciones educativas locales que buscan lotes de equipamiento tecnológico con factura formal con RUC y soporte técnico in situ. Antes de encontrarnos, buscan en Google y Facebook términos de tecnología con entrega express local o consultan en grupos de compra/venta de La Joya.", "metadatos": "<title>Jeremy Tech - Tienda de Tecnología | Celulares, Laptops y Accesorios en La Joya, Arequipa</title>\n<meta name=\"description\" content=\"Tu tienda de tecnología de confianza en La Joya, Arequipa. Compra smartphones, laptops, audio y smartwatches 100% originales con entrega en el día, garantía oficial y pagos seguros con Yape y tarjetas.\">\n<meta name=\"keywords\" content=\"tecnologia la joya, celulares arequipa, laptops hp lenovo, iphone la joya, jeremy tech, comprar gadgets arequipa\">", "conclusion": "Esta estrategia de tráfico es directamente coherente con la propuesta de valor y los segmentos identificados en el Modelo Canvas (Sesión 4). En lugar de competir por palabras clave hiper-genéricas a nivel nacional contra gigantes del retail, nos enfocamos en el SEO local geolocalizado en La Joya y campañas hiper-segmentadas de alta conversión. Al dirigir tráfico cualificado directamente al catálogo online con checkout automatizado, se maximiza el retorno sobre el presupuesto invertido.", "filasSeo": [{"palabra": "tienda de tecnologia en la joya arequipa", "intencion": "Residentes que buscan un establecimiento físico y digital confiable para comprar celulares y laptops en su distrito.", "uso": "Título H1 de la página de inicio, meta etiqueta title y párrafo introductorio del catálogo."}, {"palabra": "comprar iphone samsung la joya entrega hoy", "intencion": "Clientes con alta intención de compra inmediata de smartphones con entrega en el mismo día.", "uso": "Meta descripción del catálogo, títulos de categoría de celulares y banners promocionales."}, {"palabra": "laptops hp thinkpad baratas arequipa provincia", "intencion": "Estudiantes y profesionales que comparan precios de computadoras portátiles con garantía oficial.", "uso": "Encabezados H2 de categoría Laptops, fichas técnicas de producto y etiquetas alt de imágenes."}, {"palabra": "venta de tecnologia por mayor ruc la joya", "intencion": "Empresas agrícolas y pymes que buscan cotizar suministros de oficina o tecnología con factura.", "uso": "Página de contacto B2B, pie de página institucional y descripción de registro para empresas."}], "filasCamp": [{"canal": "Facebook & Instagram Ads (Meta)", "publico": "Hombres y mujeres de 18 a 45 años en un radio de 25 km de La Joya y valles aledaños interesados en tecnología, smartphones y gaming.", "presupuesto": "S/ 250 / mes (simulado)", "mensaje": "\"¡Tecnología original en tus manos hoy mismo! Estrena tu iPhone, Samsung o Laptop en La Joya con entrega en menos de 2 horas y garantía local en La Paz Soldán. Compra online en Jeremy Tech.\""}, {"canal": "Google Search Ads (Búsqueda)", "publico": "Personas que buscan activamente términos de compra como 'celulares La Joya', 'reparación laptops La Joya' o 'audífonos bluetooth Arequipa'.", "presupuesto": "S/ 200 / mes (simulado)", "mensaje": "\"Jeremy Tech La Joya | Laptops y Celulares con Entrega Inmediata. Precios justos, garantía real y atención 24/7. ¡Visítanos o compra online aquí!\""}, {"canal": "WhatsApp Marketing y Comunidad Local", "publico": "Base de clientes recurrentes y grupos vecinales/agroindustriales de La Joya.", "presupuesto": "S/ 50 / mes (simulado)", "mensaje": "\"📢 Ofertas exclusivas de fin de mes en Jeremy Tech: Llévate tus AirPods o audífonos Sony con 15% de descuento usando el cupón JEREMYTECH10. Stock limitado en tienda La Paz Soldán.\""}]};
+
+  function cargar() {
+    const guardado = localStorage.getItem(CLAVE_STORAGE);
+    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    document.getElementById('filas-seo').innerHTML = '';
+    document.getElementById('filas-camp').innerHTML = '';
+    document.getElementById('alumno').value = datos.alumno || '';
+    document.getElementById('proyecto').value = datos.proyecto || '';
+    document.getElementById('publico').value = datos.publico || '';
+    document.getElementById('metadatos').value = datos.metadatos || '';
+    document.getElementById('conclusion').value = datos.conclusion || '';
+    (datos.filasSeo || []).forEach(agregarFilaSeo);
+    (datos.filasCamp || []).forEach(agregarFilaCampana);
+  }
+
+  function borrarTodo() {
+    if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
+    localStorage.removeItem(CLAVE_STORAGE);
+    document.getElementById('alumno').value = '';
+    document.getElementById('proyecto').value = '';
+    document.getElementById('publico').value = '';
+    document.getElementById('metadatos').value = '';
+    document.getElementById('conclusion').value = '';
+    document.getElementById('filas-seo').innerHTML = '';
+    document.getElementById('filas-camp').innerHTML = '';
+    for (let i = 0; i < 4; i++) agregarFilaSeo();
+    for (let i = 0; i < 3; i++) agregarFilaCampana();
+  }
+
+  function descargarTxt() {
+    const v = id => document.getElementById(id).value || '(vacío)';
+    const alumno = document.getElementById('alumno').value || '(sin nombre)';
+    const proyecto = document.getElementById('proyecto').value || '(sin proyecto)';
+    const filasSeo = [...document.querySelectorAll('#filas-seo tr')].map((tr, i) => {
+      return `${i + 1}. ${tr.children[0].textContent.trim() || '(vacío)'}\n   Intención: ${tr.children[1].textContent.trim() || '(vacío)'}\n   Uso: ${tr.children[2].textContent.trim() || '(vacío)'}`;
+    }).join('\n\n');
+    const filasCamp = [...document.querySelectorAll('#filas-camp tr')].map((tr, i) => {
+      return `${i + 1}. Canal: ${tr.children[0].textContent.trim() || '(vacío)'}\n   Público: ${tr.children[1].textContent.trim() || '(vacío)'}\n   Presupuesto: ${tr.children[2].textContent.trim() || '(vacío)'}\n   Mensaje: ${tr.children[3].textContent.trim() || '(vacío)'}`;
+    }).join('\n\n');
+
+    const contenido = `EL LANZAMIENTO INVISIBLE — PLAN DE TRÁFICO\nSesión 5 — Marketing y Tecnologías Digitales\n\nAlumno(a): ${alumno}\nProyecto / Negocio: ${proyecto}\n\n1. PÚBLICO OBJETIVO\n${v('publico')}\n\n2. PALABRAS CLAVE (SEO)\n${filasSeo}\n\n3. CAMPAÑAS SIMULADAS\n${filasCamp}\n\n4. METADATOS SEO REALES\n${v('metadatos')}\n\n5. CONCLUSIÓN\n${v('conclusion')}\n`;
+
+    const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'plan-de-trafico.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  document.getElementById('alumno').addEventListener('input', guardarDebounced);
+  document.getElementById('proyecto').addEventListener('input', guardarDebounced);
+  document.getElementById('publico').addEventListener('input', guardarDebounced);
+  document.getElementById('metadatos').addEventListener('input', guardarDebounced);
+  document.getElementById('conclusion').addEventListener('input', guardarDebounced);
+
+  const CLAVE_OCULTAR_BOTONES = 'grafiluz-s5-trafico-ocultar-botones';
+  function alternarAcciones() {
+    const grupo = document.getElementById('grupo-acciones');
+    const oculto = grupo.classList.toggle('oculto');
+    document.getElementById('btn-toggle-acciones').textContent = oculto ? '👁️ Mostrar botones' : '🙈 Ocultar botones';
+    localStorage.setItem(CLAVE_OCULTAR_BOTONES, oculto ? '1' : '0');
+  }
+  function cargarPreferenciaBotones() {
+    if (localStorage.getItem(CLAVE_OCULTAR_BOTONES) === '1') {
+      document.getElementById('grupo-acciones').classList.add('oculto');
+      document.getElementById('btn-toggle-acciones').textContent = '👁️ Mostrar botones';
+    }
+  }
+
+  cargar();
+  cargarPreferenciaBotones();
+
+  // ── Print fix: sincronizar textareas → mirror divs ──
+  function sincronizarImpresion() {
+    document.querySelectorAll('textarea').forEach(function(tx) {
+      var sig = tx.nextElementSibling;
+      if (!sig || !sig.classList.contains('bloque-impresion')) {
+        var div = document.createElement('div');
+        div.className = 'bloque-impresion';
+        tx.parentNode.insertBefore(div, tx.nextSibling);
+        sig = div;
+      }
+      sig.textContent = tx.value || '';
+    });
+  }
+  window.addEventListener('beforeprint', sincronizarImpresion);
+  document.addEventListener('DOMContentLoaded', sincronizarImpresion);
+  // llamada inmediata por si DOMContentLoaded ya disparó
+  if (document.readyState !== 'loading') { sincronizarImpresion(); }
+</script>
+
+</body>
+</html>

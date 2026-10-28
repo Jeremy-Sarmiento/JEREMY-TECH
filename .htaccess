@@ -1,0 +1,23 @@
+# Defensa en profundidad por si el DocumentRoot apunta a la raíz del proyecto.
+# El punto de entrada correcto sigue siendo public/index.php.
+Options -Indexes
+
+<IfModule mod_headers.c>
+    Header always unset X-Powered-By
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Nunca servir configuración, código interno, esquemas, vistas, reportes,
+    # correos simulados ni metadatos de Git si el servidor quedó mal apuntado.
+    RewriteRule ^(?:\.git|config|src|database|views|entregables|storage)(?:/|$) - [F,L,NC]
+</IfModule>
+
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "\.(sql|md|bak|log|ini|sh)$">
+    Require all denied
+</FilesMatch>

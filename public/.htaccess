@@ -1,6 +1,10 @@
 # Front controller (patrón de referencia).
 # Con el servidor embebido de PHP (php -S localhost:8000 -t public)
 # este archivo no se aplica; el routing lo hace public/index.php.
+<IfModule mod_headers.c>
+    Header always unset X-Powered-By
+</IfModule>
+
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

@@ -1,2 +1,5 @@
 .env
+.ht.env
 admin.md
+# Correos simulados: no se versionan (pueden contener datos del cliente).
+storage/mail/

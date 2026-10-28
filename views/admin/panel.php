@@ -15,6 +15,13 @@ $secciones = [
     'vendedores'    => ['Vendedores',   'admin/vendedores'],
     'comisiones'    => ['Comisiones',   'admin/comisiones'],
     'ventas'        => ['Mis ventas',   'admin/ventas'],
+    'inventario'    => ['Inventario',   'admin/inventario'],
+    'notificaciones' => ['Notificaciones', 'admin/notificaciones'],
+    'soporte'       => ['Soporte',      'admin/soporte'],
+    'resenas'       => ['Reseñas',      'admin/resenas'],
+    'pagos'         => ['Pagos',        'admin/pagos'],
+    'analitica'    => ['Analítica',   'admin/analitica'],
+    'chatbot'      => ['Chatbot FAQ',  'admin/chatbot'],
     'usuarios'      => ['Usuarios',     'admin/usuarios'],
     'configuracion' => ['Configuración','admin/configuracion'],
     'auditoria'     => ['Auditoría',    'admin/auditoria'],
@@ -23,8 +30,9 @@ $secciones = [
 $grupos = [
     ['General', ['dashboard']],
     ['Catálogo', ['productos', 'variantes', 'categorias', 'marcas', 'garantias']],
-    ['Ventas', ['pedidos', 'ventas', 'cupones', 'envios', 'vendedores', 'comisiones']],
-    ['Sistema', ['usuarios', 'configuracion', 'auditoria']],
+    ['Ventas', ['pedidos', 'ventas', 'cupones', 'envios', 'vendedores', 'comisiones', 'pagos', 'analitica']],
+    ['Operaciones', ['inventario', 'notificaciones', 'soporte', 'resenas']],
+    ['Sistema', ['usuarios', 'configuracion', 'auditoria', 'chatbot']],
 ];
 
 // (Etapa 6) El panel es único y se filtra por rol. La fuente de verdad del
@@ -59,6 +67,13 @@ $iconos = [
     'vendedores'    => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
     'ventas'        => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-4 4"/></svg>',
     'comisiones'    => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>',
+    'inventario'    => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18"/><path d="M5 7V5a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v2"/><rect x="4" y="7" width="16" height="13" rx="1.5"/><path d="M9 12h6"/></svg>',
+    'notificaciones' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 20a2 2 0 0 1-3.4 0"/></svg>',
+    'soporte'       => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="2" y="13" width="4" height="7" rx="1.5"/><rect x="18" y="13" width="4" height="7" rx="1.5"/><path d="M20 20a3 3 0 0 1-3 3h-3"/></svg>',
+    'resenas'       => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3Z"/></svg>',
+    'pagos'         => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>',
+    'analitica'    => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-4 4"/></svg>',
+    'chatbot'      => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
     'tienda'        => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>',
     'salir'         => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>',
 ];
@@ -100,7 +115,12 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 
         <div class="admin-sidebar-pie">
             <a class="admin-enlace" href="index.php"><?= $iconos['tienda'] ?><span>Ver la tienda</span></a>
-            <a class="admin-enlace admin-enlace-salir" href="?ruta=admin/cerrar"><?= $iconos['salir'] ?><span>Cerrar sesión</span></a>
+            <form method="post" action="?ruta=admin/cerrar" class="admin-logout-form">
+                <?= \Security\Proteccion::campo() ?>
+                <button type="submit" class="admin-enlace admin-enlace-salir">
+                    <?= $iconos['salir'] ?><span>Cerrar sesión</span>
+                </button>
+            </form>
         </div>
     </aside>
 

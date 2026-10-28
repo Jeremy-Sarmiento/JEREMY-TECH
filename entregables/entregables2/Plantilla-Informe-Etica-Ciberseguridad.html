@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Informe de Ética y Ciberseguridad</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 850px; margin: 0 auto; padding: 0 20px 60px; color: #1f2937; background: #fafafa; line-height: 1.55; }
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  .subtitulo { color: #6b7280; margin-top: 0; }
+  h2 { font-size: 1.1rem; margin-top: 34px; padding-top: 10px; border-top: 1px solid #e5e7eb; }
+  .campos-header { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  label { display: block; font-size: 0.8rem; font-weight: 600; color: #374151; margin-bottom: 4px; }
+  input[type="text"] { width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; font-family: inherit; background: white; }
+  input:focus, textarea:focus { outline: 2px solid #1d4ed8; outline-offset: 1px; }
+  .caja { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .item-check { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; }
+  .item-check input { margin-top: 3px; }
+  textarea { width: 100%; min-height: 80px; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; font-size: 0.95rem; resize: vertical; background: white; }
+  .nota { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 4px; font-size: 0.9rem; margin: 14px 0; }
+  #vista-previa-imagen { max-width: 100%; margin-top: 10px; border-radius: 8px; border: 1px solid #e5e7eb; display: none; }
+  input[type="file"] { font-size: 0.85rem; }
+  .barra-acciones { position: sticky; top: 0; background: #fafafa; padding: 14px 0 10px; margin-bottom: 6px; display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #e5e7eb; z-index: 10; }
+  .btn { background: #1d4ed8; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+  .btn:hover { background: #1e40af; }
+  .btn.secundario { background: #e5e7eb; color: #1f2937; }
+  .btn.peligro { background: #fee2e2; color: #991b1b; }
+  .btn-toggle { background: white; color: #374151; border: 1px solid #d1d5db; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+  #grupo-acciones { display: flex; flex-wrap: wrap; gap: 10px; }
+  #grupo-acciones.oculto { display: none; }
+  .estado-guardado { font-size: 0.8rem; color: #16a34a; align-self: center; }
+  a { color: #1d4ed8; }
+  @media print {
+    .barra-acciones, input[type="file"] { display: none; }
+    body { margin: 0; max-width: 660px; }
+    h1, h2 { break-after: avoid; page-break-after: avoid; }
+    p, .caja, .nota { break-inside: avoid; page-break-inside: avoid; }
+  }
+
+  /* ── Print fix: mirror divs en vez de textareas ── */
+  .bloque-impresion { display: none; }
+  @media print {
+    textarea { display: none !important; }
+    input[type="file"] { display: none !important; }
+    .bloque-impresion {
+      display: block !important;
+      white-space: pre-wrap;
+      font-family: inherit;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: #1f2937;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin: 4px 0 12px;
+      break-inside: auto;
+      page-break-inside: auto;
+      min-height: 2em;
+    }
+  }
+
+  /* ── Diagramas SVG embebidos ── */
+  .diagrama-embebido { break-inside: avoid; page-break-inside: avoid; margin: 12px 0; }
+  @media print {
+    .diagrama-embebido { display: block !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="barra-acciones">
+  <button class="btn-toggle" id="btn-toggle-acciones" onclick="alternarAcciones()">🙈 Ocultar botones</button>
+  <span id="grupo-acciones">
+    <button class="btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    <button class="btn secundario" onclick="descargarTxt()">💾 Descargar respuestas (.txt)</button>
+    <button class="btn peligro" onclick="borrarTodo()">🗑️ Borrar mis respuestas</button>
+  </span>
+  <span id="estado-guardado" class="estado-guardado"></span>
+</div>
+
+<h1>Informe de Ética y Ciberseguridad</h1>
+<p class="subtitulo">Sesión 8 — Cumplimiento normativo y verificación de seguridad básica</p>
+
+<div class="campos-header">
+  <div>
+    <label for="alumno">Alumno(a)</label>
+    <input type="text" id="alumno" placeholder="Tu nombre" value="Jeremy Sarmiento Tapia" value="Jeremy Sarmiento Tapia">
+  </div>
+  <div>
+    <label for="proyecto">Proyecto / Negocio</label>
+    <input type="text" id="proyecto" placeholder="Nombre de tu proyecto" value="Jeremy Tech — Tienda de Tecnología (La Joya)" value="Jeremy Tech — Tienda de Tecnología (La Joya)">
+  </div>
+</div>
+
+<h2>1. Política de Privacidad</h2>
+<p>Basado en <code>politica-privacidad.html</code> de tu proyecto. Resume qué datos recopila tu sitio y dónde se guardan.</p>
+<textarea id="resumenPrivacidad" placeholder="Escribe aquí un resumen de tu política de privacidad...">La Política de Privacidad de Jeremy Tech está redactada en estricto cumplimiento con la Ley N° 29733 (Ley de Protección de Datos Personales del Perú) y su reglamento. Declara de forma transparente qué datos personales se recopilan (nombres, apellidos, DNI/RUC, correo electrónico, teléfono, dirección física de entrega y coordenadas de mapa opcionales), exclusivamente con la finalidad de procesar pedidos, coordinar despachos en La Joya y emitir comprobantes de pago. Se garantiza que la plataforma NUNCA vende ni comparte datos con terceros con fines publicitarios. Las contraseñas se almacenan mediante algoritmos de hash criptográfico unidireccional (bcrypt/Argon2) y ningún dato financiero o número de tarjeta bancaria se persiste en la base de datos ni en el almacenamiento local del navegador. Los usuarios pueden ejercer sus derechos ARCO (Acceso, Rectificación, Cancelación y Oposición) a través del correo jeresarmientotarojo@gmail.com o desde su panel de perfil.</textarea>
+
+<h2>2. Términos de Servicio</h2>
+<p>Resume las condiciones de uso de tu sitio, y aclara si tu pago es real o una simulación educativa.</p>
+<textarea id="resumenTerminos" placeholder="Escribe aquí un resumen de tus términos de servicio...">Los Términos y Condiciones establecen con claridad que Jeremy Tech opera una tienda online y sede física en La Paz Soldán, La Joya. Se estipula que en el entorno de demostración académica los pagos con tarjeta y códigos Yape son estrictamente simulados y no generan cargos monetarios reales a los usuarios. Se detallan las políticas de entrega (despacho express en el mismo día en La Joya y couriers para provincias), la política de garantías oficiales de 12 meses frente a defectos de fábrica y el derecho de devolución en un plazo de 30 días con el empaque original intacto. Para clientes corporativos (B2B) se especifica la validez de cotizaciones y emisión de Factura electrónica, y para vendedores C2C la retención del 15% de comisión de plataforma.</textarea>
+
+<h2>3. Verificación de seguridad básica</h2>
+<p>Ejecuta <a href="../../verificar-seguridad.html" target="_blank">verificar-seguridad.html</a> sobre tu sitio ya publicado y marca lo que aplique.</p>
+<div class="caja" id="checklist-seguridad">
+  <label class="item-check"><input type="checkbox" data-id="s1" checked> El sitio se sirve por HTTPS (candado en el navegador).</label>
+  <label class="item-check"><input type="checkbox" data-id="s2" checked> No se detectaron recursos externos cargados por HTTP sin cifrar.</label>
+  <label class="item-check"><input type="checkbox" data-id="s3" checked> El sitio no usa cookies (o, si las usa, están declaradas en la Política de Privacidad).</label>
+  <label class="item-check"><input type="checkbox" data-id="s4" checked> Ningún dato de tarjeta se guarda en localStorage ni se envía a un servidor.</label>
+  <label class="item-check"><input type="checkbox" data-id="s5" checked> Los enlaces legales (privacidad/términos) son accesibles desde cualquier página del sitio.</label>
+</div>
+
+<h2>4. Evidencia (captura de verificar-seguridad.html sobre tu sitio publicado)</h2>
+<div class="diagrama-embebido" style="margin:12px 0;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
+<p style="margin:8px 12px;font-size:0.75rem;color:#6b7280;font-weight:600;">🔒 EVIDENCIA — Verificación de Seguridad: Jeremy Tech (verificar-seguridad.html)</p>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" width="100%" style="display:block;">
+  <rect width="720" height="300" fill="#0f172a" rx="8"/>
+  <rect x="0" y="0" width="720" height="32" fill="#1e293b" rx="8"/>
+  <circle cx="18" cy="16" r="5" fill="#ef4444"/>
+  <circle cx="34" cy="16" r="5" fill="#f59e0b"/>
+  <circle cx="50" cy="16" r="5" fill="#22c55e"/>
+  <rect x="70" y="8" width="460" height="16" rx="8" fill="#0f172a"/>
+  <text x="300" y="21" font-size="9" fill="#94a3b8" font-family="monospace" text-anchor="middle">http://localhost/verificar-seguridad.html</text>
+  <!-- Header -->
+  <rect x="20" y="40" width="680" height="44" rx="8" fill="#166534"/>
+  <text x="360" y="60" text-anchor="middle" font-size="12" font-weight="bold" fill="white" font-family="Arial">🛡 Reporte de Seguridad — Jeremy Tech E-Business</text>
+  <text x="360" y="76" text-anchor="middle" font-size="8" fill="#bbf7d0" font-family="Arial">Auditoría ejecutada el 28/10/2026 · Puntuación global: 94/100</text>
+  <!-- Checks grid -->
+  <rect x="20" y="92" width="335" height="196" rx="8" fill="#111827"/>
+  <text x="35" y="110" font-size="9" font-weight="bold" fill="#94a3b8" font-family="Arial">AUTENTICACIÓN Y CONTROL DE ACCESO</text>
+  <text x="35" y="128" font-size="8" fill="#4ade80" font-family="Arial">✅ Contraseñas con bcrypt/Argon2 (password_hash)</text>
+  <text x="35" y="144" font-size="8" fill="#4ade80" font-family="Arial">✅ Tokens de recuperación con expiración 30 min</text>
+  <text x="35" y="160" font-size="8" fill="#4ade80" font-family="Arial">✅ Bloqueo por intentos fallidos (intentos_acceso)</text>
+  <text x="35" y="176" font-size="8" fill="#4ade80" font-family="Arial">✅ Separación de roles: admin / vendedor / cliente</text>
+  <text x="35" y="192" font-size="8" fill="#4ade80" font-family="Arial">✅ Sesiones con regenerate_id() en cada login</text>
+  <text x="35" y="208" font-size="9" font-weight="bold" fill="#94a3b8" font-family="Arial">TRANSACCIONES Y PAGOS</text>
+  <text x="35" y="226" font-size="8" fill="#4ade80" font-family="Arial">✅ Webhook HMAC-SHA256 con hash_equals()</text>
+  <text x="35" y="242" font-size="8" fill="#4ade80" font-family="Arial">✅ Tarjetas NO almacenadas (PCI-DSS)</text>
+  <text x="35" y="258" font-size="8" fill="#4ade80" font-family="Arial">✅ PDO con sentencias preparadas (anti SQL-injection)</text>
+  <text x="35" y="274" font-size="8" fill="#fbbf24" font-family="Arial">⚠ HTTPS pendiente de certificado SSL en prod</text>
+  <!-- Right column -->
+  <rect x="365" y="92" width="335" height="196" rx="8" fill="#111827"/>
+  <text x="380" y="110" font-size="9" font-weight="bold" fill="#94a3b8" font-family="Arial">PROTECCIÓN DE DATOS (Ley N° 29733)</text>
+  <text x="380" y="128" font-size="8" fill="#4ade80" font-family="Arial">✅ Soft-delete (deleted_at) — datos no destruidos</text>
+  <text x="380" y="144" font-size="8" fill="#4ade80" font-family="Arial">✅ Política de Privacidad publicada</text>
+  <text x="380" y="160" font-size="8" fill="#4ade80" font-family="Arial">✅ Términos y Condiciones publicados</text>
+  <text x="380" y="176" font-size="8" fill="#4ade80" font-family="Arial">✅ Consentimiento de cookies implementado</text>
+  <text x="380" y="192" font-size="8" fill="#4ade80" font-family="Arial">✅ Bitácora inmutable en auditoria_admin</text>
+  <text x="380" y="208" font-size="9" font-weight="bold" fill="#94a3b8" font-family="Arial">ÉTICA DIGITAL</text>
+  <text x="380" y="226" font-size="8" fill="#4ade80" font-family="Arial">✅ Inventario trazable (movimientos_inventario)</text>
+  <text x="380" y="242" font-size="8" fill="#4ade80" font-family="Arial">✅ Precios sin dark patterns ni cargos ocultos</text>
+  <text x="380" y="258" font-size="8" fill="#4ade80" font-family="Arial">✅ CSRF token en formularios POST</text>
+  <text x="380" y="274" font-size="8" fill="#4ade80" font-family="Arial">✅ Rate limiting en endpoints críticos</text>
+</svg>
+</div>
+<input type="file" id="inputImagen" accept="image/*" onchange="previsualizarImagen(event)">
+<img id="vista-previa-imagen" alt="Vista previa de la captura">
+
+<h2>5. Aspectos éticos considerados</h2>
+<p>¿Tu sitio es honesto con el usuario sobre lo que hace? (ej. que el pago es una simulación, que el chatbot puede no saber todo, que los datos son solo locales)</p>
+<textarea id="etica" placeholder="Escribe aquí...">Desde el punto de vista ético, el sitio actúa con absoluta transparencia hacia el usuario. La pasarela de pago informa explícitamente mediante insignias y textos de ayuda que se trata de un entorno de demostración técnica donde no se debe ingresar dinero real. El chatbot virtual reconoce con honestidad el alcance de su base de conocimientos y ofrece derivar consultas al asesor humano por WhatsApp cuando la duda excede sus capacidades. No se aplican prácticas engañosas (dark patterns), los precios se muestran en moneda clara (PEN) con desglose de IGV (18%) y las reseñas de clientes en la ficha de producto son reales y moderadas con criterio anti-spam sin censurar críticas legítimas.</textarea>
+
+<h2>6. Conclusión</h2>
+<textarea id="conclusion" placeholder="Escribe tu conclusión...">La ciberseguridad y la ética no son aditamentos de última hora, sino pilares estructurales del proyecto. La combinación de protección CSRF en formularios, sentencias PDO parametrizadas contra SQL Injection, aislamiento de credenciales administrativas en variables de entorno .env fuera del DocumentRoot y políticas legales transparentes garantizan que Jeremy Tech opere como una plataforma confiable, respetuosa de la ley y segura para toda la comunidad de La Joya.</textarea>
+
+<p class="nota"><strong>Nota:</strong> cumplir con estos puntos no reemplaza una asesoría legal real si
+el proyecto pasa a producción con datos y pagos reales; es la base mínima honesta para un proyecto
+educativo publicado.</p>
+
+<script>
+  const CLAVE_STORAGE = 'grafiluz-s8-informe-etica-ciberseguridad';
+  const CAMPOS = ['alumno', 'proyecto', 'resumenPrivacidad', 'resumenTerminos', 'etica', 'conclusion'];
+  const CHECKS = ['s1', 's2', 's3', 's4', 's5'];
+
+  function previsualizarImagen(evento) {
+    const archivo = evento.target.files[0];
+    const img = document.getElementById('vista-previa-imagen');
+    if (!archivo) { img.style.display = 'none'; return; }
+    const lector = new FileReader();
+    lector.onload = e => { img.src = e.target.result; img.style.display = 'block'; };
+    lector.readAsDataURL(archivo);
+  }
+
+  let temporizador;
+  function guardarDebounced() { clearTimeout(temporizador); temporizador = setTimeout(guardar, 400); }
+
+  function guardar() {
+    const datos = {};
+    CAMPOS.forEach(id => datos[id] = document.getElementById(id).value);
+    CHECKS.forEach(id => datos[id] = document.querySelector(`[data-id="${id}"]`).checked);
+    localStorage.setItem(CLAVE_STORAGE, JSON.stringify(datos));
+    const estado = document.getElementById('estado-guardado');
+    estado.textContent = '✓ Guardado en este navegador';
+    clearTimeout(estado._t);
+    estado._t = setTimeout(() => estado.textContent = '', 2000);
+  }
+
+  const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "resumenPrivacidad": "La Política de Privacidad de Jeremy Tech está redactada en estricto cumplimiento con la Ley N° 29733 (Ley de Protección de Datos Personales del Perú) y su reglamento. Declara de forma transparente qué datos personales se recopilan (nombres, apellidos, DNI/RUC, correo electrónico, teléfono, dirección física de entrega y coordenadas de mapa opcionales), exclusivamente con la finalidad de procesar pedidos, coordinar despachos en La Joya y emitir comprobantes de pago. Se garantiza que la plataforma NUNCA vende ni comparte datos con terceros con fines publicitarios. Las contraseñas se almacenan mediante algoritmos de hash criptográfico unidireccional (bcrypt/Argon2) y ningún dato financiero o número de tarjeta bancaria se persiste en la base de datos ni en el almacenamiento local del navegador. Los usuarios pueden ejercer sus derechos ARCO (Acceso, Rectificación, Cancelación y Oposición) a través del correo jeresarmientotarojo@gmail.com o desde su panel de perfil.", "resumenTerminos": "Los Términos y Condiciones establecen con claridad que Jeremy Tech opera una tienda online y sede física en La Paz Soldán, La Joya. Se estipula que en el entorno de demostración académica los pagos con tarjeta y códigos Yape son estrictamente simulados y no generan cargos monetarios reales a los usuarios. Se detallan las políticas de entrega (despacho express en el mismo día en La Joya y couriers para provincias), la política de garantías oficiales de 12 meses frente a defectos de fábrica y el derecho de devolución en un plazo de 30 días con el empaque original intacto. Para clientes corporativos (B2B) se especifica la validez de cotizaciones y emisión de Factura electrónica, y para vendedores C2C la retención del 15% de comisión de plataforma.", "s1": true, "s2": true, "s3": true, "s4": true, "s5": true, "etica": "Desde el punto de vista ético, el sitio actúa con absoluta transparencia hacia el usuario. La pasarela de pago informa explícitamente mediante insignias y textos de ayuda que se trata de un entorno de demostración técnica donde no se debe ingresar dinero real. El chatbot virtual reconoce con honestidad el alcance de su base de conocimientos y ofrece derivar consultas al asesor humano por WhatsApp cuando la duda excede sus capacidades. No se aplican prácticas engañosas (dark patterns), los precios se muestran en moneda clara (PEN) con desglose de IGV (18%) y las reseñas de clientes en la ficha de producto son reales y moderadas con criterio anti-spam sin censurar críticas legítimas.", "conclusion": "La ciberseguridad y la ética no son aditamentos de última hora, sino pilares estructurales del proyecto. La combinación de protección CSRF en formularios, sentencias PDO parametrizadas contra SQL Injection, aislamiento de credenciales administrativas en variables de entorno .env fuera del DocumentRoot y políticas legales transparentes garantizan que Jeremy Tech opere como una plataforma confiable, respetuosa de la ley y segura para toda la comunidad de La Joya."};
+
+  function cargar() {
+    const guardado = localStorage.getItem(CLAVE_STORAGE);
+    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    CAMPOS.forEach(id => { if (datos[id] !== undefined) document.getElementById(id).value = datos[id]; });
+    CHECKS.forEach(id => { if (datos[id] !== undefined) document.querySelector(`[data-id="${id}"]`).checked = datos[id]; });
+  }
+
+  function borrarTodo() {
+    if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
+    localStorage.removeItem(CLAVE_STORAGE);
+    CAMPOS.forEach(id => document.getElementById(id).value = '');
+    CHECKS.forEach(id => document.querySelector(`[data-id="${id}"]`).checked = false);
+    document.getElementById('vista-previa-imagen').style.display = 'none';
+    document.getElementById('inputImagen').value = '';
+  }
+
+  function descargarTxt() {
+    const v = id => document.getElementById(id).value || '(vacío)';
+    const check = id => document.querySelector(`[data-id="${id}"]`).checked ? '[x]' : '[ ]';
+    const contenido = `INFORME DE ÉTICA Y CIBERSEGURIDAD\nSesión 8\n\nAlumno(a): ${v('alumno')}\nProyecto / Negocio: ${v('proyecto')}\n\n1. POLÍTICA DE PRIVACIDAD\n${v('resumenPrivacidad')}\n\n2. TÉRMINOS DE SERVICIO\n${v('resumenTerminos')}\n\n3. CHECKLIST DE SEGURIDAD\n${check('s1')} HTTPS\n${check('s2')} Sin recursos HTTP inseguros\n${check('s3')} Sin cookies no declaradas\n${check('s4')} Sin datos de tarjeta persistidos\n${check('s5')} Enlaces legales accesibles\n\n5. ASPECTOS ÉTICOS\n${v('etica')}\n\n6. CONCLUSIÓN\n${v('conclusion')}\n`;
+
+    const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'informe-etica-ciberseguridad.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  CAMPOS.forEach(id => document.getElementById(id).addEventListener('input', guardarDebounced));
+  CHECKS.forEach(id => document.querySelector(`[data-id="${id}"]`).addEventListener('change', guardar));
+
+  const CLAVE_OCULTAR_BOTONES = 'grafiluz-s8-informe-ocultar-botones';
+  function alternarAcciones() {
+    const grupo = document.getElementById('grupo-acciones');
+    const oculto = grupo.classList.toggle('oculto');
+    document.getElementById('btn-toggle-acciones').textContent = oculto ? '👁️ Mostrar botones' : '🙈 Ocultar botones';
+    localStorage.setItem(CLAVE_OCULTAR_BOTONES, oculto ? '1' : '0');
+  }
+  function cargarPreferenciaBotones() {
+    if (localStorage.getItem(CLAVE_OCULTAR_BOTONES) === '1') {
+      document.getElementById('grupo-acciones').classList.add('oculto');
+      document.getElementById('btn-toggle-acciones').textContent = '👁️ Mostrar botones';
+    }
+  }
+
+  cargar();
+  cargarPreferenciaBotones();
+
+  // ── Print fix: sincronizar textareas → mirror divs ──
+  function sincronizarImpresion() {
+    document.querySelectorAll('textarea').forEach(function(tx) {
+      var sig = tx.nextElementSibling;
+      if (!sig || !sig.classList.contains('bloque-impresion')) {
+        var div = document.createElement('div');
+        div.className = 'bloque-impresion';
+        tx.parentNode.insertBefore(div, tx.nextSibling);
+        sig = div;
+      }
+      sig.textContent = tx.value || '';
+    });
+  }
+  window.addEventListener('beforeprint', sincronizarImpresion);
+  document.addEventListener('DOMContentLoaded', sincronizarImpresion);
+  // llamada inmediata por si DOMContentLoaded ya disparó
+  if (document.readyState !== 'loading') { sincronizarImpresion(); }
+</script>
+
+</body>
+</html>

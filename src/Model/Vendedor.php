@@ -7,10 +7,10 @@ namespace Model;
  * Modelo Vendedor (Jeremy Tech) — Etapa 6 (marketplace).
  *
  * No hay tabla propia: un vendedor es una fila de `users` con
- * `rol = 'vendedor'` y su ficha comercial (`comision_porcentaje`,
- * `verificado`) en las mismas columnas. Coincide con el diseño de la
- * semilla original, cuyas FK de `comisiones`, `pagos_vendedor` y
- * `calificaciones_vendedor` ya apuntan a `users(id)`.
+ * `rol = 'vendedor'` o `tipo = 'C2C'` (revendedor) y su ficha comercial
+ * (`comision_porcentaje`, `verificado`) en las mismas columnas. Coincide
+ * con el diseño de la semilla original, cuyas FK de `comisiones`,
+ * `pagos_vendedor` y `calificaciones_vendedor` ya apuntan a `users(id)`.
  *
  * El reparto de dinero se congela en `comisiones` (una fila por pedido y
  * vendedor) al momento de la compra, igual que en la referencia `techmarket`.
@@ -21,6 +21,12 @@ class Vendedor
     public const ROL = 'vendedor';
 
     /**
+     * Condición SQL de las cuentas que pueden vender: vendedores del panel
+     * y revendedores C2C. Se aplica sobre `users`.
+     */
+    private const CONDICION_VENDEDOR = "(rol = 'vendedor' OR tipo = 'C2C')";
+
+    /**
      * Fichas de vendedor con sus métricas de venta.
      *
      * @return array<int, array<string, mixed>>
@@ -28,7 +34,7 @@ class Vendedor
     public static function todos(): array
     {
         return conexion()->query(
-            "SELECT u.id, u.name, u.apellidos, u.email, u.usuario, u.activo,
+            "SELECT u.id, u.name, u.apellidos, u.email, u.usuario, u.tipo, u.activo,
                     u.verificado, u.comision_porcentaje,
                     (SELECT COUNT(*) FROM productos p
                       WHERE p.vendedor_id = u.id) AS productos,
@@ -47,7 +53,7 @@ class Vendedor
                     (SELECT IFNULL(SUM(pv.monto), 0) FROM pagos_vendedor pv
                      WHERE pv.vendedor_id = u.id) AS liquidado
                FROM users u
-              WHERE u.rol = 'vendedor' AND u.deleted_at IS NULL
+              WHERE " . self::CONDICION_VENDEDOR . " AND u.deleted_at IS NULL
               ORDER BY u.name, u.apellidos"
         )->fetchAll();
     }
@@ -59,7 +65,7 @@ class Vendedor
     {
         $stmt = conexion()->prepare(
             "SELECT * FROM users
-              WHERE id = ? AND rol = 'vendedor' AND deleted_at IS NULL LIMIT 1"
+              WHERE id = ? AND " . self::CONDICION_VENDEDOR . " AND deleted_at IS NULL LIMIT 1"
         );
         $stmt->execute([$id]);
         $fila = $stmt->fetch();
@@ -93,9 +99,9 @@ class Vendedor
         }
 
         $stmt = conexion()->prepare(
-            'SELECT comision_porcentaje FROM users WHERE id = ? AND rol = ? LIMIT 1'
+            'SELECT comision_porcentaje FROM users WHERE id = ? AND ' . self::CONDICION_VENDEDOR . ' LIMIT 1'
         );
-        $stmt->execute([$vendedorId, self::ROL]);
+        $stmt->execute([$vendedorId]);
         $valor = $stmt->fetchColumn();
 
         if ($valor === false || $valor === null || $valor === '') {
@@ -132,6 +138,10 @@ class Vendedor
 
     /**
      * Ganancia acumulada del vendedor en pedidos efectivamente cobrados.
+     *
+     * Un pedido reembolsado queda en estado `Cancelado`, así que deja de
+     * sumar aquí y en `saldoPendiente()`. El reembolso se procesa antes de
+     * cualquier liquidación: no hay que ajustar `pagos_vendedor` a mano.
      */
     public static function gananciasDe(int $vendedorId): float
     {
@@ -164,6 +174,136 @@ class Vendedor
     public static function saldoPendiente(int $vendedorId): float
     {
         return round(self::gananciasDe($vendedorId) - self::liquidadoDe($vendedorId), 2);
+    }
+
+    /**
+     * Resumen económico del panel "Mis productos".
+     *
+     * Solo suma pedidos cobrados: un pedido `Pendiente` o `Cancelado` no
+     * genera ganancia. `vendido` y `comision` son la base SIN IGV que se
+     * congeló en `comisiones` al comprar; `neto` es lo que le corresponde
+     * al vendedor y `saldo` lo que aún no se le liquida.
+     *
+     * @return array{vendido:float, comision:float, neto:float, liquidado:float, saldo:float}
+     */
+    public static function resumenGanancias(int $vendedorId): array
+    {
+        if ($vendedorId <= 0) {
+            return [
+                'vendido' => 0.0,
+                'comision' => 0.0,
+                'neto' => 0.0,
+                'liquidado' => 0.0,
+                'saldo' => 0.0,
+            ];
+        }
+
+        $stmt = conexion()->prepare(
+            "SELECT IFNULL(SUM(c.monto_venta), 0)    AS vendido,
+                    IFNULL(SUM(c.monto_comision), 0) AS comision,
+                    IFNULL(SUM(c.monto_vendedor), 0) AS neto
+               FROM comisiones c
+               JOIN pedidos p ON p.id = c.pedido_id
+              WHERE c.vendedor_id = ?
+                AND p.estado NOT IN ('Cancelado', 'Pendiente')"
+        );
+        $stmt->execute([$vendedorId]);
+        $fila = $stmt->fetch() ?: [];
+
+        $neto = (float) ($fila['neto'] ?? 0);
+        $liquidado = self::liquidadoDe($vendedorId);
+
+        return [
+            'vendido' => (float) ($fila['vendido'] ?? 0),
+            'comision' => (float) ($fila['comision'] ?? 0),
+            'neto' => $neto,
+            'liquidado' => $liquidado,
+            'saldo' => round($neto - $liquidado, 2),
+        ];
+    }
+
+    /**
+     * Ventas del vendedor con el comprador y el estado del pago.
+     *
+     * `detalle_pedido.vendedor_id` se congela al comprar, así que la fila
+     * sigue mostrando la venta aunque el producto se edite u oculte después.
+     * Se usa una subconsulta para el ÚLTIMO pago: un pedido puede tener más
+     * de un registro en `pagos` (por ejemplo, un reintento) y no queremos
+     * duplicar la línea.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public static function compradoresDe(int $vendedorId, int $limite = 50): array
+    {
+        if ($vendedorId <= 0) {
+            return [];
+        }
+
+        $limite = max(1, min(200, $limite));
+        $stmt = conexion()->prepare(
+            'SELECT dp.pedido_id, dp.producto_nombre, dp.variante_nombre,
+                    dp.cantidad, dp.precio_unitario_pen,
+                    p.estado AS pedido_estado, p.creado_en,
+                    u.name AS comprador_nombre, u.apellidos AS comprador_apellidos,
+                    u.email AS comprador_email,
+                    (SELECT pa.estado FROM pagos pa
+                      WHERE pa.pedido_id = p.id
+                      ORDER BY pa.id DESC LIMIT 1) AS pago_estado
+               FROM detalle_pedido dp
+               JOIN pedidos p ON p.id = dp.pedido_id
+               JOIN users u ON u.id = p.cliente_id
+              WHERE dp.vendedor_id = ?
+              ORDER BY p.id DESC, dp.id DESC
+              LIMIT ' . $limite
+        );
+        $stmt->execute([$vendedorId]);
+
+        return array_map(static function (array $fila): array {
+            $fila['pedido_id'] = (int) $fila['pedido_id'];
+            $fila['cantidad'] = (int) $fila['cantidad'];
+            $fila['precio_unitario_pen'] = (float) $fila['precio_unitario_pen'];
+            $fila['subtotal'] = round($fila['cantidad'] * $fila['precio_unitario_pen'], 2);
+            return $fila;
+        }, $stmt->fetchAll());
+    }
+
+    /**
+     * Promedio y total de calificaciones recibidas como vendedor.
+     *
+     * Es distinto de las reseñas de producto (`resenas`): aquí el cliente
+     * valora el trato y la entrega del vendedor.
+     *
+     * @return array{promedio:float, total:int}
+     */
+    public static function reputacionDe(int $vendedorId): array
+    {
+        // Fuente única: el mismo cálculo que usa la ficha del producto.
+        return CalificacionVendedor::resumen($vendedorId);
+    }
+
+    /**
+     * Últimas calificaciones recibidas, con el nombre del comprador.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public static function ultimasCalificacionesDe(int $vendedorId, int $limite = 5): array
+    {
+        if ($vendedorId <= 0) {
+            return [];
+        }
+
+        $limite = max(1, min(20, $limite));
+        $stmt = conexion()->prepare(
+            'SELECT c.calificacion, c.comentario, c.creado_en, u.name AS cliente_nombre
+               FROM calificaciones_vendedor c
+               JOIN users u ON u.id = c.cliente_id
+              WHERE c.vendedor_id = ?
+              ORDER BY c.id DESC
+              LIMIT ' . $limite
+        );
+        $stmt->execute([$vendedorId]);
+
+        return $stmt->fetchAll();
     }
 
     /**

@@ -11,6 +11,7 @@ $envioTienda = \Model\Carrito::costoEnvio('tienda');
 // Direcciones guardadas del cliente + zonas activas (Etapa 5). El costo del
 // envío a domicilio lo decide la ZONA de la dirección elegida.
 $usuarioId      = \Model\Cuenta::idSesion();
+$usuario        = $usuarioId !== null ? \Model\Cuenta::usuarioActual() : null;
 $direcciones    = $usuarioId !== null ? \Model\Direccion::delCliente($usuarioId) : [];
 $zonas          = \Model\Envio::zonas();
 $predeterminada = null;
@@ -39,6 +40,14 @@ $envioDomicilio = \Model\Carrito::costoEnvio('domicilio', $tarifaPreseleccionada
 $direccionPreseleccionada = $predeterminada !== null ? (int) $predeterminada['id'] : 0;
 
 $fmt = fn (float $monto, string $simbolo = 'PEN'): string => $simbolo . ' ' . number_format($monto, 2);
+$fechaFmt = static function (?string $fecha): string {
+    $fecha = trim((string) $fecha);
+    if ($fecha === '') {
+        return '';
+    }
+    $ts = strtotime($fecha);
+    return $ts === false ? $fecha : date('d/m/Y H:i', $ts);
+};
 
 $direccionesJson = array_map(static fn (array $d): array => [
     'id'        => (int) $d['id'],
@@ -119,7 +128,7 @@ $zonasJson = array_map(static fn (array $z): array => [
         <div class="cart-item-price price" data-precio="<?= htmlspecialchars((string) (float) $linea['subtotal'], ENT_QUOTES) ?>"><?= $fmt((float) $linea['subtotal']) ?></div>
        </div>
       </div>
-      <button class="cart-item-remove" onclick="eliminarDelCarrito('<?= $id ?>')" title="Eliminar">✕</button>
+      <button class="cart-item-remove" type="button" onclick="eliminarDelCarrito('<?= $id ?>')" title="Eliminar" aria-label="Eliminar producto">✕</button>
      </div>
      <?php endforeach; ?>
     </div>
@@ -206,28 +215,31 @@ $zonasJson = array_map(static fn (array $z): array => [
     <p>Checkout seguro con múltiples medios de pago</p>
    </div>
 
-   <form id="checkoutForm" onsubmit="procesarPago(event)">
+   <form id="checkoutForm" method="post" action="?ruta=carrito/procesar" onsubmit="procesarPago(event)">
+    <?= \Security\Proteccion::campo() ?>
     <input type="hidden" name="metodo" value="tarjeta"/>
     <input type="hidden" name="modalidad" value="domicilio"/>
     <input type="hidden" name="comprobante" value="boleta"/>
-    <input type="hidden" name="tipo" value="B2C"/>
 
     <!-- PASO 1: Datos Personales y Entrega -->
     <div class="form-section-title">1. Datos del Cliente y Entrega</div>
     <div class="form-row">
      <div class="form-group">
       <label for="clienteNombre">Nombre Completo *</label>
-      <input type="text" id="clienteNombre" name="nombre" placeholder="Ej. Juan Pérez" required/>
+      <input type="text" id="clienteNombre" name="nombre" placeholder="Ej. Juan Pérez"
+             value="<?= htmlspecialchars(trim((string) ($usuario['nombre'] ?? '') . ' ' . (string) ($usuario['apellidos'] ?? '')), ENT_QUOTES) ?>" required/>
      </div>
      <div class="form-group">
       <label for="clienteTelefono">Teléfono / WhatsApp *</label>
-      <input type="tel" id="clienteTelefono" name="telefono" placeholder="Ej. 997833866" required/>
+      <input type="tel" id="clienteTelefono" name="telefono" placeholder="Ej. 997833866"
+             value="<?= htmlspecialchars((string) ($usuario['telefono'] ?? ''), ENT_QUOTES) ?>" required/>
      </div>
     </div>
     <div class="form-row">
      <div class="form-group">
       <label for="clienteEmail">Correo Electrónico *</label>
-      <input type="email" id="clienteEmail" name="email" placeholder="correo@ejemplo.com" required/>
+      <input type="email" id="clienteEmail" name="email" placeholder="correo@ejemplo.com"
+             value="<?= htmlspecialchars((string) ($usuario['email'] ?? ''), ENT_QUOTES) ?>" required/>
      </div>
     </div>
 
@@ -304,17 +316,20 @@ $zonasJson = array_map(static fn (array $z): array => [
 
     <div id="campoBoletaDni" class="form-group">
      <label for="clienteDni">Número de DNI (8 dígitos) *</label>
-     <input type="text" id="clienteDni" name="dni" maxlength="8" placeholder="Ej. 72345678"/>
+     <input type="text" id="clienteDni" name="dni" maxlength="8" placeholder="Ej. 72345678"
+            value="<?= htmlspecialchars((string) ($usuario['dni'] ?? ''), ENT_QUOTES) ?>"/>
     </div>
 
     <div id="campoFacturaRuc" class="form-row" style="display: none;">
      <div class="form-group">
       <label for="clienteRuc">Número de RUC (11 dígitos) *</label>
-      <input type="text" id="clienteRuc" name="ruc" maxlength="11" placeholder="Ej. 20601234567"/>
+      <input type="text" id="clienteRuc" name="ruc" maxlength="11" placeholder="Ej. 20601234567"
+             value="<?= htmlspecialchars((string) ($usuario['ruc'] ?? ''), ENT_QUOTES) ?>"/>
      </div>
      <div class="form-group">
       <label for="clienteRazonSocial">Razón Social *</label>
-      <input type="text" id="clienteRazonSocial" name="empresa" placeholder="Ej. Tech Solutions S.A.C."/>
+      <input type="text" id="clienteRazonSocial" name="empresa" placeholder="Ej. Tech Solutions S.A.C."
+             value="<?= htmlspecialchars((string) ($usuario['empresa'] ?? ''), ENT_QUOTES) ?>"/>
      </div>
     </div>
 
@@ -364,25 +379,34 @@ $zonasJson = array_map(static fn (array $z): array => [
       </div>
      </div>
 
+     <p class="sim-note">
+      🧪 <strong>Modo demostración:</strong> no se realiza ningún cobro real y los datos de la tarjeta no se guardan.
+      Tarjeta aprobada: <code>4111 1111 1111 1111</code> · rechazada: <code>4000 0000 0000 0002</code> · vence <code>12/40</code> · CVV <code>123</code>.
+     </p>
+
      <div class="form-group">
       <label for="tarjetaNumero">Número de Tarjeta *</label>
       <div class="input-with-badge">
-       <input type="text" id="tarjetaNumero" maxlength="19" placeholder="1234 5678 9012 3456" autocomplete="cc-number"/>
+       <input type="text" id="tarjetaNumero" name="tarjeta_numero" maxlength="19" placeholder="1234 5678 9012 3456"
+              inputmode="numeric" autocomplete="cc-number"/>
        <span class="input-card-icon" id="inputBrandIcon">💳</span>
       </div>
      </div>
      <div class="form-group">
       <label for="tarjetaTitular">Nombre del Titular *</label>
-      <input type="text" id="tarjetaTitular" placeholder="COMO APARECE EN LA TARJETA" autocomplete="cc-name"/>
+      <input type="text" id="tarjetaTitular" name="tarjeta_titular" maxlength="80"
+             placeholder="COMO APARECE EN LA TARJETA" autocomplete="cc-name"/>
      </div>
      <div class="form-row">
       <div class="form-group">
        <label for="tarjetaExpiracion">Expiración (MM/AA) *</label>
-       <input type="text" id="tarjetaExpiracion" maxlength="5" placeholder="MM/AA" autocomplete="cc-exp"/>
+       <input type="text" id="tarjetaExpiracion" name="tarjeta_expiracion" maxlength="5"
+              placeholder="MM/AA" inputmode="numeric" autocomplete="cc-exp"/>
       </div>
       <div class="form-group">
        <label for="tarjetaCvv">CVV / CVC *</label>
-       <input type="password" id="tarjetaCvv" maxlength="4" placeholder="•••" autocomplete="cc-csc"/>
+       <input type="password" id="tarjetaCvv" name="tarjeta_cvv" maxlength="4"
+              placeholder="•••" inputmode="numeric" autocomplete="cc-csc"/>
       </div>
      </div>
     </div>
@@ -417,9 +441,22 @@ $zonasJson = array_map(static fn (array $z): array => [
        </div>
       </div>
      </div>
-     <div class="form-group" style="margin-top: 15px;">
-      <label for="yapeCodigoOperacion">Código / Número de Operación Yape/Plin *</label>
-      <input type="text" id="yapeCodigoOperacion" placeholder="Ej. 849201" maxlength="12"/>
+     <p class="sim-note">
+      🧪 <strong>Modo demostración:</strong> no se cobra a tu Yape. Usa el código <code>849201</code> para aprobar
+      o <code>000000</code> para simular un rechazo.
+     </p>
+     <div class="form-row" style="margin-top: 15px;">
+      <div class="form-group">
+       <label for="yapeTelefono">Celular asociado a Yape *</label>
+       <input type="tel" id="yapeTelefono" name="yape_telefono" maxlength="9"
+              placeholder="Ej. 997833866" inputmode="numeric"
+              value="<?= htmlspecialchars((string) ($usuario['telefono'] ?? ''), ENT_QUOTES) ?>"/>
+      </div>
+      <div class="form-group">
+       <label for="yapeCodigoOperacion">Código / Número de Operación Yape/Plin *</label>
+       <input type="text" id="yapeCodigoOperacion" name="yape_codigo" placeholder="Ej. 849201"
+              maxlength="6" inputmode="numeric"/>
+      </div>
      </div>
     </div>
 
@@ -457,9 +494,14 @@ $zonasJson = array_map(static fn (array $z): array => [
        </div>
       </div>
      </div>
+     <p class="sim-note">
+      🧪 <strong>Modo demostración:</strong> no se consulta al banco. El pedido quedará
+      <strong>Pendiente</strong> y la transferencia <strong>En verificación</strong> hasta que un administrador la confirme.
+     </p>
      <div class="form-group" style="margin-top: 15px;">
       <label for="transfCodigoOperacion">Número de Operación Bancaria *</label>
-      <input type="text" id="transfCodigoOperacion" placeholder="Ej. 1290348" maxlength="15"/>
+      <input type="text" id="transfCodigoOperacion" name="transf_codigo" placeholder="Ej. 1290348"
+             maxlength="15" minlength="4" inputmode="text"/>
      </div>
     </div>
 
@@ -469,6 +511,9 @@ $zonasJson = array_map(static fn (array $z): array => [
       <div class="pickup-icon">🏬</div>
       <h4>Pago y Retiro en Tienda Física / Contraentrega</h4>
       <p>Paga con efectivo, tarjeta o Yape al momento de recibir tu pedido o al retirarlo en nuestra sede.</p>
+      <p class="sim-note">
+       🧪 <strong>Modo demostración:</strong> el pedido quedará <strong>Pendiente</strong> hasta que se entregue y cobre.
+      </p>
       <div class="pickup-location-card">
        <strong>📍 Sede Principal Jeremy Tech:</strong>
        <p>La Paz Soldán, frente al salón de eventos "Los Portales", La Joya, Arequipa.</p>
@@ -489,6 +534,7 @@ $zonasJson = array_map(static fn (array $z): array => [
     <div class="security-badges">
      <span>🔒 Cifrado SSL 256-bit</span>
      <span>🛡️ Garantía Oficial Jeremy Tech</span>
+     <span>🧪 Pago simulado sin cobro real</span>
      <span>⚡ Despacho Inmediato</span>
     </div>
 
@@ -514,7 +560,12 @@ $zonasJson = array_map(static fn (array $z): array => [
   <section id="historial" class="cart-page-section">
    <div class="cart-page-section-head">
     <h2>📦 Mis Pedidos y Seguimiento</h2>
-    <p>Historial y estado de tus compras en Jeremy Tech</p>
+    <p>
+     Historial y estado de tus compras en Jeremy Tech
+     <?php if (\Model\Cuenta::estaRegistrado()): ?>
+     · <a href="?ruta=mis-pedidos">Ver todos en Mis pedidos →</a>
+     <?php endif; ?>
+    </p>
    </div>
 
    <div id="ordersListContainer" class="orders-list-container">
@@ -533,21 +584,48 @@ $zonasJson = array_map(static fn (array $z): array => [
     </div>
     <?php else: ?>
      <?php foreach ($historial as $pedido): ?>
-     <div class="order-card">
+     <div class="order-card" id="pedido-<?= (int) $pedido['id'] ?>">
       <div class="order-card-header">
        <span class="order-id">#JT-<?= str_pad((string) $pedido['id'], 5, '0', STR_PAD_LEFT) ?></span>
        <span class="order-status status-<?= strtolower(htmlspecialchars((string) $pedido['estado'], ENT_QUOTES)) ?>"><?= htmlspecialchars((string) $pedido['estado'], ENT_QUOTES) ?></span>
       </div>
       <div class="order-card-meta">
-       <span>📅 <?= htmlspecialchars((string) $pedido['creado_en'], ENT_QUOTES) ?></span>
+       <span>📅 <?= htmlspecialchars($fechaFmt((string) ($pedido['creado_en'] ?? '')), ENT_QUOTES) ?></span>
        <span>💰 <?= $fmt((float) $pedido['total_pen']) ?></span>
        <span>🚚 <?= htmlspecialchars((string) ($pedido['envio_zona'] ?? 'Recojo en tienda'), ENT_QUOTES) ?> · <?= $fmt((float) ($pedido['envio_costo'] ?? 0)) ?></span>
       </div>
+      <?php if (!empty($pedido['pago'])): ?>
+      <div class="order-card-meta">
+       <span>💳 <?= htmlspecialchars(ucfirst((string) $pedido['pago']['metodo']), ENT_QUOTES) ?> · <?= htmlspecialchars((string) $pedido['pago']['estado'], ENT_QUOTES) ?></span>
+       <?php if ((string) ($pedido['pago']['transaccion_id'] ?? '') !== ''): ?>
+       <span>🔖 <?= htmlspecialchars((string) $pedido['pago']['transaccion_id'], ENT_QUOTES) ?></span>
+       <?php endif; ?>
+      </div>
+      <?php endif; ?>
       <?php if ((string) ($pedido['direccion_entrega'] ?? '') !== ''): ?>
       <div class="order-card-meta">
        <span>📍 <?= htmlspecialchars((string) $pedido['direccion_entrega'], ENT_QUOTES) ?></span>
       </div>
       <?php endif; ?>
+
+      <?php $pasos = \Model\PedidoEvento::lineaTiempo($pedido); ?>
+      <div class="order-timeline" aria-label="Seguimiento del pedido #JT-<?= str_pad((string) $pedido['id'], 5, '0', STR_PAD_LEFT) ?>">
+       <?php foreach ($pasos as $paso): ?>
+       <div class="timeline-step <?= htmlspecialchars((string) $paso['estado'], ENT_QUOTES) ?> step-<?= htmlspecialchars((string) $paso['clave'], ENT_QUOTES) ?>">
+        <span class="timeline-dot" aria-hidden="true"><?= $paso['estado'] === 'completed' ? '✓' : ($paso['estado'] === 'current' ? '●' : '○') ?></span>
+        <div class="timeline-content">
+         <span class="timeline-label"><?= htmlspecialchars((string) $paso['etiqueta'], ENT_QUOTES) ?></span>
+         <?php if ((string) ($paso['detalle'] ?? '') !== ''): ?>
+         <span class="timeline-detail"><?= htmlspecialchars((string) $paso['detalle'], ENT_QUOTES) ?></span>
+         <?php endif; ?>
+         <?php if ((string) ($paso['fecha'] ?? '') !== ''): ?>
+         <span class="timeline-date"><?= htmlspecialchars($fechaFmt((string) $paso['fecha']), ENT_QUOTES) ?></span>
+         <?php endif; ?>
+        </div>
+       </div>
+       <?php endforeach; ?>
+      </div>
+
       <ul class="order-card-items">
        <?php foreach ($pedido['detalle'] as $item): ?>
        <li><span><?= htmlspecialchars((string) $item['producto_nombre'], ENT_QUOTES) ?></span><span>×<?= (int) $item['cantidad'] ?></span></li>
@@ -570,8 +648,8 @@ $zonasJson = array_map(static fn (array $z): array => [
   <div class="success-icon-wrap">
    <img class="checkmark" src="img/checkmark.svg" alt="Pedido confirmado"/>
   </div>
-  <h2>¡Pedido Confirmado con Éxito!</h2>
-  <p class="success-subtitle">Tu orden ha sido registrada en nuestro sistema y está en preparación.</p>
+  <h2 id="successTitle">¡Pedido Confirmado con Éxito!</h2>
+  <p class="success-subtitle" id="successSubtitle">Tu orden ha sido registrada en nuestro sistema y está en preparación.</p>
 
   <div class="ticket-recibo" id="ticketRecibo">
    <div class="ticket-header">
@@ -583,12 +661,14 @@ $zonasJson = array_map(static fn (array $z): array => [
     <div class="ticket-row"><span>Documento:</span> <strong id="ticketDocumento"></strong></div>
     <div class="ticket-row"><span>Comprobante:</span> <strong id="ticketComprobante"></strong></div>
     <div class="ticket-row"><span>Método de Pago:</span> <strong id="ticketMetodoPago"></strong></div>
+    <div class="ticket-row"><span>Estado del Pago:</span> <strong id="ticketPagoEstado"></strong></div>
+    <div class="ticket-row"><span>Referencia:</span> <strong id="ticketTransaccion"></strong></div>
     <div class="ticket-row"><span>Entrega:</span> <strong id="ticketEntrega"></strong></div>
     <div class="ticket-row"><span>Fecha y Hora:</span> <strong id="ticketFecha"></strong></div>
     <div class="ticket-divider"></div>
     <div class="ticket-items" id="ticketItems"></div>
     <div class="ticket-divider"></div>
-    <div class="ticket-row total-ticket"><span>Total Pagado:</span> <strong id="ticketTotal"></strong></div>
+    <div class="ticket-row total-ticket"><span id="ticketTotalLabel">Total Pagado:</span> <strong id="ticketTotal"></strong></div>
    </div>
   </div>
 

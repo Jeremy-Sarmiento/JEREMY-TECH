@@ -21,15 +21,34 @@ document.addEventListener('DOMContentLoaded', () => {
    * @param {Object} datos - Cuerpo (FormData o pares clave-valor).
    * @returns {Promise<Object>}
    */
+  function tokenCsrf() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute('content') : '';
+  }
+
   async function pedirJSON(ruta, datos) {
     const cuerpo = datos instanceof FormData ? datos : new URLSearchParams(datos);
     const respuesta = await fetch('?ruta=' + ruta, {
       method: 'POST',
       body: cuerpo,
-      headers: { 'X-Requested-With': 'fetch' }
+      headers: {
+        'X-Requested-With': 'fetch',
+        'X-CSRF-Token': tokenCsrf()
+      }
     });
-    if (!respuesta.ok) throw new Error('HTTP ' + respuesta.status);
-    return respuesta.json();
+
+    let payload = null;
+    try {
+      payload = await respuesta.json();
+    } catch (e) {
+      // Respuesta no JSON (por ejemplo, un error 419 en HTML).
+    }
+
+    if (!respuesta.ok) {
+      throw new Error((payload && payload.error) || ('HTTP ' + respuesta.status));
+    }
+
+    return payload;
   }
 
   /**
@@ -81,12 +100,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const nombre = prod ? prod.nombre
           : (window.JT_PRODUCTO && window.JT_PRODUCTO.nombre) || 'Producto';
         actualizarBadge(r.totalItems);
+        if (window.JeremyTechAnalitica) {
+          JeremyTechAnalitica.registrar('agregar_carrito', { producto_id: Number(productoId) }, 'ficha').catch(function () {});
+        }
         mostrarToast('¡' + nombre + ' añadido al carrito!');
       } else {
         mostrarToast(r.error || 'No se pudo agregar el producto');
       }
     } catch (e) {
-      mostrarToast('Error de conexión al agregar');
+      mostrarToast(e.message || 'Error de conexión al agregar');
     }
   };
 
@@ -107,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const r = await pedirJSON('carrito/cambiar-cantidad', { id: productoId, cantidad: nuevo });
       if (r.ok) location.reload();
     } catch (e) {
-      mostrarToast('Error al actualizar cantidad');
+      mostrarToast(e.message || 'Error al actualizar cantidad');
     }
   };
 
@@ -119,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const r = await pedirJSON('carrito/eliminar', { id: productoId });
       if (r.ok) location.reload();
     } catch (e) {
-      mostrarToast('Error al eliminar el producto');
+      mostrarToast(e.message || 'Error al eliminar el producto');
     }
   };
 
@@ -165,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       location.reload();
     } catch (e) {
-      mostrarToast('Error al aplicar el cupón');
+      mostrarToast(e.message || 'Error al aplicar el cupón');
     }
   };
 
@@ -217,8 +239,15 @@ document.addEventListener('DOMContentLoaded', () => {
         ? 'DNI: ' + ((document.getElementById('clienteDni').value || '').trim() || 'No especificado')
         : 'RUC: ' + ((document.getElementById('clienteRuc').value || '').trim() || 'No especificado');
 
-      const metodoMarkup = document.querySelector('.method-tab.active') || document.querySelector('.pay-tab.active');
-      const metodoPagoTexto = metodoMarkup ? (metodoMarkup.textContent || '').replace(/\s+/g, ' ').trim() : 'Tarjeta';
+      const metodoInput = form.querySelector('input[name="metodo"]');
+      const metodo = metodoInput ? metodoInput.value : 'tarjeta';
+      const metodos = {
+        tarjeta: 'Tarjeta de crédito / débito',
+        yape: 'Yape / Plin',
+        transferencia: 'Transferencia bancaria',
+        contraentrega: 'Pago contraentrega / en tienda'
+      };
+      const metodoPagoTexto = metodos[metodo] || 'Tarjeta';
 
       const entregaTexto = (modalidad === 'tienda')
         ? '🏬 Recojo en Sede Central (La Joya, Arequipa)'
@@ -239,9 +268,24 @@ document.addEventListener('DOMContentLoaded', () => {
         documento: docTexto,
         comprobante: comprobanteTexto,
         metodoPago: metodoPagoTexto,
+        estadoPago: r.estadoPago || 'Pendiente',
+        transaccion: r.transaccionId || '—',
         fecha: fecha,
         total: totalTexto
       };
+
+      // El estado real lo decide el servidor: aprobado o pendiente.
+      const pagado = ultimoPedido.estadoPago === 'Pagado';
+      const tituloExito = document.getElementById('successTitle');
+      const subtituloExito = document.getElementById('successSubtitle');
+      if (tituloExito) {
+        tituloExito.textContent = pagado ? '¡Pago simulado aprobado!' : '¡Pedido registrado!';
+      }
+      if (subtituloExito) {
+        subtituloExito.textContent = r.mensaje || (pagado
+          ? 'Pago simulado aprobado. Tu orden está en preparación.'
+          : 'Tu orden quedó registrada. El pago se confirmará según el método elegido.');
+      }
 
       // Despliega el ticket
       const tOrd = document.getElementById('ticketOrderId');
@@ -249,29 +293,40 @@ document.addEventListener('DOMContentLoaded', () => {
       const tDoc = document.getElementById('ticketDocumento');
       const tComp = document.getElementById('ticketComprobante');
       const tMet = document.getElementById('ticketMetodoPago');
+      const tPago = document.getElementById('ticketPagoEstado');
+      const tRef = document.getElementById('ticketTransaccion');
       const tEnt = document.getElementById('ticketEntrega');
       const tFec = document.getElementById('ticketFecha');
       const tTot = document.getElementById('ticketTotal');
+      const tTotLabel = document.getElementById('ticketTotalLabel');
       const tItems = document.getElementById('ticketItems');
       if (tOrd) tOrd.textContent = ultimoPedido.id;
       if (tCli) tCli.textContent = ultimoPedido.cliente;
       if (tDoc) tDoc.textContent = ultimoPedido.documento;
       if (tComp) tComp.textContent = ultimoPedido.comprobante;
       if (tMet) tMet.textContent = ultimoPedido.metodoPago;
+      if (tPago) tPago.textContent = ultimoPedido.estadoPago;
+      if (tRef) tRef.textContent = ultimoPedido.transaccion;
       if (tEnt) tEnt.textContent = entregaTexto;
       if (tFec) tFec.textContent = ultimoPedido.fecha;
       if (tTot) tTot.textContent = ultimoPedido.total;
+      if (tTotLabel) tTotLabel.textContent = pagado ? 'Total Pagado:' : 'Total del Pedido:';
       if (tItems) {
         const nItems = (window.JT_CARRO && JT_CARRO.totalItems) ? JT_CARRO.totalItems : 0;
         tItems.textContent = '🛍️ ' + nItems + (nItems === 1 ? ' producto comprado' : ' productos comprados');
       }
 
+      if (window.JeremyTechAnalitica) {
+        JeremyTechAnalitica.registrar('compra', { pedido_id: Number(r.pedidoId) }, 'checkout').catch(function () {});
+      }
+
       form.reset();
+      cambiarMetodoPago('tarjeta');
       actualizarBadge(0);
       const succModal = document.getElementById('successModal');
       if (succModal) succModal.style.display = 'flex';
     } catch (e) {
-      mostrarToast('Error de conexión al procesar el pago');
+      mostrarToast(e.message || 'Error de conexión al procesar el pago');
       if (btn) btn.disabled = false;
       if (btnText) btnText.style.display = 'inline-block';
       if (spinner) spinner.style.display = 'none';
@@ -298,8 +353,10 @@ document.addEventListener('DOMContentLoaded', () => {
     mensaje += '📄 *Documento:* ' + ultimoPedido.documento + '\n';
     mensaje += '🧾 *Comprobante:* ' + ultimoPedido.comprobante + '\n';
     mensaje += '💳 *Método de Pago:* ' + ultimoPedido.metodoPago + '\n';
+    mensaje += '📌 *Estado del Pago:* ' + ultimoPedido.estadoPago + '\n';
+    mensaje += '🔖 *Referencia:* ' + ultimoPedido.transaccion + '\n';
     mensaje += '━━━━━━━━━━━━━━━━━━━━━━━\n';
-    mensaje += '💰 *TOTAL PAGADO:* ' + ultimoPedido.total + '\n\n';
+    mensaje += '💰 *TOTAL DEL PEDIDO:* ' + ultimoPedido.total + '\n\n';
     mensaje += '¡Gracias por confiar en *Jeremy Tech*!';
 
     window.open('https://wa.me/' + numeroWhatsApp + '?text=' + encodeURIComponent(mensaje), '_blank');
@@ -431,8 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const campoComprobante = document.querySelector('input[name="comprobante"]');
     if (campoComprobante) campoComprobante.value = tipo;
-    const campoTipo = document.querySelector('input[name="tipo"]');
-    if (campoTipo) campoTipo.value = (tipo === 'factura') ? 'B2B' : 'B2C';
+    // El comprobante es del pedido, no de la cuenta: no se cambia `users.tipo`.
   };
 
   /**
@@ -458,8 +514,15 @@ document.addEventListener('DOMContentLoaded', () => {
       if (p) p.style.display = (key === metodo) ? 'block' : 'none';
     }
 
-    const numTarj = document.getElementById('tarjetaNumero');
-    if (numTarj) numTarj.required = (metodo === 'tarjeta');
+    // Solo el método visible exige sus campos. Así el navegador no bloquea el
+    // envío por culpa de un campo oculto de otra pestaña.
+    const tarjeta = ['tarjetaNumero', 'tarjetaTitular', 'tarjetaExpiracion', 'tarjetaCvv'];
+    tarjeta.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.required = (metodo === 'tarjeta');
+    });
+    const yapeTel = document.getElementById('yapeTelefono');
+    if (yapeTel) yapeTel.required = (metodo === 'yape');
     const yapeOp = document.getElementById('yapeCodigoOperacion');
     if (yapeOp) yapeOp.required = (metodo === 'yape');
     const transfOp = document.getElementById('transfCodigoOperacion');
@@ -468,6 +531,59 @@ document.addEventListener('DOMContentLoaded', () => {
     const campoMetodo = document.querySelector('input[name="metodo"]');
     if (campoMetodo) campoMetodo.value = metodo;
   };
+
+  /**
+   * Formatea el número de tarjeta mientras se escribe y actualiza la tarjeta
+   * virtual. Es solo presentación: el servidor vuelve a validar con Luhn.
+   */
+  function configurarTarjetaVisual() {
+    const numero = document.getElementById('tarjetaNumero');
+    const titular = document.getElementById('tarjetaTitular');
+    const expira = document.getElementById('tarjetaExpiracion');
+    const previewNumero = document.getElementById('cardPreviewNumber');
+    const previewNombre = document.getElementById('cardPreviewName');
+    const previewExpira = document.getElementById('cardPreviewExpiry');
+    const marca = document.getElementById('cardBrandLogo');
+    const icono = document.getElementById('inputBrandIcon');
+
+    const detectarMarca = (digitos) => {
+      if (/^4/.test(digitos)) return 'VISA';
+      if (/^(5[1-5]|2[2-7])/.test(digitos)) return 'MASTERCARD';
+      if (/^3[47]/.test(digitos)) return 'AMEX';
+      if (/^6/.test(digitos)) return 'DINERS';
+      return 'TARJETA';
+    };
+
+    if (numero) {
+      numero.addEventListener('input', () => {
+        const digitos = numero.value.replace(/\D/g, '').slice(0, 19);
+        numero.value = digitos.replace(/(\d{4})(?=\d)/g, '$1 ');
+        if (previewNumero) {
+          const visibles = digitos.slice(-4).padStart(4, '•');
+          previewNumero.textContent = '•••• •••• •••• ' + visibles;
+        }
+        const etiqueta = detectarMarca(digitos);
+        if (marca) marca.textContent = etiqueta;
+        if (icono) icono.textContent = '💳';
+      });
+    }
+
+    if (titular) {
+      titular.addEventListener('input', () => {
+        const valor = titular.value.toUpperCase().slice(0, 80);
+        titular.value = valor;
+        if (previewNombre) previewNombre.textContent = valor || 'NOMBRE Y APELLIDO';
+      });
+    }
+
+    if (expira) {
+      expira.addEventListener('input', () => {
+        const digitos = expira.value.replace(/\D/g, '').slice(0, 4);
+        expira.value = digitos.length > 2 ? digitos.slice(0, 2) + '/' + digitos.slice(2) : digitos;
+        if (previewExpira) previewExpira.textContent = expira.value || 'MM/AA';
+      });
+    }
+  }
 
   /**
    * Recorre los elementos `.price[data-precio]` de la página de carrito
@@ -560,7 +676,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   window.abrirHistorialPedidos = function () {
-    window.location.href = '?ruta=carrito#historial';
+    window.location.href = '?ruta=mis-pedidos';
   };
 
   window.cerrarHistorialPedidos = function () {
@@ -582,6 +698,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   actualizarBadge();
   recalcularTotales();
+  configurarTarjetaVisual();
+  cambiarMetodoPago('tarjeta');
 
   if (window.JT_CARRO) {
     const hash = window.location.hash;

@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Los Planos de Transformación</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 0 20px 60px; color: #1f2937; background: #fafafa; line-height: 1.55; }
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  .subtitulo { color: #6b7280; margin-top: 0; }
+  h2 { font-size: 1.1rem; margin-top: 34px; padding-top: 10px; border-top: 1px solid #e5e7eb; }
+  h3 { font-size: 1rem; color: #1d4ed8; margin-bottom: 4px; }
+  .campos-header { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  label { display: block; font-size: 0.8rem; font-weight: 600; color: #374151; margin-bottom: 4px; }
+  input[type="text"] {
+    width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px;
+    font-size: 0.95rem; font-family: inherit; background: white;
+  }
+  textarea {
+    width: 100%; min-height: 80px; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;
+    font-family: inherit; font-size: 0.95rem; resize: vertical; background: white;
+  }
+  input:focus, textarea:focus { outline: 2px solid #1d4ed8; outline-offset: 1px; }
+  .caja { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .campo { margin-bottom: 12px; }
+  .campo:last-child { margin-bottom: 0; }
+  .nota { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 4px; font-size: 0.9rem; margin: 14px 0; }
+  .vista-previa-imagen { max-width: 100%; margin-top: 10px; border-radius: 8px; border: 1px solid #e5e7eb; display: none; }
+  input[type="file"] { font-size: 0.85rem; }
+  .barra-acciones {
+    position: sticky; top: 0; background: #fafafa; padding: 14px 0 10px; margin-bottom: 6px;
+    display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #e5e7eb; z-index: 10;
+  }
+  .btn { background: #1d4ed8; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+  .btn:hover { background: #1e40af; }
+  .btn.secundario { background: #e5e7eb; color: #1f2937; }
+  .btn.secundario:hover { background: #d1d5db; }
+  .btn.peligro { background: #fee2e2; color: #991b1b; }
+  .btn.peligro:hover { background: #fecaca; }
+  .btn-toggle {
+    background: white; color: #374151; border: 1px solid #d1d5db;
+    padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600;
+  }
+  .btn-toggle:hover { background: #f3f4f6; }
+  #grupo-acciones { display: flex; flex-wrap: wrap; gap: 10px; }
+  #grupo-acciones.oculto { display: none; }
+  .estado-guardado { font-size: 0.8rem; color: #16a34a; align-self: center; }
+  @media print {
+    .barra-acciones, input[type="file"] { display: none; }
+    body { margin: 0; max-width: 660px; }
+    h1, h2, h3 { break-after: avoid; page-break-after: avoid; }
+    p, .caja, .campo, textarea, .nota { break-inside: avoid; page-break-inside: avoid; }
+  }
+
+  /* ── Print fix: mirror divs en vez de textareas ── */
+  .bloque-impresion { display: none; }
+  @media print {
+    textarea { display: none !important; }
+    input[type="file"] { display: none !important; }
+    .bloque-impresion {
+      display: block !important;
+      white-space: pre-wrap;
+      font-family: inherit;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: #1f2937;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin: 4px 0 12px;
+      break-inside: auto;
+      page-break-inside: auto;
+      min-height: 2em;
+    }
+  }
+
+  /* ── Diagramas SVG embebidos ── */
+  .diagrama-embebido { break-inside: avoid; page-break-inside: avoid; margin: 12px 0; }
+  @media print {
+    .diagrama-embebido { display: block !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="barra-acciones">
+  <button class="btn-toggle" id="btn-toggle-acciones" onclick="alternarAcciones()">🙈 Ocultar botones</button>
+  <span id="grupo-acciones">
+    <button class="btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    <button class="btn secundario" onclick="descargarTxt()">💾 Descargar respuestas (.txt)</button>
+    <button class="btn peligro" onclick="borrarTodo()">🗑️ Borrar mis respuestas</button>
+  </span>
+  <span id="estado-guardado" class="estado-guardado"></span>
+</div>
+
+<h1>Los Planos de Transformación (As-Is y To-Be)</h1>
+<p class="subtitulo">Sesión 1 — Introducción a los Negocios Electrónicos y E-business</p>
+
+<div class="campos-header">
+  <div>
+    <label for="alumno">Alumno(a)</label>
+    <input type="text" id="alumno" placeholder="Tu nombre" value="Jeremy Sarmiento Tapia">
+  </div>
+  <div>
+    <label for="proyecto">Proyecto / Negocio</label>
+    <input type="text" id="proyecto" placeholder="Nombre de tu proyecto" value="Jeremy Tech — Tienda de Tecnología (La Joya)">
+  </div>
+</div>
+
+<h2>Instrucciones</h2>
+<p>Dibuja (en la herramienta de tu preferencia: draw.io, PlantUML, Lucidchart, papel escaneado, etc.) los diagramas de arquitectura empresarial que contrastan el estado actual de tu negocio frente al estado futuro deseado, usando notación UML o ArchiMate. Completa los campos de cada plano y adjunta la imagen de tu diagrama.</p>
+
+<h2>1. Plano As-Is (Estado Actual)</h2>
+<div class="caja">
+  <div class="campo">
+    <label for="asIsActores">Actores involucrados</label>
+    <textarea id="asIsActores" placeholder="Ej: Cliente, Asesor comercial, Registros manuales (Excel/PDF)...">1. Cliente (Residente, estudiante o agricultor de La Joya / Arequipa).
+2. Catálogo Web inicial (Frontend HTML/JS estático con botón de enlace hacia WhatsApp).
+3. Asesor comercial en sede física (La Paz Soldán, La Joya).
+4. Stock físico (Vitrinas y estanterías en la tienda física de La Joya).
+5. Registro de ventas manual (Cuaderno de apuntes y archivo Excel local).
+6. Banca móvil personal (Aplicación Yape / BCP en celular del asesor para revisión visual de vouchers).</textarea>
+  </div>
+  <div class="campo">
+    <label for="asIsFlujo">Flujo paso a paso</label>
+    <textarea id="asIsFlujo" placeholder="Describe, en orden, cómo interactúa hoy el cliente con tu negocio hasta cerrar una venta...">1. El cliente entra al catálogo web básico, revisa productos (celulares, laptops, audífonos) y elige una variante.
+2. Hace clic en el botón 'Consultar', ejecutando script.js que genera un mensaje predeterminado hacia +51 997 833 866.
+3. El asesor en la tienda de La Paz Soldán recibe el mensaje y debe dejar de atender el mostrador para revisar la vitrina y verificar stock.
+4. El asesor responde por chat confirmando precio y enviando el número de cuenta o código QR de Yape personal.
+5. El cliente realiza el pago en su app bancaria y envía una captura de pantalla del voucher por chat.
+6. El asesor abre la banca móvil en su teléfono personal, verifica si el dinero ingresó realmente en su cuenta bancaria.
+7. El asesor anota manualmente la venta en una libreta, descuenta el stock en un Excel y coordina el recojo en tienda o un delivery improvisado.</textarea>
+  </div>
+  <div class="campo" style="margin-bottom:0;">
+    <label for="asIsCuello">Punto de fricción / cuello de botella</label>
+    <textarea id="asIsCuello" placeholder="¿En qué paso se pierde tiempo o se depende de trabajo manual?">1. Límite de Horario: Consultas nocturnas o de fines de semana quedan sin respuesta hasta el día hábil siguiente, provocando que el cliente compre en otro lugar.
+2. Validación Manual de Pagos: Riesgo de estafas mediante vouchers bancarios adulterados o editados con Photoshop, y lentitud al verificar transferencias una por una.
+3. Desincronización de Stock: Si un cliente en mostrador compra la última laptop en La Paz Soldán, la web sigue mostrándola disponible, generando quejas y devoluciones.
+4. Tiempo de ciclo excesivo: Cerrar una venta simple toma entre 20 a 45 minutos de intercambio de mensajes.</textarea>
+  </div>
+</div>
+<label for="inputImagenAsIs">Adjuntar diagrama As-Is (UML/ArchiMate)</label>
+<div class="diagrama-embebido" style="margin:12px 0;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;background:#fff;">
+<p style="margin:8px 12px;font-size:0.75rem;color:#6b7280;font-weight:600;">📊 DIAGRAMA AS-IS — Estado Actual (Proceso Manual de Venta)</p>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 420" width="100%" style="display:block;">
+  <defs>
+    <marker id="arr-asis" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#374151"/>
+    </marker>
+  </defs>
+  <!-- Fondo -->
+  <rect width="760" height="420" fill="#f8fafc"/>
+  <!-- Swimlanes -->
+  <rect x="0" y="40" width="190" height="360" fill="#dbeafe" opacity="0.5"/>
+  <rect x="190" y="40" width="190" height="360" fill="#dcfce7" opacity="0.5"/>
+  <rect x="380" y="40" width="190" height="360" fill="#fef9c3" opacity="0.5"/>
+  <rect x="570" y="40" width="190" height="360" fill="#fce7f3" opacity="0.5"/>
+  <!-- Lane headers -->
+  <rect x="0" y="0" width="190" height="40" fill="#1d4ed8"/>
+  <rect x="190" y="0" width="190" height="40" fill="#16a34a"/>
+  <rect x="380" y="0" width="190" height="40" fill="#ca8a04"/>
+  <rect x="570" y="0" width="190" height="40" fill="#9d174d"/>
+  <text x="95" y="25" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">Cliente</text>
+  <text x="285" y="25" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">Asesor / Tienda</text>
+  <text x="475" y="25" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">Banca Móvil</text>
+  <text x="665" y="25" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">Registro Manual</text>
+  <!-- Nodos -->
+  <!-- Inicio -->
+  <ellipse cx="95" cy="80" rx="30" ry="14" fill="#1d4ed8"/>
+  <text x="95" y="85" text-anchor="middle" fill="white" font-size="9" font-family="Arial">INICIO</text>
+  <!-- Paso 1: Cliente revisa catálogo -->
+  <rect x="20" y="110" width="150" height="36" rx="6" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="95" y="125" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">Cliente revisa</text>
+  <text x="95" y="139" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">catálogo web</text>
+  <!-- Paso 2: Consulta por WhatsApp -->
+  <rect x="20" y="170" width="150" height="36" rx="6" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="95" y="185" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">Consulta por</text>
+  <text x="95" y="199" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">WhatsApp</text>
+  <!-- Asesor recibe -->
+  <rect x="210" y="170" width="150" height="36" rx="6" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="285" y="185" text-anchor="middle" font-size="9" fill="#14532d" font-family="Arial">Asesor verifica stock</text>
+  <text x="285" y="199" text-anchor="middle" font-size="9" fill="#14532d" font-family="Arial">en vitrina física</text>
+  <!-- Asesor envía QR -->
+  <rect x="210" y="230" width="150" height="36" rx="6" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="285" y="245" text-anchor="middle" font-size="9" fill="#14532d" font-family="Arial">Envía código QR</text>
+  <text x="285" y="259" text-anchor="middle" font-size="9" fill="#14532d" font-family="Arial">Yape / cuenta</text>
+  <!-- Cliente paga -->
+  <rect x="20" y="230" width="150" height="36" rx="6" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="95" y="245" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">Cliente paga y envía</text>
+  <text x="95" y="259" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">voucher foto</text>
+  <!-- Asesor verifica en banca -->
+  <rect x="400" y="230" width="150" height="36" rx="6" fill="#fef08a" stroke="#ca8a04" stroke-width="1.5"/>
+  <text x="475" y="245" text-anchor="middle" font-size="9" fill="#713f12" font-family="Arial">Asesor verifica en</text>
+  <text x="475" y="259" text-anchor="middle" font-size="9" fill="#713f12" font-family="Arial">banca móvil</text>
+  <!-- Decisión: ¿Válido? -->
+  <polygon points="475,300 520,320 475,340 430,320" fill="#fde68a" stroke="#ca8a04" stroke-width="1.5"/>
+  <text x="475" y="324" text-anchor="middle" font-size="9" fill="#713f12" font-family="Arial">¿Válido?</text>
+  <!-- Registro manual -->
+  <rect x="590" y="290" width="150" height="36" rx="6" fill="#fbcfe8" stroke="#9d174d" stroke-width="1.5"/>
+  <text x="665" y="305" text-anchor="middle" font-size="9" fill="#500724" font-family="Arial">Asesor anota venta</text>
+  <text x="665" y="319" text-anchor="middle" font-size="9" fill="#500724" font-family="Arial">en libreta / Excel</text>
+  <!-- Fin -->
+  <ellipse cx="665" cy="375" rx="30" ry="14" fill="#9d174d"/>
+  <text x="665" y="380" text-anchor="middle" fill="white" font-size="9" font-family="Arial">FIN</text>
+  <!-- Fraude -->
+  <rect x="400" y="350" width="150" height="30" rx="6" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="475" y="370" text-anchor="middle" font-size="9" fill="#7f1d1d" font-family="Arial">⚠ Voucher falso</text>
+  <!-- Arrows -->
+  <line x1="95" y1="94" x2="95" y2="110" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-asis)"/>
+  <line x1="95" y1="146" x2="95" y2="170" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-asis)"/>
+  <line x1="170" y1="188" x2="210" y2="188" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-asis)"/>
+  <line x1="285" y1="206" x2="285" y2="230" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-asis)"/>
+  <line x1="210" y1="248" x2="170" y2="248" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-asis)"/>
+  <line x1="95" y1="266" x2="95" y2="285" stroke="#374151" stroke-width="1.5"/>
+  <line x1="95" y1="285" x2="400" y2="285" stroke="#374151" stroke-width="1.5"/>
+  <line x1="400" y1="285" x2="400" y2="248" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-asis)"/>
+  <line x1="475" y1="266" x2="475" y2="300" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-asis)"/>
+  <line x1="520" y1="320" x2="590" y2="305" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-asis)"/>
+  <text x="550" y="307" font-size="8" fill="#16a34a" font-family="Arial">Sí</text>
+  <line x1="475" y1="340" x2="475" y2="350" stroke="#dc2626" stroke-width="1.5" marker-end="url(#arr-asis)"/>
+  <text x="455" y="348" font-size="8" fill="#dc2626" font-family="Arial">No</text>
+  <line x1="665" y1="326" x2="665" y2="361" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-asis)"/>
+  <!-- Etiqueta tiempo -->
+  <rect x="4" y="395" width="340" height="18" rx="4" fill="#fee2e2"/>
+  <text x="10" y="408" font-size="8" fill="#991b1b" font-family="Arial">⏱ Tiempo promedio de ciclo: 20–45 min por venta | Riesgo: vouchers falsos, stock desactualizado</text>
+</svg>
+</div>
+<input type="file" id="inputImagenAsIs" accept="image/*" onchange="previsualizarImagen(event, 'vista-previa-asis')">
+<img id="vista-previa-asis" class="vista-previa-imagen" alt="Vista previa del diagrama As-Is">
+
+<h2>2. Plano To-Be (Estado Futuro)</h2>
+<div class="caja">
+  <div class="campo">
+    <label for="toBeCapas">Capas / componentes de la nueva arquitectura</label>
+    <textarea id="toBeCapas" placeholder="Ej: Capa de experiencia (e-commerce), Capa de integración (CRM, ERP, pasarela de pagos), Capa de infraestructura (nube)...">1. Capa de Experiencia / Cliente: Interfaz web responsiva (PHP/CSS/JS) con buscador en tiempo real, selector multimoneda (ExchangeRate-API), asistente virtual (Chatbot FAQ), carrito de compras dinámico y panel de seguimiento 'Mis Pedidos'.
+2. Capa de Negocio / Backend (MVC): Controladores PHP modulares (ProductoController, CarritoController, AdminController, CuentaController) con validación estricta, sesiones aisladas y control de roles (Admin, Vendedor, Cliente, C2C).
+3. Capa de Transacciones e Inventario: Motor de transacciones PDO con concurrencia segura (SELECT ... FOR UPDATE), reservas de stock atómicas y registro detallado en movimientos_inventario.
+4. Capa de Integración / Pagos: Pasarela de pago con conciliación automática mediante Webhook seguro firmado con HMAC-SHA256 (POST ?ruta=pagos/webhook) para tarjetas, Yape y transferencias.
+5. Capa de Persistencia y Auditoría: MariaDB 10.11+ con 31 tablas relacionales, auditoría administrativa en auditoria_admin y analítica de eventos en eventos_analitica.
+6. Capa Logística: Cálculo automático de tarifas de envío por zonas (La Joya Express el mismo día, Arequipa Metropolitana, Provincias y Lima) con integración para recojo en tienda y guías de courier.</textarea>
+  </div>
+  <div class="campo">
+    <label for="toBeFlujo">Flujo paso a paso</label>
+    <textarea id="toBeFlujo" placeholder="Describe, en orden, cómo interactuará el cliente con tu negocio ya digitalizado...">1. El cliente ingresa a la tienda 24/7, busca productos, selecciona color/variante y agrega al carrito de compras.
+2. Pasa al checkout, ingresa su dirección de entrega (o selecciona recojo en sede La Joya) y el sistema calcula la tarifa exacta de envío.
+3. El cliente elige su medio de pago (Tarjeta de crédito/débito o Yape QR) y completa los datos de pago seguro.
+4. El backend inicia una transacción de base de datos con FOR UPDATE, descuenta el stock de inmediato en movimientos_inventario y crea el pedido en estado 'Pendiente'.
+5. La pasarela procesa el cobro y despacha un webhook asíncrono con firma HMAC-SHA256 validada con hash_equals.
+6. El webhook concilia la transacción, actualiza el pedido a 'Pagado' de forma atómica y genera la notificación por email (.eml/.html simulado).
+7. El almacén en La Joya recibe la alerta automática, prepara el paquete en menos de 15 minutos y el repartidor lo entrega el mismo día.</textarea>
+  </div>
+  <div class="campo" style="margin-bottom:0;">
+    <label for="toBeBeneficios">Beneficios esperados</label>
+    <textarea id="toBeBeneficios" placeholder="¿Qué mejora frente al estado As-Is? (tiempo de respuesta, alcance, escalabilidad, etc.)">1. Automatización total de la venta: 0 intervención humana necesaria para procesar, cobrar y confirmar pedidos.
+2. Disponibilidad 24/7: Recuperación del 100% de la demanda fuera de horario comercial y fines de semana.
+3. Cero discrepancias de stock: El aislamiento transaccional imposibilita la sobreventa o venta duplicada de unidades.
+4. Seguridad garantizada: Eliminación total de fraudes por vouchers falsos mediante la verificación criptográfica del webhook.
+5. Trazabilidad completa: El cliente rastrea su pedido en tiempo real y el administrador audita cada movimiento en el panel de control.</textarea>
+  </div>
+</div>
+<label for="inputImagenToBe">Adjuntar diagrama To-Be (UML/ArchiMate)</label>
+<div class="diagrama-embebido" style="margin:12px 0;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;background:#fff;">
+<p style="margin:8px 12px;font-size:0.75rem;color:#6b7280;font-weight:600;">📊 DIAGRAMA TO-BE — Estado Futuro (Proceso Digital Automatizado)</p>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 440" width="100%" style="display:block;">
+  <defs>
+    <marker id="arr-tobe" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#374151"/>
+    </marker>
+  </defs>
+  <rect width="760" height="440" fill="#f0fdf4"/>
+  <!-- Swimlanes -->
+  <rect x="0" y="40" width="190" height="390" fill="#dbeafe" opacity="0.5"/>
+  <rect x="190" y="40" width="190" height="390" fill="#dcfce7" opacity="0.5"/>
+  <rect x="380" y="40" width="190" height="390" fill="#fef9c3" opacity="0.5"/>
+  <rect x="570" y="40" width="190" height="390" fill="#ede9fe" opacity="0.5"/>
+  <!-- Lane headers -->
+  <rect x="0" y="0" width="190" height="40" fill="#1d4ed8"/>
+  <rect x="190" y="0" width="190" height="40" fill="#059669"/>
+  <rect x="380" y="0" width="190" height="40" fill="#d97706"/>
+  <rect x="570" y="0" width="190" height="40" fill="#7c3aed"/>
+  <text x="95" y="25" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">Cliente 24/7</text>
+  <text x="285" y="25" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">Backend MVC PHP</text>
+  <text x="475" y="25" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">Pasarela / Webhook</text>
+  <text x="665" y="25" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">MariaDB / Email</text>
+  <!-- Inicio -->
+  <ellipse cx="95" cy="72" rx="30" ry="14" fill="#1d4ed8"/>
+  <text x="95" y="77" text-anchor="middle" fill="white" font-size="9" font-family="Arial">INICIO</text>
+  <!-- Paso 1 -->
+  <rect x="15" y="98" width="160" height="34" rx="6" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="95" y="113" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">Navega catálogo, filtra</text>
+  <text x="95" y="125" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">y selecciona variante</text>
+  <!-- Paso 2 -->
+  <rect x="15" y="150" width="160" height="34" rx="6" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="95" y="165" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">Agrega al carrito,</text>
+  <text x="95" y="179" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">selecciona dirección</text>
+  <!-- Backend valida stock -->
+  <rect x="205" y="150" width="160" height="34" rx="6" fill="#bbf7d0" stroke="#059669" stroke-width="1.5"/>
+  <text x="285" y="165" text-anchor="middle" font-size="9" fill="#064e3b" font-family="Arial">FOR UPDATE → reserva</text>
+  <text x="285" y="179" text-anchor="middle" font-size="9" fill="#064e3b" font-family="Arial">stock atómica en DB</text>
+  <!-- Decisión stock -->
+  <polygon points="285,210 330,228 285,246 240,228" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
+  <text x="285" y="232" text-anchor="middle" font-size="9" fill="#064e3b" font-family="Arial">¿Stock?</text>
+  <!-- Cliente elige pago -->
+  <rect x="15" y="206" width="160" height="34" rx="6" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="95" y="221" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">Elige método de pago</text>
+  <text x="95" y="235" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">(Tarjeta / Yape QR)</text>
+  <!-- Pedido creado -->
+  <rect x="590" y="150" width="155" height="34" rx="6" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="667" y="165" text-anchor="middle" font-size="9" fill="#4c1d95" font-family="Arial">INSERT pedido</text>
+  <text x="667" y="179" text-anchor="middle" font-size="9" fill="#4c1d95" font-family="Arial">estado=Pendiente</text>
+  <!-- Pasarela procesa -->
+  <rect x="395" y="206" width="160" height="34" rx="6" fill="#fde68a" stroke="#d97706" stroke-width="1.5"/>
+  <text x="475" y="221" text-anchor="middle" font-size="9" fill="#713f12" font-family="Arial">Pasarela procesa</text>
+  <text x="475" y="235" text-anchor="middle" font-size="9" fill="#713f12" font-family="Arial">cobro seguro</text>
+  <!-- Webhook recibido -->
+  <rect x="395" y="260" width="160" height="34" rx="6" fill="#fde68a" stroke="#d97706" stroke-width="1.5"/>
+  <text x="475" y="275" text-anchor="middle" font-size="9" fill="#713f12" font-family="Arial">Webhook POST</text>
+  <text x="475" y="289" text-anchor="middle" font-size="9" fill="#713f12" font-family="Arial">HMAC-SHA256 ✓</text>
+  <!-- UPDATE pedido -->
+  <rect x="590" y="260" width="155" height="34" rx="6" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="667" y="275" text-anchor="middle" font-size="9" fill="#4c1d95" font-family="Arial">UPDATE pedido</text>
+  <text x="667" y="289" text-anchor="middle" font-size="9" fill="#4c1d95" font-family="Arial">estado=Pagado ✓</text>
+  <!-- Email -->
+  <rect x="590" y="314" width="155" height="34" rx="6" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="667" y="329" text-anchor="middle" font-size="9" fill="#4c1d95" font-family="Arial">Email confirmación</text>
+  <text x="667" y="343" text-anchor="middle" font-size="9" fill="#4c1d95" font-family="Arial">+ notificación cliente</text>
+  <!-- Almacén alerta -->
+  <rect x="205" y="314" width="160" height="34" rx="6" fill="#bbf7d0" stroke="#059669" stroke-width="1.5"/>
+  <text x="285" y="329" text-anchor="middle" font-size="9" fill="#064e3b" font-family="Arial">Alerta almacén La Joya</text>
+  <text x="285" y="343" text-anchor="middle" font-size="9" fill="#064e3b" font-family="Arial">→ empaque &lt;15 min</text>
+  <!-- Cliente rastrea -->
+  <rect x="15" y="314" width="160" height="34" rx="6" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5"/>
+  <text x="95" y="329" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">Cliente rastrea pedido</text>
+  <text x="95" y="343" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">en "Mis Pedidos"</text>
+  <!-- Fin -->
+  <ellipse cx="95" cy="395" rx="30" ry="14" fill="#1d4ed8"/>
+  <text x="95" y="400" text-anchor="middle" fill="white" font-size="9" font-family="Arial">FIN</text>
+  <!-- Sin stock -->
+  <rect x="205" y="260" width="160" height="34" rx="6" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="285" y="275" text-anchor="middle" font-size="9" fill="#7f1d1d" font-family="Arial">Notifica "sin stock"</text>
+  <text x="285" y="289" text-anchor="middle" font-size="9" fill="#7f1d1d" font-family="Arial">+ libera reserva</text>
+  <!-- ARROWS -->
+  <line x1="95" y1="86" x2="95" y2="98" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
+  <line x1="95" y1="132" x2="95" y2="150" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
+  <line x1="175" y1="167" x2="205" y2="167" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
+  <line x1="285" y1="184" x2="285" y2="210" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
+  <line x1="330" y1="228" x2="395" y2="167" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
+  <text x="355" y="200" font-size="8" fill="#059669" font-family="Arial">Sí</text>
+  <line x1="240" y1="228" x2="205" y2="275" stroke="#dc2626" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
+  <text x="210" y="258" font-size="8" fill="#dc2626" font-family="Arial">No</text>
+  <!-- cliente a pago -->
+  <line x1="175" y1="223" x2="395" y2="223" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
+  <line x1="475" y1="240" x2="475" y2="260" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
+  <!-- db pedido -->
+  <line x1="365" y1="167" x2="590" y2="167" stroke="#374151" stroke-width="1.2" stroke-dasharray="4" marker-end="url(#arr-tobe)"/>
+  <!-- webhook a db -->
+  <line x1="555" y1="277" x2="590" y2="277" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
+  <line x1="667" y1="294" x2="667" y2="314" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
+  <line x1="667" y1="184" x2="667" y2="260" stroke="#374151" stroke-width="1.2" stroke-dasharray="4"/>
+  <!-- almacén -->
+  <line x1="590" y1="331" x2="365" y2="331" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
+  <line x1="285" y1="348" x2="175" y2="331" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
+  <line x1="95" y1="348" x2="95" y2="381" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
+  <!-- footer -->
+  <rect x="4" y="416" width="430" height="18" rx="4" fill="#d1fae5"/>
+  <text x="10" y="429" font-size="8" fill="#065f46" font-family="Arial">✅ Tiempo de ciclo: &lt;3 min | Automatización 100% | Seguridad HMAC-SHA256 | Disponibilidad 24/7</text>
+</svg>
+</div>
+<input type="file" id="inputImagenToBe" accept="image/*" onchange="previsualizarImagen(event, 'vista-previa-tobe')">
+<img id="vista-previa-tobe" class="vista-previa-imagen" alt="Vista previa del diagrama To-Be">
+
+<p class="nota">Las imágenes solo se previsualizan en esta página (no se guardan en el navegador). Recuerda adjuntarlas también al entregar tu informe final.</p>
+
+<h2>Conclusión</h2>
+<p>En 3-5 líneas, explica qué cambia entre el estado As-Is y el To-Be, y qué valor genera esa transformación para el negocio.</p>
+<textarea id="conclusion" placeholder="Escribe aquí tu conclusión...">La implementación del plano To-Be convierte a Jeremy Tech de un negocio dependiente de procesos artesanales a una empresa digital inteligente y autónoma. La arquitectura MVC desacoplada garantiza escalabilidad futura para operar como un marketplace multiregional, reduciendo a cero los errores operativos y ofreciendo al cliente una experiencia de compra inmediata y transparente.</textarea>
+
+<p class="nota"><strong>Referencia:</strong> revisa el caso resuelto de Grafiluz en <code>Sesion - 001-A-Gia-.pdf</code> (Parte 2: Los Planos de Transformación, páginas 3-9) como modelo, incluyendo el código PlantUML de ambos diagramas.</p>
+
+<script>
+  const CLAVE_STORAGE = 'grafiluz-s1-planos-transformacion';
+  const CAMPOS = ['alumno', 'proyecto', 'asIsActores', 'asIsFlujo', 'asIsCuello', 'toBeCapas', 'toBeFlujo', 'toBeBeneficios', 'conclusion'];
+
+  function previsualizarImagen(evento, idImg) {
+    const archivo = evento.target.files[0];
+    const img = document.getElementById(idImg);
+    if (!archivo) { img.style.display = 'none'; return; }
+    const lector = new FileReader();
+    lector.onload = e => {
+      img.src = e.target.result;
+      img.style.display = 'block';
+    };
+    lector.readAsDataURL(archivo);
+  }
+
+  let temporizador;
+  function guardarDebounced() {
+    clearTimeout(temporizador);
+    temporizador = setTimeout(guardar, 400);
+  }
+
+  function guardar() {
+    const datos = {};
+    CAMPOS.forEach(id => datos[id] = document.getElementById(id).value);
+    localStorage.setItem(CLAVE_STORAGE, JSON.stringify(datos));
+    const estado = document.getElementById('estado-guardado');
+    estado.textContent = '✓ Guardado en este navegador';
+    clearTimeout(estado._t);
+    estado._t = setTimeout(() => estado.textContent = '', 2000);
+  }
+
+  const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "asIsActores": "1. Cliente (Residente, estudiante o agricultor de La Joya / Arequipa).\n2. Catálogo Web inicial (Frontend HTML/JS estático con botón de enlace hacia WhatsApp).\n3. Asesor comercial en sede física (La Paz Soldán, La Joya).\n4. Stock físico (Vitrinas y estanterías en la tienda física de La Joya).\n5. Registro de ventas manual (Cuaderno de apuntes y archivo Excel local).\n6. Banca móvil personal (Aplicación Yape / BCP en celular del asesor para revisión visual de vouchers).", "asIsFlujo": "1. El cliente entra al catálogo web básico, revisa productos (celulares, laptops, audífonos) y elige una variante.\n2. Hace clic en el botón 'Consultar', ejecutando script.js que genera un mensaje predeterminado hacia +51 997 833 866.\n3. El asesor en la tienda de La Paz Soldán recibe el mensaje y debe dejar de atender el mostrador para revisar la vitrina y verificar stock.\n4. El asesor responde por chat confirmando precio y enviando el número de cuenta o código QR de Yape personal.\n5. El cliente realiza el pago en su app bancaria y envía una captura de pantalla del voucher por chat.\n6. El asesor abre la banca móvil en su teléfono personal, verifica si el dinero ingresó realmente en su cuenta bancaria.\n7. El asesor anota manualmente la venta en una libreta, descuenta el stock en un Excel y coordina el recojo en tienda o un delivery improvisado.", "asIsCuello": "1. Límite de Horario: Consultas nocturnas o de fines de semana quedan sin respuesta hasta el día hábil siguiente, provocando que el cliente compre en otro lugar.\n2. Validación Manual de Pagos: Riesgo de estafas mediante vouchers bancarios adulterados o editados con Photoshop, y lentitud al verificar transferencias una por una.\n3. Desincronización de Stock: Si un cliente en mostrador compra la última laptop en La Paz Soldán, la web sigue mostrándola disponible, generando quejas y devoluciones.\n4. Tiempo de ciclo excesivo: Cerrar una venta simple toma entre 20 a 45 minutos de intercambio de mensajes.", "toBeCapas": "1. Capa de Experiencia / Cliente: Interfaz web responsiva (PHP/CSS/JS) con buscador en tiempo real, selector multimoneda (ExchangeRate-API), asistente virtual (Chatbot FAQ), carrito de compras dinámico y panel de seguimiento 'Mis Pedidos'.\n2. Capa de Negocio / Backend (MVC): Controladores PHP modulares (ProductoController, CarritoController, AdminController, CuentaController) con validación estricta, sesiones aisladas y control de roles (Admin, Vendedor, Cliente, C2C).\n3. Capa de Transacciones e Inventario: Motor de transacciones PDO con concurrencia segura (SELECT ... FOR UPDATE), reservas de stock atómicas y registro detallado en movimientos_inventario.\n4. Capa de Integración / Pagos: Pasarela de pago con conciliación automática mediante Webhook seguro firmado con HMAC-SHA256 (POST ?ruta=pagos/webhook) para tarjetas, Yape y transferencias.\n5. Capa de Persistencia y Auditoría: MariaDB 10.11+ con 31 tablas relacionales, auditoría administrativa en auditoria_admin y analítica de eventos en eventos_analitica.\n6. Capa Logística: Cálculo automático de tarifas de envío por zonas (La Joya Express el mismo día, Arequipa Metropolitana, Provincias y Lima) con integración para recojo en tienda y guías de courier.", "toBeFlujo": "1. El cliente ingresa a la tienda 24/7, busca productos, selecciona color/variante y agrega al carrito de compras.\n2. Pasa al checkout, ingresa su dirección de entrega (o selecciona recojo en sede La Joya) y el sistema calcula la tarifa exacta de envío.\n3. El cliente elige su medio de pago (Tarjeta de crédito/débito o Yape QR) y completa los datos de pago seguro.\n4. El backend inicia una transacción de base de datos con FOR UPDATE, descuenta el stock de inmediato en movimientos_inventario y crea el pedido en estado 'Pendiente'.\n5. La pasarela procesa el cobro y despacha un webhook asíncrono con firma HMAC-SHA256 validada con hash_equals.\n6. El webhook concilia la transacción, actualiza el pedido a 'Pagado' de forma atómica y genera la notificación por email (.eml/.html simulado).\n7. El almacén en La Joya recibe la alerta automática, prepara el paquete en menos de 15 minutos y el repartidor lo entrega el mismo día.", "toBeBeneficios": "1. Automatización total de la venta: 0 intervención humana necesaria para procesar, cobrar y confirmar pedidos.\n2. Disponibilidad 24/7: Recuperación del 100% de la demanda fuera de horario comercial y fines de semana.\n3. Cero discrepancias de stock: El aislamiento transaccional imposibilita la sobreventa o venta duplicada de unidades.\n4. Seguridad garantizada: Eliminación total de fraudes por vouchers falsos mediante la verificación criptográfica del webhook.\n5. Trazabilidad completa: El cliente rastrea su pedido en tiempo real y el administrador audita cada movimiento en el panel de control.", "conclusion": "La implementación del plano To-Be convierte a Jeremy Tech de un negocio dependiente de procesos artesanales a una empresa digital inteligente y autónoma. La arquitectura MVC desacoplada garantiza escalabilidad futura para operar como un marketplace multiregional, reduciendo a cero los errores operativos y ofreciendo al cliente una experiencia de compra inmediata y transparente."};
+
+  function cargar() {
+    const guardado = localStorage.getItem(CLAVE_STORAGE);
+    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    CAMPOS.forEach(id => {
+      if (datos[id] !== undefined) document.getElementById(id).value = datos[id];
+    });
+  }
+
+  function borrarTodo() {
+    if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
+    localStorage.removeItem(CLAVE_STORAGE);
+    CAMPOS.forEach(id => document.getElementById(id).value = '');
+    ['vista-previa-asis', 'vista-previa-tobe'].forEach(id => document.getElementById(id).style.display = 'none');
+    document.getElementById('inputImagenAsIs').value = '';
+    document.getElementById('inputImagenToBe').value = '';
+  }
+
+  function descargarTxt() {
+    const v = id => document.getElementById(id).value || '(vacío)';
+    const contenido = `LOS PLANOS DE TRANSFORMACIÓN (AS-IS Y TO-BE)
+Sesión 1 — Introducción a los Negocios Electrónicos y E-business
+
+Alumno(a): ${v('alumno')}
+Proyecto / Negocio: ${v('proyecto')}
+
+1. PLANO AS-IS (ESTADO ACTUAL)
+Actores involucrados: ${v('asIsActores')}
+Flujo paso a paso: ${v('asIsFlujo')}
+Punto de fricción / cuello de botella: ${v('asIsCuello')}
+(Recuerda adjuntar también tu diagrama As-Is por separado.)
+
+2. PLANO TO-BE (ESTADO FUTURO)
+Capas / componentes de la nueva arquitectura: ${v('toBeCapas')}
+Flujo paso a paso: ${v('toBeFlujo')}
+Beneficios esperados: ${v('toBeBeneficios')}
+(Recuerda adjuntar también tu diagrama To-Be por separado.)
+
+CONCLUSIÓN
+${v('conclusion')}
+`;
+    const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'planos-transformacion.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  CAMPOS.forEach(id => document.getElementById(id).addEventListener('input', guardarDebounced));
+
+  const CLAVE_OCULTAR_BOTONES = 'grafiluz-s1-planos-ocultar-botones';
+
+  function alternarAcciones() {
+    const grupo = document.getElementById('grupo-acciones');
+    const oculto = grupo.classList.toggle('oculto');
+    document.getElementById('btn-toggle-acciones').textContent = oculto ? '👁️ Mostrar botones' : '🙈 Ocultar botones';
+    localStorage.setItem(CLAVE_OCULTAR_BOTONES, oculto ? '1' : '0');
+  }
+
+  function cargarPreferenciaBotones() {
+    if (localStorage.getItem(CLAVE_OCULTAR_BOTONES) === '1') {
+      document.getElementById('grupo-acciones').classList.add('oculto');
+      document.getElementById('btn-toggle-acciones').textContent = '👁️ Mostrar botones';
+    }
+  }
+
+  cargar();
+  cargarPreferenciaBotones();
+
+  // ── Print fix: sincronizar textareas → mirror divs ──
+  function sincronizarImpresion() {
+    document.querySelectorAll('textarea').forEach(function(tx) {
+      var sig = tx.nextElementSibling;
+      if (!sig || !sig.classList.contains('bloque-impresion')) {
+        var div = document.createElement('div');
+        div.className = 'bloque-impresion';
+        tx.parentNode.insertBefore(div, tx.nextSibling);
+        sig = div;
+      }
+      sig.textContent = tx.value || '';
+    });
+  }
+  window.addEventListener('beforeprint', sincronizarImpresion);
+  document.addEventListener('DOMContentLoaded', sincronizarImpresion);
+  // llamada inmediata por si DOMContentLoaded ya disparó
+  if (document.readyState !== 'loading') { sincronizarImpresion(); }
+</script>
+
+</body>
+</html>

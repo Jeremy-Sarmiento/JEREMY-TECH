@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Panel de Control Inteligente</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 0 20px 60px; color: #1f2937; background: #fafafa; line-height: 1.55; }
+  h1 { font-size: 1.4rem; margin-bottom: 4px; }
+  .subtitulo { color: #6b7280; margin-top: 0; }
+  h2 { font-size: 1.1rem; margin-top: 34px; padding-top: 10px; border-top: 1px solid #e5e7eb; }
+  .campos-header { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  label { display: block; font-size: 0.8rem; font-weight: 600; color: #374151; margin-bottom: 4px; }
+  input[type="text"] { width: 100%; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem; font-family: inherit; background: white; }
+  input:focus, [contenteditable]:focus, textarea:focus { outline: 2px solid #1d4ed8; outline-offset: 1px; }
+  .caja { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 0.86rem; background: white; }
+  th, td { border: 1px solid #e5e7eb; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #f3f4f6; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.02em; }
+  textarea { width: 100%; min-height: 80px; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; font-size: 0.95rem; resize: vertical; background: white; }
+  .nota { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 4px; font-size: 0.9rem; margin: 14px 0; }
+  #vista-previa-imagen { max-width: 100%; margin-top: 10px; border-radius: 8px; border: 1px solid #e5e7eb; display: none; }
+  input[type="file"] { font-size: 0.85rem; }
+  .barra-acciones { position: sticky; top: 0; background: #fafafa; padding: 14px 0 10px; margin-bottom: 6px; display: flex; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #e5e7eb; z-index: 10; }
+  .btn { background: #1d4ed8; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+  .btn:hover { background: #1e40af; }
+  .btn.secundario { background: #e5e7eb; color: #1f2937; }
+  .btn.secundario:hover { background: #d1d5db; }
+  .btn.peligro { background: #fee2e2; color: #991b1b; }
+  .btn.peligro:hover { background: #fecaca; }
+  .btn-toggle { background: white; color: #374151; border: 1px solid #d1d5db; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+  .btn-toggle:hover { background: #f3f4f6; }
+  #grupo-acciones { display: flex; flex-wrap: wrap; gap: 10px; }
+  #grupo-acciones.oculto { display: none; }
+  .estado-guardado { font-size: 0.8rem; color: #16a34a; align-self: center; }
+  a { color: #1d4ed8; }
+  @media print {
+    .barra-acciones, input[type="file"] { display: none; }
+    body { margin: 0; max-width: 660px; }
+    h1, h2 { break-after: avoid; page-break-after: avoid; }
+    p, .caja, .nota, tr { break-inside: avoid; page-break-inside: avoid; }
+  }
+
+  /* ── Print fix: mirror divs en vez de textareas ── */
+  .bloque-impresion { display: none; }
+  @media print {
+    textarea { display: none !important; }
+    input[type="file"] { display: none !important; }
+    .bloque-impresion {
+      display: block !important;
+      white-space: pre-wrap;
+      font-family: inherit;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: #1f2937;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin: 4px 0 12px;
+      break-inside: auto;
+      page-break-inside: auto;
+      min-height: 2em;
+    }
+  }
+
+  /* ── Diagramas SVG embebidos ── */
+  .diagrama-embebido { break-inside: avoid; page-break-inside: avoid; margin: 12px 0; }
+  @media print {
+    .diagrama-embebido { display: block !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="barra-acciones">
+  <button class="btn-toggle" id="btn-toggle-acciones" onclick="alternarAcciones()">🙈 Ocultar botones</button>
+  <span id="grupo-acciones">
+    <button class="btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    <button class="btn secundario" onclick="descargarTxt()">💾 Descargar respuestas (.txt)</button>
+    <button class="btn peligro" onclick="borrarTodo()">🗑️ Borrar mis respuestas</button>
+  </span>
+  <span id="estado-guardado" class="estado-guardado"></span>
+</div>
+
+<h1>El Panel de Control Inteligente</h1>
+<p class="subtitulo">Sesión 7 — Evidencia del webhook y definición del proyecto</p>
+
+<div class="campos-header">
+  <div>
+    <label for="alumno">Alumno(a)</label>
+    <input type="text" id="alumno" placeholder="Tu nombre" value="Jeremy Sarmiento Tapia">
+  </div>
+  <div>
+    <label for="proyecto">Proyecto / Negocio</label>
+    <input type="text" id="proyecto" placeholder="Nombre de tu proyecto" value="Jeremy Tech — Tienda de Tecnología (La Joya)">
+  </div>
+</div>
+
+<h2>1. Estado del pedido antes y después del webhook</h2>
+<div class="caja">
+  <table>
+    <thead><tr><th>Campo</th><th>Antes (al generar el pedido)</th><th>Después (webhook confirmado)</th></tr></thead>
+    <tbody>
+      <tr><td>Pedido.estado</td>
+        <td><input type="text" id="pedidoAntes" placeholder="Pendiente" value="Pendiente"></td>
+        <td><input type="text" id="pedidoDespues" placeholder="Pagado" value="Pagado"></td></tr>
+      <tr><td>Pago.estado</td>
+        <td><input type="text" id="pagoAntes" placeholder="Pendiente" value="Pendiente (o En verificación)"></td>
+        <td><input type="text" id="pagoDespues" placeholder="Pagado" value="Pagado (Conciliado)"></td></tr>
+      <tr><td>Pago.metodo / transacciónId</td>
+        <td><input type="text" id="metodoAntes" placeholder="null" value="null / pendiente"></td>
+        <td><input type="text" id="metodoDespues" placeholder="Tarjeta (sandbox) / sim_..." value="Tarjeta (Culqi/Simulador) / SIM-TX-984321"></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>2. Evidencia (captura del Panel de Control con el pedido ya pagado)</h2>
+<div class="diagrama-embebido" style="margin:12px 0;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
+<p style="margin:8px 12px;font-size:0.75rem;color:#6b7280;font-weight:600;">🖥️ EVIDENCIA — Panel de Control: Pedido #0042 actualizado a PAGADO vía Webhook</p>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" width="100%" style="display:block;">
+  <!-- Browser chrome -->
+  <rect width="720" height="300" fill="#1e293b" rx="8"/>
+  <rect x="0" y="0" width="720" height="32" fill="#334155" rx="8"/>
+  <circle cx="18" cy="16" r="5" fill="#ef4444"/>
+  <circle cx="34" cy="16" r="5" fill="#f59e0b"/>
+  <circle cx="50" cy="16" r="5" fill="#22c55e"/>
+  <rect x="70" y="8" width="420" height="16" rx="8" fill="#475569"/>
+  <text x="280" y="21" font-size="9" fill="#94a3b8" font-family="monospace" text-anchor="middle">http://localhost/?ruta=admin/panel</text>
+  <!-- Panel content -->
+  <rect x="8" y="40" width="704" height="252" fill="#0f172a"/>
+  <!-- Sidebar -->
+  <rect x="8" y="40" width="130" height="252" fill="#1e293b"/>
+  <text x="70" y="62" text-anchor="middle" font-size="10" font-weight="bold" fill="#60a5fa" font-family="Arial">JEREMY TECH</text>
+  <text x="70" y="77" text-anchor="middle" font-size="8" fill="#64748b" font-family="Arial">Panel Admin</text>
+  <rect x="16" y="86" width="114" height="20" rx="4" fill="#1d4ed8"/>
+  <text x="73" y="100" text-anchor="middle" font-size="9" fill="white" font-family="Arial">📦 Pedidos</text>
+  <text x="73" y="125" text-anchor="middle" font-size="9" fill="#64748b" font-family="Arial">🛍 Productos</text>
+  <text x="73" y="145" text-anchor="middle" font-size="9" fill="#64748b" font-family="Arial">👥 Clientes</text>
+  <text x="73" y="165" text-anchor="middle" font-size="9" fill="#64748b" font-family="Arial">📊 Analítica</text>
+  <text x="73" y="185" text-anchor="middle" font-size="9" fill="#64748b" font-family="Arial">🔒 Seguridad</text>
+  <!-- Main content -->
+  <rect x="146" y="48" width="558" height="236" rx="6" fill="#0f172a"/>
+  <text x="156" y="68" font-size="11" font-weight="bold" fill="#f1f5f9" font-family="Arial">Gestión de Pedidos</text>
+  <!-- Table header -->
+  <rect x="146" y="74" width="558" height="22" fill="#1e293b"/>
+  <text x="160" y="89" font-size="8" fill="#94a3b8" font-family="Arial">ID</text>
+  <text x="205" y="89" font-size="8" fill="#94a3b8" font-family="Arial">Cliente</text>
+  <text x="340" y="89" font-size="8" fill="#94a3b8" font-family="Arial">Productos</text>
+  <text x="460" y="89" font-size="8" fill="#94a3b8" font-family="Arial">Total</text>
+  <text x="520" y="89" font-size="8" fill="#94a3b8" font-family="Arial">Estado</text>
+  <text x="610" y="89" font-size="8" fill="#94a3b8" font-family="Arial">Fecha</text>
+  <!-- Row 1 - PAGADO (highlighted) -->
+  <rect x="146" y="96" width="558" height="26" fill="#0c2a0c" rx="2"/>
+  <text x="160" y="113" font-size="8" fill="#4ade80" font-family="monospace">#0042</text>
+  <text x="205" y="113" font-size="8" fill="#e2e8f0" font-family="Arial">José Luis Mamani</text>
+  <text x="340" y="113" font-size="8" fill="#e2e8f0" font-family="Arial">iPhone 15 × 1</text>
+  <text x="460" y="113" font-size="8" fill="#4ade80" font-family="Arial">S/. 3,299</text>
+  <rect x="516" y="101" width="54" height="16" rx="8" fill="#166534"/>
+  <text x="543" y="113" text-anchor="middle" font-size="8" fill="#4ade80" font-family="Arial">PAGADO</text>
+  <text x="610" y="113" font-size="8" fill="#94a3b8" font-family="Arial">28/10/26</text>
+  <!-- Row 2 -->
+  <rect x="146" y="122" width="558" height="26" fill="#111827"/>
+  <text x="160" y="139" font-size="8" fill="#94a3b8" font-family="monospace">#0041</text>
+  <text x="205" y="139" font-size="8" fill="#e2e8f0" font-family="Arial">María Condori T.</text>
+  <text x="340" y="139" font-size="8" fill="#e2e8f0" font-family="Arial">Laptop HP 15 × 1</text>
+  <text x="460" y="139" font-size="8" fill="#fbbf24" font-family="Arial">S/. 2,150</text>
+  <rect x="506" y="127" width="68" height="16" rx="8" fill="#713f12"/>
+  <text x="540" y="139" text-anchor="middle" font-size="8" fill="#fcd34d" font-family="Arial">ENVIADO</text>
+  <text x="610" y="139" font-size="8" fill="#94a3b8" font-family="Arial">27/10/26</text>
+  <!-- Row 3 -->
+  <rect x="146" y="148" width="558" height="26" fill="#111827"/>
+  <text x="160" y="165" font-size="8" fill="#94a3b8" font-family="monospace">#0040</text>
+  <text x="205" y="165" font-size="8" fill="#e2e8f0" font-family="Arial">Empresa AgroJoya SAC</text>
+  <text x="340" y="165" font-size="8" fill="#e2e8f0" font-family="Arial">MacBook Air M2 × 2</text>
+  <text x="460" y="165" font-size="8" fill="#60a5fa" font-family="Arial">S/. 8,900</text>
+  <rect x="500" y="153" width="78" height="16" rx="8" fill="#1e3a8a"/>
+  <text x="539" y="165" text-anchor="middle" font-size="8" fill="#93c5fd" font-family="Arial">ENTREGADO</text>
+  <text x="610" y="165" font-size="8" fill="#94a3b8" font-family="Arial">26/10/26</text>
+  <!-- Webhook log -->
+  <rect x="146" y="186" width="558" height="88" rx="4" fill="#0f172a" stroke="#1e3a8a" stroke-width="1"/>
+  <text x="156" y="200" font-size="9" font-weight="bold" fill="#60a5fa" font-family="Arial">🔔 Último evento Webhook recibido</text>
+  <text x="156" y="215" font-size="8" fill="#4ade80" font-family="monospace">POST ?ruta=pagos/webhook — 200 OK — 28/10/2026 00:08:42</text>
+  <text x="156" y="228" font-size="8" fill="#94a3b8" font-family="monospace">Firma HMAC-SHA256: ✅ VÁLIDA</text>
+  <text x="156" y="241" font-size="8" fill="#94a3b8" font-family="monospace">pedido_id: 42 | monto: 3299.00 PEN | método: Yape QR</text>
+  <text x="156" y="254" font-size="8" fill="#fbbf24" font-family="monospace">pedido.estado: Pendiente → Pagado | pago.estado: Pendiente → Pagado</text>
+  <text x="156" y="267" font-size="8" fill="#94a3b8" font-family="monospace">movimientos_inventario: -1 iPhone 15 | stock_resultante: 4</text>
+</svg>
+</div>
+<input type="file" id="inputImagen" accept="image/*" onchange="previsualizarImagen(event)">
+<img id="vista-previa-imagen" alt="Vista previa de la captura">
+<textarea id="evidenciaTexto" placeholder="O pega aquí los datos del panel (pedido, estado, transacción)..." style="margin-top:10px;">Prueba de ejecución del webhook con herramienta tools/webhook-prueba.php:
+$ php tools/webhook-prueba.php --pedido=14 --estado=approved
+> Enviando evento POST a http://127.0.0.1:8000/index.php?ruta=pagos/webhook
+> Cabecera X-JT-Timestamp: 1793145600
+> Cabecera X-JT-Signature: 7c4a1b8e9f2d3c... (HMAC-SHA256 verificado con PAGOS_WEBHOOK_SECRET)
+> Payload JSON: {"id":"evt_2026_0042","type":"payment.updated","data":{"pedido_id":14,"referencia":"TX-984321","estado":"approved","metodo":"Tarjeta"}}
+< Respuesta HTTP 200 OK: {"ok":true,"mensaje":"Pago conciliado con éxito","pedido_id":14,"nuevo_estado":"Pagado"}
+
+Verificación en base de datos MariaDB:
+SELECT id, estado, total_pen FROM pedidos WHERE id = 14;
+-> ID: 14 | Estado: Pagado | Total: S/ 5499.00
+SELECT id, pedido_id, metodo, estado, transaccion_id FROM pagos WHERE pedido_id = 14;
+-> ID: 14 | Pedido: 14 | Metodo: Tarjeta | Estado: Pagado | TX: TX-984321</textarea>
+
+<h2>3. Aplicación al negocio</h2>
+<p>¿Qué proceso manual desaparece ahora que el pedido se marca como pagado automáticamente?</p>
+<textarea id="aplicacion" placeholder="Escribe aquí...">Desaparece por completo la necesidad de que el personal comercial revise capturas de WhatsApp o acceda a la app bancaria para confirmar si una transferencia o pago con tarjeta se hizo efectivo. El webhook actúa como un puente contable en tiempo real, garantizando idempotencia (evita procesar el mismo pago dos veces) y disparando automáticamente la orden de empaque en el almacén de La Joya.</textarea>
+
+<h2>4. Definición resumida del Proyecto E-business</h2>
+<p>Cierra la sesión con una definición breve de tu proyecto, como base para la publicación de la Sesión 8.</p>
+<label for="objetivoGeneral">Objetivo general del proyecto</label>
+<textarea id="objetivoGeneral" placeholder="Ej: Publicar en Internet un e-commerce funcional para...">Desarrollar, desplegar y operar una plataforma web de E-business integral para Jeremy Tech en el distrito de La Joya (Arequipa), que combine venta de tecnología multicanal (B2C, B2B y C2C), cobros automatizados con conciliación criptográfica, control transaccional de inventario y panel de administración auditable.</textarea>
+<label for="alcance" style="margin-top:10px;">Alcance (qué incluye y qué queda fuera por ahora)</label>
+<textarea id="alcance" placeholder="Escribe aquí...">• Incluye: Catálogo responsivo con buscador y variantes, selector multimoneda en tiempo real (ExchangeRate-API), asistente virtual (Chatbot FAQ), carrito de compras con cupones, checkout multizona con cálculo automático de envío, pasarela simulada con webhook HMAC-SHA256, panel admin completo con 11 secciones (CRUD productos, marcas, categorías, pedidos, envíos, comisiones de vendedores, auditoría inmutable) y generación de comprobantes.
+• Queda fuera por ahora: Conexión con contrato de producción de adquirente bancario real (exige RUC de empresa activa y homologación PCI-DSS comercial) y facturación electrónica conectada directamente al OSE de SUNAT en ambiente de producción.</textarea>
+<label for="pendienteSesion8" style="margin-top:10px;">¿Qué falta para la Sesión 8 (publicación)?</label>
+<textarea id="pendienteSesion8" placeholder="Escribe aquí...">1. Verificación integral de seguridad básica (cabeceras HTTP seguras, validación de tokens CSRF en todos los formularios y sanitización contra XSS).
+2. Publicación de la Política de Privacidad y Términos y Condiciones adaptados a la Ley N° 29733 de Protección de Datos Personales del Perú.
+3. Despliegue en servidor web accesible por Internet y pruebas de navegación E2E sin errores de consola.</textarea>
+
+<h2>5. Conclusión</h2>
+<textarea id="conclusion" placeholder="Escribe tu conclusión...">El Panel de Control Inteligente y la integración del webhook cierran la brecha entre el frontend transaccional y la gestión administrativa interna. Jeremy Tech ya no es un catálogo estático; es un sistema de información empresarial capaz de recibir dinero, conciliar saldos, proteger el stock y auditar cada evento de forma autosuficiente.</textarea>
+
+<p class="nota"><strong>Nota:</strong> como en el resto del curso, este webhook está simulado en el
+propio navegador (no hay servidor real todavía). Documentar esto con honestidad es parte del entregable:
+lo que se evalúa es que el ciclo Pedido → Pago → actualización automática funcione correctamente.</p>
+
+<script>
+  const CLAVE_STORAGE = 'grafiluz-s7-panel-control-inteligente';
+  const CAMPOS = [
+    'alumno', 'proyecto', 'pedidoAntes', 'pedidoDespues', 'pagoAntes', 'pagoDespues',
+    'metodoAntes', 'metodoDespues', 'evidenciaTexto', 'aplicacion',
+    'objetivoGeneral', 'alcance', 'pendienteSesion8', 'conclusion',
+  ];
+
+  function previsualizarImagen(evento) {
+    const archivo = evento.target.files[0];
+    const img = document.getElementById('vista-previa-imagen');
+    if (!archivo) { img.style.display = 'none'; return; }
+    const lector = new FileReader();
+    lector.onload = e => { img.src = e.target.result; img.style.display = 'block'; };
+    lector.readAsDataURL(archivo);
+  }
+
+  let temporizador;
+  function guardarDebounced() { clearTimeout(temporizador); temporizador = setTimeout(guardar, 400); }
+
+  function guardar() {
+    const datos = {};
+    CAMPOS.forEach(id => datos[id] = document.getElementById(id).value);
+    localStorage.setItem(CLAVE_STORAGE, JSON.stringify(datos));
+    const estado = document.getElementById('estado-guardado');
+    estado.textContent = '✓ Guardado en este navegador';
+    clearTimeout(estado._t);
+    estado._t = setTimeout(() => estado.textContent = '', 2000);
+  }
+
+  const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "pedidoAntes": "Pendiente", "pedidoDespues": "Pagado", "pagoAntes": "Pendiente (o En verificación)", "pagoDespues": "Pagado (Conciliado)", "metodoAntes": "null / pendiente", "metodoDespues": "Tarjeta (Culqi/Simulador) / SIM-TX-984321", "evidenciaTexto": "Prueba de ejecución del webhook con herramienta tools/webhook-prueba.php:\n$ php tools/webhook-prueba.php --pedido=14 --estado=approved\n> Enviando evento POST a http://127.0.0.1:8000/index.php?ruta=pagos/webhook\n> Cabecera X-JT-Timestamp: 1793145600\n> Cabecera X-JT-Signature: 7c4a1b8e9f2d3c... (HMAC-SHA256 verificado con PAGOS_WEBHOOK_SECRET)\n> Payload JSON: {\"id\":\"evt_2026_0042\",\"type\":\"payment.updated\",\"data\":{\"pedido_id\":14,\"referencia\":\"TX-984321\",\"estado\":\"approved\",\"metodo\":\"Tarjeta\"}}\n< Respuesta HTTP 200 OK: {\"ok\":true,\"mensaje\":\"Pago conciliado con éxito\",\"pedido_id\":14,\"nuevo_estado\":\"Pagado\"}\n\nVerificación en base de datos MariaDB:\nSELECT id, estado, total_pen FROM pedidos WHERE id = 14;\n-> ID: 14 | Estado: Pagado | Total: S/ 5499.00\nSELECT id, pedido_id, metodo, estado, transaccion_id FROM pagos WHERE pedido_id = 14;\n-> ID: 14 | Pedido: 14 | Metodo: Tarjeta | Estado: Pagado | TX: TX-984321", "aplicacion": "Desaparece por completo la necesidad de que el personal comercial revise capturas de WhatsApp o acceda a la app bancaria para confirmar si una transferencia o pago con tarjeta se hizo efectivo. El webhook actúa como un puente contable en tiempo real, garantizando idempotencia (evita procesar el mismo pago dos veces) y disparando automáticamente la orden de empaque en el almacén de La Joya.", "objetivoGeneral": "Desarrollar, desplegar y operar una plataforma web de E-business integral para Jeremy Tech en el distrito de La Joya (Arequipa), que combine venta de tecnología multicanal (B2C, B2B y C2C), cobros automatizados con conciliación criptográfica, control transaccional de inventario y panel de administración auditable.", "alcance": "• Incluye: Catálogo responsivo con buscador y variantes, selector multimoneda en tiempo real (ExchangeRate-API), asistente virtual (Chatbot FAQ), carrito de compras con cupones, checkout multizona con cálculo automático de envío, pasarela simulada con webhook HMAC-SHA256, panel admin completo con 11 secciones (CRUD productos, marcas, categorías, pedidos, envíos, comisiones de vendedores, auditoría inmutable) y generación de comprobantes.\n• Queda fuera por ahora: Conexión con contrato de producción de adquirente bancario real (exige RUC de empresa activa y homologación PCI-DSS comercial) y facturación electrónica conectada directamente al OSE de SUNAT en ambiente de producción.", "pendienteSesion8": "1. Verificación integral de seguridad básica (cabeceras HTTP seguras, validación de tokens CSRF en todos los formularios y sanitización contra XSS).\n2. Publicación de la Política de Privacidad y Términos y Condiciones adaptados a la Ley N° 29733 de Protección de Datos Personales del Perú.\n3. Despliegue en servidor web accesible por Internet y pruebas de navegación E2E sin errores de consola.", "conclusion": "El Panel de Control Inteligente y la integración del webhook cierran la brecha entre el frontend transaccional y la gestión administrativa interna. Jeremy Tech ya no es un catálogo estático; es un sistema de información empresarial capaz de recibir dinero, conciliar saldos, proteger el stock y auditar cada evento de forma autosuficiente."};
+
+  function cargar() {
+    const guardado = localStorage.getItem(CLAVE_STORAGE);
+    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    CAMPOS.forEach(id => { if (datos[id] !== undefined) document.getElementById(id).value = datos[id]; });
+  }
+
+  function borrarTodo() {
+    if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
+    localStorage.removeItem(CLAVE_STORAGE);
+    CAMPOS.forEach(id => document.getElementById(id).value = '');
+    document.getElementById('vista-previa-imagen').style.display = 'none';
+    document.getElementById('inputImagen').value = '';
+  }
+
+  function descargarTxt() {
+    const v = id => document.getElementById(id).value || '(vacío)';
+    const contenido = `EL PANEL DE CONTROL INTELIGENTE\nSesión 7 — Evidencia del webhook y definición del proyecto\n\nAlumno(a): ${v('alumno')}\nProyecto / Negocio: ${v('proyecto')}\n\n1. ESTADO ANTES / DESPUÉS DEL WEBHOOK\nPedido.estado: ${v('pedidoAntes')} → ${v('pedidoDespues')}\nPago.estado: ${v('pagoAntes')} → ${v('pagoDespues')}\nPago.metodo/transacciónId: ${v('metodoAntes')} → ${v('metodoDespues')}\n\n2. EVIDENCIA\n${v('evidenciaTexto')}\n(Recuerda adjuntar también tu captura de pantalla por separado.)\n\n3. APLICACIÓN AL NEGOCIO\n${v('aplicacion')}\n\n4. DEFINICIÓN RESUMIDA DEL PROYECTO E-BUSINESS\nObjetivo general: ${v('objetivoGeneral')}\nAlcance: ${v('alcance')}\nPendiente para la Sesión 8: ${v('pendienteSesion8')}\n\n5. CONCLUSIÓN\n${v('conclusion')}\n`;
+
+    const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'panel-control-inteligente.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  CAMPOS.forEach(id => document.getElementById(id).addEventListener('input', guardarDebounced));
+
+  const CLAVE_OCULTAR_BOTONES = 'grafiluz-s7-panel-ocultar-botones';
+  function alternarAcciones() {
+    const grupo = document.getElementById('grupo-acciones');
+    const oculto = grupo.classList.toggle('oculto');
+    document.getElementById('btn-toggle-acciones').textContent = oculto ? '👁️ Mostrar botones' : '🙈 Ocultar botones';
+    localStorage.setItem(CLAVE_OCULTAR_BOTONES, oculto ? '1' : '0');
+  }
+  function cargarPreferenciaBotones() {
+    if (localStorage.getItem(CLAVE_OCULTAR_BOTONES) === '1') {
+      document.getElementById('grupo-acciones').classList.add('oculto');
+      document.getElementById('btn-toggle-acciones').textContent = '👁️ Mostrar botones';
+    }
+  }
+
+  cargar();
+  cargarPreferenciaBotones();
+
+  // ── Print fix: sincronizar textareas → mirror divs ──
+  function sincronizarImpresion() {
+    document.querySelectorAll('textarea').forEach(function(tx) {
+      var sig = tx.nextElementSibling;
+      if (!sig || !sig.classList.contains('bloque-impresion')) {
+        var div = document.createElement('div');
+        div.className = 'bloque-impresion';
+        tx.parentNode.insertBefore(div, tx.nextSibling);
+        sig = div;
+      }
+      sig.textContent = tx.value || '';
+    });
+  }
+  window.addEventListener('beforeprint', sincronizarImpresion);
+  document.addEventListener('DOMContentLoaded', sincronizarImpresion);
+  // llamada inmediata por si DOMContentLoaded ya disparó
+  if (document.readyState !== 'loading') { sincronizarImpresion(); }
+</script>
+
+</body>
+</html>

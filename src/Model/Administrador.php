@@ -33,9 +33,7 @@ class Administrador
      */
     private static function arrancarSesion(): void
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        \Security\Proteccion::iniciarSesion();
     }
 
     /**
@@ -115,13 +113,14 @@ class Administrador
     public static function seccionesPermitidas(): array
     {
         if (self::esVendedor()) {
-            return ['dashboard', 'productos', 'variantes', 'pedidos', 'ventas'];
+            return ['dashboard', 'productos', 'variantes', 'pedidos', 'ventas', 'analitica'];
         }
         if (self::esAdmin()) {
             return [
                 'dashboard', 'productos', 'variantes', 'categorias', 'marcas', 'garantias',
                 'cupones', 'envios', 'pedidos', 'usuarios', 'configuracion',
-                'auditoria', 'vendedores', 'comisiones',
+                'auditoria', 'vendedores', 'comisiones', 'inventario', 'notificaciones',
+                'chatbot', 'analitica', 'soporte', 'resenas', 'pagos',
             ];
         }
         return [];
@@ -156,6 +155,7 @@ class Administrador
 
         self::arrancarSesion();
         session_regenerate_id(true);
+        \Security\Proteccion::rotarToken();
         $_SESSION[self::SESION_CLAVE] = (int) $admin['id'];
 
         // Registro del último ingreso.
@@ -170,6 +170,7 @@ class Administrador
         self::arrancarSesion();
         unset($_SESSION[self::SESION_CLAVE]);
         session_regenerate_id(true);
+        \Security\Proteccion::rotarToken();
     }
 
     /**

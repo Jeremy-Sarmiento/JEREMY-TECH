@@ -68,7 +68,7 @@ if ($esVendedor && $vendedorId !== null) {
         'usuarios'   => (int) $pdo->query('SELECT COUNT(*) FROM users WHERE deleted_at IS NULL')->fetchColumn(),
         'cupones'    => (int) $pdo->query('SELECT COUNT(*) FROM cupones')->fetchColumn(),
         'vendedores' => (int) $pdo->query(
-            "SELECT COUNT(*) FROM users WHERE rol = 'vendedor' AND deleted_at IS NULL"
+            "SELECT COUNT(*) FROM users WHERE (rol = 'vendedor' OR tipo = 'C2C') AND deleted_at IS NULL"
         )->fetchColumn(),
     ];
     $tarjetas = [

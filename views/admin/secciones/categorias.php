@@ -29,6 +29,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 
     <dialog class="admin-modal" id="modalForm"<?= $editando ? ' data-modal-auto="1"' : '' ?>>
         <form method="post" action="?ruta=admin/categorias/guardar" class="admin-formulario">
+            <?= \Security\Proteccion::campo() ?>
             <div class="admin-modal-cabecera">
                 <h3><?= $editando ? 'Editar categoría' : 'Nueva categoría' ?></h3>
                 <button type="button" class="admin-modal-cerrar" data-modal-cerrar aria-label="Cerrar">&times;</button>
@@ -62,7 +63,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
                         <td><?= $e($c['descripcion']) ?></td>
                         <td class="admin-acciones">
                             <a class="btn-mini" href="?ruta=admin/categorias&editar=<?= (int) $c['id'] ?>">Editar</a>
-                            <a class="btn-mini btn-mini-peligro" href="?ruta=admin/categorias/eliminar&id=<?= (int) $c['id'] ?>" onclick="return confirm('¿Eliminar esta categoría?')">Eliminar</a>
+                            <?= \Security\Proteccion::botonPost('admin/categorias/eliminar', ['id' => (int) $c['id']], 'Eliminar', 'btn-mini btn-mini-peligro', '¿Eliminar esta categoría?') ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>

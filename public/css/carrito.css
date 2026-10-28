@@ -6,7 +6,8 @@
 .cart-page {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 110px 20px 48px;
+  padding: clamp(24px, 4vw, 40px) 20px calc(48px + var(--safe-bottom, 0px));
+  padding: clamp(24px, 4vw, 40px) max(20px, calc(env(safe-area-inset-right, 0px) + 12px)) calc(48px + var(--safe-bottom, 0px)) max(20px, calc(env(safe-area-inset-left, 0px) + 12px));
 }
 
 .cart-page-header {
@@ -14,7 +15,7 @@
 }
 
 .cart-page-header h1 {
-  font-size: 1.9rem;
+  font-size: clamp(1.55rem, 4vw, 1.9rem);
   color: var(--accent, #00d4ff);
   margin-bottom: 6px;
 }
@@ -29,12 +30,18 @@
   grid-template-columns: 1.7fr 1fr;
   gap: 24px;
   align-items: start;
+  min-width: 0;
+}
+
+.cart-page-items,
+.cart-page-summary {
+  min-width: 0;
 }
 
 /* ----- Panel derecho (resumen) ----- */
 .cart-page-summary {
   position: sticky;
-  top: 140px;
+  top: calc(var(--nav-height, 64px) + 20px);
 }
 
 .cart-panel {
@@ -93,8 +100,9 @@
 /* ----- Historial de pedidos ----- */
 .orders-list-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
   gap: 16px;
+  min-width: 0;
 }
 
 .orders-empty {
@@ -118,6 +126,7 @@
 }
 
 .order-card {
+  min-width: 0;
   background: #10151b;
   border: 1px solid var(--border, #262c36);
   border-radius: 12px;
@@ -127,11 +136,17 @@
   gap: 10px;
 }
 
+/* Ancla directa desde la bandeja de notificaciones (#pedido-<id>). */
+.order-card[id] {
+  scroll-margin-top: calc(var(--nav-height, 64px) + 20px);
+}
+
 .order-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .order-id {
@@ -167,8 +182,117 @@
 .order-card-meta {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 12px;
   color: var(--text-soft, #b0b8c4);
   font-size: 0.85rem;
+}
+
+/* Línea de tiempo del pedido: vertical para que quepa en las tarjetas del
+   historial sin perder detalle. Sobrescribe la versión horizontal de
+   styles.css, que quedó sin uso. */
+.order-timeline {
+  display: flex;
+  flex-direction: column;
+  position: static;
+  margin: 14px 0 4px;
+  padding: 12px 12px 2px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+}
+
+.order-timeline::before {
+  display: none;
+}
+
+.timeline-step {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  padding-bottom: 12px;
+  position: relative;
+}
+
+.timeline-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 24px;
+  bottom: 0;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.timeline-step.completed:not(:last-child)::after {
+  background: rgba(0, 212, 255, 0.45);
+}
+
+.timeline-dot {
+  flex: 0 0 24px;
+  margin-bottom: 0;
+}
+
+.timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.timeline-label {
+  text-align: left;
+  font-size: 0.8rem;
+}
+
+.timeline-detail {
+  color: #8899aa;
+  font-size: 0.74rem;
+  line-height: 1.35;
+}
+
+.timeline-date {
+  color: #6f7f90;
+  font-size: 0.7rem;
+}
+
+.timeline-step.pending .timeline-dot {
+  opacity: 0.55;
+}
+
+.timeline-step.pending .timeline-label,
+.timeline-step.pending .timeline-detail,
+.timeline-step.pending .timeline-date {
+  color: #6f7f90;
+}
+
+.timeline-step.current .timeline-label {
+  color: #ffffff;
+}
+
+.timeline-step.step-pago_confirmado.current .timeline-dot {
+  background: #ffa502;
+  border-color: #ffa502;
+  box-shadow: 0 0 10px rgba(255, 165, 2, 0.45);
+}
+
+.timeline-step.step-cancelado .timeline-dot,
+.timeline-step.step-pedido_cancelado .timeline-dot {
+  background: #ff4757;
+  border-color: #ff4757;
+  color: #0a0f1a;
+  box-shadow: 0 0 10px rgba(255, 71, 87, 0.45);
+}
+
+.timeline-step.step-cancelado .timeline-label,
+.timeline-step.step-cancelado .timeline-detail,
+.timeline-step.step-cancelado .timeline-date,
+.timeline-step.step-pedido_cancelado .timeline-label,
+.timeline-step.step-pedido_cancelado .timeline-detail,
+.timeline-step.step-pedido_cancelado .timeline-date {
+  color: #ff6b78;
 }
 
 .order-card-items {
@@ -183,7 +307,8 @@
 .order-card-items li {
   display: flex;
   justify-content: space-between;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 4px 8px;
 }
 
 .btn-order-whatsapp {
@@ -223,7 +348,7 @@
    ============================================================ */
 .addr-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: 16px;
 }
 
@@ -289,6 +414,8 @@
   padding-top: 6px;
 }
 
+.accion-post { display: inline-flex; margin: 0; }
+
 .btn-mini-peligro {
   color: #f87171 !important;
   border-color: rgba(248, 113, 113, 0.45) !important;
@@ -312,6 +439,7 @@
 .addr-form-acciones {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
@@ -391,4 +519,46 @@
   margin: -6px 0 4px;
   font-size: 12px;
   color: rgba(255, 255, 255, 0.55);
+}
+
+@media (pointer: coarse) {
+  .addr-form input,
+  .addr-form select,
+  .addr-nueva select {
+    font-size: 16px;
+  }
+}
+@media (max-width: 600px) {
+  .cart-page {
+    padding-left: max(14px, calc(env(safe-area-inset-left, 0px) + 8px));
+    padding-right: max(14px, calc(env(safe-area-inset-right, 0px) + 8px));
+  }
+  .cart-page-section {
+    padding: 16px;
+    border-radius: 14px;
+  }
+  .cart-page-section-head h2 {
+    font-size: 1.25rem;
+  }
+  .orders-list-container {
+    grid-template-columns: 1fr;
+  }
+  .addr-grid {
+    grid-template-columns: 1fr;
+  }
+  .addr-nueva select,
+  .addr-form input,
+  .addr-form select {
+    font-size: 16px;
+  }
+  .btn-mini,
+  .btn-order-whatsapp,
+  .addr-btn {
+    min-height: 44px;
+  }
+  .order-card-actions {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 }

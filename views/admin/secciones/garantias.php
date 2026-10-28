@@ -31,6 +31,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 
     <dialog class="admin-modal" id="modalForm"<?= $editando ? ' data-modal-auto="1"' : '' ?>>
         <form method="post" action="?ruta=admin/garantias/guardar" class="admin-formulario">
+            <?= \Security\Proteccion::campo() ?>
             <div class="admin-modal-cabecera">
                 <h3><?= $editando ? 'Editar garantía' : 'Nueva garantía' ?></h3>
                 <button type="button" class="admin-modal-cerrar" data-modal-cerrar aria-label="Cerrar">&times;</button>
@@ -88,8 +89,8 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
                         <td><span class="etiqueta <?= (int) $g['activo'] ? 'etiqueta-ok' : 'etiqueta-off' ?>"><?= (int) $g['activo'] ? 'Activa' : 'Inactiva' ?></span></td>
                         <td class="admin-acciones">
                             <a class="btn-mini" href="?ruta=admin/garantias&editar=<?= (int) $g['id'] ?>">Editar</a>
-                            <a class="btn-mini" href="?ruta=admin/garantias/estado&id=<?= (int) $g['id'] ?>"><?= (int) $g['activo'] ? 'Desactivar' : 'Activar' ?></a>
-                            <a class="btn-mini btn-mini-peligro" href="?ruta=admin/garantias/eliminar&id=<?= (int) $g['id'] ?>" onclick="return confirm('¿Eliminar esta garantía?')">Eliminar</a>
+                            <?= \Security\Proteccion::botonPost('admin/garantias/estado', ['id' => (int) $g['id']], (int) $g['activo'] ? 'Desactivar' : 'Activar') ?>
+                            <?= \Security\Proteccion::botonPost('admin/garantias/eliminar', ['id' => (int) $g['id']], 'Eliminar', 'btn-mini btn-mini-peligro', '¿Eliminar esta garantía?') ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>

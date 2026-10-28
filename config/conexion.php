@@ -20,7 +20,16 @@ declare(strict_types=1);
  * ADD COLUMN IF NOT EXISTS).
  *
  * Las credenciales ya NO se escriben aquí: se leen desde el archivo `.env`
- * (no versionado). Copia `.env.example` a `.env` y rellena los valores.
+ * (no versionado), que es la fuente principal. Copia `.env.example` a `.env`
+ * y rellena los valores.
+ *
+ * `.ht.env` se admite como respaldo opcional: si existe, solo completa las
+ * claves que no estén definidas en `.env`. Cualquier valor escrito en `.env`
+ * tiene prioridad.
+ *
+ * En este servidor Apache el archivo `.env` tiene una ACL de solo lectura para
+ * el usuario `http` (PHP lo necesita) y una regla en
+ * `/etc/httpd/conf/conf.d/jeremy-tech-env.conf` que impide servirlo por HTTP.
  */
 
 // Raíz absoluta del proyecto (un nivel arriba de config/)
@@ -94,7 +103,10 @@ function cargar_env(string $ruta): void
     }
 }
 
+// `.env` manda. Después se intenta `.ht.env` únicamente para rellenar claves
+// ausentes: `cargar_env()` no sobrescribe variables ya definidas.
 cargar_env(BASE_PATH . '/.env');
+cargar_env(BASE_PATH . '/.ht.env');
 
 /**
  * Valor de una variable de entorno, o $porDefecto si no está definida o
@@ -114,6 +126,45 @@ define('DB_HOST', env('DB_HOST', '127.0.0.1'));
 define('DB_NAME', env('DB_NAME', 'jeremy_tech'));
 define('DB_USER', env('DB_USER', 'root'));
 define('DB_PASS', env('DB_PASS', ''));
+
+// Directorio de los correos simulados. Debe quedar FUERA del DocumentRoot:
+// los `.htaccess` no protegen nada si Apache tiene AllowOverride None.
+// Se configura en `.env` (o en `.ht.env`, si existe, como respaldo); el
+// fallback queda dentro del proyecto para despliegues con DocumentRoot en
+// `public/`.
+$mailStorage = env('MAIL_STORAGE_PATH', BASE_PATH . '/storage/mail');
+if (!str_starts_with($mailStorage, '/')) {
+    $mailStorage = BASE_PATH . '/' . $mailStorage;
+}
+define('MAIL_STORAGE_PATH', rtrim($mailStorage, '/'));
+
+// URL pública absoluta. Se usa en los enlaces de los correos simulados:
+// sin ella, un enlace relativo no funciona al abrir el archivo `.eml`.
+// En producción conviene fijarla en `.env` (p. ej. APP_URL=https://...).
+// Si no está definida, se deduce del host actual y de la ruta del script.
+if (!defined('APP_URL')) {
+    $appUrl = env('APP_URL');
+    if ($appUrl === '') {
+        if (PHP_SAPI === 'cli') {
+            // En CLI no hay host ni ruta pública; se evita construir una URL
+            // con la ruta del script de turno (p. ej. /tmp/...).
+            $appUrl = 'http://localhost';
+        } else {
+            $esquema = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $host = preg_replace('/[^A-Za-z0-9.\-:\[\]]/', '', (string) ($_SERVER['HTTP_HOST'] ?? 'localhost'));
+            if ($host === '') {
+                $host = 'localhost';
+            }
+            $script = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
+            $base = rtrim(dirname($script), '/');
+            if ($base === '/' || $base === '.') {
+                $base = '';
+            }
+            $appUrl = $esquema . '://' . $host . $base;
+        }
+    }
+    define('APP_URL', rtrim($appUrl, '/'));
+}
 
 // Zona horaria de la app. El sistema y MariaDB corren en America/Lima; sin
 // fijarla, PHP queda en UTC y la lógica que compara fechas con `date()`
@@ -139,6 +190,15 @@ spl_autoload_register(function (string $clase): void {
     $prefijo = 'Model\\';
     if (str_starts_with($clase, $prefijo)) {
         $ruta = BASE_PATH . '/src/Model/' . substr($clase, strlen($prefijo)) . '.php';
+        if (is_file($ruta)) {
+            require $ruta;
+        }
+        return;
+    }
+
+    $prefijo = 'Security\\';
+    if (str_starts_with($clase, $prefijo)) {
+        $ruta = BASE_PATH . '/src/Security/' . substr($clase, strlen($prefijo)) . '.php';
         if (is_file($ruta)) {
             require $ruta;
         }
