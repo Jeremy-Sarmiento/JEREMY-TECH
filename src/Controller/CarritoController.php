@@ -141,10 +141,22 @@ class CarritoController
 
         // Destino de entrega (Etapa 5): la zona de la dirección fija el costo.
         $modalidad = (string) ($_POST['modalidad'] ?? 'tienda');
+        // El radio `tipoComprobante` es la fuente; el hidden `comprobante` solo
+        // existe para el ticket del navegador. Se normaliza aquí para que el
+        // pedido guarde lo que el cliente eligió aunque el JS no corra.
+        $comprobante = ($_POST['tipoComprobante'] ?? $_POST['comprobante'] ?? 'boleta') === 'factura'
+            ? 'factura'
+            : 'boleta';
         $pago = [
             'metodo'          => (string) ($_POST['metodo'] ?? ''),
             'modalidad'       => $modalidad,
-            'comprobante'     => (string) ($_POST['comprobante'] ?? 'boleta'),
+            'comprobante'     => $comprobante,
+            'documento'       => $comprobante === 'factura'
+                ? preg_replace('/\D+/', '', (string) ($_POST['ruc'] ?? ''))
+                : preg_replace('/\D+/', '', (string) ($_POST['dni'] ?? '')),
+            'razon_social'    => $comprobante === 'factura'
+                ? mb_substr(trim((string) ($_POST['empresa'] ?? '')), 0, 150)
+                : '',
             'direccion_id'    => (int) ($_POST['direccion_id'] ?? 0),
             'tarifa_envio_id' => $modalidad === 'tienda'
                 ? 0
@@ -156,6 +168,19 @@ class CarritoController
 
         // El JSON del recibo viaja como texto plano para conservar espacios.
         $this->respuestaJson(function () use ($pago): array {
+            // Validación fiscal en el servidor: la factura necesita RUC y
+            // razón social; la boleta, si trae DNI, debe tener 8 dígitos.
+            if ($pago['comprobante'] === 'factura') {
+                if (strlen((string) $pago['documento']) !== 11) {
+                    return ['ok' => false, 'error' => 'El RUC de la factura debe tener 11 dígitos.'];
+                }
+                if ((string) $pago['razon_social'] === '') {
+                    return ['ok' => false, 'error' => 'La razón social es obligatoria para la factura.'];
+                }
+            } elseif ((string) $pago['documento'] !== '' && strlen((string) $pago['documento']) !== 8) {
+                return ['ok' => false, 'error' => 'El DNI de la boleta debe tener 8 dígitos.'];
+            }
+
             // Pago simulado: valida y decide el estado antes de crear el
             // pedido. Si la tarjeta/Yape se rechaza, no se descuenta stock ni
             // se registra una orden que parezca pagada.

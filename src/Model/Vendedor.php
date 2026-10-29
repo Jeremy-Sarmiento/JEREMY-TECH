@@ -7,7 +7,7 @@ namespace Model;
  * Modelo Vendedor (Jeremy Tech) — Etapa 6 (marketplace).
  *
  * No hay tabla propia: un vendedor es una fila de `users` con
- * `rol = 'vendedor'` o `tipo = 'C2C'` (revendedor) y su ficha comercial
+ * `rol = 'vendedor'` y su ficha comercial
  * (`comision_porcentaje`, `verificado`) en las mismas columnas. Coincide
  * con el diseño de la semilla original, cuyas FK de `comisiones`,
  * `pagos_vendedor` y `calificaciones_vendedor` ya apuntan a `users(id)`.
@@ -21,10 +21,10 @@ class Vendedor
     public const ROL = 'vendedor';
 
     /**
-     * Condición SQL de las cuentas que pueden vender: vendedores del panel
-     * y revendedores C2C. Se aplica sobre `users`.
+     * Condición SQL de las cuentas que pueden vender. Se aplica sobre
+     * `users.tipo` no interviene: el rol es la única llave.
      */
-    private const CONDICION_VENDEDOR = "(rol = 'vendedor' OR tipo = 'C2C')";
+    private const CONDICION_VENDEDOR = "rol = 'vendedor'";
 
     /**
      * Fichas de vendedor con sus métricas de venta.
@@ -381,28 +381,49 @@ class Vendedor
      */
     public static function liquidar(int $vendedorId, float $monto, string $metodo, string $referencia): ?string
     {
-        if (self::porId($vendedorId) === null) {
-            return 'Ese vendedor ya no existe.';
-        }
-        if ($monto <= 0) {
-            return 'El monto de la liquidación debe ser mayor a 0.';
-        }
-        if ($metodo === '') {
-            return 'Indica el método de la liquidación.';
-        }
-        // Nunca se paga más de lo acumulado: el saldo se recalcula en vivo.
-        $saldo = self::saldoPendiente($vendedorId);
-        if ($monto > $saldo + 0.009) {
-            return 'El monto supera el saldo pendiente (S/ ' . number_format($saldo, 2) . ').';
-        }
+        $pdo = conexion();
+        $pdo->beginTransaction();
+        try {
+            // Bloquea la fila del vendedor: dos liquidaciones simultáneas
+            // esperan turno y la segunda ya ve el saldo descontado. Sin esto,
+            // ambas leen el mismo saldo y lo pagan dos veces.
+            $lock = $pdo->prepare('SELECT id FROM users WHERE id = ? FOR UPDATE');
+            $lock->execute([$vendedorId]);
+            if (!$lock->fetchColumn()) {
+                $pdo->rollBack();
+                return 'Ese vendedor ya no existe.';
+            }
+            if ($monto <= 0) {
+                $pdo->rollBack();
+                return 'El monto de la liquidación debe ser mayor a 0.';
+            }
+            if ($metodo === '') {
+                $pdo->rollBack();
+                return 'Indica el método de la liquidación.';
+            }
+            // Nunca se paga más de lo acumulado: el saldo se recalcula aquí,
+            // dentro de la transacción.
+            $saldo = self::saldoPendiente($vendedorId);
+            if ($monto > $saldo + 0.009) {
+                $pdo->rollBack();
+                return 'El monto supera el saldo pendiente (S/ ' . number_format($saldo, 2) . ').';
+            }
 
-        $stmt = conexion()->prepare(
-            'INSERT INTO pagos_vendedor (vendedor_id, monto, metodo, referencia)
-             VALUES (?, ?, ?, ?)'
-        );
-        $stmt->execute([$vendedorId, round($monto, 2), $metodo, $referencia]);
+            $stmt = $pdo->prepare(
+                'INSERT INTO pagos_vendedor (vendedor_id, monto, metodo, referencia)
+                 VALUES (?, ?, ?, ?)'
+            );
+            $stmt->execute([$vendedorId, round($monto, 2), $metodo, $referencia]);
+            $pdo->commit();
 
-        return null;
+            return null;
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            error_log('No se pudo registrar la liquidación: ' . $e->getMessage());
+            return 'No se pudo registrar la liquidación.';
+        }
     }
 
     /**

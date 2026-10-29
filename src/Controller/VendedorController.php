@@ -12,8 +12,8 @@ use Security\Proteccion;
 /**
  * Controlador del panel "Mis productos" (Jeremy Tech) — Fase 3.
  *
- * Permite a un usuario con `users.rol = 'vendedor'` o a un cliente con
- * `users.tipo = 'C2C'` publicar, editar, controlar el stock y
+ * Permite a un usuario con `users.rol = 'vendedor'` publicar, editar,
+ * controlar el stock y
  * activar/ocultar sus productos sin entrar al panel de administración.
  * Toda lectura y escritura se acota por el id de la sesión: un vendedor
  * nunca puede tocar publicaciones ajenas.
@@ -56,8 +56,17 @@ class VendedorController
         $flash = self::tomarFlash();
         $rutaVista = 'mis-productos';
 
+        // El panel cambia por completo según el tipo de la cuenta: B2C
+        // (persona), B2B (empresa) y C2C (segunda mano).
+        $tipo = strtoupper((string) ($vendedor['tipo'] ?? 'B2C'));
+        $vistaPanel = match ($tipo) {
+            'B2B' => 'panel_b2b',
+            'C2C' => 'panel_c2c',
+            default => 'panel_b2c',
+        };
+
         require BASE_PATH . '/views/layout/header.php';
-        require BASE_PATH . '/views/mis_productos.php';
+        require BASE_PATH . '/views/vendedor/' . $vistaPanel . '.php';
         require BASE_PATH . '/views/layout/footer.php';
     }
 

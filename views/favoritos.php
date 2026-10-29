@@ -7,7 +7,7 @@ $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'
 ?>
 <main class="cart-page cuenta-page">
  <div class="cart-page-header">
-  <h1>❤️ Mis Favoritos</h1>
+  <h1><svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-heart"/></svg>Mis Favoritos</h1>
   <p>Guarda los productos que te interesan y vuelve a ellos cuando quieras.</p>
  </div>
 
@@ -21,7 +21,7 @@ $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'
 
  <template id="favoritosVacioTpl">
   <div class="orders-empty favoritos-vacio">
-   <div class="empty-icon">💔</div>
+   <div class="empty-icon"><svg class="inline-icon" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-heart"/></svg></div>
    <h4>Aún no tienes favoritos</h4>
    <p>Toca el corazón de un producto para guardarlo aquí y encontrarlo más rápido.</p>
    <a class="btn-auth-gate" href="?ruta=catalogo">Explorar catálogo</a>
@@ -30,7 +30,7 @@ $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'
 
  <?php if (!$productos): ?>
  <div class="orders-empty favoritos-vacio">
-  <div class="empty-icon">💔</div>
+  <div class="empty-icon"><svg class="inline-icon" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-heart"/></svg></div>
   <h4>Aún no tienes favoritos</h4>
   <p>Toca el corazón de un producto para guardarlo aquí y encontrarlo más rápido.</p>
   <a class="btn-auth-gate" href="?ruta=catalogo">Explorar catálogo</a>
@@ -46,9 +46,12 @@ $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'
      $urlFicha = '?ruta=producto&slug=' . urlencode($slug);
      $imagen = trim((string) ($p['imagen'] ?? ''));
      $imagenHTML = $imagen !== ''
-         ? '<img src="' . $e($imagen) . '" alt="' . $e($p['nombre'] ?? 'Producto') . '" loading="lazy">'
-         : '<span class="favorito-imagen-vacia" aria-hidden="true">🖼️</span>';
-     $vendedor = trim((string) ($p['vendedor_nombre'] ?? ''));
+         ? '<img src="' . $e(\Model\Producto::imagenOptimizada($imagen)) . '" alt="' . $e($p['nombre'] ?? 'Producto') . '" loading="lazy">'
+         : '<span class="favorito-imagen-vacia" aria-hidden="true"><svg class="inline-icon" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-bag"/></svg></span>';
+     $vendedor = trim((string) ($p['vendedor_usuario'] ?? ''));
+     if ($vendedor === '') {
+         $vendedor = trim((string) ($p['vendedor_nombre'] ?? ''));
+     }
      $vendedor = $vendedor !== '' ? $vendedor : 'Jeremy Tech';
      $estado = !$activo ? 'No disponible' : ($stock > 0 ? 'Disponible' : 'Agotado');
      $estadoClase = !$activo ? 'no-disponible' : ($stock > 0 ? 'disponible' : 'agotado');

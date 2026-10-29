@@ -56,16 +56,18 @@ final class LimiteIntentos
      * La operación es atómica: un INSERT ... ON DUPLICATE KEY UPDATE evita
      * que dos peticiones simultáneas pierdan la cuenta.
      */
-    public static function registrar(string $ambito, string $clave, string $ip = ''): void
-    {
+    public static function registrar(
+        string $ambito,
+        string $clave,
+        string $ip = '',
+        int $max = self::MAX_INTENTOS,
+        int $ventana = self::VENTANA_SEGUNDOS,
+        int $bloqueo = self::BLOQUEO_SEGUNDOS
+    ): void {
         $clave = self::normalizar($clave);
         if ($clave === '') {
             return;
         }
-
-        $max = self::MAX_INTENTOS;
-        $ventana = self::VENTANA_SEGUNDOS;
-        $bloqueo = self::BLOQUEO_SEGUNDOS;
 
         $sql = 'INSERT INTO intentos_acceso (ambito, clave, ip, intentos, bloqueado_hasta, ultimo_intento)
                 VALUES (?, ?, ?, 1, NULL, NOW())

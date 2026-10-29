@@ -8,7 +8,7 @@
  *   $zonas           tarifas de envío activas (sin recojo en tienda)
  *
  * El registro pide los mismos datos que la Sesión 8: nombre/razón social,
- * apellidos, DNI, teléfono, dirección, correo (usuario), contraseña y
+ * apellidos, DNI, teléfono, dirección, usuario, correo, contraseña y
  * confirmación, tipo de cliente B2C/B2B/C2C, RUC para B2B, plataforma de
  * reventa para C2C y coordenadas opcionales. Además pide la zona de envío
  * (la necesita el checkout) y mantiene la pregunta de seguridad.
@@ -128,7 +128,7 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
     <?php endif; ?>
 
     <details class="auth-map" id="regUbicacion">
-     <summary>📍 Ubicación exacta de entrega (opcional)</summary>
+     <summary>Ubicación exacta de entrega (opcional)</summary>
      <p class="auth-hint">Haz clic en el mapa para marcar el punto exacto. Si no lo marcas, no pasa nada.</p>
      <div id="regMapa" class="auth-map-canvas" role="application" aria-label="Mapa para marcar la ubicación de entrega"></div>
      <div class="auth-map-acciones">
@@ -142,7 +142,15 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
     <p class="auth-section-title">Acceso a tu cuenta</p>
 
     <div class="form-group">
-     <label for="regEmail">Correo electrónico (usuario) *</label>
+     <label for="regUsuario">Nombre de usuario *</label>
+     <input type="text" id="regUsuario" name="usuario" maxlength="30" minlength="3"
+            pattern="[A-Za-z0-9._-]{3,30}" autocomplete="username"
+            placeholder="Ej. juanperez" value="<?= $v('usuario') ?>" required/>
+     <p class="auth-hint">Así te verán en la tienda. Letras, números, punto, guion y guion bajo.</p>
+    </div>
+
+    <div class="form-group">
+     <label for="regEmail">Correo electrónico *</label>
      <input type="email" id="regEmail" name="email" maxlength="190" autocomplete="email"
             placeholder="correo@ejemplo.com" value="<?= $v('email') ?>" required/>
      <p class="auth-hint">Con este correo iniciarás sesión y recibirás los avisos de tus pedidos.</p>
@@ -186,7 +194,7 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
      <input type="text" id="regPlataforma" name="plataforma_reventa" maxlength="120"
             placeholder="Ej. Facebook Marketplace, feria de emprendedores"
             value="<?= $v('plataforma_reventa') ?>"/>
-     <p class="auth-hint">Con una cuenta C2C podrás publicar tus propios productos en el marketplace desde Mi cuenta → Mis productos.</p>
+     <p class="auth-hint">Toda cuenta se crea como cliente. Si quieres vender, solicita el rol de vendedor desde Mi perfil; un administrador lo revisa.</p>
     </div>
 
     <p class="auth-section-title">Recuperación de contraseña</p>
@@ -245,7 +253,7 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
    return;
   }
   const coinciden = clave.value === confirmar.value;
-  aviso.textContent = coinciden ? '✅ Las contraseñas coinciden.' : '⚠️ Las contraseñas no coinciden.';
+  aviso.textContent = coinciden ? 'Las contraseñas coinciden.' : 'Las contraseñas no coinciden.';
   aviso.classList.toggle('auth-hint-ok', coinciden);
   aviso.classList.toggle('auth-hint-error', !coinciden);
  }
@@ -335,7 +343,7 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
   const texto = document.getElementById('regMapaCoords');
   if (latInput) latInput.value = lat.toFixed(7);
   if (lngInput) lngInput.value = lng.toFixed(7);
-  if (texto) texto.textContent = '📍 ' + lat.toFixed(6) + ', ' + lng.toFixed(6);
+  if (texto) texto.textContent = lat.toFixed(6) + ', ' + lng.toFixed(6);
  }
 
  function regMapaQuitar() {

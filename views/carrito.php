@@ -76,13 +76,15 @@ $zonasJson = array_map(static fn (array $z): array => [
   tarifaPreseleccionada: <?= (int) $tarifaPreseleccionada ?>,
   direccionPreseleccionada: <?= (int) $direccionPreseleccionada ?>
  };
+ // `const` no crea propiedad en window: carrito.js comprueba window.JT_CARRO.
+ window.JT_CARRO = JT_CARRO;
 </script>
 
 <main class="cart-page">
 
   <!-- ================= RESUMEN DEL CARRITO ================= -->
   <div class="cart-page-header">
-   <h1>🛒 Tu Carrito de Compras</h1>
+   <h1>Tu Carrito de Compras</h1>
    <p>Revisa tus productos, aplica tu cupón y finaliza tu pedido de forma segura.</p>
   </div>
 
@@ -92,7 +94,7 @@ $zonasJson = array_map(static fn (array $z): array => [
    <div class="cart-page-items">
     <?php if ($estaVacio): ?>
     <div id="cartEmptyState" class="cart-empty-state">
-     <div class="empty-icon">🛒</div>
+     <div class="empty-icon"><svg class="inline-icon" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-cart"/></svg></div>
      <h4>Tu carrito está vacío</h4>
      <p>Explora nuestro catálogo y agrega los mejores dispositivos tecnológicos.</p>
      <a class="btn-explorar" href="?ruta=catalogo">Explorar Productos</a>
@@ -108,7 +110,7 @@ $zonasJson = array_map(static fn (array $z): array => [
          $varianteTexto = trim((string) $linea['varianteNombre']);
      ?>
      <div class="cart-item" data-item="<?= $id ?>" data-cantidad="<?= (int) $linea['cantidad'] ?>">
-      <img src="<?= htmlspecialchars($prod['imagen'], ENT_QUOTES) ?>" alt="<?= htmlspecialchars($prod['nombre'], ENT_QUOTES) ?>"/>
+      <img src="<?= htmlspecialchars(\Model\Producto::imagenOptimizada((string) $prod['imagen']), ENT_QUOTES) ?>" alt="<?= htmlspecialchars($prod['nombre'], ENT_QUOTES) ?>"/>
       <div class="cart-item-info">
        <div class="cart-item-title"><?= htmlspecialchars($prod['nombre'], ENT_QUOTES) ?></div>
        <?php if ($varianteTexto !== ''): ?>
@@ -138,7 +140,7 @@ $zonasJson = array_map(static fn (array $z): array => [
    <!-- Columna derecha: resumen / cupón / envío -->
    <div class="cart-page-summary">
     <div class="cart-panel">
-     <h3>Resumen del Pedido</h3>
+     <h2>Resumen del Pedido</h2>
 
      <div class="cart-coupon-area">
       <div class="cart-coupon-input-wrap">
@@ -153,11 +155,11 @@ $zonasJson = array_map(static fn (array $z): array => [
       <div class="delivery-opts-grid">
        <label class="delivery-opt active" id="delivOptDomicilio" onclick="cambiarOpcionEnvio('domicilio')">
         <input type="radio" name="tipoEnvio" value="domicilio" checked/>
-        <span>🚚 Domicilio</span>
+        <span>Domicilio</span>
        </label>
        <label class="delivery-opt" id="delivOptTienda" onclick="cambiarOpcionEnvio('tienda')">
         <input type="radio" name="tipoEnvio" value="tienda"/>
-        <span>🏬 En Tienda (Gratis)</span>
+        <span>En Tienda (Gratis)</span>
        </label>
       </div>
      </div>
@@ -195,7 +197,7 @@ $zonasJson = array_map(static fn (array $z): array => [
       </button>
        <?php else: ?>
       <a class="btn-checkout-card" href="?ruta=login">
-       🔒 Inicia sesión para comprar
+       <svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-lock"/></svg> Inicia sesión para comprar
       </a>
        <?php endif; ?>
       <?php endif; ?>
@@ -211,7 +213,7 @@ $zonasJson = array_map(static fn (array $z): array => [
   <?php if (!$estaVacio): ?><?php if (\Model\Cuenta::estaRegistrado()): ?>
   <section id="checkout" class="cart-page-section">
    <div class="cart-page-section-head">
-    <h2>🛍️ Finalizar Pedido — Jeremy Tech</h2>
+    <h2>Finalizar Pedido</h2>
     <p>Checkout seguro con múltiples medios de pago</p>
    </div>
 
@@ -259,14 +261,14 @@ $zonasJson = array_map(static fn (array $z): array => [
        <span class="addr-opt-cuerpo">
         <strong><?= htmlspecialchars((string) $d['etiqueta'], ENT_QUOTES) ?></strong>
         <span class="addr-opt-dir"><?= htmlspecialchars((string) $d['direccion'], ENT_QUOTES) ?></span>
-        <span class="addr-opt-zona">🚚 <?= htmlspecialchars((string) ($d['zona'] ?? 'Sin zona'), ENT_QUOTES) ?> — <?= $fmt((float) ($d['costo'] ?? 0)) ?> (<?= htmlspecialchars((string) ($d['dias_estimados'] ?? ''), ENT_QUOTES) ?>)</span>
+        <span class="addr-opt-zona"><?= htmlspecialchars((string) ($d['zona'] ?? 'Sin zona'), ENT_QUOTES) ?> — <?= $fmt((float) ($d['costo'] ?? 0)) ?> (<?= htmlspecialchars((string) ($d['dias_estimados'] ?? ''), ENT_QUOTES) ?>)</span>
        </span>
       </label>
       <?php endforeach; ?>
       <label class="addr-opt<?= $direccionPreseleccionada === 0 ? ' active' : '' ?>">
        <input type="radio" name="direccion_id" value="0" onchange="cambiarDireccionEntrega()"
               <?= $direccionPreseleccionada === 0 ? 'checked' : '' ?>>
-       <span class="addr-opt-cuerpo"><strong>➕ Usar una dirección nueva</strong></span>
+       <span class="addr-opt-cuerpo"><strong>Usar una dirección nueva</strong></span>
       </label>
      </div>
      <?php else: ?>
@@ -297,7 +299,7 @@ $zonasJson = array_map(static fn (array $z): array => [
        <input type="text" id="dirReferenciaNueva" name="nueva_referencia" maxlength="180"
               placeholder="Ej. Frente al parque, puerta verde"/>
       </div>
-      <a class="btn-mini addr-gestionar" href="?ruta=direcciones">📍 Guardar esta dirección en "Mis direcciones"</a>
+      <a class="btn-mini addr-gestionar" href="?ruta=direcciones">Guardar esta dirección en "Mis direcciones"</a>
      </div>
     </div>
 
@@ -306,11 +308,11 @@ $zonasJson = array_map(static fn (array $z): array => [
     <div class="invoice-type-selector">
      <label class="invoice-opt active" id="optBoleta" onclick="cambiarTipoComprobante('boleta')">
       <input type="radio" name="tipoComprobante" value="boleta" checked/>
-      <span>🧾 Boleta de Venta (DNI)</span>
+      <span>Boleta de Venta (DNI)</span>
      </label>
      <label class="invoice-opt" id="optFactura" onclick="cambiarTipoComprobante('factura')">
       <input type="radio" name="tipoComprobante" value="factura"/>
-      <span>📑 Factura Electrónica (RUC)</span>
+      <span>Factura Electrónica (RUC)</span>
      </label>
     </div>
 
@@ -337,22 +339,22 @@ $zonasJson = array_map(static fn (array $z): array => [
     <div class="form-section-title">3. Selecciona tu Método de Pago</div>
     <div class="checkout-method-tabs">
      <button type="button" class="pay-tab-btn active" id="tabTarjeta" onclick="cambiarMetodoPago('tarjeta')">
-      <span class="tab-icon">💳</span>
+      <span class="tab-icon"><svg class="inline-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-card"/></svg></span>
       <span class="tab-title">Tarjeta</span>
       <span class="tab-sub">Débito / Crédito</span>
      </button>
      <button type="button" class="pay-tab-btn" id="tabYape" onclick="cambiarMetodoPago('yape')">
-      <span class="tab-icon">📱</span>
+      <span class="tab-icon"><svg class="inline-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-phone"/></svg></span>
       <span class="tab-title">Yape / Plin</span>
       <span class="tab-sub">Pago QR Móvil</span>
      </button>
      <button type="button" class="pay-tab-btn" id="tabTransf" onclick="cambiarMetodoPago('transferencia')">
-      <span class="tab-icon">🏦</span>
+      <span class="tab-icon"><svg class="inline-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-bank"/></svg></span>
       <span class="tab-title">Transferencia</span>
       <span class="tab-sub">BCP / Interbank</span>
      </button>
      <button type="button" class="pay-tab-btn" id="tabContra" onclick="cambiarMetodoPago('contraentrega')">
-      <span class="tab-icon">💵</span>
+      <span class="tab-icon"><svg class="inline-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-cash"/></svg></span>
       <span class="tab-title">En Tienda</span>
       <span class="tab-sub">Pago al Recibir</span>
      </button>
@@ -380,7 +382,7 @@ $zonasJson = array_map(static fn (array $z): array => [
      </div>
 
      <p class="sim-note">
-      🧪 <strong>Modo demostración:</strong> no se realiza ningún cobro real y los datos de la tarjeta no se guardan.
+      <strong>Modo demostración:</strong> no se realiza ningún cobro real y los datos de la tarjeta no se guardan.
       Tarjeta aprobada: <code>4111 1111 1111 1111</code> · rechazada: <code>4000 0000 0000 0002</code> · vence <code>12/40</code> · CVV <code>123</code>.
      </p>
 
@@ -389,7 +391,7 @@ $zonasJson = array_map(static fn (array $z): array => [
       <div class="input-with-badge">
        <input type="text" id="tarjetaNumero" name="tarjeta_numero" maxlength="19" placeholder="1234 5678 9012 3456"
               inputmode="numeric" autocomplete="cc-number"/>
-       <span class="input-card-icon" id="inputBrandIcon">💳</span>
+       <span class="input-card-icon" id="inputBrandIcon"><svg class="inline-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-card"/></svg></span>
       </div>
      </div>
      <div class="form-group">
@@ -428,7 +430,7 @@ $zonasJson = array_map(static fn (array $z): array => [
         <span>Número de Destino:</span>
         <div class="copy-field">
          <strong>997833866</strong>
-         <button type="button" class="btn-copy-mini" onclick="copiarTexto('997833866', 'Número copiado')" title="Copiar">📋</button>
+         <button type="button" class="btn-copy-mini" onclick="copiarTexto('997833866', 'Número copiado')" title="Copiar">Copiar</button>
         </div>
        </div>
        <div class="qr-info-row">
@@ -442,7 +444,7 @@ $zonasJson = array_map(static fn (array $z): array => [
       </div>
      </div>
      <p class="sim-note">
-      🧪 <strong>Modo demostración:</strong> no se cobra a tu Yape. Usa el código <code>849201</code> para aprobar
+      <strong>Modo demostración:</strong> no se cobra a tu Yape. Usa el código <code>849201</code> para aprobar
       o <code>000000</code> para simular un rechazo.
      </p>
      <div class="form-row" style="margin-top: 15px;">
@@ -465,7 +467,7 @@ $zonasJson = array_map(static fn (array $z): array => [
      <div class="bank-accounts-list">
       <div class="bank-card bcp-card">
        <div class="bank-card-header">
-        <strong>🔵 BCP — Banco de Crédito</strong>
+        <strong>BCP: Banco de Crédito</strong>
         <button type="button" class="btn-copy-mini" onclick="copiarTexto('215-98765432-0-88', 'Cuenta BCP copiada')">Copiar</button>
        </div>
        <div class="bank-card-body">
@@ -475,7 +477,7 @@ $zonasJson = array_map(static fn (array $z): array => [
       </div>
       <div class="bank-card interbank-card">
        <div class="bank-card-header">
-        <strong>🟢 Interbank</strong>
+        <strong>Interbank</strong>
         <button type="button" class="btn-copy-mini" onclick="copiarTexto('898-3001234567', 'Cuenta Interbank copiada')">Copiar</button>
        </div>
        <div class="bank-card-body">
@@ -485,7 +487,7 @@ $zonasJson = array_map(static fn (array $z): array => [
       </div>
       <div class="bank-card bbva-card">
        <div class="bank-card-header">
-        <strong>🔵 BBVA Continental</strong>
+        <strong>BBVA Continental</strong>
         <button type="button" class="btn-copy-mini" onclick="copiarTexto('0011-0234-0200987654', 'Cuenta BBVA copiada')">Copiar</button>
        </div>
        <div class="bank-card-body">
@@ -495,7 +497,7 @@ $zonasJson = array_map(static fn (array $z): array => [
       </div>
      </div>
      <p class="sim-note">
-      🧪 <strong>Modo demostración:</strong> no se consulta al banco. El pedido quedará
+      <strong>Modo demostración:</strong> no se consulta al banco. El pedido quedará
       <strong>Pendiente</strong> y la transferencia <strong>En verificación</strong> hasta que un administrador la confirme.
      </p>
      <div class="form-group" style="margin-top: 15px;">
@@ -508,16 +510,16 @@ $zonasJson = array_map(static fn (array $z): array => [
     <!-- Panel 4: Contra Entrega / En Tienda -->
     <div class="payment-box" id="panelMetodoContra" style="display:none;">
      <div class="store-pickup-box">
-      <div class="pickup-icon">🏬</div>
+      <div class="pickup-icon"><svg class="inline-icon" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-briefcase"/></svg></div>
       <h4>Pago y Retiro en Tienda Física / Contraentrega</h4>
       <p>Paga con efectivo, tarjeta o Yape al momento de recibir tu pedido o al retirarlo en nuestra sede.</p>
       <p class="sim-note">
-       🧪 <strong>Modo demostración:</strong> el pedido quedará <strong>Pendiente</strong> hasta que se entregue y cobre.
+       <strong>Modo demostración:</strong> el pedido quedará <strong>Pendiente</strong> hasta que se entregue y cobre.
       </p>
       <div class="pickup-location-card">
-       <strong>📍 Sede Principal Jeremy Tech:</strong>
+       <strong>Sede Principal Jeremy Tech:</strong>
        <p>La Paz Soldán, frente al salón de eventos "Los Portales", La Joya, Arequipa.</p>
-       <p class="pickup-hours">🕒 Horario de Atención: Lunes a Sábado de 8:30 AM a 8:00 PM</p>
+       <p class="pickup-hours">Horario de Atención: Lunes a Sábado de 8:30 AM a 8:00 PM</p>
       </div>
      </div>
     </div>
@@ -532,14 +534,14 @@ $zonasJson = array_map(static fn (array $z): array => [
     </div>
 
     <div class="security-badges">
-     <span>🔒 Cifrado SSL 256-bit</span>
-     <span>🛡️ Garantía Oficial Jeremy Tech</span>
-     <span>🧪 Pago simulado sin cobro real</span>
-     <span>⚡ Despacho Inmediato</span>
+     <span><svg class="inline-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-lock"/></svg> Cifrado SSL 256-bit</span>
+     <span><svg class="inline-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-shield"/></svg> Garantía Oficial Jeremy Tech</span>
+     <span><svg class="inline-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-flask"/></svg> Pago simulado sin cobro real</span>
+     <span><svg class="inline-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-zap"/></svg> Despacho Inmediato</span>
     </div>
 
     <button type="submit" class="btn-pagar-ahora" id="btnPagarAhora">
-     <span class="btn-text">🔒 Confirmar Pedido y Pagar</span>
+     <span class="btn-text"><svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-lock"/></svg> Confirmar Pedido y Pagar</span>
      <span class="btn-spinner" style="display:none;"></span>
     </button>
    </form>
@@ -547,7 +549,7 @@ $zonasJson = array_map(static fn (array $z): array => [
   <?php else: ?>
   <section class="cart-page-section">
    <div class="auth-gate">
-    <div class="gate-icon">🔒</div>
+    <div class="gate-icon"><svg class="inline-icon" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-lock"/></svg></div>
     <h4>Inicia sesión para completar tu compra</h4>
     <p>El checkout es exclusivo para clientes registrados. Inicia sesión o crea tu cuenta en menos de un minuto y tu pedido quedará asociado a tu cuenta.</p>
     <a class="btn-auth-gate" href="?ruta=login">Iniciar sesión / Crear cuenta</a>
@@ -557,13 +559,16 @@ $zonasJson = array_map(static fn (array $z): array => [
   <?php endif; ?>
 
   <!-- ================= HISTORIAL DE PEDIDOS / SEGUIMIENTO ================= -->
-  <section id="historial" class="cart-page-section">
+  <?php /* Plegado por defecto: sin esto el carrito medía 3.822 px y el
+           checkout quedaba enterrado bajo el historial. */ ?>
+  <details id="historial" class="cart-historial"<?= \Model\Cuenta::estaRegistrado() ? '' : ' open' ?>>
+   <summary class="cart-historial-summary">Mis Pedidos y Seguimiento</summary>
+   <section class="cart-page-section">
    <div class="cart-page-section-head">
-    <h2>📦 Mis Pedidos y Seguimiento</h2>
     <p>
      Historial y estado de tus compras en Jeremy Tech
      <?php if (\Model\Cuenta::estaRegistrado()): ?>
-     · <a href="?ruta=mis-pedidos">Ver todos en Mis pedidos →</a>
+     · <a class="cart-historial-link" href="?ruta=mis-pedidos">Ver todos en Mis pedidos</a>
      <?php endif; ?>
     </p>
    </div>
@@ -571,14 +576,14 @@ $zonasJson = array_map(static fn (array $z): array => [
    <div id="ordersListContainer" class="orders-list-container">
     <?php if (!\Model\Cuenta::estaRegistrado()): ?>
     <div class="auth-gate">
-     <div class="gate-icon">🔒</div>
+     <div class="gate-icon"><svg class="inline-icon" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-lock"/></svg></div>
      <h4>Inicia sesión para ver tus pedidos</h4>
      <p>Tu historial de compras y seguimiento quedará asociado a tu cuenta de cliente.</p>
      <a class="btn-auth-gate" href="?ruta=login">Iniciar sesión / Crear cuenta</a>
     </div>
     <?php elseif (!$historial): ?>
     <div class="orders-empty">
-     <div class="empty-icon">📦</div>
+     <div class="empty-icon"><svg class="inline-icon" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-pedidos"/></svg></div>
      <h4>Aún no tienes pedidos</h4>
      <p>Cuando realices tu primera compra, aparecerá aquí el detalle y el estado del pedido.</p>
     </div>
@@ -590,21 +595,21 @@ $zonasJson = array_map(static fn (array $z): array => [
        <span class="order-status status-<?= strtolower(htmlspecialchars((string) $pedido['estado'], ENT_QUOTES)) ?>"><?= htmlspecialchars((string) $pedido['estado'], ENT_QUOTES) ?></span>
       </div>
       <div class="order-card-meta">
-       <span>📅 <?= htmlspecialchars($fechaFmt((string) ($pedido['creado_en'] ?? '')), ENT_QUOTES) ?></span>
-       <span>💰 <?= $fmt((float) $pedido['total_pen']) ?></span>
-       <span>🚚 <?= htmlspecialchars((string) ($pedido['envio_zona'] ?? 'Recojo en tienda'), ENT_QUOTES) ?> · <?= $fmt((float) ($pedido['envio_costo'] ?? 0)) ?></span>
+       <span><?= htmlspecialchars($fechaFmt((string) ($pedido['creado_en'] ?? '')), ENT_QUOTES) ?></span>
+       <span><?= $fmt((float) $pedido['total_pen']) ?></span>
+       <span><?= htmlspecialchars((string) ($pedido['envio_zona'] ?? 'Recojo en tienda'), ENT_QUOTES) ?> · <?= $fmt((float) ($pedido['envio_costo'] ?? 0)) ?></span>
       </div>
       <?php if (!empty($pedido['pago'])): ?>
       <div class="order-card-meta">
-       <span>💳 <?= htmlspecialchars(ucfirst((string) $pedido['pago']['metodo']), ENT_QUOTES) ?> · <?= htmlspecialchars((string) $pedido['pago']['estado'], ENT_QUOTES) ?></span>
+       <span><?= htmlspecialchars(ucfirst((string) $pedido['pago']['metodo']), ENT_QUOTES) ?> · <?= htmlspecialchars((string) $pedido['pago']['estado'], ENT_QUOTES) ?></span>
        <?php if ((string) ($pedido['pago']['transaccion_id'] ?? '') !== ''): ?>
-       <span>🔖 <?= htmlspecialchars((string) $pedido['pago']['transaccion_id'], ENT_QUOTES) ?></span>
+       <span><?= htmlspecialchars((string) $pedido['pago']['transaccion_id'], ENT_QUOTES) ?></span>
        <?php endif; ?>
       </div>
       <?php endif; ?>
       <?php if ((string) ($pedido['direccion_entrega'] ?? '') !== ''): ?>
       <div class="order-card-meta">
-       <span>📍 <?= htmlspecialchars((string) $pedido['direccion_entrega'], ENT_QUOTES) ?></span>
+       <span><?= htmlspecialchars((string) $pedido['direccion_entrega'], ENT_QUOTES) ?></span>
       </div>
       <?php endif; ?>
 
@@ -632,13 +637,14 @@ $zonasJson = array_map(static fn (array $z): array => [
        <?php endforeach; ?>
       </ul>
       <button class="btn-order-whatsapp" onclick="contactarOrdenWhatsApp(<?= (int) $pedido['id'] ?>)">
-       💬 Consultar por WhatsApp
+       <svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-chat"/></svg> Consultar por WhatsApp
       </button>
      </div>
      <?php endforeach; ?>
     <?php endif; ?>
    </div>
-  </section>
+   </section>
+  </details>
 
 </main>
 
@@ -680,7 +686,7 @@ $zonasJson = array_map(static fn (array $z): array => [
     Enviar Comprobante a WhatsApp
    </button>
    <button class="btn-ver-mis-pedidos" onclick="cerrarModalExito(); abrirHistorialPedidos();">
-    📦 Ver en Mis Pedidos
+    <svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-pedidos"/></svg> Ver en Mis Pedidos
    </button>
    <button class="btn-seguir-comprando" onclick="cerrarModalExito()">Seguir Comprando</button>
   </div>

@@ -7,6 +7,7 @@ use Model\Cuenta;
 use Model\Envio;
 use Model\LimiteIntentos;
 use Model\Recuperacion;
+use Model\SolicitudVendedor;
 
 /**
  * Controlador de cuentas de clientes (Jeremy Tech MVC).
@@ -21,7 +22,7 @@ class CuentaController
     public function ver(): void
     {
         if (Cuenta::estaRegistrado()) {
-            header('Location: ?ruta=carrito#historial');
+            header('Location: ?ruta=perfil');
             exit;
         }
 
@@ -100,6 +101,37 @@ class CuentaController
     }
 
     /**
+     * POST: pide el rol de vendedor. El administrador decide en
+     * `?ruta=admin/solicitudes`; la solicitud no cambia el rol por sí sola.
+     */
+    public function solicitarVendedor(): void
+    {
+        \Security\Proteccion::exigirPost();
+
+        $clienteId = Cuenta::idSesion();
+        if ($clienteId === null) {
+            header('Location: ?ruta=login');
+            exit;
+        }
+
+        $usuario = Cuenta::usuarioActual();
+        if ($usuario !== null && Cuenta::puedePublicar($usuario)) {
+            self::guardarFlashPerfil('Tu cuenta ya tiene el rol de vendedor.', true);
+        } else {
+            $resultado = SolicitudVendedor::crear($clienteId, (string) ($_POST['mensaje'] ?? ''));
+            self::guardarFlashPerfil(
+                $resultado['ok']
+                    ? 'Solicitud enviada. Un administrador la revisará y verás el cambio en tu perfil.'
+                    : (string) ($resultado['error'] ?? 'No se pudo enviar la solicitud.'),
+                !$resultado['ok']
+            );
+        }
+
+        header('Location: ?ruta=perfil');
+        exit;
+    }
+
+    /**
      * POST: crear cuenta nueva (auto-login).
      */
     public function registrar(): void
@@ -108,7 +140,7 @@ class CuentaController
         $error = Cuenta::registrar($_POST);
         if ($error === null) {
             self::limpiarDatosCuenta();
-            header('Location: ?ruta=carrito');
+            header('Location: ' . self::destinoTrasEntrar());
             exit;
         }
 
@@ -131,9 +163,17 @@ class CuentaController
 
         $email    = strtolower(trim((string) ($_POST['email'] ?? '')));
         $password = (string) ($_POST['password'] ?? '');
-        $clave    = $email !== '' ? $email : 'ip:' . LimiteIntentos::ipActual();
+        $ip       = LimiteIntentos::ipActual();
+        $clave    = $email !== '' ? $email : 'ip:' . $ip;
+        // Límite por cuenta (5) y por IP (20): el de la cuenta frena el ataque
+        // a un usuario concreto; el de la IP, el rociado de claves entre
+        // muchas cuentas desde un mismo origen.
+        $claveIp  = 'ip:' . $ip;
 
-        $restante = LimiteIntentos::restante('cliente_login', $clave);
+        $restante = max(
+            LimiteIntentos::restante('cliente_login', $clave),
+            LimiteIntentos::restante('cliente_login', $claveIp)
+        );
         if ($restante > 0) {
             self::guardarFlash(LimiteIntentos::mensajeBloqueo($restante), true);
             header('Location: ?ruta=login');
@@ -142,15 +182,28 @@ class CuentaController
 
         if (Cuenta::iniciarSesion($email, $password)) {
             LimiteIntentos::limpiar('cliente_login', $clave);
+            LimiteIntentos::limpiar('cliente_login', $claveIp);
             self::limpiarDatosCuenta();
-            header('Location: ?ruta=carrito');
+            header('Location: ' . self::destinoTrasEntrar());
             exit;
         }
 
-        LimiteIntentos::registrar('cliente_login', $clave, LimiteIntentos::ipActual());
+        LimiteIntentos::registrar('cliente_login', $clave, $ip);
+        if ($claveIp !== $clave) {
+            LimiteIntentos::registrar('cliente_login', $claveIp, $ip, 20);
+        }
         self::guardarFlash('Correo o contraseña incorrectos', true);
         header('Location: ?ruta=login');
         exit;
+    }
+
+    /**
+     * Con el carrito vacío, mandar al catálogo: aterrizar en "tu carrito está
+     * vacío" justo después de entrar no le sirve a nadie.
+     */
+    private static function destinoTrasEntrar(): string
+    {
+        return \Model\Carrito::totalItems() > 0 ? '?ruta=carrito' : '?ruta=catalogo';
     }
 
     /**
@@ -173,7 +226,7 @@ class CuentaController
     public function recuperarPregunta(): void
     {
         if (Cuenta::estaRegistrado()) {
-            header('Location: ?ruta=carrito');
+            header('Location: ?ruta=catalogo');
             exit;
         }
 
@@ -391,7 +444,7 @@ class CuentaController
 
         $permitidas = [
             'nombre', 'apellidos', 'email', 'telefono', 'direccion',
-            'dni', 'ruc', 'empresa', 'plataforma_reventa', 'tipo',
+            'dni', 'ruc', 'empresa', 'plataforma_reventa',
         ];
         $previo = [];
         foreach ($permitidas as $clave) {
@@ -433,7 +486,7 @@ class CuentaController
         \Security\Proteccion::iniciarSesion();
 
         $permitidas = [
-            'nombre', 'apellidos', 'email', 'telefono', 'dni', 'direccion',
+            'nombre', 'apellidos', 'email', 'usuario', 'telefono', 'dni', 'direccion',
             'latitud', 'longitud', 'tipo_cliente', 'ruc', 'plataforma_reventa',
             'tarifa_envio_id', 'pregunta_secreta',
         ];

@@ -37,10 +37,10 @@
   }
 
   const QUICK_DEFAULT = [
-    { label: '📦 ¿Dónde está mi pedido?', text: '¿Dónde está mi pedido?'  },
-    { label: '🚚 Envíos',                 text: 'Envíos'                   },
-    { label: '💳 Pagos',                  text: 'Métodos de pago'          },
-    { label: '🔄 Devoluciones',           text: 'Devoluciones y garantías' }
+    { label: '¿Dónde está mi pedido?', text: '¿Dónde está mi pedido?'  },
+    { label: 'Envíos',                 text: 'Envíos'                   },
+    { label: 'Pagos',                  text: 'Métodos de pago'          },
+    { label: 'Devoluciones',           text: 'Devoluciones y garantías' }
   ];
 
   let csrfToken    = '';

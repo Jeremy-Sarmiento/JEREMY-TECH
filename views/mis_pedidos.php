@@ -36,7 +36,7 @@ $claseEstado = static function (string $estado): string {
 ?>
 <main class="cart-page cuenta-page mis-pedidos-page">
  <div class="cart-page-header">
-  <h1>📦 Mis Pedidos</h1>
+  <h1><svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-pedidos"/></svg>Mis Pedidos</h1>
   <p>Historial, seguimiento y opiniones de tus compras en Jeremy Tech.</p>
  </div>
 
@@ -57,22 +57,22 @@ $claseEstado = static function (string $estado): string {
  <?php if ($totalPedidos > 0): ?>
  <div class="pedidos-resumen">
   <div class="pedidos-stat">
-   <span class="pedidos-stat-icon" aria-hidden="true">🧾</span>
+   <span class="pedidos-stat-icon" aria-hidden="true"><svg class="inline-icon" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-pedidos"/></svg></span>
    <span class="pedidos-stat-valor"><?= $totalPedidos ?></span>
    <span class="pedidos-stat-etiqueta">Pedido<?= $totalPedidos === 1 ? '' : 's' ?> en total</span>
   </div>
   <div class="pedidos-stat">
-   <span class="pedidos-stat-icon" aria-hidden="true">🚚</span>
+   <span class="pedidos-stat-icon" aria-hidden="true"><svg class="inline-icon" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-truck"/></svg></span>
    <span class="pedidos-stat-valor"><?= (int) ($resumen['enCurso'] ?? 0) ?></span>
    <span class="pedidos-stat-etiqueta">En curso</span>
   </div>
   <div class="pedidos-stat">
-   <span class="pedidos-stat-icon" aria-hidden="true">✅</span>
+   <span class="pedidos-stat-icon" aria-hidden="true"><svg class="inline-icon" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-check"/></svg></span>
    <span class="pedidos-stat-valor"><?= (int) ($resumen['entregados'] ?? 0) ?></span>
    <span class="pedidos-stat-etiqueta">Entregado<?= (int) ($resumen['entregados'] ?? 0) === 1 ? '' : 's' ?></span>
   </div>
   <div class="pedidos-stat">
-   <span class="pedidos-stat-icon" aria-hidden="true">💳</span>
+   <span class="pedidos-stat-icon" aria-hidden="true"><svg class="inline-icon" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-card"/></svg></span>
    <span class="pedidos-stat-valor"><?= $fmt((float) ($resumen['gastado'] ?? 0)) ?></span>
    <span class="pedidos-stat-etiqueta">Gastado (sin cancelados)</span>
   </div>
@@ -99,7 +99,7 @@ $claseEstado = static function (string $estado): string {
 
  <?php if (!$pedidos): ?>
  <div class="orders-empty">
-  <div class="empty-icon"><?= $estadoActual === '' ? '📦' : '🔎' ?></div>
+  <div class="empty-icon"><?= $estadoActual === '' ? '<svg class="inline-icon" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-pedidos"/></svg>' : '<svg class="inline-icon" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-search"/></svg>' ?></div>
   <?php if ($estadoActual === ''): ?>
   <h4>Aún no tienes pedidos</h4>
   <p>Cuando realices tu primera compra, aparecerá aquí el detalle y el seguimiento.</p>
@@ -195,8 +195,8 @@ $claseEstado = static function (string $estado): string {
        <details class="pedido-item-resena"<?= $miResena !== null ? ' open' : '' ?>>
         <summary>
          <?= $miResena !== null
-             ? '✏️ Tu opinión: ' . Resena::estrellas((float) $miResena['calificacion'])
-             : '⭐ Opinar sobre este producto' ?>
+             ? 'Tu opinión: ' . Resena::estrellas((float) $miResena['calificacion'])
+             : 'Opinar sobre este producto' ?>
         </summary>
         <?php
           $resenaProductoId = $productoId;
@@ -239,7 +239,7 @@ $claseEstado = static function (string $estado): string {
     ?>
     <?php if ($puedeResenarPedido && $vendedoresPedido !== []): ?>
     <div class="pedido-vendedores">
-     <h3 class="pedido-vendedores-titulo">🤝 Califica a tus vendedores</h3>
+     <h3 class="pedido-vendedores-titulo"><svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-star"/></svg>Califica a tus vendedores</h3>
      <?php foreach ($vendedoresPedido as $vendedorId => $vendedorNombre): ?>
       <?php
         $miCalificacionVendedor = $calificacionesVendedor[$vendedorId] ?? null;
@@ -251,8 +251,8 @@ $claseEstado = static function (string $estado): string {
       <details class="pedido-vendedor-calificacion"<?= $miCalificacionVendedor !== null ? ' open' : '' ?>>
        <summary>
         <?= $miCalificacionVendedor !== null
-            ? '✏️ Tu calificación de ' . $e($vendedorNombre) . ': ' . Resena::estrellas((float) $miCalificacionVendedor['calificacion'])
-            : '⭐ Calificar a ' . $e($vendedorNombre) ?>
+            ? 'Tu calificación de ' . $e($vendedorNombre) . ': ' . Resena::estrellas((float) $miCalificacionVendedor['calificacion'])
+            : 'Calificar a ' . $e($vendedorNombre) ?>
        </summary>
        <?php require BASE_PATH . '/views/partials/calificacion_vendedor_form.php'; ?>
       </details>
@@ -285,9 +285,9 @@ $claseEstado = static function (string $estado): string {
 
     <div class="pedido-card-acciones">
      <button type="button" class="btn-order-whatsapp" onclick="contactarOrdenWhatsApp(<?= $pedidoId ?>)">
-      💬 Consultar por WhatsApp
+      Consultar por WhatsApp
      </button>
-     <a class="btn-mini" href="?ruta=soporte&amp;pedido=<?= $pedidoId ?>#nuevo">🎧 Necesito ayuda con este pedido</a>
+     <a class="btn-mini" href="?ruta=soporte&amp;pedido=<?= $pedidoId ?>#nuevo">Necesito ayuda con este pedido</a>
      <a class="btn-mini" href="?ruta=carrito#pedido-<?= $pedidoId ?>">Ver en el carrito</a>
     </div>
    </article>

@@ -51,13 +51,13 @@ class Cuenta
     /**
      * ¿La cuenta autenticada puede publicar en el marketplace?
      *
-     * Publican dos perfiles:
-     *   * `rol = 'vendedor'`: vendedores dados de alta desde el panel.
-     *   * `rol = 'cliente'` + `tipo = 'C2C'`: revendedores que se registran
-     *     como C2C y publican su propio catálogo desde "Mis productos".
+     * Solo publican las cuentas con `rol = 'vendedor'`. Toda cuenta nueva
+     * nace como cliente; el rol se concede desde `admin/solicitudes` tras
+     * una solicitud del propio usuario. El `tipo` (B2C/B2B/C2C) no habilita
+     * la venta, solo define qué panel ve el vendedor.
      *
-     * Se consulta en cada petición para que un cambio de rol o de tipo
-     * surta efecto sin reabrir la sesión.
+     * Se consulta en cada petición para que un cambio de rol surta efecto
+     * sin reabrir la sesión.
      *
      * @param array<string, mixed>|null $usuario Fila ya cargada (evita una
      *        consulta extra en el header); null = leer de la sesión.
@@ -69,10 +69,7 @@ class Cuenta
             return false;
         }
 
-        $rol  = (string) ($usuario['rol'] ?? '');
-        $tipo = strtoupper((string) ($usuario['tipo'] ?? ''));
-
-        return $rol === 'vendedor' || ($rol === 'cliente' && $tipo === 'C2C');
+        return (string) ($usuario['rol'] ?? '') === 'vendedor';
     }
 
     /** Alias histórico usado por la navegación y el panel de publicaciones. */
@@ -93,7 +90,7 @@ class Cuenta
         }
 
         $stmt = conexion()->prepare(
-            'SELECT id, name AS nombre, apellidos, email, telefono, direccion, dni, ruc, empresa,
+            'SELECT id, name AS nombre, apellidos, email, usuario, telefono, direccion, dni, ruc, empresa,
                     plataforma_reventa, tipo, rol, verificado
              FROM users WHERE id = ? AND activo = 1 AND deleted_at IS NULL LIMIT 1'
         );
@@ -137,6 +134,7 @@ class Cuenta
         $nombre        = trim((string) ($datos['nombre'] ?? ''));
         $apellidos     = trim((string) ($datos['apellidos'] ?? ''));
         $email         = strtolower(trim((string) ($datos['email'] ?? '')));
+        $usuario       = trim((string) ($datos['usuario'] ?? ''));
         $telefono      = trim((string) ($datos['telefono'] ?? ''));
         $dni           = trim((string) ($datos['dni'] ?? ''));
         $direccion     = trim((string) ($datos['direccion'] ?? ''));
@@ -165,6 +163,22 @@ class Cuenta
         }
         if (self::porEmail($email)) {
             return 'Ya existe una cuenta con ese correo';
+        }
+        if ($usuario === '') {
+            return 'Elige un nombre de usuario';
+        }
+        if (!preg_match('/^[A-Za-z0-9._-]{3,30}$/', $usuario)) {
+            return 'El usuario debe tener entre 3 y 30 caracteres (letras, números, punto, guion o guion bajo)';
+        }
+        if (in_array(strtolower($usuario), ['admin', 'administrador', 'root', 'soporte', 'jeremytech'], true)) {
+            return 'Ese nombre de usuario no está disponible';
+        }
+        // El índice UNIQUE incluye cuentas dadas de baja: se comprueba sin
+        // filtrar `deleted_at` para no chocar con la restricción al insertar.
+        $stmtUsuario = conexion()->prepare('SELECT 1 FROM users WHERE usuario = ? LIMIT 1');
+        $stmtUsuario->execute([$usuario]);
+        if ($stmtUsuario->fetchColumn()) {
+            return 'Ese nombre de usuario ya está en uso';
         }
         if ($telefono === '') {
             return 'Ingresa tu teléfono';
@@ -220,15 +234,16 @@ class Cuenta
         try {
             $stmt = $pdo->prepare(
                 'INSERT INTO users
-                    (name, apellidos, email, telefono, direccion, dni, tipo, empresa,
+                    (name, apellidos, email, usuario, telefono, direccion, dni, tipo, empresa,
                      ruc, plataforma_reventa, password, pregunta_secreta,
                      respuesta_secreta_hash, rol)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
             );
             $stmt->execute([
                 $nombre,
                 $apellidos,
                 $email,
+                $usuario,
                 $telefono,
                 $direccion,
                 $dni,
@@ -260,7 +275,7 @@ class Cuenta
                 $pdo->rollBack();
             }
             if ((string) $e->getCode() === '23000') {
-                return 'Ya existe una cuenta con ese correo';
+                return 'Ya existe una cuenta con ese correo o usuario';
             }
             return 'No se pudo crear la cuenta. Inténtalo de nuevo.';
         }
@@ -294,7 +309,18 @@ class Cuenta
         $ruc        = trim((string) ($datos['ruc'] ?? ''));
         $empresa    = trim((string) ($datos['empresa'] ?? ''));
         $plataforma = trim((string) ($datos['plataforma_reventa'] ?? ''));
-        $tipo       = strtoupper(trim((string) ($datos['tipo'] ?? 'B2C')));
+
+        // El tipo de cuenta solo lo cambia el administrador: se lee de la BD
+        // y se ignora cualquier `tipo` que llegue en el POST.
+        $stmtTipo = conexion()->prepare(
+            'SELECT tipo FROM users WHERE id = ? AND activo = 1 AND deleted_at IS NULL LIMIT 1'
+        );
+        $stmtTipo->execute([$clienteId]);
+        $tipoActual = $stmtTipo->fetchColumn();
+        if ($tipoActual === false) {
+            return 'La sesión no es válida. Vuelve a iniciar sesión.';
+        }
+        $tipoActual = strtoupper((string) $tipoActual);
 
         if ($nombre === '') {
             return 'Ingresa tu nombre o razón social.';
@@ -323,9 +349,6 @@ class Cuenta
         if (mb_strlen($plataforma) > 120) {
             return 'La plataforma de reventa no puede superar los 120 caracteres.';
         }
-        if (!in_array($tipo, ['B2C', 'B2B', 'C2C'], true)) {
-            return 'El tipo de cuenta no es válido.';
-        }
 
         // El correo es el identificador de acceso: debe seguir siendo único,
         // incluso frente a cuentas dadas de baja (el índice UNIQUE no las
@@ -339,12 +362,12 @@ class Cuenta
         $stmt = conexion()->prepare(
             'UPDATE users
                 SET name = ?, apellidos = ?, email = ?, telefono = ?, direccion = ?,
-                    dni = ?, ruc = ?, empresa = ?, plataforma_reventa = ?, tipo = ?
+                    dni = ?, ruc = ?, empresa = ?, plataforma_reventa = ?
               WHERE id = ? AND activo = 1 AND deleted_at IS NULL'
         );
         $stmt->execute([
             $nombre, $apellidos, $email, $telefono, $direccion,
-            $dni, $ruc, $empresa, $tipo === 'C2C' ? $plataforma : '', $tipo, $clienteId,
+            $dni, $ruc, $empresa, $tipoActual === 'C2C' ? $plataforma : '', $clienteId,
         ]);
 
         return null;

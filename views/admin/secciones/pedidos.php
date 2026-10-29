@@ -105,7 +105,15 @@ $puedeReembolsar = static function (array $p): bool {
             <?php foreach ($pedidos as $p): ?>
                 <tr>
                     <td><?= (int) $p['id'] ?></td>
-                    <td><?= $e($p['nombre']) ?> <?= $e($p['apellidos']) ?></td>
+                    <td><?= $e($p['nombre']) ?> <?= $e($p['apellidos']) ?>
+                        <?php if ((string) ($p['comprobante_tipo'] ?? '') !== ''): ?>
+                            <div class="admin-secundario">
+                                <?= ($p['comprobante_tipo'] ?? '') === 'factura' ? 'Factura' : 'Boleta' ?>
+                                <?= (string) ($p['comprobante_documento'] ?? '') !== '' ? ' · ' . $e($p['comprobante_documento']) : '' ?>
+                                <?= (string) ($p['comprobante_razon_social'] ?? '') !== '' ? ' · ' . $e($p['comprobante_razon_social']) : '' ?>
+                            </div>
+                        <?php endif; ?>
+                    </td>
                     <td class="admin-detalle">
                         <?php foreach ($mapa[(int) $p['id']] ?? [] as $d): ?>
                             <div><?= (int) $d['cantidad'] ?>x <?= $e($d['producto_nombre']) ?><?= $d['variante_nombre'] ? ' (' . $e($d['variante_nombre']) . ')' : '' ?></div>
@@ -122,7 +130,7 @@ $puedeReembolsar = static function (array $p): bool {
                         <span class="<?= \Model\Pedido::claseEstado((string) $p['estado']) ?>"><?= $e($p['estado']) ?></span>
                         <?php if ((string) ($p['courier'] ?? '') !== '' || (string) ($p['guia_numero'] ?? '') !== ''): ?>
                             <div class="admin-secundario">
-                                🚚 <?= $e($p['courier'] ?? '') ?><?= (string) ($p['guia_numero'] ?? '') !== '' ? ' · Guía ' . $e($p['guia_numero']) : '' ?>
+                                <?= $e($p['courier'] ?? '') ?><?= (string) ($p['guia_numero'] ?? '') !== '' ? ' · Guía ' . $e($p['guia_numero']) : '' ?>
                             </div>
                         <?php endif; ?>
                         <?php if ((string) ($p['fecha_envio'] ?? '') !== ''): ?>

@@ -63,7 +63,7 @@ $e = static fn (mixed $valor): string => htmlspecialchars((string) $valor, ENT_Q
       <h2 id="footerAyuda">Ayuda</h2>
       <ul>
         <li><a href="?ruta=pagina&amp;p=faq">Preguntas frecuentes</a></li>
-        <li><a href="?ruta=soporte">🎧 Mis tickets de soporte</a></li>
+        <li><a href="?ruta=soporte">Mis tickets de soporte</a></li>
         <li><a href="?ruta=pagina&amp;p=envios">Envíos y devoluciones</a></li>
         <li><a href="?ruta=pagina&amp;p=envios#garantias">Garantías</a></li>
         <li><a href="?ruta=pagina&amp;p=privacidad">Política de privacidad</a></li>
@@ -75,21 +75,21 @@ $e = static fn (mixed $valor): string => htmlspecialchars((string) $valor, ENT_Q
       <h2 id="footerContacto">Contacto</h2>
       <ul>
         <li>
-          <a href="?ruta=pagina&amp;p=contacto">📩 Contacto y soporte</a>
+          <a href="?ruta=pagina&amp;p=contacto">Contacto y soporte</a>
         </li>
         <li>
           <a href="<?= $e($whatsappUrl) ?>" target="_blank" rel="noopener">
-            💬 WhatsApp: <?= $e($telefonoTienda) ?>
+            WhatsApp: <?= $e($telefonoTienda) ?>
           </a>
         </li>
         <li>
-          <a href="mailto:<?= $e($emailTienda) ?>">✉️ <?= $e($emailTienda) ?></a>
+          <a href="mailto:<?= $e($emailTienda) ?>"><?= $e($emailTienda) ?></a>
         </li>
         <li>
-          <a href="tel:<?= $e($telefonoTel) ?>">📞 <?= $e($telefonoTienda) ?></a>
+          <a href="tel:<?= $e($telefonoTel) ?>"><?= $e($telefonoTienda) ?></a>
         </li>
-        <li>📍 <?= $e($direccionTienda) ?></li>
-        <li>🕐 Lun–Sáb: 9:00 – 19:00</li>
+        <li><?= $e($direccionTienda) ?></li>
+        <li>Lun–Sáb: 9:00 – 19:00</li>
       </ul>
     </div>
   </div>

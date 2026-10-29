@@ -30,7 +30,7 @@ final class AdminController
         // Las acciones que modifican datos solo se aceptan por POST. El
         // token CSRF se valida de forma central en public/index.php.
         if ($subRuta === 'cerrar'
-            || preg_match('#/(guardar|eliminar|estado|liquidar|autenticar|reembolsar|ajustar|responder|ocultar|mostrar)$#', $subRuta) === 1
+            || preg_match('#/(guardar|eliminar|estado|liquidar|autenticar|reembolsar|ajustar|responder|ocultar|mostrar|aprobar|rechazar)$#', $subRuta) === 1
         ) {
             \Security\Proteccion::exigirPost();
         }
@@ -98,7 +98,8 @@ final class AdminController
             'categorias' => 'admin/categorias', 'marcas' => 'admin/marcas',
             'garantias' => 'admin/garantias', 'cupones' => 'admin/cupones',
             'envios' => 'admin/envios', 'pedidos' => 'admin/pedidos',
-            'usuarios' => 'admin/usuarios', 'configuracion' => 'admin/configuracion',
+            'usuarios' => 'admin/usuarios', 'solicitudes' => 'admin/solicitudes',
+            'configuracion' => 'admin/configuracion',
             'auditoria' => 'admin/auditoria', 'vendedores' => 'admin/vendedores',
             'ventas' => 'admin/ventas', 'comisiones' => 'admin/comisiones',
             'inventario' => 'admin/inventario', 'notificaciones' => 'admin/notificaciones',
@@ -128,9 +129,15 @@ final class AdminController
         if ($subRuta === 'login/autenticar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $usuario = trim((string) ($_POST['usuario'] ?? ''));
             $clave   = (string) ($_POST['clave'] ?? '');
-            $llave   = $usuario !== '' ? mb_strtolower($usuario) : 'ip:' . LimiteIntentos::ipActual();
+            $ip      = LimiteIntentos::ipActual();
+            $llave   = $usuario !== '' ? mb_strtolower($usuario) : 'ip:' . $ip;
+            // Igual que en el login de clientes: límite por cuenta y por IP.
+            $llaveIp = 'ip:' . $ip;
 
-            $restante = LimiteIntentos::restante('admin_login', $llave);
+            $restante = max(
+                LimiteIntentos::restante('admin_login', $llave),
+                LimiteIntentos::restante('admin_login', $llaveIp)
+            );
             if ($restante > 0) {
                 $this->flash(LimiteIntentos::mensajeBloqueo($restante), true);
                 header('Location: ?ruta=admin/login');
@@ -139,6 +146,7 @@ final class AdminController
 
             if (Admin::iniciarSesion($usuario, $clave)) {
                 LimiteIntentos::limpiar('admin_login', $llave);
+                LimiteIntentos::limpiar('admin_login', $llaveIp);
                 $admin = Admin::usuarioActual();
                 Admin::auditar(
                     (string) ($admin['usuario'] ?? $usuario),
@@ -150,7 +158,10 @@ final class AdminController
                 exit;
             }
 
-            LimiteIntentos::registrar('admin_login', $llave, LimiteIntentos::ipActual());
+            LimiteIntentos::registrar('admin_login', $llave, $ip);
+            if ($llaveIp !== $llave) {
+                LimiteIntentos::registrar('admin_login', $llaveIp, $ip, 20);
+            }
             $this->flash('Usuario o contraseña incorrectos (o cuenta inactiva).', true);
             header('Location: ?ruta=admin/login');
             exit;
@@ -390,7 +401,7 @@ final class AdminController
             'cupones'    => (int) $pdo->query('SELECT COUNT(*) FROM cupones')->fetchColumn(),
             'auditoria'  => (int) $pdo->query('SELECT COUNT(*) FROM auditoria_admin')->fetchColumn(),
             'vendedores' => (int) $pdo->query(
-                "SELECT COUNT(*) FROM users WHERE (rol = 'vendedor' OR tipo = 'C2C') AND deleted_at IS NULL"
+                "SELECT COUNT(*) FROM users WHERE rol = 'vendedor' AND deleted_at IS NULL"
             )->fetchColumn(),
             'comisiones' => (float) $pdo->query('SELECT IFNULL(SUM(monto_comision), 0) FROM comisiones')->fetchColumn(),
         ];
@@ -799,6 +810,13 @@ final class AdminController
                 exit;
             }
 
+            if (!in_array($tipo, ['porcentaje', 'fijo'], true) || $valor <= 0
+                || ($tipo === 'porcentaje' && $valor > 100)) {
+                $this->flash('El valor del cupón debe ser mayor que 0 y, si es porcentaje, como máximo 100.', true);
+                header('Location: ?ruta=admin/cupones');
+                exit;
+            }
+
             if ($id > 0) {
                 $pdo->prepare(
                     'UPDATE cupones SET codigo = ?, tipo = ?, valor = ?, fecha_inicio = ?, fecha_fin = ?, usos_maximos = ?, activo = ? WHERE id = ?'
@@ -1062,6 +1080,20 @@ final class AdminController
             $courier = trim((string) ($_POST['courier'] ?? ''));
             $guia    = trim((string) ($_POST['guia_numero'] ?? ''));
 
+            // Un vendedor solo puede mover pedidos que llevan sus líneas: el
+            // listado ya viene acotado, pero el POST no.
+            if ($id > 0 && Admin::esVendedor()) {
+                $qPermiso = $pdo->prepare(
+                    'SELECT 1 FROM detalle_pedido WHERE pedido_id = ? AND vendedor_id = ? LIMIT 1'
+                );
+                $qPermiso->execute([$id, (int) Admin::idSesion()]);
+                if (!$qPermiso->fetchColumn()) {
+                    $this->flash('No tienes permiso sobre ese pedido.', true);
+                    header('Location: ?ruta=admin/pedidos');
+                    exit;
+                }
+            }
+
             $qPedido = $pdo->prepare('SELECT estado, envio_zona FROM pedidos WHERE id = ?');
             $qPedido->execute([$id]);
             $filaPedido = $qPedido->fetch();
@@ -1120,15 +1152,23 @@ final class AdminController
 
             $pdo->beginTransaction();
             try {
+                // La condición sobre `estado` repite el estado leído: dos
+                // peticiones simultáneas no pueden aplicar la misma transición
+                // dos veces (doble devolución de stock, doble evento).
                 if ($estado === 'Enviado') {
-                    $pdo->prepare(
+                    $cambio = $pdo->prepare(
                         'UPDATE pedidos
                             SET estado = ?, courier = ?, guia_numero = ?,
                                 fecha_envio = COALESCE(fecha_envio, NOW())
-                          WHERE id = ?'
-                    )->execute([$estado, $courier, $guia, $id]);
+                          WHERE id = ? AND estado = ?'
+                    );
+                    $cambio->execute([$estado, $courier, $guia, $id, $actual]);
                 } else {
-                    $pdo->prepare('UPDATE pedidos SET estado = ? WHERE id = ?')->execute([$estado, $id]);
+                    $cambio = $pdo->prepare('UPDATE pedidos SET estado = ? WHERE id = ? AND estado = ?');
+                    $cambio->execute([$estado, $id, $actual]);
+                }
+                if ($cambio->rowCount() === 0) {
+                    throw new \RuntimeException('El pedido cambió de estado mientras se procesaba la solicitud.');
                 }
 
                 // Si el administrador confirma un pedido pendiente (por ejemplo
@@ -1144,6 +1184,18 @@ final class AdminController
                 // registra como movimiento de entrada. `devolver()` es
                 // idempotente: un doble clic no duplica stock.
                 if ($estado === 'Cancelado') {
+                    // Cancelar no devuelve dinero: si el pago está confirmado,
+                    // el camino correcto es Reembolsar (deja el pago en
+                    // "Reembolsado" y devuelve el stock en la misma transacción).
+                    $qPago = $pdo->prepare(
+                        'SELECT estado FROM pagos WHERE pedido_id = ? ORDER BY id DESC LIMIT 1'
+                    );
+                    $qPago->execute([$id]);
+                    if ((string) $qPago->fetchColumn() === 'Pagado') {
+                        throw new \RuntimeException(
+                            'El pedido tiene un pago confirmado: usa Reembolsar para devolver el dinero.'
+                        );
+                    }
                     \Model\Inventario::devolver($pdo, $id);
                 }
 
@@ -1640,6 +1692,49 @@ final class AdminController
     //  Soporte postventa
     // ------------------------------------------------------------ //
 
+    // ------------------------------------------------------------ //
+    //  Solicitudes de rol de vendedor
+    // ------------------------------------------------------------ //
+
+    private function solicitudes(string $subRuta): void
+    {
+        $admin   = Admin::usuarioActual();
+        $usuario = (string) ($admin['usuario'] ?? 'admin');
+
+        if ($subRuta === 'solicitudes/aprobar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id    = (int) ($_POST['id'] ?? 0);
+            $error = \Model\SolicitudVendedor::aprobar($id, $usuario);
+
+            if ($error !== null) {
+                $this->flash($error, true);
+            } else {
+                $this->auditar($admin, 'solicitudes/aprobar', $id, 'Aprobó la solicitud de vendedor #' . $id);
+                $this->flash('Solicitud aprobada: la cuenta ya puede publicar y conserva todos sus datos.');
+            }
+
+            header('Location: ?ruta=admin/solicitudes');
+            exit;
+        }
+
+        if ($subRuta === 'solicitudes/rechazar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id     = (int) ($_POST['id'] ?? 0);
+            $motivo = (string) ($_POST['motivo'] ?? '');
+            $error  = \Model\SolicitudVendedor::rechazar($id, $usuario, $motivo);
+
+            if ($error !== null) {
+                $this->flash($error, true);
+            } else {
+                $this->auditar($admin, 'solicitudes/rechazar', $id, 'Rechazó la solicitud de vendedor #' . $id);
+                $this->flash('Solicitud rechazada. El usuario verá el motivo en su perfil.');
+            }
+
+            header('Location: ?ruta=admin/solicitudes');
+            exit;
+        }
+
+        $this->vista('solicitudes', []);
+    }
+
     private function soporte(string $subRuta): void
     {
         $admin = Admin::usuarioActual();
@@ -1876,6 +1971,11 @@ final class AdminController
             }
             // Una variante que no se puede comprar no debe aparecer en la ficha.
             $stock = max(0, $stock);
+            if ($color !== '' && !preg_match('/^#[0-9A-Fa-f]{3}(?:[0-9A-Fa-f]{3})?$/', $color)) {
+                $this->flash('El color debe ser hexadecimal, por ejemplo #00D4FF.', true);
+                header('Location: ' . $volver);
+                exit;
+            }
 
             try {
                 if ($id > 0) {

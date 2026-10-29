@@ -51,7 +51,8 @@
   padding: 20px;
 }
 
-.cart-panel h3 {
+/* El título del panel pasó de h3 a h2 por jerarquía; conserva su tamaño. */
+.cart-panel h2 {
   color: var(--accent, #00d4ff);
   margin-bottom: 14px;
   font-size: 1.1rem;
@@ -80,7 +81,8 @@
 
 .cart-page-section-head h2 {
   color: var(--accent, #00d4ff);
-  margin-bottom: 4px;
+  /* 4px dejaba el párrafo pegado a los descendentes del título. */
+  margin-bottom: 10px;
 }
 
 .cart-page-section-head p {
@@ -254,7 +256,7 @@
 }
 
 .timeline-date {
-  color: #6f7f90;
+  color: #8a99a8;
   font-size: 0.7rem;
 }
 
@@ -265,7 +267,7 @@
 .timeline-step.pending .timeline-label,
 .timeline-step.pending .timeline-detail,
 .timeline-step.pending .timeline-date {
-  color: #6f7f90;
+  color: #8a99a8;
 }
 
 .timeline-step.current .timeline-label {
@@ -561,4 +563,61 @@
     flex-wrap: wrap;
     gap: 8px;
   }
+}
+
+/* Enlace del historial: sin esto hereda el azul por defecto del navegador. */
+.cart-historial-link {
+  color: #00D4FF;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.cart-historial-link:hover {
+  text-decoration: underline;
+}
+
+/* Historial plegable del carrito (ver views/carrito.php). */
+.cart-historial {
+  margin-top: 32px;
+}
+
+.cart-historial-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 14px 18px;
+  background: var(--panel, #151a21);
+  border: 1px solid var(--border, #262c36);
+  border-radius: 16px;
+  color: var(--accent, #00d4ff);
+  font-size: 1.35rem;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.cart-historial-summary::-webkit-details-marker {
+  display: none;
+}
+
+.cart-historial-summary::after {
+  content: "▾";
+  margin-left: auto;
+  transition: transform 0.2s ease;
+}
+
+.cart-historial[open] .cart-historial-summary::after {
+  transform: rotate(180deg);
+}
+
+.cart-historial[open] .cart-historial-summary {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.cart-historial[open] .cart-page-section {
+  margin-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }

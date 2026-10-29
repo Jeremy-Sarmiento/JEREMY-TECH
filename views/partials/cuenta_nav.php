@@ -5,18 +5,17 @@
  */
 $rutaCuentaActual = $rutaVista ?? '';
 $enlacesCuenta = [
-    'perfil' => ['👤 Mi perfil', '?ruta=perfil'],
-    'mis-pedidos' => ['📦 Mis pedidos', '?ruta=mis-pedidos'],
-    'soporte' => ['🎧 Soporte', '?ruta=soporte'],
-    'favoritos' => ['❤️ Mis favoritos', '?ruta=favoritos'],
-    'notificaciones' => ['📨 Notificaciones', '?ruta=notificaciones'],
+    'perfil' => ['<svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-user"/></svg>Mi perfil', '?ruta=perfil'],
+    'mis-pedidos' => ['<svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-pedidos"/></svg>Mis pedidos', '?ruta=mis-pedidos'],
+    'soporte' => ['<svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-chat"/></svg>Soporte', '?ruta=soporte'],
+    'favoritos' => ['<svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-heart"/></svg>Mis favoritos', '?ruta=favoritos'],
+    'notificaciones' => ['<svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-bell"/></svg>Notificaciones', '?ruta=notificaciones'],
 ];
 
-// (Fase 3) El panel de publicaciones está disponible para vendedores y
-// para los clientes con tipo C2C.
+// El panel de publicaciones solo existe para cuentas con rol de vendedor.
 if (\Model\Cuenta::esVendedor()) {
     $enlacesCuenta = array_slice($enlacesCuenta, 0, 2, true)
-        + ['mis-productos' => ['🏪 Mis productos', '?ruta=mis-productos']]
+        + ['mis-productos' => ['<svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-bag"/></svg>Mis productos', '?ruta=mis-productos']]
         + array_slice($enlacesCuenta, 2, null, true);
 }
 ?>
@@ -27,5 +26,5 @@ if (\Model\Cuenta::esVendedor()) {
      href="<?= $url ?>"
      <?= $activo ? 'aria-current="page"' : '' ?>><?= $texto ?></a>
  <?php endforeach; ?>
- <a class="cuenta-nav-link" href="?ruta=direcciones">📍 Direcciones</a>
+ <a class="cuenta-nav-link" href="?ruta=direcciones"><svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-pin"/></svg>Direcciones</a>
 </nav>

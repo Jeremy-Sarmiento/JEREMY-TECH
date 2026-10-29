@@ -20,7 +20,7 @@ $imagenActual = trim($valor('imagen')) !== '' ? $valor('imagen') : $imagenPredet
 <main class="cart-page cuenta-page mis-productos-page mis-productos-form-page">
  <div class="cart-page-header pv-form-header">
   <div>
-   <h1><?= $esEdicion ? '✏️ Editar publicación' : '＋ Publicar producto' ?></h1>
+   <h1><?= $esEdicion ? 'Editar publicación' : '＋ Publicar producto' ?></h1>
    <p><?= $esEdicion
        ? 'Actualiza los datos, el stock o la visibilidad de tu publicación.'
        : 'Completa la ficha para que tu producto aparezca en el catálogo.' ?></p>
@@ -203,7 +203,7 @@ $imagenActual = trim($valor('imagen')) !== '' ? $valor('imagen') : $imagenPredet
  <section class="pv-panel pv-variantes" id="variantes" aria-labelledby="pv-variantes-titulo">
   <div class="pv-panel-cabecera">
    <div>
-    <h2 class="pv-panel-titulo" id="pv-variantes-titulo">🧩 Variantes</h2>
+    <h2 class="pv-panel-titulo" id="pv-variantes-titulo">Variantes</h2>
     <p class="pv-panel-nota">
      Cada variante es un SKU con su propio precio extra y stock. La ficha limita
      la compra al menor entre el stock del producto y el de la variante.
@@ -251,7 +251,7 @@ $imagenActual = trim($valor('imagen')) !== '' ? $valor('imagen') : $imagenPredet
        <td>
         <div class="pv-variante-acciones">
          <details class="pv-variante-editar">
-          <summary class="btn-mini">✏️ Editar</summary>
+          <summary class="btn-mini">Editar</summary>
           <form method="post" action="?ruta=mis-productos/variantes/guardar" class="pv-variante-form">
            <?= \Security\Proteccion::campo() ?>
            <input type="hidden" name="slug" value="<?= $e($slugEditar) ?>"/>
@@ -289,12 +289,12 @@ $imagenActual = trim($valor('imagen')) !== '' ? $valor('imagen') : $imagenPredet
          <?= \Security\Proteccion::botonPost(
              'mis-productos/variantes/estado',
              ['slug' => $slugEditar, 'id' => $vid],
-             $vActiva ? '🙈 Ocultar' : '✅ Activar'
+             $vActiva ? 'Ocultar' : 'Activar'
          ) ?>
          <?= \Security\Proteccion::botonPost(
              'mis-productos/variantes/eliminar',
              ['slug' => $slugEditar, 'id' => $vid],
-             '🗑️ Eliminar',
+             'Eliminar',
              'btn-mini btn-mini-peligro',
              '¿Eliminar esta variante? Las ventas pasadas conservan su nombre y precio.'
          ) ?>

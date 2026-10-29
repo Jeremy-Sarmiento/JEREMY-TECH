@@ -15,7 +15,7 @@ $zonaIdEditando = $editando !== null && $editando['tarifa_envio_id'] !== null
 <main class="cart-page">
 
  <div class="cart-page-header">
-  <h1>📍 Mis Direcciones de Envío</h1>
+  <h1><svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-pin"/></svg>Mis Direcciones de Envío</h1>
   <p>Guarda tus direcciones y asígnales una zona: la zona es lo que define el costo y los días de entrega de tu pedido.</p>
  </div>
 
@@ -32,7 +32,7 @@ $zonaIdEditando = $editando !== null && $editando['tarifa_envio_id'] !== null
 
   <?php if (!$direcciones): ?>
   <div class="orders-empty">
-   <div class="empty-icon">🏠</div>
+   <div class="empty-icon"><svg class="inline-icon" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-pin"/></svg></div>
    <h4>Aún no tienes direcciones</h4>
    <p>Agrega tu primera dirección más abajo para poder pedir envío a domicilio.</p>
   </div>
@@ -51,7 +51,7 @@ $zonaIdEditando = $editando !== null && $editando['tarifa_envio_id'] !== null
     <p class="addr-referencia">Ref. <?= $e($d['referencia']) ?></p>
     <?php endif; ?>
     <p class="addr-zona">
-     🚚 <?= $e($d['zona'] ?? 'Sin zona asignada') ?>
+     <?= $e($d['zona'] ?? 'Sin zona asignada') ?>
      <?php if ($d['zona'] !== null): ?>
       — <?= $fmt((float) $d['costo']) ?> (<?= $e($d['dias_estimados'] ?? '') ?>)
      <?php endif; ?>
@@ -78,7 +78,7 @@ $zonaIdEditando = $editando !== null && $editando['tarifa_envio_id'] !== null
 
   <?php if (!$zonas): ?>
   <div class="orders-empty">
-   <div class="empty-icon">⚠️</div>
+   <div class="empty-icon"><svg class="inline-icon" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-bell"/></svg></div>
    <h4>No hay zonas de envío disponibles</h4>
    <p>Pregunta al administrador de la tienda: sin zonas activas no se pueden crear direcciones ni pedir envío a domicilio.</p>
   </div>

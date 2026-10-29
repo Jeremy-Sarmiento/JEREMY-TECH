@@ -116,7 +116,8 @@ final class Favorito
         $stmt = conexion()->prepare(
             'SELECT p.id, p.slug, p.nombre, p.categoria, p.precio_pen, p.imagen,
                     p.stock, p.activo, p.vendedor_id,
-                    v.name AS vendedor_nombre, v.verificado AS vendedor_verificado,
+                    v.name AS vendedor_nombre, v.usuario AS vendedor_usuario,
+                    v.verificado AS vendedor_verificado,
                     f.creado_en AS guardado_en
                FROM favoritos f
                JOIN productos p ON p.id = f.producto_id

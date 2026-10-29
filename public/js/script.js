@@ -332,6 +332,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     items.forEach((item, index) => {
       item.classList.toggle('active', index === newIndex);
+      // La variante visible es la única que debe recibir foco por Tab.
+      item.toggleAttribute('inert', index !== newIndex);
     });
 
     infoItems.forEach((info, index) => {
@@ -514,7 +516,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!searchSuggest) return;
     searchSuggest.hidden = true;
     searchSuggest.innerHTML = '';
-    if (busquedaInput) busquedaInput.setAttribute('aria-expanded', 'false');
   }
 
   /**
@@ -552,7 +553,6 @@ document.addEventListener('DOMContentLoaded', () => {
         + escaparHtml(consulta) + '"</div>';
       posicionarSugerencias();
       searchSuggest.hidden = false;
-      if (busquedaInput) busquedaInput.setAttribute('aria-expanded', 'true');
       return;
     }
 
@@ -581,7 +581,6 @@ document.addEventListener('DOMContentLoaded', () => {
       + '<a class="search-suggest-all" href="' + verTodos + '">Ver todos los resultados</a>';
     posicionarSugerencias();
     searchSuggest.hidden = false;
-    if (busquedaInput) busquedaInput.setAttribute('aria-expanded', 'true');
   }
 
   /**

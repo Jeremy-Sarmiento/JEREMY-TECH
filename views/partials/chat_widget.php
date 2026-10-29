@@ -46,7 +46,7 @@ $enlacesDe = static function (array $item): array {
           aria-label="Abrir chat de ayuda"
           aria-controls="chatbot-panel"
           aria-expanded="false">
-    <span class="chatbot-icon" aria-hidden="true">💬</span>
+    <span class="chatbot-icon" aria-hidden="true"><svg class="inline-icon" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-chat"/></svg></span>
     <span class="chatbot-pulse" aria-hidden="true"></span>
   </button>
 
@@ -58,7 +58,7 @@ $enlacesDe = static function (array $item): array {
 
     <!-- Cabecera -->
     <div class="chatbot-header">
-      <div class="chatbot-avatar" aria-hidden="true">⚡</div>
+      <div class="chatbot-avatar" aria-hidden="true"><svg class="inline-icon" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-zap"/></svg></div>
       <div class="chatbot-header-text">
         <strong>Jeremy-Bot</strong>
         <small><span class="chatbot-dot" aria-hidden="true"></span> En línea · responde al instante</small>
@@ -73,7 +73,7 @@ $enlacesDe = static function (array $item): array {
     <div class="chatbot-messages" id="chatbot-messages" aria-live="polite">
       <?php if ($chatHistory === []): ?>
         <div class="chatbot-bubble bot">
-          ¡Hola! 👋 Soy <strong>Jeremy-Bot</strong>, el asistente de Jeremy-Tech.<br>
+          ¡Hola! Soy <strong>Jeremy-Bot</strong>, el asistente de Jeremy-Tech.<br>
           Puedo ayudarte con tus pedidos, productos, envíos y más. ¿Qué necesitas?
         </div>
       <?php else: ?>
@@ -116,7 +116,7 @@ $enlacesDe = static function (array $item): array {
     </form>
 
     <!-- Pie -->
-    <small class="chatbot-footer">🔒 Chat seguro · Jeremy-Tech</small>
+    <small class="chatbot-footer">Chat seguro · Jeremy-Tech</small>
 
   </div>
 </div>

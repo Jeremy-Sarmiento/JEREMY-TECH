@@ -7,6 +7,7 @@ use Model\Analitica;
 use Model\ChatbotFaq;
 use Model\Cuenta;
 use Model\Envio;
+use Model\LimiteIntentos;
 use Model\Pedido;
 use Model\Producto;
 
@@ -37,6 +38,17 @@ class ChatController
     public function message(): void
     {
         \Security\Proteccion::exigirPost();
+
+        // Cada mensaje puede acabar en una llamada de pago a la IA: 30 por
+        // minuto y por IP evitan que un script agote la cuota.
+        $llaveChat = 'ip:' . LimiteIntentos::ipActual();
+        $restanteChat = LimiteIntentos::restante('chat', $llaveChat);
+        if ($restanteChat > 0) {
+            $this->json([
+                'reply' => 'Demasiadas consultas seguidas. Espera un momento y vuelve a intentarlo.',
+            ], 429);
+        }
+        LimiteIntentos::registrar('chat', $llaveChat, LimiteIntentos::ipActual(), 30, 60, 60);
 
         $entrada = $_POST['message'] ?? '';
         $texto = is_string($entrada) ? trim($entrada) : '';

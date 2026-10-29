@@ -72,48 +72,76 @@
   min-width: 0;
 }
 
-.perfil-form .form-group select,
-.perfil-select {
-  width: 100%;
-  padding: 10px 14px;
-  background: #1a273c;
-  border: 1px solid rgba(0, 212, 255, 0.2);
-  border-radius: 10px;
-  color: #fff;
-  font-family: 'Poppins', sans-serif;
-  font-size: 0.88rem;
-  outline: none;
-  cursor: pointer;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+.perfil-etiqueta {
+  display: block;
+  margin-bottom: 5px;
+  color: #b0b8c4;
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
-.perfil-form .form-group select:focus,
-.perfil-select:focus {
-  border-color: #00d4ff;
-  box-shadow: 0 0 12px rgba(0, 212, 255, 0.3);
-  background: #20314a;
+.perfil-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.perfil-head > div {
+  min-width: 0;
+}
+
+/* El botón Editar solo aparece en modo lectura; sin JS el formulario ya es
+   editable, así que el botón sobra. El modo se marca en la tarjeta porque el
+   botón vive en la cabecera, fuera del formulario. */
+.perfil-card .perfil-editar-btn {
+  display: none;
+  flex-shrink: 0;
+}
+
+.perfil-card[data-modo='lectura'] .perfil-editar-btn {
+  display: inline-flex;
+}
+
+.perfil-card[data-modo='lectura'] [data-perfil-editar] {
+  display: none;
+}
+
+/* En lectura los datos se ven como texto: sin caja ni borde de campo. */
+.perfil-card[data-modo='lectura'] .form-group input {
+  background: transparent;
+  border-color: transparent;
+  padding-left: 0;
+  color: #fff;
+  cursor: default;
+  transition: none;
+}
+
+.perfil-card[data-modo='lectura'] .form-group input:disabled {
+  opacity: 1;
+  -webkit-text-fill-color: #fff;
+}
+
+/* El tipo de cuenta solo lo cambia el administrador: se muestra, no se edita. */
+.perfil-tipo-fijo {
+  margin: 0;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(0, 212, 255, 0.25);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.88rem;
 }
 
 /* Los datos de empresa solo aplican a B2B y la plataforma de reventa a C2C.
-   Sin JS, el formulario ya viene marcado con data-tipo desde el servidor. */
+   El tipo no se puede cambiar en el perfil, así que basta con el data-tipo
+   que renderiza el servidor. */
 .perfil-form[data-tipo='B2C'] [data-b2b],
 .perfil-form[data-tipo='B2C'] [data-c2c],
 .perfil-form[data-tipo='B2B'] [data-c2c],
 .perfil-form[data-tipo='C2C'] [data-b2b] {
   display: none;
-}
-
-/* Sin JavaScript, el usuario debe poder cambiar de tipo: se muestran ambos
-   bloques aunque el tipo guardado sea otro. */
-@media (scripting: none) {
-  .perfil-form[data-tipo='B2C'] [data-b2b],
-  .perfil-form[data-tipo='C2C'] [data-b2b] {
-    display: grid;
-  }
-  .perfil-form[data-tipo='B2C'] [data-c2c],
-  .perfil-form[data-tipo='B2B'] [data-c2c] {
-    display: block;
-  }
 }
 
 .perfil-opcional {

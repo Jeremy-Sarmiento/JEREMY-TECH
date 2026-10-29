@@ -250,8 +250,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const metodoPagoTexto = metodos[metodo] || 'Tarjeta';
 
       const entregaTexto = (modalidad === 'tienda')
-        ? '🏬 Recojo en Sede Central (La Joya, Arequipa)'
-        : '🚚 Envío a Domicilio · ' + (zonaTextoActual() || 'Sin zona') + ' (' + (direccion || '—') + ')';
+        ? 'Recojo en Sede Central (La Joya, Arequipa)'
+        : 'Envío a Domicilio · ' + (zonaTextoActual() || 'Sin zona') + ' (' + (direccion || '—') + ')';
 
       const totalSpan = document.getElementById('checkoutTotalMonto') || document.getElementById('cartTotal');
       const totalTexto = totalSpan ? totalSpan.textContent : 'PEN 0.00';
@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (tTotLabel) tTotLabel.textContent = pagado ? 'Total Pagado:' : 'Total del Pedido:';
       if (tItems) {
         const nItems = (window.JT_CARRO && JT_CARRO.totalItems) ? JT_CARRO.totalItems : 0;
-        tItems.textContent = '🛍️ ' + nItems + (nItems === 1 ? ' producto comprado' : ' productos comprados');
+        tItems.textContent = nItems + (nItems === 1 ? ' producto comprado' : ' productos comprados');
       }
 
       if (window.JeremyTechAnalitica) {
@@ -347,16 +347,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const numeroWhatsApp = '51997833866';
     let mensaje = '*COMPROBANTE DE COMPRA — JEREMY TECH*\n';
     mensaje += '━━━━━━━━━━━━━━━━━━━━━━━\n';
-    mensaje += '📌 *Orden:* ' + ultimoPedido.id + '\n';
-    mensaje += '📅 *Fecha:* ' + ultimoPedido.fecha + '\n';
-    mensaje += '👤 *Cliente:* ' + ultimoPedido.cliente + '\n';
-    mensaje += '📄 *Documento:* ' + ultimoPedido.documento + '\n';
-    mensaje += '🧾 *Comprobante:* ' + ultimoPedido.comprobante + '\n';
-    mensaje += '💳 *Método de Pago:* ' + ultimoPedido.metodoPago + '\n';
-    mensaje += '📌 *Estado del Pago:* ' + ultimoPedido.estadoPago + '\n';
-    mensaje += '🔖 *Referencia:* ' + ultimoPedido.transaccion + '\n';
+    mensaje += '*Orden:* ' + ultimoPedido.id + '\n';
+    mensaje += '*Fecha:* ' + ultimoPedido.fecha + '\n';
+    mensaje += '*Cliente:* ' + ultimoPedido.cliente + '\n';
+    mensaje += '*Documento:* ' + ultimoPedido.documento + '\n';
+    mensaje += '*Comprobante:* ' + ultimoPedido.comprobante + '\n';
+    mensaje += '*Método de Pago:* ' + ultimoPedido.metodoPago + '\n';
+    mensaje += '*Estado del Pago:* ' + ultimoPedido.estadoPago + '\n';
+    mensaje += '*Referencia:* ' + ultimoPedido.transaccion + '\n';
     mensaje += '━━━━━━━━━━━━━━━━━━━━━━━\n';
-    mensaje += '💰 *TOTAL DEL PEDIDO:* ' + ultimoPedido.total + '\n\n';
+    mensaje += '*TOTAL DEL PEDIDO:* ' + ultimoPedido.total + '\n\n';
     mensaje += '¡Gracias por confiar en *Jeremy Tech*!';
 
     window.open('https://wa.me/' + numeroWhatsApp + '?text=' + encodeURIComponent(mensaje), '_blank');
@@ -564,7 +564,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const etiqueta = detectarMarca(digitos);
         if (marca) marca.textContent = etiqueta;
-        if (icono) icono.textContent = '💳';
+        if (icono) icono.innerHTML = '<svg class="inline-icon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-card"/></svg>';
       });
     }
 
@@ -709,7 +709,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (ref) setTimeout(() => ref.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200);
     } else if (hash === '#historial') {
       const hist = document.getElementById('historial');
-      if (hist) setTimeout(() => hist.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
+      if (hist) {
+        // El historial vive en un <details>: hay que abrirlo para que el ancla sirva.
+        if (hist.tagName === 'DETAILS') hist.open = true;
+        setTimeout(() => hist.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
+      }
     }
   }
 

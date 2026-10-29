@@ -287,9 +287,11 @@ class ProductoController
         // partial de tarjeta.
         $recomendados = Producto::recomendados((int) $producto['id'], 4);
 
-        // (Fase 2) Mapa de valoraciones por producto para las tarjetas
-        // recomendadas (mismo lookup que el catálogo).
-        $resenesResumen = \Model\Resena::resumenDeProductos([(int) $producto['id']]);
+        // (Fase 2) Mapa de valoraciones de cada producto recomendado (mismo
+        // lookup que el catálogo): la tarjeta busca la nota por id de variante.
+        $resenasResumen = \Model\Resena::resumenDeProductos(
+            array_column(array_merge(...$recomendados), 'id')
+        );
         $precioDesde = Producto::preciosDesde();
 
         $rutaVista = 'producto';

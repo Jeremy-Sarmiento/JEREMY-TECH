@@ -9,19 +9,19 @@ $fecha = static function (string $valor): string {
     return $ts === false ? $valor : date('d/m/Y H:i', $ts);
 };
 $iconos = [
-    'pago_confirmado' => '✅',
-    'pedido_enviado' => '🚚',
-    'pedido_creado' => '🧾',
+    'pago_confirmado' => '<svg class="inline-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-check"/></svg>',
+    'pedido_enviado' => '<svg class="inline-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-truck"/></svg>',
+    'pedido_creado' => '<svg class="inline-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-pedidos"/></svg>',
     'pedido_cancelado' => '✖',
     'pedido_reembolsado' => '↩',
     'reembolso' => '↩',
-    'venta_recibida' => '💰',
-    'soporte_respuesta' => '🎧',
+    'venta_recibida' => '<svg class="inline-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-cash"/></svg>',
+    'soporte_respuesta' => '<svg class="inline-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-chat"/></svg>',
 ];
 ?>
 <main class="cart-page cuenta-page">
  <div class="cart-page-header">
-  <h1>📨 Mis Notificaciones</h1>
+  <h1><svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-bell"/></svg>Mis Notificaciones</h1>
   <p>Avisos sobre tus pagos, envíos y pedidos. Los correos se registran en modo demostración.</p>
  </div>
 
@@ -29,7 +29,7 @@ $iconos = [
 
  <?php if (!$notificaciones): ?>
  <div class="orders-empty">
-  <div class="empty-icon">📭</div>
+  <div class="empty-icon"><svg class="inline-icon" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-bell"/></svg></div>
   <h4>No tienes notificaciones todavía</h4>
   <p>Cuando se confirme un pago o salga un pedido, el aviso aparecerá aquí.</p>
   <a class="btn-auth-gate" href="?ruta=carrito#historial">Ver mis pedidos</a>
@@ -39,7 +39,7 @@ $iconos = [
   <?php foreach ($notificaciones as $n): ?>
    <?php
      $tipo = (string) ($n['tipo'] ?? '');
-     $icono = $iconos[$tipo] ?? '📨';
+     $icono = $iconos[$tipo] ?? '<svg class="inline-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-bell"/></svg>';
      $pedidoId = (int) ($n['pedido_id'] ?? 0);
      $enviado = (int) ($n['enviado'] ?? 0) === 1;
    ?>

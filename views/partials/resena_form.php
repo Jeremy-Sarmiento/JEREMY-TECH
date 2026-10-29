@@ -32,7 +32,7 @@ $idBase = 'resena-' . preg_replace('/[^a-zA-Z0-9_-]/', '', $resenaSufijo);
 
  <?php if ((string) ($resenaActual['estado'] ?? 'visible') === 'oculta'): ?>
  <p class="resena-aviso-oculta">
-  🚫 Esta opinión está oculta del catálogo. Puedes editarla, pero seguirá oculta
+  Esta opinión está oculta del catálogo. Puedes editarla, pero seguirá oculta
   hasta que el equipo la publique de nuevo.
  </p>
  <?php endif; ?>

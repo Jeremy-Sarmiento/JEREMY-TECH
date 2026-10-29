@@ -39,7 +39,8 @@ document.addEventListener('DOMContentLoaded', function () {
   /** Stock disponible: el de la variante si la hay, si no el del producto. */
   function stockDisponible() {
     const v = varianteActual();
-    return v ? v.stock : P.stockBase;
+    // El servidor vende min(stock del producto, stock de la variante).
+    return v ? Math.min(v.stock, P.stockBase) : P.stockBase;
   }
 
   /** Tramo de volumen que cubre una cantidad (espejo de PrecioVolumen). */

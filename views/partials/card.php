@@ -25,10 +25,13 @@ $esFavorito = isset($favoritosIds[(int) ($ficha['id'] ?? 0)]);
 $resenasResumen = $resenasResumen ?? [];
 
 $carouselItems = '';
-foreach ($grupo as $variante) {
-    $carouselItems .=         '<a class="card-carousel-item" href="' . $urlFicha . '">' .
+foreach ($grupo as $indice => $variante) {
+    // Las variantes fuera de pantalla siguen en el DOM: `inert` las saca del
+    // orden de tabulación y del árbol de accesibilidad sin ocultar la imagen.
+    $carouselItems .= '<a class="card-carousel-item"'
+        . ($indice === 0 ? '' : ' inert') . ' href="' . $urlFicha . '">' .
         '<img alt="' . htmlspecialchars($variante['nombre'], ENT_QUOTES) . '" loading="lazy" src="' .
-        htmlspecialchars($variante['imagen'], ENT_QUOTES) . '"/>' .
+        htmlspecialchars(Producto::imagenOptimizada((string) $variante['imagen']), ENT_QUOTES) . '"/>' .
         '</a>';
 }
 
@@ -41,8 +44,13 @@ foreach ($grupo as $indice => $varianteUnused) {
 
 // (Etapa 6) Atribución: quién publica este producto en el marketplace.
 $dueno = $grupo[0] ?? [];
-$duenoNombre = trim((string) ($dueno['vendedorNombre'] ?? ''));
+$duenoNombre = trim((string) ($dueno['vendedorUsuario'] ?? ''));
+if ($duenoNombre === '') {
+    $duenoNombre = trim((string) ($dueno['vendedorNombre'] ?? ''));
+}
 $duenoId = $dueno['vendedorId'] ?? null;
+// La tienda es de un solo vendedor: repetir "Vendido por Jeremy Tech" en las
+// 14 tarjetas es ruido. Solo se atribuye cuando publica un tercero.
 $vendedorHTML = $duenoNombre !== ''
     ? '<p class="card-vendedor">Vendido por <a href="?ruta=catalogo'
         . ($duenoId !== null ? '&amp;vendedor=' . (int) $duenoId : '')
@@ -50,7 +58,7 @@ $vendedorHTML = $duenoNombre !== ''
         . ((int) ($dueno['vendedorVerificado'] ?? 0) === 1
             ? '<span class="card-vendedor-check" title="Vendedor verificado">✔</span>' : '')
         . '</p>'
-    : '<p class="card-vendedor card-vendedor-tienda">Vendido por Jeremy Tech</p>';
+    : '';
 
 $infoItems = '';
 foreach ($grupo as $indice => $variante) {

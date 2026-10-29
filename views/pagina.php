@@ -48,7 +48,10 @@ if ($tema === 'envios') {
 <main class="page-shell">
   <div class="page-hero">
     <p class="page-eyebrow">JEREMY TECH · INFORMACIÓN</p>
-    <h1><?= $e($pagina['icono']) ?> <?= $e($pagina['titulo']) ?></h1>
+    <h1>
+     <svg class="inline-icon" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-<?= $e($pagina['icono']) ?>"/></svg>
+     <?= $e($pagina['titulo']) ?>
+    </h1>
     <p class="page-lead"><?= $e($pagina['descripcion']) ?></p>
   </div>
 
@@ -166,7 +169,7 @@ if ($tema === 'envios') {
         <li>Los reembolsos se coordinan por el mismo medio de pago utilizado en la compra.</li>
       </ul>
 
-      <p><a class="page-btn" href="<?= $e($whatsappUrl) ?>" target="_blank" rel="noopener">💬 Iniciar devolución por WhatsApp</a></p>
+      <p><a class="page-btn" href="<?= $e($whatsappUrl) ?>" target="_blank" rel="noopener">Iniciar devolución por WhatsApp</a></p>
 
     <?php elseif ($tema === 'faq'): ?>
       <?php
@@ -195,28 +198,28 @@ if ($tema === 'envios') {
     <?php elseif ($tema === 'contacto'): ?>
       <div class="contact-grid">
         <article class="contact-card">
-          <span class="contact-icon" aria-hidden="true">💬</span>
+          <span class="contact-icon" aria-hidden="true"><svg class="inline-icon" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-whatsapp"/></svg></span>
           <h2>WhatsApp</h2>
           <a href="<?= $e($whatsappUrl) ?>" target="_blank" rel="noopener">+<?= $e($whatsappDigitos) ?></a>
           <p>La forma más rápida de consultar stock, envíos o garantías.</p>
         </article>
 
         <article class="contact-card">
-          <span class="contact-icon" aria-hidden="true">✉️</span>
+          <span class="contact-icon" aria-hidden="true"><svg class="inline-icon" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-chat"/></svg></span>
           <h2>Correo</h2>
           <a href="mailto:<?= $e($emailTienda) ?>"><?= $e($emailTienda) ?></a>
           <p>Para consultas detalladas, comprobantes o solicitudes de devolución.</p>
         </article>
 
         <article class="contact-card">
-          <span class="contact-icon" aria-hidden="true">📞</span>
+          <span class="contact-icon" aria-hidden="true"><svg class="inline-icon" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-phone"/></svg></span>
           <h2>Teléfono</h2>
           <a href="tel:<?= $e($telefonoTel) ?>"><?= $e($telefonoTienda) ?></a>
           <p>Atención telefónica en horario de tienda.</p>
         </article>
 
         <article class="contact-card">
-          <span class="contact-icon" aria-hidden="true">📍</span>
+          <span class="contact-icon" aria-hidden="true"><svg class="inline-icon" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-pin"/></svg></span>
           <h2>Tienda</h2>
           <p><?= $e($direccionTienda) ?></p>
           <p>Lun–Sáb: 9:00 – 19:00</p>
@@ -228,8 +231,8 @@ if ($tema === 'envios') {
       <p>También puedes revisar las <a href="?ruta=pagina&amp;p=faq">preguntas frecuentes</a> o consultar el estado de tus compras en <a href="?ruta=carrito#historial">Mis Pedidos</a>.</p>
 
       <div class="contact-actions">
-        <a class="page-btn page-btn-primary" href="<?= $e($whatsappUrl) ?>" target="_blank" rel="noopener">💬 Abrir WhatsApp</a>
-        <a class="page-btn" href="mailto:<?= $e($emailTienda) ?>?subject=Consulta%20JEREMY%20TECH">✉️ Enviar correo</a>
+        <a class="page-btn page-btn-primary" href="<?= $e($whatsappUrl) ?>" target="_blank" rel="noopener">Abrir WhatsApp</a>
+        <a class="page-btn" href="mailto:<?= $e($emailTienda) ?>?subject=Consulta%20JEREMY%20TECH">Enviar correo</a>
       </div>
     <?php endif; ?>
   </div>

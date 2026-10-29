@@ -225,23 +225,46 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // =========================================================================
-  // 3. PERFIL: CAMPOS B2B / C2C
+  // 3. PERFIL: MODO LECTURA / EDICIÓN
   // =========================================================================
 
-  const tipoCuenta = document.getElementById('perfilTipo');
-  if (tipoCuenta instanceof HTMLSelectElement) {
-    const formPerfil = tipoCuenta.closest('form');
+  const formPerfil = document.getElementById('perfilForm');
+  if (formPerfil instanceof HTMLFormElement) {
+    const tarjetaPerfil = formPerfil.closest('.perfil-card');
+    const camposPerfil = Array.from(
+      formPerfil.querySelectorAll('input:not([type="hidden"]), select, textarea')
+    );
+    const botonEditar = document.getElementById('perfilEditar');
+    const botonCancelar = document.getElementById('perfilCancelar');
 
-    const aplicarTipo = () => {
-      if (formPerfil) {
-        formPerfil.dataset.tipo = ['B2B', 'C2C'].includes(tipoCuenta.value)
-          ? tipoCuenta.value
-          : 'B2C';
+    const aplicarModoPerfil = (editar) => {
+      formPerfil.dataset.modo = editar ? 'edicion' : 'lectura';
+      if (tarjetaPerfil) {
+        tarjetaPerfil.dataset.modo = editar ? 'edicion' : 'lectura';
+      }
+      camposPerfil.forEach((campo) => {
+        campo.disabled = !editar;
+      });
+      if (botonEditar) {
+        botonEditar.setAttribute('aria-expanded', String(editar));
+      }
+      if (editar && camposPerfil[0]) {
+        camposPerfil[0].focus();
       }
     };
 
-    tipoCuenta.addEventListener('change', aplicarTipo);
-    aplicarTipo();
+    if (botonEditar) {
+      botonEditar.addEventListener('click', () => aplicarModoPerfil(true));
+    }
+    if (botonCancelar) {
+      botonCancelar.addEventListener('click', () => {
+        formPerfil.reset();
+        aplicarModoPerfil(false);
+      });
+    }
+
+    // Si el último guardado falló, se abre en edición para corregirlo.
+    aplicarModoPerfil(formPerfil.dataset.abrirEdicion === '1');
   }
 
   // =========================================================================
@@ -479,7 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const detalles = form.closest('details');
       const resumenWidget = detalles ? detalles.querySelector('summary') : null;
       if (resumenWidget && datos.resena) {
-        resumenWidget.textContent = '✏️ Tu opinión: ' + estrellasTexto(datos.resena.calificacion);
+        resumenWidget.textContent = 'Tu opinión: ' + estrellasTexto(datos.resena.calificacion);
       }
 
       if (boton) {
@@ -590,7 +613,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const detalles = form.closest('details');
       const resumenWidget = detalles ? detalles.querySelector('summary') : null;
       if (resumenWidget) {
-        resumenWidget.textContent = '✏️ Tu calificación de ' + nombre + ': ' + estrellasTexto(calificacion);
+        resumenWidget.textContent = 'Tu calificación de ' + nombre + ': ' + estrellasTexto(calificacion);
       }
 
       const titulo = form.querySelector('.resena-titulo');

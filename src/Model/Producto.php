@@ -36,7 +36,7 @@ class Producto
      * Columnas extra que solo aporta el listado del catálogo (Etapa 6):
      * el dueño de la publicación para poder mostrar "Vendido por".
      */
-    private const COLUMNAS_VENDEDOR = ', v.name AS vendedor_nombre, v.verificado AS vendedor_verificado';
+    private const COLUMNAS_VENDEDOR = ', v.name AS vendedor_nombre, v.usuario AS vendedor_usuario, v.verificado AS vendedor_verificado';
 
     /** LEFT JOIN al dueño (usuarios dados de baja no se muestran). */
     private const JOIN_VENDEDOR = ' LEFT JOIN users v ON v.id = p.vendedor_id AND v.deleted_at IS NULL';
@@ -69,6 +69,10 @@ class Producto
      */
     public static function vendedorDe(array $producto): string
     {
+        $usuario = (string) ($producto['vendedorUsuario'] ?? '');
+        if ($usuario !== '') {
+            return $usuario;
+        }
         $nombre = (string) ($producto['vendedorNombre'] ?? '');
         if ($nombre !== '') {
             return $nombre;
@@ -119,7 +123,6 @@ class Producto
 
     /**
      * Lista de vendedores para el selector del formulario de producto.
-     * Incluye a los revendedores C2C, que también publican en la tienda.
      *
      * @return array<int, array<string, mixed>>
      */
@@ -127,7 +130,7 @@ class Producto
     {
         return conexion()->query(
             "SELECT id, name, email FROM users
-              WHERE (rol = 'vendedor' OR tipo = 'C2C')
+              WHERE rol = 'vendedor'
                 AND deleted_at IS NULL AND activo = 1
               ORDER BY name"
         )->fetchAll();
@@ -152,7 +155,11 @@ class Producto
      */
     public static function porSlug(string $slug): ?array
     {
-        $stmt = conexion()->prepare('SELECT ' . self::COLUMNAS . ' FROM productos p WHERE p.slug = ?');
+        $stmt = conexion()->prepare(
+            'SELECT ' . self::COLUMNAS . self::COLUMNAS_VENDEDOR
+            . ' FROM productos p' . self::JOIN_VENDEDOR
+            . ' WHERE p.slug = ?'
+        );
         $stmt->execute([$slug]);
         $fila = $stmt->fetch();
 
@@ -622,7 +629,7 @@ class Producto
     public static function precioDe(int $productoId, ?int $varianteId, int $cantidad): ?array
     {
         $producto = self::porId($productoId);
-        if ($producto === null || !empty($producto['archivado'])) {
+        if ($producto === null || !empty($producto['archivado']) || empty($producto['activo'])) {
             return null;
         }
 
@@ -632,6 +639,9 @@ class Producto
             // Una variante de otro producto no debe poder colarse en la línea.
             if ($variante === null || (int) $variante['productoId'] !== $productoId) {
                 $variante = null;
+            } elseif (empty($variante['activo'])) {
+                // Una variante retirada no se convierte en el producto base.
+                return null;
             }
         }
 
@@ -660,11 +670,30 @@ class Producto
      */
     public static function colorStyle(string $color): string
     {
+        // El color lo escribe un vendedor: solo hex. Si no, el atributo style
+        // se puede cerrar e inyectar manejadores de eventos (XSS almacenado).
+        if (!preg_match('/^#[0-9A-Fa-f]{3}(?:[0-9A-Fa-f]{3})?$/', $color)) {
+            return '';
+        }
         $claros = ['#FFFFFF', '#F5F5DC', '#C0C0C0', '#E8D5C4', '#E8D5B7', '#FFB6C1'];
         $border = in_array(strtoupper($color), array_map('strtoupper', $claros), true)
             ? ' border: 2px solid #ddd'
             : '';
         return ' style="background:' . $color . ';' . $border . '"';
+    }
+
+    /**
+     * Devuelve la versión WebP de una imagen si existe junto al original.
+     * Los vendedores siguen subiendo PNG/JPG; el navegador recibe el WebP
+     * (6,5 MB -> 936 KB en el catálogo) sin cambiar la ruta guardada.
+     */
+    public static function imagenOptimizada(string $ruta): string
+    {
+        $webp = preg_replace('/\.(png|jpe?g)$/i', '.webp', $ruta);
+        if ($webp === null || $webp === $ruta) {
+            return $ruta;
+        }
+        return is_file(BASE_PATH . '/public/' . $webp) ? $webp : $ruta;
     }
 
     /**
@@ -758,6 +787,7 @@ class Producto
             'vendedorId'         => isset($fila['vendedor_id']) && $fila['vendedor_id'] !== null
                 ? (int) $fila['vendedor_id'] : null,
             'vendedorNombre'     => (string) ($fila['vendedor_nombre'] ?? ''),
+            'vendedorUsuario'    => (string) ($fila['vendedor_usuario'] ?? ''),
             'vendedorVerificado' => (int) ($fila['vendedor_verificado'] ?? 0),
         ];
     }

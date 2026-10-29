@@ -23,6 +23,7 @@ $secciones = [
     'analitica'    => ['Analítica',   'admin/analitica'],
     'chatbot'      => ['Chatbot FAQ',  'admin/chatbot'],
     'usuarios'      => ['Usuarios',     'admin/usuarios'],
+    'solicitudes'   => ['Solicitudes',  'admin/solicitudes'],
     'configuracion' => ['Configuración','admin/configuracion'],
     'auditoria'     => ['Auditoría',    'admin/auditoria'],
 ];
@@ -32,13 +33,16 @@ $grupos = [
     ['Catálogo', ['productos', 'variantes', 'categorias', 'marcas', 'garantias']],
     ['Ventas', ['pedidos', 'ventas', 'cupones', 'envios', 'vendedores', 'comisiones', 'pagos', 'analitica']],
     ['Operaciones', ['inventario', 'notificaciones', 'soporte', 'resenas']],
-    ['Sistema', ['usuarios', 'configuracion', 'auditoria', 'chatbot']],
+    ['Sistema', ['usuarios', 'solicitudes', 'configuracion', 'auditoria', 'chatbot']],
 ];
 
 // (Etapa 6) El panel es único y se filtra por rol. La fuente de verdad del
 // alcance es Administrador::seccionesPermitidas(), la misma que usa el
 // router de AdminController: sidebar y dispatch no pueden divergir.
 $permitidas = \Model\Administrador::seccionesPermitidas();
+$solicitudesPendientes = in_array('solicitudes', $permitidas, true)
+    ? \Model\SolicitudVendedor::pendientesCount()
+    : 0;
 $secciones  = array_intersect_key($secciones, array_flip($permitidas));
 $grupos = array_values(array_filter(
     $grupos,
@@ -64,6 +68,7 @@ $iconos = [
     'usuarios'      => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5.5c0 4.4-3 8-7 9.5-4-1.5-7-5.1-7-9.5V6l7-3Z"/><path d="M9.4 12l1.9 1.9 3.4-3.7"/></svg>',
     'configuracion' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h10M18 18h2"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="16" cy="18" r="2"/></svg>',
     'auditoria'     => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3 8.5"/><path d="M3 3.5v5h5"/><path d="M12 7.5V12l3.2 1.9"/></svg>',
+    'solicitudes'   => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></svg>',
     'vendedores'    => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
     'ventas'        => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-4 4"/></svg>',
     'comisiones'    => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>',
@@ -108,6 +113,9 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
                        href="?ruta=<?= $secciones[$claveSeccion][1] ?>">
                         <?= $iconos[$claveSeccion] ?>
                         <span><?= $e($secciones[$claveSeccion][0]) ?></span>
+                        <?php if ($claveSeccion === 'solicitudes' && $solicitudesPendientes > 0): ?>
+                        <span class="etiqueta etiqueta-aviso"><?= $solicitudesPendientes ?></span>
+                        <?php endif; ?>
                     </a>
                 <?php endforeach; ?>
             <?php endforeach; ?>

@@ -30,6 +30,7 @@
   </script>
  </head>
  <body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
   <header>
    <div class="logo-text">
     <img class="logo-svg" src="img/logo.svg" alt="JEREMY TECH"/>
@@ -108,9 +109,9 @@
      <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
       <use href="img/icons.svg#icon-search"/>
      </svg>
-     <input type="search" id="busquedaInput" name="q" value="<?= htmlspecialchars($busquedaActual, ENT_QUOTES, 'UTF-8') ?>" placeholder="Nombre, modelo, SKU o categoría" autocomplete="off" enterkeyhint="search" aria-label="Buscar productos" aria-autocomplete="list" aria-controls="searchSuggest" aria-expanded="false"/>
+     <input type="search" id="busquedaInput" name="q" value="<?= htmlspecialchars($busquedaActual, ENT_QUOTES, 'UTF-8') ?>" placeholder="Nombre, modelo, SKU o categoría" autocomplete="off" enterkeyhint="search" aria-label="Buscar productos"/>
      <button type="button" id="btnLimpiarBusqueda" class="btn-clear-search" style="display:none;" title="Limpiar búsqueda" aria-label="Limpiar búsqueda" onclick="limpiarBusqueda()">&times;</button>
-     <div id="searchSuggest" class="search-suggest" role="listbox" aria-live="polite" hidden></div>
+     <div id="searchSuggest" class="search-suggest" aria-live="polite" hidden></div>
     </form>
     <div class="nav-moneda">
      <button class="nav-moneda-btn"
@@ -120,22 +121,30 @@
              aria-haspopup="true"
              aria-expanded="false"
              aria-controls="monedaDropdown">
-      💱 PEN
+      PEN
      </button>
      <div class="nav-moneda-dropdown" id="monedaDropdown">
-      <button type="button" class="moneda-option active" data-moneda="PEN" aria-pressed="true">🇵🇪 PEN - Sol peruano</button>
-      <button type="button" class="moneda-option" data-moneda="USD" aria-pressed="false">🇺🇸 USD - Dolar</button>
-      <button type="button" class="moneda-option" data-moneda="EUR" aria-pressed="false">🇪🇺 EUR - Euro</button>
-      <button type="button" class="moneda-option" data-moneda="GBP" aria-pressed="false">🇬🇧 GBP - Libra</button>
-      <button type="button" class="moneda-option" data-moneda="BRL" aria-pressed="false">🇧🇷 BRL - Real</button>
-      <button type="button" class="moneda-option" data-moneda="ARS" aria-pressed="false">🇦🇷 ARS - Peso argentino</button>
-      <button type="button" class="moneda-option" data-moneda="CLP" aria-pressed="false">🇨🇱 CLP - Peso chileno</button>
-      <button type="button" class="moneda-option" data-moneda="COP" aria-pressed="false">🇨🇴 COP - Peso colombiano</button>
+      <button type="button" class="moneda-option active" data-moneda="PEN" aria-pressed="true">PEN - Sol peruano</button>
+      <button type="button" class="moneda-option" data-moneda="USD" aria-pressed="false">USD - Dolar</button>
+      <button type="button" class="moneda-option" data-moneda="EUR" aria-pressed="false">EUR - Euro</button>
+      <button type="button" class="moneda-option" data-moneda="GBP" aria-pressed="false">GBP - Libra</button>
+      <button type="button" class="moneda-option" data-moneda="BRL" aria-pressed="false">BRL - Real</button>
+      <button type="button" class="moneda-option" data-moneda="ARS" aria-pressed="false">ARS - Peso argentino</button>
+      <button type="button" class="moneda-option" data-moneda="CLP" aria-pressed="false">CLP - Peso chileno</button>
+      <button type="button" class="moneda-option" data-moneda="COP" aria-pressed="false">COP - Peso colombiano</button>
      </div>
     </div>
     <?php $usuarioCuenta = \Model\Cuenta::usuarioActual(); ?>
     <?php $puedePublicarCuenta = $usuarioCuenta !== null && \Model\Cuenta::puedePublicar($usuarioCuenta); ?>
     <?php if ($usuarioCuenta): ?>
+    <?php
+      // El nombre público es el usuario; las cuentas antiguas sin usuario
+      // (columna nullable) siguen mostrando su nombre.
+      $nombreCuenta = trim((string) ($usuarioCuenta['usuario'] ?? ''));
+      if ($nombreCuenta === '') {
+          $nombreCuenta = trim((string) ($usuarioCuenta['nombre'] ?? '')) ?: 'Mi cuenta';
+      }
+    ?>
     <div class="nav-account" id="navAccountBox">
      <button class="nav-account-btn"
              type="button"
@@ -144,36 +153,36 @@
              aria-haspopup="true"
              aria-expanded="false"
              aria-controls="navAccountDropdown">
-      <span aria-hidden="true">👤</span>
-      <span class="nav-account-label"><?= htmlspecialchars($usuarioCuenta['nombre'] ?? 'Mi cuenta', ENT_QUOTES) ?></span>
+      <svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-user"/></svg>
+      <span class="nav-account-label"><?= htmlspecialchars($nombreCuenta, ENT_QUOTES) ?></span>
      </button>
      <div class="nav-account-dropdown" id="navAccountDropdown">
-      <div class="nav-account-name">👤 <?= htmlspecialchars(($usuarioCuenta['nombre'] ?? '') . ' ' . ($usuarioCuenta['apellidos'] ?? ''), ENT_QUOTES) ?></div>
+      <div class="nav-account-name"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-user"/></svg> <?= htmlspecialchars($nombreCuenta, ENT_QUOTES) ?></div>
       <?php if ($puedePublicarCuenta): ?>
-      <div class="nav-account-rol">🏪 <?= (($usuarioCuenta['rol'] ?? '') === 'vendedor') ? 'Vendedor' : 'Revendedor C2C' ?><?= (int) ($usuarioCuenta['verificado'] ?? 0) === 1 ? ' verificado' : '' ?></div>
+      <div class="nav-account-rol"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-briefcase"/></svg> Vendedor<?= (int) ($usuarioCuenta['verificado'] ?? 0) === 1 ? ' verificado' : '' ?></div>
       <?php endif; ?>
-      <a href="?ruta=perfil">👤 Mi Perfil</a>
-      <a href="?ruta=mis-pedidos">📦 Mis Pedidos</a>
-      <a href="?ruta=favoritos">❤️ Mis Favoritos</a>
+      <a href="?ruta=perfil"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-user"/></svg>Mi Perfil</a>
+      <a href="?ruta=mis-pedidos"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-pedidos"/></svg>Mis Pedidos</a>
+      <a href="?ruta=favoritos"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-heart"/></svg>Mis Favoritos</a>
       <?php if ($puedePublicarCuenta): ?>
-      <a href="?ruta=mis-productos">🏪 Mis Productos</a>
+      <a href="?ruta=mis-productos"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-briefcase"/></svg>Mis Productos</a>
       <?php endif; ?>
-      <a href="?ruta=direcciones">📍 Mis Direcciones</a>
-      <a href="?ruta=notificaciones">📨 Notificaciones</a>
-      <a href="?ruta=catalogo">🛍️ Explorar Catálogo</a>
+      <a href="?ruta=direcciones"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-pin"/></svg>Mis Direcciones</a>
+      <a href="?ruta=notificaciones"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-bell"/></svg>Notificaciones</a>
+      <a href="?ruta=catalogo"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-bag"/></svg>Explorar Catálogo</a>
       <form action="?ruta=login/cerrar" method="post">
           <?= \Security\Proteccion::campo() ?>
-       <button type="submit">🚪 Cerrar sesión</button>
+       <button type="submit"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-logout"/></svg>Cerrar sesión</button>
       </form>
      </div>
     </div>
     <?php else: ?>
     <a class="nav-login-btn" href="?ruta=login" title="Iniciar sesión" aria-label="Iniciar sesión">
-     <span aria-hidden="true">👤</span><span class="nav-login-label">Iniciar sesión</span>
+     <svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-user"/></svg><span class="nav-login-label">Iniciar sesión</span>
     </a>
     <?php endif; ?>
     <?php if (\Model\Administrador::estaAutenticado()): ?>
-    <a class="nav-admin-btn" href="?ruta=admin" title="Panel de administración" aria-label="Panel de administración">⚙️ <span class="nav-admin-label">Panel</span></a>
+    <a class="nav-admin-btn" href="?ruta=admin" title="Panel de administración" aria-label="Panel de administración"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-settings"/></svg><span class="nav-admin-label">Panel</span></a>
     <?php endif; ?>
     <a class="nav-orders-btn" id="ordersNavBtn" href="?ruta=mis-pedidos" title="Ver mis pedidos" aria-label="Ver mis pedidos">
      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">

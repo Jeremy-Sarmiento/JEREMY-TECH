@@ -18,34 +18,35 @@ namespace Controller;
 class PaginaController
 {
     /**
-     * Título e icono de cada página. La clave es el valor de `p` en la URL.
+     * Título y símbolo del sprite (`img/icons.svg#icon-<simbolo>`) de cada
+     * página. La clave es el valor de `p` en la URL.
      *
      * @var array<string, array{titulo: string, icono: string, descripcion: string}>
      */
     private const PAGINAS = [
         'privacidad' => [
             'titulo'      => 'Política de Privacidad',
-            'icono'       => '🔐',
+            'icono'       => 'lock',
             'descripcion' => 'Cómo cuidamos y usamos los datos de tu cuenta y de tus pedidos.',
         ],
         'terminos' => [
             'titulo'      => 'Términos y Condiciones',
-            'icono'       => '📜',
+            'icono'       => 'check',
             'descripcion' => 'Las condiciones de compra, pagos, envíos, devoluciones y garantías.',
         ],
         'envios' => [
             'titulo'      => 'Envíos y Devoluciones',
-            'icono'       => '🚚',
+            'icono'       => 'truck',
             'descripcion' => 'Zonas, tarifas, plazos de entrega y cómo iniciar una devolución.',
         ],
         'faq' => [
             'titulo'      => 'Preguntas frecuentes',
-            'icono'       => '❓',
+            'icono'       => 'chat',
             'descripcion' => 'Respuestas rápidas sobre búsqueda, pagos, pedidos y garantías.',
         ],
         'contacto' => [
             'titulo'      => 'Contacto',
-            'icono'       => '📩',
+            'icono'       => 'bell',
             'descripcion' => 'Canales directos para hablar con el equipo de JEREMY TECH.',
         ],
     ];

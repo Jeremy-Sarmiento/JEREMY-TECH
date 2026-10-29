@@ -1,8 +1,19 @@
+<main id="contenido">
+<?php
+// Título de la página para lectores de pantalla: el catálogo y la búsqueda
+// compartían vista y se quedaban sin <h1>.
+$qTitulo = trim((string) ($filtros['q'] ?? ''));
+$catTitulo = trim((string) ($filtros['categoria'] ?? ''));
+$h1Catalogo = $qTitulo !== ''
+    ? 'Resultados de búsqueda para «' . $qTitulo . '»'
+    : ($catTitulo !== '' ? 'Catálogo de ' . $catTitulo : 'Catálogo de tecnología');
+?>
+<h1 class="sr-only"><?= htmlspecialchars($h1Catalogo, ENT_QUOTES, 'UTF-8') ?></h1>
 <section id="inicio">
    <div class="carousel" role="region" aria-label="Promociones destacadas" aria-roledescription="carrusel">
     <div class="carousel-inner">
      <div class="carousel-item">
-      <img alt="Tecnologia" src="img/Banners/banner_tecnologia.jpg"/>
+      <img alt="Tecnologia" src="img/Banners/banner_tecnologia.webp" width="1920" height="720"/>
       <div class="carousel-overlay">
        <h2>
         Bienvenidos a Jeremy Tech
@@ -13,7 +24,7 @@
       </div>
      </div>
      <div class="carousel-item">
-      <img alt="Celulares" loading="lazy" src="img/Banners/banner_celulares.jpg"/>
+      <img alt="Celulares" loading="lazy" src="img/Banners/banner_celulares.webp" width="1920" height="720"/>
       <div class="carousel-overlay">
        <h2>
         Los Mejores Dispositivos
@@ -24,7 +35,7 @@
       </div>
      </div>
      <div class="carousel-item">
-      <img alt="Ofertas" loading="lazy" src="img/Banners/banner_ofertas.jpg"/>
+      <img alt="Ofertas" loading="lazy" src="img/Banners/banner_ofertas.webp" width="1920" height="720"/>
       <div class="carousel-overlay">
        <h2>
         Ofertas Especiales
@@ -210,10 +221,21 @@
     </div>
    </form>
 
+   <?php
+     // El vendedor se muestra por su usuario; las cuentas antiguas sin
+     // usuario (columna nullable) caen al nombre.
+     $vendedorFiltroNombre = '';
+     if (!empty($vendedorFiltro)) {
+         $vendedorFiltroNombre = trim((string) ($vendedorFiltro['usuario'] ?? ''));
+         if ($vendedorFiltroNombre === '') {
+             $vendedorFiltroNombre = (string) ($vendedorFiltro['name'] ?? '');
+         }
+     }
+   ?>
    <?php if (!empty($vendedorFiltro)): ?>
    <div class="vendedor-filtro">
     <div>
-     <strong>Vendido por <?= htmlspecialchars((string) $vendedorFiltro['name'], ENT_QUOTES, 'UTF-8') ?></strong>
+     <strong>Vendido por <?= htmlspecialchars($vendedorFiltroNombre, ENT_QUOTES, 'UTF-8') ?></strong>
      <?php if ((int) ($vendedorFiltro['verificado'] ?? 0) === 1): ?>
       <span class="vendedor-filtro-badge">Verificado</span>
      <?php endif; ?>
@@ -248,7 +270,7 @@
     <?php endif; ?>
     <?php if ($vendedorActivo !== null && !empty($vendedorFiltro)): ?>
     <a class="filtro-chip" href="<?= $e($urlCatalogo(['vendedor' => null])) ?>" title="Quitar el filtro de vendedor">
-     Vendedor: <?= $e((string) $vendedorFiltro['name']) ?> <span aria-hidden="true">×</span>
+     Vendedor: <?= $e($vendedorFiltroNombre) ?> <span aria-hidden="true">×</span>
     </a>
     <?php endif; ?>
     <?php if ($categoriaActiva !== ''): ?>
@@ -276,7 +298,7 @@
 
    <?php if ($totalProductos === 0): ?>
    <div class="no-search-results">
-    <div class="no-results-icon">🔍</div>
+    <div class="no-results-icon"><svg class="inline-icon" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-search"/></svg></div>
     <h3>No se encontraron productos</h3>
     <p>
      <?php if ($qActiva !== ''): ?>
@@ -321,14 +343,26 @@
    </section>
    <?php else: ?>
    <?php foreach ($grids as $categoria => $gridId): ?>
-   <?php if (empty($gruposPorCategoria[$categoria])) continue; ?>
+   <?php
+     $gruposCategoria = $gruposPorCategoria[$categoria] ?? [];
+     if ($gruposCategoria === []) {
+         continue;
+     }
+     // Cuatro por fila: recortar evita la tarjeta huérfana cuando hay 5.
+     $visiblesCategoria = array_slice($gruposCategoria, 0, 4);
+   ?>
    <section id="<?= strtolower($categoria) ?>">
     <h2><?= $categoria ?></h2>
     <div class="grid" id="<?= $gridId ?>">
-     <?php foreach (($gruposPorCategoria[$categoria] ?? []) as $grupo): ?>
+     <?php foreach ($visiblesCategoria as $grupo): ?>
       <?php require BASE_PATH . '/views/partials/card.php'; ?>
      <?php endforeach; ?>
     </div>
+    <?php if (count($gruposCategoria) > count($visiblesCategoria)): ?>
+    <a class="catalogo-ver-todos" href="<?= $e($urlCatalogo(['categoria' => $categoria])) ?>">
+     Ver los <?= count($gruposCategoria) ?> productos de <?= $e($categoria) ?>
+    </a>
+    <?php endif; ?>
    </section>
    <?php endforeach; ?>
    <?php endif; ?>
@@ -387,3 +421,4 @@
    <?php endif; ?>
 
   </div>
+</main>

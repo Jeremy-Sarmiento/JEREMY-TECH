@@ -64,7 +64,7 @@ require __DIR__ . '/../config/conexion.php';
 // Se valida aquí para no depender de que cada controlador lo recuerde.
 // El webhook de la pasarela es la única excepción: lo autentica su propia
 // firma HMAC (cabecera X-JT-Signature), no una sesión de navegador.
-$ruta = $_GET['ruta'] ?? 'catalogo';
+$ruta = isset($_GET['ruta']) && is_string($_GET['ruta']) ? $_GET['ruta'] : 'catalogo';
 if ($ruta !== 'pagos/webhook') {
     \Security\Proteccion::exigirCsrf();
 }
@@ -167,6 +167,10 @@ switch ($ruta) {
 
     case 'perfil/guardar':
         (new Controller\CuentaController())->guardarPerfil();
+        break;
+
+    case 'perfil/solicitar-vendedor':
+        (new Controller\CuentaController())->solicitarVendedor();
         break;
 
     case 'favoritos':

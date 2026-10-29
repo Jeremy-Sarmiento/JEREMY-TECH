@@ -34,7 +34,7 @@ $claseEstado = static function (string $estado): string {
 ?>
 <main class="cart-page cuenta-page soporte-page">
  <div class="cart-page-header">
-  <h1>🎧 Soporte postventa</h1>
+  <h1><svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-chat"/></svg>Soporte postventa</h1>
   <p>Cuéntanos qué pasó con tu pedido, pago, envío o producto. Te respondemos aquí y en tus notificaciones.</p>
  </div>
 
@@ -48,22 +48,22 @@ $claseEstado = static function (string $estado): string {
 
  <div class="pedidos-resumen soporte-resumen">
   <div class="pedidos-stat">
-   <span class="pedidos-stat-icon" aria-hidden="true">🎫</span>
+   <span class="pedidos-stat-icon" aria-hidden="true"><svg class="inline-icon" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-chat"/></svg></span>
    <span class="pedidos-stat-valor"><?= (int) $resumen['total'] ?></span>
    <span class="pedidos-stat-etiqueta">Ticket<?= (int) $resumen['total'] === 1 ? '' : 's' ?></span>
   </div>
   <div class="pedidos-stat">
-   <span class="pedidos-stat-icon" aria-hidden="true">📬</span>
+   <span class="pedidos-stat-icon" aria-hidden="true"><svg class="inline-icon" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-bell"/></svg></span>
    <span class="pedidos-stat-valor"><?= (int) $resumen['abiertos'] ?></span>
    <span class="pedidos-stat-etiqueta">Abierto<?= (int) $resumen['abiertos'] === 1 ? '' : 's' ?></span>
   </div>
   <div class="pedidos-stat">
-   <span class="pedidos-stat-icon" aria-hidden="true">🛠️</span>
+   <span class="pedidos-stat-icon" aria-hidden="true"><svg class="inline-icon" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-settings"/></svg></span>
    <span class="pedidos-stat-valor"><?= (int) $resumen['en_proceso'] ?></span>
    <span class="pedidos-stat-etiqueta">En proceso</span>
   </div>
   <div class="pedidos-stat">
-   <span class="pedidos-stat-icon" aria-hidden="true">✅</span>
+   <span class="pedidos-stat-icon" aria-hidden="true"><svg class="inline-icon" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-check"/></svg></span>
    <span class="pedidos-stat-valor"><?= (int) $resumen['resueltos'] ?></span>
    <span class="pedidos-stat-etiqueta">Resuelto<?= (int) $resumen['resueltos'] === 1 ? '' : 's' ?></span>
   </div>
@@ -140,7 +140,7 @@ $claseEstado = static function (string $estado): string {
 
    <?php if ($tickets === []): ?>
    <div class="orders-empty">
-    <div class="empty-icon">🎫</div>
+    <div class="empty-icon"><svg class="inline-icon" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-chat"/></svg></div>
     <h4>Aún no tienes tickets</h4>
     <p>Si algo salió mal con una compra, abre tu primer ticket con el formulario.</p>
     <a class="btn-auth-gate" href="#nuevo">Abrir un ticket</a>

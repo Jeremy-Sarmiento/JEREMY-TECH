@@ -22,7 +22,8 @@ cp .env.example .env   # rellenar DB_USER / DB_PASS
 php -S 127.0.0.1:8000 -t public
 ```
 
-El `.sql` es idempotente: puede re-ejecutarse sin dañar datos.
+El volcado incluye `CREATE DATABASE` y los datos: impórtalo sobre una
+instalación vacía (no es idempotente).
 
 ## Credenciales
 
@@ -43,17 +44,24 @@ La primera dirección se guarda como `Principal` y predeterminada en
 checkout calcula el costo con la zona de la dirección. La pregunta de
 seguridad se conserva para la recuperación de contraseña sin correo.
 
-## Publicaciones C2C
+## Roles: cliente y vendedor
 
-Los clientes con tipo **C2C** publican su propio catálogo sin necesidad del
-rol `vendedor`: en `?ruta=mis-productos` tienen el mismo panel de altas,
-edición, stock y activar/ocultar que un vendedor. Cada publicación queda
-atada a `productos.vendedor_id` y el reparto de comisiones se congela al
-comprar, igual que con cualquier vendedor.
+Toda cuenta se registra como **cliente** y elige su tipo comercial
+(B2C, B2B o C2C). Comprar está disponible desde el primer momento; **publicar
+requiere `rol = 'vendedor'`**. El tipo no habilita la venta: solo decide qué
+panel ve el vendedor.
 
-El administrador ve estas cuentas en **Vendedores** (con la etiqueta `C2C`)
-y puede fijarles comisión, verificación y liquidaciones. El tipo de cliente
-también se puede cambiar desde **Usuarios** o desde el propio perfil.
+1. El cliente envía la solicitud desde **Mi perfil → Vender en Jeremy Tech**
+   (`POST ?ruta=perfil/solicitar-vendedor`).
+2. El administrador la revisa en **Panel → Solicitudes**
+   (`?ruta=admin/solicitudes`), donde el menú muestra las pendientes.
+3. Al aprobar, solo cambia `users.rol`; se conservan tipo, empresa, RUC,
+   dirección, teléfono y claves. Cada publicación queda atada a
+   `productos.vendedor_id` y el reparto de comisiones se congela al comprar.
+
+El panel de vendedor (`?ruta=mis-productos`) tiene tres vistas separadas
+según el tipo: B2C (persona), B2B (empresa, con ficha fiscal y compradores)
+y C2C (segunda mano, con stock y reputación).
 
 ## Catálogo y buscador
 
@@ -100,7 +108,7 @@ de limpiar.
 ## Panel del vendedor
 
 `?ruta=mis-productos` no solo publica: también resume la actividad comercial
-del vendedor y del revendedor C2C.
+del vendedor. La vista depende de su `tipo` (B2C, B2B o C2C).
 
 - **Mis ganancias**: vendido sin IGV, comisión de la plataforma, neto,
   liquidado y saldo pendiente. Solo suma pedidos cobrados.

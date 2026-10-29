@@ -577,8 +577,8 @@ final class ProductoVendedor
         if ($stockRaw === '' || !preg_match('/^\d+$/', $stockRaw) || (int) $stockRaw > 9999999) {
             return ['ok' => false, 'error' => 'El stock de la variante debe ser un entero entre 0 y 9 999 999.'];
         }
-        if (mb_strlen($color) > 30) {
-            return ['ok' => false, 'error' => 'El color no puede superar los 30 caracteres.'];
+        if ($color !== '' && !preg_match('/^#[0-9A-Fa-f]{3}(?:[0-9A-Fa-f]{3})?$/', $color)) {
+            return ['ok' => false, 'error' => 'El color debe ser hexadecimal, por ejemplo #00D4FF.'];
         }
 
         $productoId = (int) $producto['id'];

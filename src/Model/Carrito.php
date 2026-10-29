@@ -67,9 +67,9 @@ class Carrito
     {
         self::iniciarSesion();
         $producto = Producto::porId((int) $productoId);
-        if ($producto === null || !empty($producto['archivado'])) {
-            // Ignora identificadores que no existen o publicaciones
-            // archivadas: si entraran, la sesión quedaría "no vacía" y el
+        if ($producto === null || !empty($producto['archivado']) || empty($producto['activo'])) {
+            // Ignora identificadores que no existen, publicaciones archivadas
+            // o retiradas: si entraran, la sesión quedaría "no vacía" y el
             // checkout crearía un pedido en 0 (o vendería algo retirado).
             return;
         }
@@ -78,6 +78,8 @@ class Carrito
             // Una variante de otro producto no debe poder entrar en la línea.
             if ($variante === null || (int) $variante['productoId'] !== (int) $productoId) {
                 $varianteId = null;
+            } elseif (empty($variante['activo'])) {
+                return; // la variante está retirada: no se vende
             }
         }
 
@@ -257,7 +259,9 @@ class Carrito
         if (isset($cupon['fijoPEN'])) {
             return min((float) $cupon['fijoPEN'], $subtotal);
         }
-        return $subtotal * (float) ($cupon['pct'] ?? 0);
+        // Un porcentaje mal cargado (>100) no puede dejar el total en negativo.
+        $pct = min(1.0, max(0.0, (float) ($cupon['pct'] ?? 0)));
+        return round($subtotal * $pct, 2);
     }
 
     /**
@@ -311,7 +315,8 @@ class Carrito
      * sesión). No escribe en `users`: los datos de contacto y de SUNAT son del
      * pedido, no del perfil.
      *
-     * @param array<string, mixed> $pago     metodo, comprobante, modalidad,
+     * @param array<string, mixed> $pago     metodo, comprobante, documento,
+     *                                        razon_social, modalidad,
      *                                        direccion_id, tarifa_envio_id,
      *                                        nueva_etiqueta, nueva_direccion, nueva_referencia
      * @return int|null ID del pedido creado, o null si el carrito está vacío.
@@ -339,7 +344,9 @@ class Carrito
         $cupon = self::cuponActivo();
         $descuento = self::montoDescuentoPEN();
         $igvPct = (float) self::configuracion('igv_porcentaje', '18');
-        $igvMonto = round(($subtotal - $descuento) * ($igvPct / 100), 2);
+        // Los precios de la tienda ya incluyen IGV: se extrae del bruto, no se
+        // suma encima (misma fórmula que Vendedor::repartir()).
+        $igvMonto = round(($subtotal - $descuento) * ($igvPct / (100 + $igvPct)), 2);
 
         // Destino de entrega (Etapa 5): la ZONA de la dirección elegida es lo
         // único que fija el costo. Sin una zona vigente no se confirma.
@@ -395,8 +402,9 @@ class Carrito
             //    inmutable del destino, Etapa 5).
             $stmtPedido = $pdo->prepare(
                 'INSERT INTO pedidos (cliente_id, total_pen, subtotal, igv_monto, envio_costo, envio_zona,
-                                      descuento_aplicado, cupon_id, direccion_id, direccion_entrega, estado)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+                                      descuento_aplicado, cupon_id, direccion_id, direccion_entrega,
+                                      comprobante_tipo, comprobante_documento, comprobante_razon_social, estado)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
             );
             $stmtPedido->execute([
                 $clienteId,
@@ -409,14 +417,25 @@ class Carrito
                 $cupon ? $cupon['id'] : null,
                 $direccionId,
                 $destino['texto'] !== '' ? $destino['texto'] : null,
+                ($pago['comprobante'] ?? 'boleta') === 'factura' ? 'factura' : 'boleta',
+                mb_substr((string) ($pago['documento'] ?? ''), 0, 11),
+                mb_substr((string) ($pago['razon_social'] ?? ''), 0, 150),
                 $estadoPedido,
             ]);
             $pedidoId = (int) $pdo->lastInsertId();
 
-            // Registrar el uso del cupón
+            // Registrar el uso del cupón. La condición repite el límite dentro
+            // de la transacción: dos checkouts simultáneos no pueden superar
+            // `usos_maximos` (el SELECT previo a la transacción no basta).
             if ($cupon) {
-                $pdo->prepare('UPDATE cupones SET usos_actuales = usos_actuales + 1 WHERE id = ?')
-                    ->execute([$cupon['id']]);
+                $uso = $pdo->prepare(
+                    'UPDATE cupones SET usos_actuales = usos_actuales + 1
+                      WHERE id = ? AND (usos_maximos IS NULL OR usos_actuales < usos_maximos)'
+                );
+                $uso->execute([$cupon['id']]);
+                if ($uso->rowCount() === 0) {
+                    throw new \RuntimeException('El cupón ya alcanzó su límite de usos.');
+                }
             }
 
             // 3. Detalle del pedido. `vendedor_id` se copia del producto en

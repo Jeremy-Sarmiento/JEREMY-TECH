@@ -118,7 +118,7 @@ class Administrador
         if (self::esAdmin()) {
             return [
                 'dashboard', 'productos', 'variantes', 'categorias', 'marcas', 'garantias',
-                'cupones', 'envios', 'pedidos', 'usuarios', 'configuracion',
+                'cupones', 'envios', 'pedidos', 'usuarios', 'solicitudes', 'configuracion',
                 'auditoria', 'vendedores', 'comisiones', 'inventario', 'notificaciones',
                 'chatbot', 'analitica', 'soporte', 'resenas', 'pagos',
             ];

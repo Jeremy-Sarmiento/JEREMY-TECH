@@ -6,10 +6,6 @@
  */
 $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 $formulario = $formulario ?? $perfil;
-$tipo = strtoupper((string) ($formulario['tipo'] ?? 'B2C'));
-if (!in_array($tipo, ['B2C', 'B2B', 'C2C'], true)) {
-    $tipo = 'B2C';
-}
 $tipoActual = strtoupper((string) ($perfil['tipo'] ?? 'B2C'));
 if (!in_array($tipoActual, ['B2C', 'B2B', 'C2C'], true)) {
     $tipoActual = 'B2C';
@@ -23,7 +19,7 @@ $nombreCompleto = trim((string) ($perfil['nombre'] ?? '') . ' ' . (string) ($per
 ?>
 <main class="cart-page cuenta-page">
  <div class="cart-page-header">
-  <h1>👤 Mi Perfil</h1>
+  <h1><svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-user"/></svg>Mi Perfil</h1>
   <p>Mantén al día tus datos de contacto y facturación para agilizar tus compras.</p>
  </div>
 
@@ -37,12 +33,17 @@ $nombreCompleto = trim((string) ($perfil['nombre'] ?? '') . ' ' . (string) ($per
 
  <div class="perfil-grid">
   <section class="cart-page-section perfil-card">
-   <div class="cart-page-section-head">
-    <h2>Datos personales</h2>
-    <p>El correo se usa para iniciar sesión y recibir los avisos de tus pedidos.</p>
+   <div class="cart-page-section-head perfil-head">
+    <div>
+     <h2>Datos personales</h2>
+     <p>El correo se usa para iniciar sesión y recibir los avisos de tus pedidos.</p>
+    </div>
+    <button type="button" class="btn-mini perfil-editar-btn" id="perfilEditar"
+            aria-controls="perfilForm" aria-expanded="false">Editar</button>
    </div>
 
-   <form method="post" action="?ruta=perfil/guardar" class="perfil-form" data-tipo="<?= $tipo ?>">
+   <form method="post" action="?ruta=perfil/guardar" id="perfilForm" class="perfil-form"
+         data-tipo="<?= $tipoActual ?>" data-abrir-edicion="<?= ($flash['tipo'] ?? '') === 'error' ? '1' : '0' ?>">
     <?= \Security\Proteccion::campo() ?>
 
     <div class="form-row">
@@ -78,15 +79,14 @@ $nombreCompleto = trim((string) ($perfil['nombre'] ?? '') . ' ' . (string) ($per
              inputmode="numeric" autocomplete="off" value="<?= $e($formulario['dni'] ?? '') ?>">
      </div>
      <div class="form-group">
-      <label for="perfilTipo">Tipo de cuenta</label>
-      <select id="perfilTipo" name="tipo" class="perfil-select">
-       <option value="B2C"<?= $tipo === 'B2C' ? ' selected' : '' ?>>Persona (B2C)</option>
-       <option value="B2B"<?= $tipo === 'B2B' ? ' selected' : '' ?>>Empresa (B2B)</option>
-       <option value="C2C"<?= $tipo === 'C2C' ? ' selected' : '' ?>>Revendedor (C2C)</option>
-      </select>
+      <span class="perfil-etiqueta">Tipo de cuenta</span>
+      <p class="perfil-tipo-fijo"><?= $e($etiquetaTipo($tipoActual)) ?></p>
       <p class="perfil-ayuda">
-       Las cuentas C2C pueden publicar productos en
-       <a href="?ruta=mis-productos">Mis productos</a>.
+       Para cambiar el tipo de cuenta, avisa al administrador.
+       <?php if ($tipoActual === 'C2C'): ?>
+        Las cuentas C2C pueden publicar productos en
+        <a href="?ruta=mis-productos">Mis productos</a>.
+       <?php endif; ?>
       </p>
      </div>
     </div>
@@ -117,10 +117,11 @@ $nombreCompleto = trim((string) ($perfil['nombre'] ?? '') . ' ' . (string) ($per
             value="<?= $e($formulario['plataforma_reventa'] ?? '') ?>">
     </div>
 
-    <div class="perfil-acciones">
-     <button type="submit" class="btn-pagar-ahora perfil-btn">Guardar cambios</button>
-     <a class="btn-mini" href="?ruta=direcciones">Gestionar direcciones</a>
-    </div>
+     <div class="perfil-acciones">
+      <button type="submit" class="btn-pagar-ahora perfil-btn" data-perfil-editar>Guardar cambios</button>
+      <button type="button" class="btn-mini" id="perfilCancelar" data-perfil-editar>Cancelar</button>
+      <a class="btn-mini" href="?ruta=direcciones">Gestionar direcciones</a>
+     </div>
    </form>
   </section>
 
@@ -154,10 +155,45 @@ $nombreCompleto = trim((string) ($perfil['nombre'] ?? '') . ' ' . (string) ($per
      </div>
     </dl>
     <div class="perfil-resumen-acciones">
-     <a class="btn-mini" href="?ruta=mis-pedidos">📦 Ver mis pedidos</a>
-     <a class="btn-mini" href="?ruta=favoritos">❤️ Mis favoritos</a>
-     <a class="btn-mini" href="?ruta=notificaciones">📨 Notificaciones</a>
+     <a class="btn-mini" href="?ruta=mis-pedidos">Ver mis pedidos</a>
+     <a class="btn-mini" href="?ruta=favoritos">Mis favoritos</a>
+     <a class="btn-mini" href="?ruta=notificaciones">Notificaciones</a>
     </div>
+   </section>
+
+   <?php
+     // Rol de vendedor: toda cuenta nace como cliente y solo lo consigue
+     // con la aprobación del administrador desde `admin/solicitudes`.
+     $puedeVender = (string) ($perfil['rol'] ?? '') === 'vendedor';
+     $solicitudPendiente = $puedeVender ? null : \Model\SolicitudVendedor::pendienteDe((int) ($perfil['id'] ?? 0));
+     $ultimoRechazo = null;
+     if (!$puedeVender && $solicitudPendiente === null) {
+         $ultima = \Model\SolicitudVendedor::deUsuario((int) ($perfil['id'] ?? 0), 1)[0] ?? null;
+         $ultimoRechazo = ($ultima !== null && (string) $ultima['estado'] === \Model\SolicitudVendedor::RECHAZADA) ? $ultima : null;
+     }
+   ?>
+   <section class="cart-page-section perfil-vendedor" id="solicitud-vendedor">
+    <h2>Vender en Jeremy Tech</h2>
+    <?php if ($puedeVender): ?>
+    <p>Tu cuenta ya tiene el rol de vendedor. Publica y gestiona tu catálogo desde Mis productos.</p>
+    <a class="btn-mini" href="?ruta=mis-productos">Ir a mis productos</a>
+    <?php elseif ($solicitudPendiente !== null): ?>
+    <p>Tu solicitud de rol de vendedor está pendiente de revisión por un administrador. Te avisaremos en esta cuenta cuando la resuelva.</p>
+    <?php else: ?>
+    <p>Las cuentas nuevas solo compran. Si quieres vender, envía una solicitud: un administrador la revisará y, al aprobarla, tu cuenta mantiene todos tus datos.</p>
+    <?php if ($ultimoRechazo !== null): ?>
+    <div class="auth-flash auth-flash-error">
+     Tu solicitud anterior fue rechazada<?= trim((string) ($ultimoRechazo['motivo_rechazo'] ?? '')) !== '' ? ': ' . $e($ultimoRechazo['motivo_rechazo']) : '.' ?>
+    </div>
+    <?php endif; ?>
+    <form method="post" action="?ruta=perfil/solicitar-vendedor" class="perfil-vendedor-form">
+     <?= \Security\Proteccion::campo() ?>
+     <label for="solicitudMensaje">Cuéntanos qué vendes <span class="perfil-opcional">(opcional)</span></label>
+     <textarea id="solicitudMensaje" name="mensaje" rows="3" maxlength="<?= \Model\SolicitudVendedor::MENSAJE_MAX ?>"
+               placeholder="Ej. accesorios de tecnología nuevos, equipos usados..."></textarea>
+     <button type="submit" class="btn-pagar-ahora perfil-btn">Solicitar rol de vendedor</button>
+    </form>
+    <?php endif; ?>
    </section>
   </aside>
  </div>
