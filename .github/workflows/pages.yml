@@ -1,0 +1,74 @@
+name: Pages
+
+# Publica una copia estática de la portada (catálogo) para verla sin PHP.
+# GitHub Pages no ejecuta PHP: el resto de rutas son solo maqueta visual.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Generar la vista estática
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: admin
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      DB_HOST: 127.0.0.1
+      DB_NAME: jeremy_tech
+      DB_USER: root
+      DB_PASS: admin
+      APP_TIMEZONE: America/Lima
+      MAIL_STORAGE_PATH: /tmp/jeremy-tech-mail
+      CHAT_MODE: rules
+      PAGOS_MODO: simulado
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Importar el dump sanitizado
+        run: mysql -h 127.0.0.1 -u root -padmin < database/jeremy_tech_full.sql
+
+      - name: Generar _site
+        run: bash tools/build-preview.sh _site
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: Publicar
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -8,3 +8,6 @@ storage/mail/
 
 # PHP CS Fixer cache
 /.php-cs-fixer.cache
+
+# Vista estática generada para GitHub Pages
+/_site/

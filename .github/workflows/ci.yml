@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Sintaxis, estilo y análisis estático
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+          coverage: none
+
+      - name: Instalar dependencias
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Sintaxis PHP
+        run: git ls-files -z '*.php' | xargs -0 -n1 -P4 php -l > /dev/null
+
+      - name: Estilo (PHP CS Fixer)
+        run: composer cs-check
+
+      - name: Análisis estático (PHPStan)
+        run: composer stan
+
+  tests:
+    name: PHPUnit y smoke test
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: admin
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      DB_HOST: 127.0.0.1
+      DB_NAME: jeremy_tech
+      DB_USER: root
+      DB_PASS: admin
+      APP_TIMEZONE: America/Lima
+      APP_URL: http://127.0.0.1:8000
+      MAIL_STORAGE_PATH: /tmp/jeremy-tech-mail
+      CHAT_MODE: rules
+      PAGOS_MODO: simulado
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+          coverage: none
+
+      - name: Instalar dependencias
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Importar el dump sanitizado
+        run: mysql -h 127.0.0.1 -u root -padmin < database/jeremy_tech_full.sql
+
+      - name: PHPUnit
+        run: php vendor/bin/phpunit
+
+      - name: Smoke test HTTP
+        run: bash tools/smoke-test.sh

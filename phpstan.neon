@@ -2,6 +2,7 @@ parameters:
     paths:
         - src
     level: 5
+    phpVersion: 80200
     ignoreErrors:
         - "#Offset .* on \\*NEVER\\* on left side of \\?#"
         - '#Offset .* on array\{.*\} on left side of \?\? always exists#'

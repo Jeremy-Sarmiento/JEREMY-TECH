@@ -369,6 +369,28 @@ no se define, en web se deduce del host de la petición; en CLI se usa
 `http://localhost`. Los enlaces incluyen `index.php` explícitamente porque en
 este Apache el `DirectoryIndex` global solo sirve `index.html`.
 
+## Integración continua y vista en GitHub Pages
+
+`.github/workflows/ci.yml` corre en cada push y pull request: sintaxis
+(`php -l`), estilo (`composer cs-check`), análisis estático (`composer stan`),
+PHPUnit contra un MariaDB temporal con el dump sanitizado y un smoke test HTTP
+(`tools/smoke-test.sh`) que comprueba portada, login, catálogo, la redirección
+del panel y el rechazo de POST sin CSRF.
+
+`.github/workflows/pages.yml` publica en GitHub Pages una copia estática de la
+portada generada con `tools/build-preview.sh` (renderiza el catálogo con la
+base importada y copia `public/css`, `public/js` y `public/img`). Para verla,
+activa en el repositorio **Settings → Pages → Source: GitHub Actions**. Pages
+no ejecuta PHP: solo se ve la maqueta de la portada, y los enlaces con
+`?ruta=...` recargan esa misma página.
+
+En local, con la base importada:
+
+```bash
+bash tools/smoke-test.sh          # smoke test HTTP
+bash tools/build-preview.sh _site # genera la vista estática
+```
+
 ## Entorno
 
 `.env` es la fuente principal de configuración. `config/conexion.php` lo lee
