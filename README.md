@@ -17,8 +17,7 @@ Informes PDF de las sesiones de desarrollo:
 ## Instalación
 
 ```bash
-mysql -u root -p -e "CREATE DATABASE jeremy_tech CHARACTER SET utf8mb4;"
-mysql -u root -p jeremy_tech < database/jeremy_tech.sql
+mysql -u root -p < database/jeremy_tech_full.sql
 cp .env.example .env   # rellenar DB_USER / DB_PASS
 php -S 127.0.0.1:8000 -t public
 ```
@@ -392,7 +391,7 @@ src/Controller/     Controladores (Producto, Carrito, Login, Admin, ...)
 src/Model/          Modelos con SQL directo vía PDO
 views/              Vistas de tienda + views/admin/ (panel y secciones)
 config/conexion.php Carga .env, autocarga PSR-4 y singleton PDO
-database/           jeremy_tech.sql (esquema + semillas)
+database/           jeremy_tech_full.sql (esquema + datos)
 ```
 
 ## Rutas

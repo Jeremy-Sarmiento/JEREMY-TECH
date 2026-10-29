@@ -10,14 +10,13 @@ declare(strict_types=1);
  *  3. Conexión PDO única con atributos seguros.
  *
  * NOTA: el esquema y las semillas ya NO se crean desde PHP. Ahora viven en el
- * archivo único `database/jeremy_tech.sql`. Antes de servir la app por primera
+ * volcado `database/jeremy_tech_full.sql`. Antes de servir la app por primera
  * vez (o tras clonar), ejecuta:
  *
- *   mysql -u root -p < database/jeremy_tech.sql
+ *   mysql -u root -p < database/jeremy_tech_full.sql
  *
- * El archivo es idempotente: puede re-ejecutarse sobre una BD existente sin
- * dañar datos (usa CREATE TABLE IF NOT EXISTS / INSERT IGNORE /
- * ADD COLUMN IF NOT EXISTS).
+ * El volcado incluye CREATE DATABASE + los datos completos, así que debe
+ * importarse sobre una instalación vacía (no es idempotente).
  *
  * Las credenciales ya NO se escriben aquí: se leen desde el archivo `.env`
  * (no versionado), que es la fuente principal. Copia `.env.example` a `.env`
