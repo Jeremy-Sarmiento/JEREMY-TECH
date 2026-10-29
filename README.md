@@ -379,10 +379,11 @@ del panel y el rechazo de POST sin CSRF.
 
 `.github/workflows/pages.yml` publica en GitHub Pages una copia estática de la
 portada generada con `tools/build-preview.sh` (renderiza el catálogo con la
-base importada y copia `public/css`, `public/js` y `public/img`). Para verla,
-activa en el repositorio **Settings → Pages → Source: GitHub Actions**. Pages
-no ejecuta PHP: solo se ve la maqueta de la portada, y los enlaces con
-`?ruta=...` recargan esa misma página.
+base importada y copia `public/css`, `public/js` y `public/img`). El repo ya
+está configurado con **Settings → Pages → Source: GitHub Actions**; la vista
+queda en <https://jeremy-sarmiento.github.io/JEREMY-TECH/>. Pages no ejecuta
+PHP: solo se ve la maqueta de la portada, y los enlaces con `?ruta=...`
+recargan esa misma página.
 
 En local, con la base importada:
 
