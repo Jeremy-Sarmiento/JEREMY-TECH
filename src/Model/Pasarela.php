@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Model;
@@ -164,8 +165,8 @@ final class Pasarela
             $pedidoIdReal = (int) $pago['pedido_id'];
             $estadoPagoActual = (string) $pago['estado'];
 
-            $sqlPago = "UPDATE pagos
-                           SET estado = ?, pasarela = ?, actualizado_en = NOW()";
+            $sqlPago = 'UPDATE pagos
+                           SET estado = ?, pasarela = ?, actualizado_en = NOW()';
             $paramsPago = [$estado, $pasarela];
 
             if ($referencia !== '') {

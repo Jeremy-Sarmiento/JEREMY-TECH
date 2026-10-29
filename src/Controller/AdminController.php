@@ -1,10 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Controller;
 
 use Model\Administrador as Admin;
-use Model\Analitica;
 use Model\ChatbotFaq;
 use Model\Envio;
 use Model\LimiteIntentos;
@@ -470,7 +470,7 @@ final class AdminController
                     $colores = $coloresRaw;
                 } else {
                     // Lista separada por comas -> convertir a JSON.
-                    $lista = array_values(array_filter(array_map('trim', explode(',', $coloresRaw)), static fn($x) => $x !== ''));
+                    $lista = array_values(array_filter(array_map('trim', explode(',', $coloresRaw)), static fn ($x) => $x !== ''));
                     $colores = json_encode($lista, JSON_UNESCAPED_UNICODE);
                 }
             }
@@ -2002,8 +2002,12 @@ final class AdminController
                             (producto_id, nombre_variante, precio_extra, stock, color, activo)
                          VALUES (?, ?, ?, ?, ?, ?)'
                     )->execute([(int) $producto['id'], $nombre, $extra, $stock, $color, $activo]);
-                    $this->auditar($admin, 'variantes/crear', (int) $pdo->lastInsertId(),
-                        'Creó la variante "' . $nombre . '"');
+                    $this->auditar(
+                        $admin,
+                        'variantes/crear',
+                        (int) $pdo->lastInsertId(),
+                        'Creó la variante "' . $nombre . '"'
+                    );
                 }
             } catch (\PDOException) {
                 $this->flash('No se pudo guardar la variante (¿nombre duplicado?).', true);
@@ -2101,15 +2105,23 @@ final class AdminController
                             SET cantidad_minima = ?, cantidad_maxima = ?, precio_unitario = ?
                           WHERE id = ?'
                     )->execute([$cmin, $cmax, $precio, $id]);
-                    $this->auditar($admin, 'volumen/editar', $id,
-                        'Editó el tramo de volumen #' . $id . ' (' . $cmin . '..' . ($cmax ?? '∞') . ')');
+                    $this->auditar(
+                        $admin,
+                        'volumen/editar',
+                        $id,
+                        'Editó el tramo de volumen #' . $id . ' (' . $cmin . '..' . ($cmax ?? '∞') . ')'
+                    );
                 } else {
                     $pdo->prepare(
                         'INSERT INTO precios_volumen (producto_id, cantidad_minima, cantidad_maxima, precio_unitario)
                          VALUES (?, ?, ?, ?)'
                     )->execute([(int) $producto['id'], $cmin, $cmax, $precio]);
-                    $this->auditar($admin, 'volumen/crear', (int) $pdo->lastInsertId(),
-                        'Creó un tramo de volumen (' . $cmin . '..' . ($cmax ?? '∞') . ')');
+                    $this->auditar(
+                        $admin,
+                        'volumen/crear',
+                        (int) $pdo->lastInsertId(),
+                        'Creó un tramo de volumen (' . $cmin . '..' . ($cmax ?? '∞') . ')'
+                    );
                 }
             } catch (\PDOException) {
                 $this->flash('No se pudo guardar el tramo de volumen.', true);

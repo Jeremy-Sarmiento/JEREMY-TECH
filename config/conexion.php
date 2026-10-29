@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -233,8 +234,8 @@ function conexion(): PDO
         http_response_code(500);
         die(
             "No se pudo conectar a la base de datos '" . DB_NAME . "'. Verifica que " .
-            "MariaDB esté encendido y que la base exista (CREATE DATABASE jeremy_tech;).<br>" .
-            "Detalle técnico: " . htmlspecialchars($error->getMessage())
+            'MariaDB esté encendido y que la base exista (CREATE DATABASE jeremy_tech;).<br>' .
+            'Detalle técnico: ' . htmlspecialchars($error->getMessage())
         );
     }
 

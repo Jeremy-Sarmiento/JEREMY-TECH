@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Model;
@@ -53,8 +54,8 @@ class Vendedor
                     (SELECT IFNULL(SUM(pv.monto), 0) FROM pagos_vendedor pv
                      WHERE pv.vendedor_id = u.id) AS liquidado
                FROM users u
-              WHERE " . self::CONDICION_VENDEDOR . " AND u.deleted_at IS NULL
-              ORDER BY u.name, u.apellidos"
+              WHERE " . self::CONDICION_VENDEDOR . ' AND u.deleted_at IS NULL
+              ORDER BY u.name, u.apellidos'
         )->fetchAll();
     }
 
@@ -64,8 +65,8 @@ class Vendedor
     public static function porId(int $id): ?array
     {
         $stmt = conexion()->prepare(
-            "SELECT * FROM users
-              WHERE id = ? AND " . self::CONDICION_VENDEDOR . " AND deleted_at IS NULL LIMIT 1"
+            'SELECT * FROM users
+              WHERE id = ? AND ' . self::CONDICION_VENDEDOR . ' AND deleted_at IS NULL LIMIT 1'
         );
         $stmt->execute([$id]);
         $fila = $stmt->fetch();
@@ -347,13 +348,13 @@ class Vendedor
     public static function ventasDe(int $vendedorId): array
     {
         $stmt = conexion()->prepare(
-            "SELECT c.id, c.pedido_id, c.monto_venta, c.porcentaje_comision,
+            'SELECT c.id, c.pedido_id, c.monto_venta, c.porcentaje_comision,
                     c.monto_comision, c.monto_vendedor, c.creado_en,
                     p.estado, p.total_pen
                FROM comisiones c
                JOIN pedidos p ON p.id = c.pedido_id
               WHERE c.vendedor_id = ?
-              ORDER BY c.id DESC"
+              ORDER BY c.id DESC'
         );
         $stmt->execute([$vendedorId]);
         return $stmt->fetchAll();
@@ -435,7 +436,7 @@ class Vendedor
             return '';
         }
         $stmt = conexion()->prepare(
-            "SELECT name FROM users WHERE id = ? AND deleted_at IS NULL LIMIT 1"
+            'SELECT name FROM users WHERE id = ? AND deleted_at IS NULL LIMIT 1'
         );
         $stmt->execute([$vendedorId]);
         $nombre = $stmt->fetchColumn();

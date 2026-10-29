@@ -1,9 +1,9 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Controller;
 
-use Model\Analitica;
 use Model\ChatbotFaq;
 use Model\Cuenta;
 use Model\Envio;
@@ -396,7 +396,7 @@ class ChatController
                 . "• Seguimiento de pedidos (con tu código #JT-00000)\n"
                 . "• Búsqueda de productos\n"
                 . "• Envíos, pagos, garantías y contacto\n\n"
-                . "También puedes escribirnos por WhatsApp.",
+                . 'También puedes escribirnos por WhatsApp.',
             'links' => [
                 ['label' => '💬 Escribir por WhatsApp', 'url' => $this->whatsapp('Hola, necesito ayuda con Jeremy Tech.')],
                 ['label' => '🛍️ Ver catálogo', 'url' => '?ruta=catalogo'],

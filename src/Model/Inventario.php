@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Model;
@@ -66,8 +67,15 @@ class Inventario
                 self::bajarStock($pdo, 'producto_variantes', $varianteId, $cantidad);
             }
 
-            self::registrar($pdo, 'salida', $productoId, $varianteId, $pedidoId, $cantidad,
-                'Venta del pedido #' . $pedidoId . ' · ' . $nombre);
+            self::registrar(
+                $pdo,
+                'salida',
+                $productoId,
+                $varianteId,
+                $pedidoId,
+                $cantidad,
+                'Venta del pedido #' . $pedidoId . ' · ' . $nombre
+            );
         }
     }
 
@@ -113,8 +121,15 @@ class Inventario
                 self::subirStock($pdo, 'producto_variantes', $varianteId, $cantidad);
             }
 
-            self::registrar($pdo, 'entrada', $productoId, $varianteId, $pedidoId, $cantidad,
-                'Cancelación del pedido #' . $pedidoId . ' · ' . (string) $linea['producto_nombre']);
+            self::registrar(
+                $pdo,
+                'entrada',
+                $productoId,
+                $varianteId,
+                $pedidoId,
+                $cantidad,
+                'Cancelación del pedido #' . $pedidoId . ' · ' . (string) $linea['producto_nombre']
+            );
         }
 
         return true;

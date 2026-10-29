@@ -1,5 +1,10 @@
 .env
 .ht.env
+/vendor/
 admin.md
 # Correos simulados: no se versionan (pueden contener datos del cliente).
 storage/mail/
+
+
+# PHP CS Fixer cache
+/.php-cs-fixer.cache

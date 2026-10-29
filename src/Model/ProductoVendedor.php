@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Model;
@@ -66,7 +67,7 @@ final class ProductoVendedor
 
         $busqueda = trim($busqueda);
         if ($busqueda !== '') {
-            $sql .= " AND (p.nombre LIKE ? OR p.modelo LIKE ? OR p.codigo_sku LIKE ?)";
+            $sql .= ' AND (p.nombre LIKE ? OR p.modelo LIKE ? OR p.codigo_sku LIKE ?)';
             $comodin = '%' . $busqueda . '%';
             array_push($parametros, $comodin, $comodin, $comodin);
         }
