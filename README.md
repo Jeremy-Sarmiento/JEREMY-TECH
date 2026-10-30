@@ -131,6 +131,31 @@ su precio extra y su stock. Se gestionan desde la misma ficha de edición
 activar/ocultar y eliminar. La ficha pública solo muestra las activas y limita
 la compra al menor stock entre producto y variante. Las ventas pasadas
 conservan el nombre y el precio de la variante aunque luego se elimine.
+El panel muestra cuántas variantes y tramos de volumen tiene cada publicación
+y enlaza directo a su sección de edición.
+
+### Precios por volumen
+
+Desde la ficha de edición (`#precios-volumen`) el vendedor crea tramos por
+cantidad con su precio unitario: mínimo obligatorio, máximo opcional (vacío =
+«desde N en adelante») y un solo tramo abierto por publicación. Las reglas de
+validación son las mismas que aplica el panel de administración, pero todas
+las consultas se acotan al `vendedor_id` de la sesión. El tramo sustituye el
+precio base del producto y el extra de la variante sigue sumándose; el
+catálogo y la ficha ya aplican ese cálculo.
+
+### Reportes
+
+`?ruta=mis-productos/reportes` resume la actividad del vendedor con el mismo
+criterio que **Mis ganancias** (solo pedidos cobrados, nunca Pendiente ni
+Cancelado):
+
+- **Resumen del periodo** y tabla **mes a mes** de los últimos 3, 6 o 12
+  meses, con los meses sin ventas en cero.
+- **Productos más vendidos** por ingresos y **mejores compradores** por total
+  gastado.
+- **Descarga CSV** (`?ruta=mis-productos/reportes.csv`) con los últimos 12
+  meses para abrir en una hoja de cálculo.
 
 ### Archivar y eliminar
 

@@ -49,7 +49,11 @@ final class ProductoVendedor
                        (SELECT COUNT(*) FROM movimientos_inventario mi
                          WHERE mi.producto_id = p.id) AS movimientos_total,
                        (SELECT COUNT(*) FROM resenas r
-                         WHERE r.producto_id = p.id) AS resenas_total
+                         WHERE r.producto_id = p.id) AS resenas_total,
+                       (SELECT COUNT(*) FROM producto_variantes va
+                         WHERE va.producto_id = p.id) AS variantes_total,
+                       (SELECT COUNT(*) FROM precios_volumen pv
+                         WHERE pv.producto_id = p.id) AS tramos_total
                   FROM productos p
                   LEFT JOIN marcas m ON m.id = p.marca_id
                   LEFT JOIN garantias g ON g.id = p.garantia_id
@@ -86,6 +90,8 @@ final class ProductoVendedor
             $fila['stock_minimo'] = (int) $fila['stock_minimo'];
             $fila['activo'] = (int) $fila['activo'];
             $fila['unidades_vendidas'] = (int) $fila['unidades_vendidas'];
+            $fila['variantes_total'] = (int) $fila['variantes_total'];
+            $fila['tramos_total'] = (int) $fila['tramos_total'];
             $fila['archivado_en'] = $fila['archivado_en'] !== null ? (string) $fila['archivado_en'] : null;
             $fila['eliminable'] = (
                 (int) $fila['lineas_vendidas']
@@ -665,6 +671,108 @@ final class ProductoVendedor
 
         $stmt = conexion()->prepare(
             'DELETE pv FROM producto_variantes pv
+               JOIN productos p ON p.id = pv.producto_id
+              WHERE pv.id = ? AND p.vendedor_id = ? AND p.slug = ?
+                AND p.archivado_en IS NULL'
+        );
+        $stmt->execute([$id, $vendedorId, $slug]);
+
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
+     * Tramos de precio por volumen de una publicación propia.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public static function tramosDe(int $vendedorId, string $slug): array
+    {
+        $producto = self::porSlug($vendedorId, $slug);
+
+        return $producto !== null ? PrecioVolumen::deProducto((int) $producto['id']) : [];
+    }
+
+    /**
+     * Crea o actualiza un tramo de precio por volumen de una publicación
+     * propia. Las reglas son las mismas que valida el panel de administración.
+     *
+     * @param array<string, mixed> $datos
+     * @return array{ok: bool, error?: string}
+     */
+    public static function guardarTramo(int $vendedorId, string $slug, array $datos): array
+    {
+        $producto = self::porSlug($vendedorId, $slug);
+        if ($producto === null) {
+            return ['ok' => false, 'error' => 'Esa publicación no existe o no es tuya.'];
+        }
+        if (($producto['archivado_en'] ?? null) !== null) {
+            return ['ok' => false, 'error' => 'La publicación está archivada.'];
+        }
+
+        $productoId = (int) $producto['id'];
+        $id      = (int) ($datos['id'] ?? 0);
+        $minimo  = (int) ($datos['cantidad_minima'] ?? 0);
+        $maxRaw  = trim((string) ($datos['cantidad_maxima'] ?? ''));
+        $maximo  = $maxRaw !== '' ? (int) $maxRaw : null;
+        $precio  = (float) ($datos['precio_unitario'] ?? -1);
+
+        if ($minimo < 1 || $precio < 0) {
+            return ['ok' => false, 'error' => 'Revisa la cantidad mínima y el precio del tramo.'];
+        }
+        if ($maximo !== null && $maximo < $minimo) {
+            return ['ok' => false, 'error' => 'La cantidad máxima no puede ser menor que la mínima.'];
+        }
+
+        $pdo = conexion();
+
+        // Un solo tramo abierto por producto; si no, el precio dependería del
+        // orden en que se consulte.
+        if ($maximo === null) {
+            $stmt = $pdo->prepare(
+                'SELECT id FROM precios_volumen
+                  WHERE producto_id = ? AND cantidad_maxima IS NULL AND id <> ? LIMIT 1'
+            );
+            $stmt->execute([$productoId, $id]);
+            if ($stmt->fetch()) {
+                return ['ok' => false, 'error' => 'Ya tienes un tramo abierto ("desde N en adelante").'];
+            }
+        }
+
+        try {
+            if ($id > 0) {
+                $actual = PrecioVolumen::porId($id);
+                if ($actual === null || (int) $actual['productoId'] !== $productoId) {
+                    return ['ok' => false, 'error' => 'Ese tramo no pertenece a esta publicación.'];
+                }
+                $pdo->prepare(
+                    'UPDATE precios_volumen
+                        SET cantidad_minima = ?, cantidad_maxima = ?, precio_unitario = ?
+                      WHERE id = ?'
+                )->execute([$minimo, $maximo, $precio, $id]);
+            } else {
+                $pdo->prepare(
+                    'INSERT INTO precios_volumen (producto_id, cantidad_minima, cantidad_maxima, precio_unitario)
+                     VALUES (?, ?, ?, ?)'
+                )->execute([$productoId, $minimo, $maximo, $precio]);
+            }
+        } catch (\PDOException) {
+            return ['ok' => false, 'error' => 'No se pudo guardar el tramo de precio.'];
+        }
+
+        return ['ok' => true];
+    }
+
+    /**
+     * Elimina un tramo de una publicación propia.
+     */
+    public static function eliminarTramo(int $vendedorId, string $slug, int $id): bool
+    {
+        if ($vendedorId <= 0 || $slug === '' || $id <= 0) {
+            return false;
+        }
+
+        $stmt = conexion()->prepare(
+            'DELETE pv FROM precios_volumen pv
                JOIN productos p ON p.id = pv.producto_id
               WHERE pv.id = ? AND p.vendedor_id = ? AND p.slug = ?
                 AND p.archivado_en IS NULL'

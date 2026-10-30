@@ -124,6 +124,8 @@
 
      <p class="pv-vendidos">
       <?= $unidades > 0 ? $unidades . ' unidad' . ($unidades === 1 ? '' : 'es') . ' vendida' . ($unidades === 1 ? '' : 's') : 'Sin ventas todavía' ?>
+      · <?= (int) ($p['variantes_total'] ?? 0) ?> variante<?= (int) ($p['variantes_total'] ?? 0) === 1 ? '' : 's' ?>
+      · <?= (int) ($p['tramos_total'] ?? 0) ?> tramo<?= (int) ($p['tramos_total'] ?? 0) === 1 ? '' : 's' ?> de volumen
      </p>
 
      <div class="pv-acciones">
@@ -146,7 +148,8 @@
       <?php endif; ?>
       <?php else: ?>
       <a class="btn-mini" href="?ruta=mis-productos/editar&amp;slug=<?= urlencode($slug) ?>">Editar</a>
-      <a class="btn-mini" href="?ruta=mis-productos/editar&amp;slug=<?= urlencode($slug) ?>#variantes">Variantes</a>
+      <a class="btn-mini" href="?ruta=mis-productos/editar&amp;slug=<?= urlencode($slug) ?>#variantes">Variantes (<?= (int) ($p['variantes_total'] ?? 0) ?>)</a>
+      <a class="btn-mini" href="?ruta=mis-productos/editar&amp;slug=<?= urlencode($slug) ?>#precios-volumen">Precios (<?= (int) ($p['tramos_total'] ?? 0) ?>)</a>
       <?= \Security\Proteccion::botonPost(
           'mis-productos/estado',
           ['slug' => $slug],

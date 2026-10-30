@@ -4,7 +4,7 @@
  *
  * Datos de entrada (src/Controller/VendedorController::formulario()):
  *   $formulario, $esEdicion, $slugEditar, $categorias, $marcas,
- *   $garantias, $flash, $variantes.
+ *   $garantias, $flash, $variantes, $tramos, $editandoTramo.
  *
  * El formulario es una página dedicada (no el modal del panel admin) para
  * conservar la estética de la tienda. Si una validación falla, el
@@ -338,6 +338,90 @@ $imagenActual = trim($valor('imagen')) !== '' ? $valor('imagen') : $imagenPredet
     <span>Variante activa (visible en la ficha)</span>
    </label>
    <button type="submit" class="pv-btn-guardar">Agregar variante</button>
+  </form>
+ </section>
+
+ <section class="pv-panel pv-variantes" id="precios-volumen" aria-labelledby="pv-volumen-titulo">
+  <div class="pv-panel-cabecera">
+   <div>
+    <h2 class="pv-panel-titulo" id="pv-volumen-titulo">Precios por volumen</h2>
+    <p class="pv-panel-nota">
+     Descuenta por cantidad comprada. El tramo reemplaza el precio base del
+     producto; el extra de la variante se sigue sumando. Deja la cantidad
+     máxima vacía para un tramo abierto («desde N en adelante»).
+    </p>
+   </div>
+   <span class="pv-panel-contador">
+    <?= count($tramos ?? []) ?> tramo<?= count($tramos ?? []) === 1 ? '' : 's' ?>
+   </span>
+  </div>
+
+  <?php if (empty($tramos)): ?>
+  <p class="pv-vacio-mini">Sin tramos: se cobra el precio publicado para cualquier cantidad.</p>
+  <?php else: ?>
+  <div class="pv-tabla-wrap">
+   <table class="pv-tabla">
+    <thead>
+     <tr>
+      <th>Cantidad</th>
+      <th>Precio unitario</th>
+      <th>Ahorro vs. base</th>
+      <th>Acciones</th>
+     </tr>
+    </thead>
+    <tbody>
+     <?php foreach ($tramos as $t): ?>
+      <?php $ahorro = (float) ($formulario['precio_pen'] ?? 0) - (float) $t['precioUnitario']; ?>
+      <tr>
+       <td><strong><?= $e(\Model\PrecioVolumen::rangoTexto($t)) ?></strong></td>
+       <td><?= $fmt((float) $t['precioUnitario']) ?></td>
+       <td><?= $ahorro > 0 ? $fmt($ahorro) : '—' ?></td>
+       <td>
+        <div class="pv-variante-acciones">
+         <a class="btn-mini" href="?ruta=mis-productos/editar&amp;slug=<?= urlencode($slugEditar) ?>&amp;tramo=<?= (int) $t['id'] ?>#precios-volumen">Editar</a>
+         <?= \Security\Proteccion::botonPost(
+             'mis-productos/volumen/eliminar',
+             ['slug' => $slugEditar, 'id' => (int) $t['id']],
+             'Eliminar',
+             'btn-mini btn-mini-peligro',
+             '¿Eliminar este tramo de precio?'
+         ) ?>
+        </div>
+       </td>
+      </tr>
+     <?php endforeach; ?>
+    </tbody>
+   </table>
+  </div>
+  <?php endif; ?>
+
+  <h3 class="pv-variante-subtitulo"><?= $editandoTramo !== null ? '✏️ Editar tramo' : '➕ Agregar tramo' ?></h3>
+  <form method="post" action="?ruta=mis-productos/volumen/guardar" class="pv-variante-form pv-variante-nueva">
+   <?= \Security\Proteccion::campo() ?>
+   <input type="hidden" name="slug" value="<?= $e($slugEditar) ?>"/>
+   <input type="hidden" name="id" value="<?= (int) ($editandoTramo['id'] ?? 0) ?>"/>
+   <div class="pv-variante-campos">
+    <div class="form-group">
+     <label for="tramo-minimo">Cantidad mínima *</label>
+     <input id="tramo-minimo" type="number" name="cantidad_minima" min="1" step="1" required
+            value="<?= (int) ($editandoTramo['cantidadMinima'] ?? 1) ?>"/>
+    </div>
+    <div class="form-group">
+     <label for="tramo-maximo">Cantidad máxima</label>
+     <input id="tramo-maximo" type="number" name="cantidad_maxima" min="1" step="1"
+            placeholder="Vacío = sin límite"
+            value="<?= $editandoTramo !== null && $editandoTramo['cantidadMaxima'] !== null ? (int) $editandoTramo['cantidadMaxima'] : '' ?>"/>
+    </div>
+    <div class="form-group">
+     <label for="tramo-precio">Precio unitario (S/) *</label>
+     <input id="tramo-precio" type="number" name="precio_unitario" min="0" step="0.01" required
+            value="<?= $e((string) (float) ($editandoTramo['precioUnitario'] ?? 0)) ?>"/>
+    </div>
+   </div>
+   <button type="submit" class="pv-btn-guardar"><?= $editandoTramo !== null ? 'Guardar tramo' : 'Agregar tramo' ?></button>
+   <?php if ($editandoTramo !== null): ?>
+   <a class="btn-mini" href="?ruta=mis-productos/editar&amp;slug=<?= urlencode($slugEditar) ?>#precios-volumen">Cancelar</a>
+   <?php endif; ?>
   </form>
  </section>
  <?php endif; ?>

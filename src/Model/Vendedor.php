@@ -283,6 +283,143 @@ class Vendedor
     }
 
     /**
+     * Ventas por mes de los últimos N meses (incluye meses sin movimiento).
+     *
+     * Mismo criterio que `resumenGanancias`: solo pedidos cobrados
+     * (ni Pendiente ni Cancelado). Se agrupa por la fecha del pedido, no por
+     * la de la comisión, para que el reporte cuadre con la compra.
+     *
+     * @return array<int, array{mes:string, pedidos:int, unidades:int, vendido:float, comision:float, neto:float}>
+     */
+    public static function reporteMensual(int $vendedorId, int $meses = 6): array
+    {
+        if ($vendedorId <= 0) {
+            return [];
+        }
+
+        $meses = max(1, min(12, $meses));
+        $desde = (new \DateTimeImmutable('first day of this month'))
+            ->modify('-' . ($meses - 1) . ' months')
+            ->format('Y-m-d 00:00:00');
+
+        $stmt = conexion()->prepare(
+            "SELECT DATE_FORMAT(p.creado_en, '%Y-%m') AS mes,
+                    COUNT(DISTINCT p.id) AS pedidos,
+                    IFNULL(SUM(c.monto_venta), 0) AS vendido,
+                    IFNULL(SUM(c.monto_comision), 0) AS comision,
+                    IFNULL(SUM(c.monto_vendedor), 0) AS neto
+               FROM comisiones c
+               JOIN pedidos p ON p.id = c.pedido_id
+              WHERE c.vendedor_id = ?
+                AND p.estado NOT IN ('Cancelado', 'Pendiente')
+                AND p.creado_en >= ?
+              GROUP BY mes"
+        );
+        $stmt->execute([$vendedorId, $desde]);
+        $ventas = [];
+        foreach ($stmt->fetchAll() as $fila) {
+            $ventas[(string) $fila['mes']] = $fila;
+        }
+
+        $stmt = conexion()->prepare(
+            "SELECT DATE_FORMAT(p.creado_en, '%Y-%m') AS mes,
+                    IFNULL(SUM(dp.cantidad), 0) AS unidades
+               FROM detalle_pedido dp
+               JOIN pedidos p ON p.id = dp.pedido_id
+              WHERE dp.vendedor_id = ?
+                AND p.estado NOT IN ('Cancelado', 'Pendiente')
+                AND p.creado_en >= ?
+              GROUP BY mes"
+        );
+        $stmt->execute([$vendedorId, $desde]);
+        $unidades = $stmt->fetchAll(\PDO::FETCH_KEY_PAIR);
+
+        $inicio = new \DateTimeImmutable($desde);
+        $filas = [];
+        for ($i = 0; $i < $meses; $i++) {
+            $mes = $inicio->modify('+' . $i . ' months')->format('Y-m');
+            $fila = $ventas[$mes] ?? [];
+            $filas[] = [
+                'mes'      => $mes,
+                'pedidos'  => (int) ($fila['pedidos'] ?? 0),
+                'unidades' => (int) ($unidades[$mes] ?? 0),
+                'vendido'  => (float) ($fila['vendido'] ?? 0),
+                'comision' => (float) ($fila['comision'] ?? 0),
+                'neto'     => (float) ($fila['neto'] ?? 0),
+            ];
+        }
+
+        return $filas;
+    }
+
+    /**
+     * Productos más vendidos del vendedor por ingresos.
+     *
+     * @return array<int, array{nombre:string, unidades:int, ingresos:float}>
+     */
+    public static function topProductos(int $vendedorId, int $limite = 5): array
+    {
+        if ($vendedorId <= 0) {
+            return [];
+        }
+
+        $limite = max(1, min(20, $limite));
+        $stmt = conexion()->prepare(
+            'SELECT dp.producto_nombre AS nombre,
+                    IFNULL(SUM(dp.cantidad), 0) AS unidades,
+                    IFNULL(SUM(dp.cantidad * dp.precio_unitario_pen), 0) AS ingresos
+               FROM detalle_pedido dp
+               JOIN pedidos p ON p.id = dp.pedido_id
+              WHERE dp.vendedor_id = ?
+                AND p.estado NOT IN (\'Cancelado\', \'Pendiente\')
+              GROUP BY dp.producto_id, dp.producto_nombre
+              ORDER BY ingresos DESC, unidades DESC
+              LIMIT ' . $limite
+        );
+        $stmt->execute([$vendedorId]);
+
+        return array_map(static fn (array $fila): array => [
+            'nombre'   => (string) $fila['nombre'],
+            'unidades' => (int) $fila['unidades'],
+            'ingresos' => (float) $fila['ingresos'],
+        ], $stmt->fetchAll());
+    }
+
+    /**
+     * Compradores que más gastaron en las publicaciones del vendedor.
+     *
+     * @return array<int, array{nombre:string, pedidos:int, total:float}>
+     */
+    public static function topCompradores(int $vendedorId, int $limite = 5): array
+    {
+        if ($vendedorId <= 0) {
+            return [];
+        }
+
+        $limite = max(1, min(20, $limite));
+        $stmt = conexion()->prepare(
+            'SELECT u.name AS nombre, u.apellidos,
+                    COUNT(DISTINCT p.id) AS pedidos,
+                    IFNULL(SUM(dp.cantidad * dp.precio_unitario_pen), 0) AS total
+               FROM detalle_pedido dp
+               JOIN pedidos p ON p.id = dp.pedido_id
+               JOIN users u ON u.id = p.cliente_id
+              WHERE dp.vendedor_id = ?
+                AND p.estado NOT IN (\'Cancelado\', \'Pendiente\')
+              GROUP BY u.id, u.name, u.apellidos
+              ORDER BY total DESC
+              LIMIT ' . $limite
+        );
+        $stmt->execute([$vendedorId]);
+
+        return array_map(static fn (array $fila): array => [
+            'nombre'  => trim((string) $fila['nombre'] . ' ' . (string) $fila['apellidos']),
+            'pedidos' => (int) $fila['pedidos'],
+            'total'   => (float) $fila['total'],
+        ], $stmt->fetchAll());
+    }
+
+    /**
      * Últimas calificaciones recibidas, con el nombre del comprador.
      *
      * @return array<int, array<string, mixed>>

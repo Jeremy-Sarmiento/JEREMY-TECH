@@ -51,6 +51,10 @@ declare(strict_types=1);
  *   POST ?ruta=mis-productos/variantes/guardar  -> crear/editar variante
  *   POST ?ruta=mis-productos/variantes/estado   -> activar/ocultar variante
  *   POST ?ruta=mis-productos/variantes/eliminar -> eliminar variante
+ *   POST ?ruta=mis-productos/volumen/guardar    -> crear/editar tramo de precio
+ *   POST ?ruta=mis-productos/volumen/eliminar   -> eliminar tramo de precio
+ *   ?ruta=mis-productos/reportes                -> reportes de ventas
+ *   ?ruta=mis-productos/reportes.csv            -> descarga CSV del reporte
  *   ?ruta=chat/token                    -> token CSRF para el widget
  *   POST ?ruta=chat/message             -> mensaje del chatbot
  */
@@ -235,6 +239,22 @@ switch ($ruta) {
 
     case 'mis-productos/variantes/eliminar':
         (new Controller\VendedorController())->varianteEliminar();
+        break;
+
+    case 'mis-productos/volumen/guardar':
+        (new Controller\VendedorController())->tramoGuardar();
+        break;
+
+    case 'mis-productos/volumen/eliminar':
+        (new Controller\VendedorController())->tramoEliminar();
+        break;
+
+    case 'mis-productos/reportes':
+        (new Controller\VendedorController())->reportes();
+        break;
+
+    case 'mis-productos/reportes.csv':
+        (new Controller\VendedorController())->reportesCsv();
         break;
 
     case 'resenas/guardar':

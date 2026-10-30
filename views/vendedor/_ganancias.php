@@ -13,6 +13,7 @@
      ganancia. Los importes son la base sin IGV congelada al momento de la compra.
     </p>
    </div>
+   <a class="btn-mini" href="?ruta=mis-productos/reportes">Ver reportes</a>
   </div>
   <div class="pv-ganancias">
    <div class="pv-ganancia">

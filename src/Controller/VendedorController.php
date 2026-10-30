@@ -6,6 +6,7 @@ namespace Controller;
 
 use Model\Cuenta;
 use Model\Inventario;
+use Model\PrecioVolumen;
 use Model\ProductoVendedor;
 use Model\Vendedor;
 use Security\Proteccion;
@@ -107,6 +108,16 @@ class VendedorController
         $variantes = $esEdicion
             ? ProductoVendedor::variantesDe($vendedorId, $slugEditar)
             : [];
+        $tramos = $esEdicion
+            ? ProductoVendedor::tramosDe($vendedorId, $slugEditar)
+            : [];
+        $editandoTramo = null;
+        if ($esEdicion && isset($_GET['tramo']) && is_scalar($_GET['tramo'])) {
+            $tramo = PrecioVolumen::porId((int) $_GET['tramo']);
+            if ($tramo !== null && (int) $tramo['productoId'] === (int) ($producto['id'] ?? 0)) {
+                $editandoTramo = $tramo;
+            }
+        }
 
         $flash = self::tomarFlash();
         $categorias = ProductoVendedor::categorias();
@@ -384,6 +395,136 @@ class VendedorController
         exit;
     }
 
+    /**
+     * Crea o actualiza un tramo de precio por volumen de una publicación propia.
+     */
+    public function tramoGuardar(): void
+    {
+        Proteccion::exigirPost();
+
+        $vendedor = $this->requerirVendedor();
+        if ($vendedor === null) {
+            return;
+        }
+
+        $slug = isset($_POST['slug']) && is_scalar($_POST['slug'])
+            ? trim((string) $_POST['slug'])
+            : '';
+
+        if ($slug === '') {
+            self::guardarFlash('No se indicó la publicación.', true);
+            header('Location: ?ruta=mis-productos');
+            exit;
+        }
+
+        $resultado = ProductoVendedor::guardarTramo((int) $vendedor['id'], $slug, $_POST);
+        self::guardarFlash(
+            $resultado['ok'] ? 'Tramo de precio guardado.' : $resultado['error'],
+            !$resultado['ok']
+        );
+
+        header('Location: ' . self::urlEdicion($slug, 'precios-volumen'));
+        exit;
+    }
+
+    /**
+     * Elimina un tramo de precio por volumen de una publicación propia.
+     */
+    public function tramoEliminar(): void
+    {
+        Proteccion::exigirPost();
+
+        $vendedor = $this->requerirVendedor();
+        if ($vendedor === null) {
+            return;
+        }
+
+        $slug = isset($_POST['slug']) && is_scalar($_POST['slug'])
+            ? trim((string) $_POST['slug'])
+            : '';
+        $id = isset($_POST['id']) && is_scalar($_POST['id'])
+            ? (int) $_POST['id']
+            : 0;
+
+        if ($slug === '' || !ProductoVendedor::eliminarTramo((int) $vendedor['id'], $slug, $id)) {
+            self::guardarFlash('No se pudo eliminar el tramo de precio.', true);
+        } else {
+            self::guardarFlash('Tramo de precio eliminado.');
+        }
+
+        header('Location: ' . ($slug !== '' ? self::urlEdicion($slug, 'precios-volumen') : '?ruta=mis-productos'));
+        exit;
+    }
+
+    /**
+     * Reporte de ventas del vendedor: meses, productos y compradores top.
+     */
+    public function reportes(): void
+    {
+        $vendedor = $this->requerirVendedor();
+        if ($vendedor === null) {
+            return;
+        }
+
+        $vendedorId = (int) $vendedor['id'];
+        $meses = (int) ($_GET['meses'] ?? 6);
+        $meses = in_array($meses, [3, 6, 12], true) ? $meses : 6;
+
+        $mensual = Vendedor::reporteMensual($vendedorId, $meses);
+        $masVendidos = Vendedor::topProductos($vendedorId, 5);
+        $mejoresCompradores = Vendedor::topCompradores($vendedorId, 5);
+        $ganancias = Vendedor::resumenGanancias($vendedorId);
+
+        $totales = ['pedidos' => 0, 'unidades' => 0, 'vendido' => 0.0, 'comision' => 0.0, 'neto' => 0.0];
+        foreach ($mensual as $fila) {
+            $totales['pedidos'] += $fila['pedidos'];
+            $totales['unidades'] += $fila['unidades'];
+            $totales['vendido'] += $fila['vendido'];
+            $totales['comision'] += $fila['comision'];
+            $totales['neto'] += $fila['neto'];
+        }
+
+        $flash = self::tomarFlash();
+        $rutaVista = 'mis-productos';
+
+        require BASE_PATH . '/views/layout/header.php';
+        require BASE_PATH . '/views/vendedor/reportes.php';
+        require BASE_PATH . '/views/layout/footer.php';
+    }
+
+    /**
+     * Descarga CSV del reporte mensual (12 meses).
+     */
+    public function reportesCsv(): void
+    {
+        $vendedor = $this->requerirVendedor();
+        if ($vendedor === null) {
+            return;
+        }
+
+        $mensual = Vendedor::reporteMensual((int) $vendedor['id'], 12);
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="reporte-ventas.csv"');
+
+        $salida = fopen('php://output', 'w');
+        if ($salida === false) {
+            return;
+        }
+        fputcsv($salida, ['Mes', 'Pedidos', 'Unidades', 'Vendido sin IGV', 'Comision', 'Neto'], ',', '"', '');
+        foreach ($mensual as $fila) {
+            fputcsv($salida, [
+                $fila['mes'],
+                $fila['pedidos'],
+                $fila['unidades'],
+                number_format($fila['vendido'], 2, '.', ''),
+                number_format($fila['comision'], 2, '.', ''),
+                number_format($fila['neto'], 2, '.', ''),
+            ], ',', '"', '');
+        }
+        fclose($salida);
+    }
+
     /** Destino del panel conservando la pestaña de archivados. */
     private static function volverPanel(): string
     {
@@ -397,9 +538,9 @@ class VendedorController
     }
 
     /** Vuelve al formulario de edición, en la sección de variantes. */
-    private static function urlEdicion(string $slug): string
+    private static function urlEdicion(string $slug, string $ancla = 'variantes'): string
     {
-        return '?ruta=mis-productos/editar&slug=' . urlencode($slug) . '#variantes';
+        return '?ruta=mis-productos/editar&slug=' . urlencode($slug) . '#' . $ancla;
     }
 
     /**
