@@ -134,7 +134,7 @@ if ($tema === 'envios') {
       <p>El costo de envío se calcula automáticamente según la zona de la dirección de entrega. Estas son las tarifas vigentes:</p>
 
       <?php if ($zonasEnvio !== []): ?>
-        <div class="table-scroll">
+        <div class="table-scroll" tabindex="0">
           <table class="shipping-table">
             <thead>
               <tr>

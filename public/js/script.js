@@ -1,5 +1,5 @@
 /**
- * @fileoverview Lógica del Catálogo y Navegación — Jeremy Tech
+ * @fileoverview Lógica del Catálogo y Navegación - Jeremy Tech
  * @description Controla el carrusel del banner hero, la navegación (scroll suave, menú hamburguesa),
  * los carruseles de variantes de las tarjetas de producto, la consulta por WhatsApp de productos
  * y la búsqueda con sugerencias AJAX del catálogo.

@@ -24,7 +24,7 @@ html {
   scroll-padding-top: calc(var(--nav-height) + 12px);
 }
 body {
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   background: var(--bg);
   color: var(--text);
   overflow-x: hidden;
@@ -243,7 +243,7 @@ nav {
   border: none;
   outline: none;
   color: #FFFFFF;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.85rem;
   width: 180px;
   min-width: 0;
@@ -281,7 +281,7 @@ nav {
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
 }
 .nav-cart-btn:hover {
   background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%);
@@ -728,7 +728,7 @@ section h2::after {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
 }
 .btn-cart-add:hover {
   transform: translateY(-3px);
@@ -799,7 +799,7 @@ section h2::after {
   padding: 10px 24px;
   border-radius: 20px;
   cursor: pointer;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
 }
@@ -837,7 +837,7 @@ footer p:first-child {
   font-weight: 500;
   font-size: clamp(0.8rem, 2vw, 0.9rem);
   cursor: pointer;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   transition: all 0.3s ease;
   border-radius: 20px;
   border: 1px solid rgba(0, 212, 255, 0.2);
@@ -860,7 +860,7 @@ footer p:first-child {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   text-decoration: none;
 }
 .nav-orders-btn:hover {
@@ -897,7 +897,7 @@ footer p:first-child {
   border: 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   cursor: pointer;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.9rem;
   color: #B0B8C4;
   text-align: left;
@@ -1025,7 +1025,7 @@ footer p:first-child {
   padding: 10px 20px;
   border-radius: 20px;
   cursor: pointer;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   transition: all 0.3s ease;
 }
 .btn-explorar:hover {
@@ -1191,7 +1191,7 @@ footer p:first-child {
   border: 1px solid rgba(0, 212, 255, 0.25);
   border-radius: 8px;
   color: #FFFFFF;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.8rem;
   text-transform: uppercase;
   outline: none;
@@ -1209,7 +1209,7 @@ footer p:first-child {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
 }
 .btn-apply-coupon:hover {
   background: #00D4FF;
@@ -1308,7 +1308,7 @@ footer p:first-child {
   justify-content: center;
   gap: 8px;
   box-shadow: 0 4px 15px rgba(0, 212, 255, 0.35);
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   transition: all 0.3s ease;
 }
 .btn-checkout-card:hover {
@@ -1324,7 +1324,7 @@ footer p:first-child {
   cursor: pointer;
   padding: 6px;
   transition: color 0.2s;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
 }
 .btn-vaciar-cart:hover {
   color: #FF5577;
@@ -1431,7 +1431,7 @@ footer p:first-child {
   align-items: center;
   gap: 3px;
   transition: all 0.2s ease;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
 }
 .pay-tab-btn .tab-icon {
   display: inline-flex;
@@ -1496,7 +1496,7 @@ footer p:first-child {
   border-radius: 4px;
   padding: 1px 5px;
   color: #00D4FF;
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--fuente-mono, ui-monospace, monospace);
   font-size: 0.78rem;
 }
 
@@ -1586,7 +1586,7 @@ footer p:first-child {
   border-radius: 6px;
   font-size: 0.72rem;
   cursor: pointer;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   transition: all 0.2s;
 }
 .btn-copy-mini:hover {
@@ -1621,7 +1621,7 @@ footer p:first-child {
 }
 .bank-card-body code {
   color: #00D4FF;
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--fuente-mono, ui-monospace, monospace);
   font-size: 0.85rem;
 }
 
@@ -1720,7 +1720,7 @@ footer p:first-child {
   text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
 }
 .card-number-display {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--fuente-mono, ui-monospace, monospace);
   font-size: 1.25rem;
   letter-spacing: 3px;
   color: #FFFFFF;
@@ -1743,7 +1743,7 @@ footer p:first-child {
   margin-bottom: 2px;
 }
 .card-val {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--fuente-mono, ui-monospace, monospace);
   font-size: 0.85rem;
   color: #E0E0E0;
   text-transform: uppercase;
@@ -1782,7 +1782,7 @@ footer p:first-child {
   border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 10px;
   color: #FFFFFF;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.88rem;
   outline: none;
   transition: all 0.3s ease;
@@ -1802,7 +1802,7 @@ footer p:first-child {
   border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 10px;
   color: #FFFFFF;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.88rem;
   outline: none;
   transition: all 0.3s ease;
@@ -1869,7 +1869,7 @@ footer p:first-child {
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1926,7 +1926,7 @@ footer p:first-child {
   margin-bottom: 14px;
 }
 .order-id-tag {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--fuente-mono, ui-monospace, monospace);
   color: #ECC86B;
   font-weight: 700;
   font-size: 1rem;
@@ -2038,7 +2038,7 @@ footer p:first-child {
   align-items: center;
   gap: 5px;
   transition: all 0.2s;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
 }
 .btn-order-wa:hover {
   background: #25D366;
@@ -2072,7 +2072,7 @@ footer p:first-child {
   font-weight: 600;
   border-radius: 12px;
   cursor: pointer;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   transition: all 0.2s ease;
 }
 .btn-ver-mis-pedidos:hover {
@@ -2128,7 +2128,7 @@ footer p:first-child {
   letter-spacing: 1px;
 }
 .ticket-order-id {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--fuente-mono, ui-monospace, monospace);
   color: #ECC86B;
   font-weight: 600;
   font-size: 0.9rem;
@@ -2188,7 +2188,7 @@ footer p:first-child {
   justify-content: center;
   gap: 8px;
   box-shadow: 0 4px 15px rgba(37, 211, 102, 0.35);
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   transition: all 0.3s ease;
 }
 .btn-whatsapp-recibo:hover {
@@ -2202,7 +2202,7 @@ footer p:first-child {
   color: #00D4FF;
   border-radius: 12px;
   cursor: pointer;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   transition: all 0.2s ease;
 }
 .btn-seguir-comprando:hover {
@@ -3037,7 +3037,7 @@ footer p:first-child {
   display: inline-flex; align-items: center; padding: 10px 16px; border-radius: 25px;
   border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.05);
   color: rgba(255,255,255,.85); font-size: 0.85rem; font-weight: 600; text-decoration: none;
-  transition: all .2s; font-family: 'Poppins', sans-serif;
+  transition: all .2s; font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
 }
 .btn-ver-ficha:hover { border-color: #00D4FF; color: #fff; background: rgba(0,212,255,.12); }
 
@@ -3641,7 +3641,7 @@ a.btn-reset-search {
   border-radius: 999px;
   background: transparent;
   color: var(--accent);
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.88rem;
   font-weight: 600;
   line-height: 1.2;

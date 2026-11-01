@@ -55,7 +55,7 @@ foreach ($ventas as $v) {
     </div>
 
     <h3 class="admin-subtitulo">Historial de ventas</h3>
-    <div class="admin-tabla-wrap">
+    <div class="admin-tabla-wrap" tabindex="0">
         <table class="tabla-admin">
             <thead>
                 <tr>
@@ -91,7 +91,7 @@ foreach ($ventas as $v) {
     </div>
 
     <h3 class="admin-subtitulo">Liquidaciones recibidas</h3>
-    <div class="admin-tabla-wrap">
+    <div class="admin-tabla-wrap" tabindex="0">
         <table class="tabla-admin">
             <thead>
                 <tr><th>Fecha</th><th>Monto (S/)</th><th>Método</th><th>Referencia</th></tr>

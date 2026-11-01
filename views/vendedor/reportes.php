@@ -79,7 +79,7 @@ $urlPeriodo = static fn (int $n): string => '?ruta=mis-productos/reportes&meses=
     <p class="pv-panel-nota">Los meses sin ventas aparecen en cero para comparar la evolución.</p>
    </div>
   </div>
-  <div class="pv-tabla-wrap">
+  <div class="pv-tabla-wrap" tabindex="0">
    <table class="pv-tabla">
     <thead>
      <tr>
@@ -117,7 +117,7 @@ $urlPeriodo = static fn (int $n): string => '?ruta=mis-productos/reportes&meses=
   <?php if ($masVendidos === []): ?>
   <p class="pv-vacio-mini">Todavía no tienes ventas cobradas.</p>
   <?php else: ?>
-  <div class="pv-tabla-wrap">
+  <div class="pv-tabla-wrap" tabindex="0">
    <table class="pv-tabla">
     <thead>
      <tr>
@@ -150,7 +150,7 @@ $urlPeriodo = static fn (int $n): string => '?ruta=mis-productos/reportes&meses=
   <?php if ($mejoresCompradores === []): ?>
   <p class="pv-vacio-mini">Todavía no tienes compradores con pedidos cobrados.</p>
   <?php else: ?>
-  <div class="pv-tabla-wrap">
+  <div class="pv-tabla-wrap" tabindex="0">
    <table class="pv-tabla">
     <thead>
      <tr>

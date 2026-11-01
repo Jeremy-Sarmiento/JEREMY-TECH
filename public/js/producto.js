@@ -1,5 +1,5 @@
 /**
- * @fileoverview Ficha de producto — Jeremy Tech (Etapa 7).
+ * @fileoverview Ficha de producto - Jeremy Tech (Etapa 7).
  * Recalcula el precio unitario en vivo según la variante elegida y la
  * cantidad seleccionada (tramos de `precios_volumen`), y envía la línea al
  * carrito del servidor con la variante incluida.

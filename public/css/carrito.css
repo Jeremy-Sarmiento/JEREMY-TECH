@@ -1,5 +1,5 @@
 /* ============================================================
-   Estilos de la PÁGINA del carrito (Jeremy Tech — MVC Jeremy Tech)
+   Estilos de la PÁGINA del carrito (Jeremy Tech - MVC Jeremy Tech)
    Complementa styles.css: layout de página, checkout inline e historial.
    ============================================================ */
 
@@ -152,7 +152,7 @@
 }
 
 .order-id {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--fuente-mono, ui-monospace, monospace);
   color: var(--accent, #00d4ff);
   font-size: 1.05rem;
 }

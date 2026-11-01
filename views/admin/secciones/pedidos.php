@@ -76,7 +76,7 @@ $puedeReembolsar = static function (array $p): bool {
         <div class="admin-encabezado-acciones">
             <form method="get" class="admin-filtro" style="margin-bottom:0;">
                 <input type="hidden" name="ruta" value="admin/pedidos">
-                <select name="estado">
+                <select name="estado" aria-label="Filtrar pedidos por estado">
                     <option value="">Todos los estados</option>
                     <?php foreach ($estados as $est): ?>
                         <option value="<?= $e($est) ?>" <?= $filtro === $est ? 'selected' : '' ?>><?= $e($est) ?></option>
@@ -95,7 +95,7 @@ $puedeReembolsar = static function (array $p): bool {
         'Cancelado' => 'etiqueta etiqueta-off',
     ]; ?>
 
-    <div class="admin-tabla-wrap">
+    <div class="admin-tabla-wrap" tabindex="0">
         <table class="tabla-admin">
             <thead><tr><th>ID</th><th>Cliente</th><th>Detalle</th>
                 <th><?= $esVendedor ? 'Tu parte (S/)' : 'Total (S/)' ?></th>
@@ -151,7 +151,7 @@ $puedeReembolsar = static function (array $p): bool {
                         <form method="post" action="?ruta=admin/pedidos/estado" class="admin-inline-form">
                             <?= \Security\Proteccion::campo() ?>
                             <input type="hidden" name="id" value="<?= (int) $p['id'] ?>">
-                            <select name="estado">
+                            <select name="estado" aria-label="Nuevo estado del pedido <?= (int) $p['id'] ?>">
                                 <?php foreach ($destinos as $est): ?>
                                     <option value="<?= $e($est) ?>"><?= $e($est) ?></option>
                                 <?php endforeach; ?>

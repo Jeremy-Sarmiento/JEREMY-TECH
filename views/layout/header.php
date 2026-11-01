@@ -4,9 +4,9 @@
   <meta charset="utf-8"/>
   <meta name="csrf-token" content="<?= htmlspecialchars(\Security\Proteccion::token(), ENT_QUOTES, 'UTF-8') ?>"/>
   <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-  <meta content="#0A0F1A" name="theme-color"/>
+  <meta content="#070A0E" name="theme-color"/>
   <title><?= htmlspecialchars($tituloPagina ?? 'Jeremy Tech - Tienda de Tecnologia', ENT_QUOTES, 'UTF-8') ?></title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
 <link href="css/styles.css?v=<?= (int) @filemtime(BASE_PATH . '/public/css/styles.css') ?>" rel="stylesheet"/>
    <link href="css/carrito.css?v=<?= (int) @filemtime(BASE_PATH . '/public/css/carrito.css') ?>" rel="stylesheet"/>
    <link href="css/auth.css?v=<?= (int) @filemtime(BASE_PATH . '/public/css/auth.css') ?>" rel="stylesheet"/>
@@ -19,6 +19,8 @@
    <?php if (!empty($paginaAdmin)): ?>
     <link href="css/admin.css" rel="stylesheet"/>
    <?php endif; ?>
+   <!-- Capa de rediseño: se carga al final para tomar precedencia. -->
+   <link href="css/rediseno.css?v=<?= (int) @filemtime(BASE_PATH . '/public/css/rediseno.css') ?>" rel="stylesheet"/>
   <script>
    const JT_SESSION = {
     rutaVista: '<?= htmlspecialchars($rutaVista ?? 'catalogo', ENT_QUOTES) ?>',

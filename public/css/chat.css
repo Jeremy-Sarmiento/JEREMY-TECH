@@ -1,5 +1,5 @@
 /* ============================================================
-   Jeremy-Bot — Chat flotante
+   Jeremy-Bot - Chat flotante
    Estructura basada en tienda/jeremy-tech · Paleta de JEREMY-TECH
    --bg: #0F1923  --panel: #151A21  --panel-2: #1A273C
    --accent: #00D4FF  --border: #262C36  --text: #E0E0E0  --muted: #8899AA
@@ -11,7 +11,7 @@
   bottom: calc(22px + env(safe-area-inset-bottom, 0px));
   left: calc(22px + env(safe-area-inset-left, 0px));
   z-index: 1000;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
 }
 
 .chatbot button,

@@ -163,7 +163,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 
     <div class="admin-tarjetas-grid">
         <!-- Listado -->
-        <div class="admin-tabla-wrap">
+        <div class="admin-tabla-wrap" tabindex="0">
             <table class="tabla-admin">
                 <thead>
                     <tr><th>ID (slug)</th><th>Nombre</th><th>Categoría</th><th>Vendedor</th><th>Marca</th><th>Garantía</th><th>SKU</th><th>Precio</th><th>Stock</th><th>Estado</th><th>Acciones</th></tr>

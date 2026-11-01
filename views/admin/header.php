@@ -10,7 +10,8 @@ $tituloAdmin = $tituloAdmin ?? 'Panel de administración';
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="color-scheme" content="dark"/>
   <title><?= htmlspecialchars($tituloAdmin, ENT_QUOTES, 'UTF-8') ?> · Jeremy Tech</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
   <link href="css/admin.css" rel="stylesheet"/>
+  <link href="css/rediseno.css?v=<?= (int) @filemtime(BASE_PATH . '/public/css/rediseno.css') ?>" rel="stylesheet"/>
 </head>
 <body class="body-admin-page">

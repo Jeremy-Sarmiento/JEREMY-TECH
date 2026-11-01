@@ -77,7 +77,7 @@ $fecha = static function (string $valor): string {
     </form>
 
     <div class="admin-grid-inventario">
-        <div class="admin-tabla-wrap">
+        <div class="admin-tabla-wrap" tabindex="0">
             <table class="tabla-admin">
                 <thead>
                     <tr>
@@ -132,7 +132,7 @@ $fecha = static function (string $valor): string {
                     Elige un producto de la lista para registrar una entrada o salida.
                     Usa la búsqueda de arriba si no lo encuentras.
                 </p>
-                <div class="admin-tabla-wrap">
+                <div class="admin-tabla-wrap" tabindex="0">
                     <table class="tabla-admin">
                         <thead><tr><th>Producto</th><th>Stock</th><th></th></tr></thead>
                         <tbody>

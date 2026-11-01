@@ -145,7 +145,7 @@ $totalSaldo = round($totalGanancias - $totalLiquidado, 2);
     </dialog>
 
     <div class="admin-tarjetas-grid">
-        <div class="admin-tabla-wrap">
+        <div class="admin-tabla-wrap" tabindex="0">
             <table class="tabla-admin">
                 <thead>
                     <tr>

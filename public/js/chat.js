@@ -79,7 +79,7 @@
     messages.scrollTop = messages.scrollHeight;
   }
 
-  /* ── Burbuja — se inserta antes del quickBox para que los botones
+  /* ── Burbuja - se inserta antes del quickBox para que los botones
         queden siempre al final del área de mensajes ── */
   function addBubble(texto, autor) {
     const bubble = document.createElement('div');

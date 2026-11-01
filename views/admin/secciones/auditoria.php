@@ -11,7 +11,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
         </div>
     </div>
 
-    <div class="admin-tabla-wrap">
+    <div class="admin-tabla-wrap" tabindex="0">
         <table class="tabla-admin">
             <thead><tr><th>ID</th><th>Fecha</th><th>Admin</th><th>Acción</th><th>Ref.</th><th>Detalle</th></tr></thead>
             <tbody>

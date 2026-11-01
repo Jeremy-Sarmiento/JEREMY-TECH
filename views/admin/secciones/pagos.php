@@ -140,7 +140,7 @@ $clasePago = static function (string $estado): string {
     </div>
 
     <h3 class="admin-subtitulo" style="margin-top:26px;">Últimos pagos</h3>
-    <div class="admin-tabla-wrap">
+    <div class="admin-tabla-wrap" tabindex="0">
         <table class="tabla-admin">
             <thead>
                 <tr>
@@ -190,7 +190,7 @@ $clasePago = static function (string $estado): string {
     </div>
 
     <h3 class="admin-subtitulo" style="margin-top:26px;">Bitácora de webhooks</h3>
-    <div class="admin-tabla-wrap">
+    <div class="admin-tabla-wrap" tabindex="0">
         <table class="tabla-admin">
             <thead>
                 <tr>

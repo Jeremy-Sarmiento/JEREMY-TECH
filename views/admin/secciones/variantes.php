@@ -173,7 +173,7 @@ if ($idTramo > 0) {
 
     <div class="admin-tarjetas-grid">
         <h3 class="admin-subtitulo">Variantes de <?= $e($producto['nombre']) ?></h3>
-        <div class="admin-tabla-wrap">
+        <div class="admin-tabla-wrap" tabindex="0">
             <table class="tabla-admin">
                 <thead>
                     <tr>
@@ -219,7 +219,7 @@ if ($idTramo > 0) {
 
     <div class="admin-tarjetas-grid">
         <h3 class="admin-subtitulo">Precios por volumen de <?= $e($producto['nombre']) ?></h3>
-        <div class="admin-tabla-wrap">
+        <div class="admin-tabla-wrap" tabindex="0">
             <table class="tabla-admin">
                 <thead>
                     <tr>

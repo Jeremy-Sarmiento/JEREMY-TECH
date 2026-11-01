@@ -17,7 +17,7 @@
   <?php if (empty($movimientos)): ?>
   <p class="pv-vacio-mini">Sin movimientos todavía. Aquí se registrarán las ventas, devoluciones y ajustes de stock de tus productos.</p>
   <?php else: ?>
-  <div class="pv-tabla-wrap">
+  <div class="pv-tabla-wrap" tabindex="0">
    <table class="pv-tabla">
     <thead>
      <tr>

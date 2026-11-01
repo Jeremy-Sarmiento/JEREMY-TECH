@@ -27,7 +27,7 @@
   <?php if (empty($compradores)): ?>
   <p class="pv-vacio-mini">Todavía nadie te compró. Cuando se confirme una venta, verás aquí al comprador y el estado del pago.</p>
   <?php else: ?>
-  <div class="pv-tabla-wrap">
+  <div class="pv-tabla-wrap" tabindex="0">
    <table class="pv-tabla">
     <thead>
      <tr>

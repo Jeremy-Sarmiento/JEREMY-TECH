@@ -86,7 +86,7 @@ $fecha = static function (string $valor): string {
         <a class="btn btn-claro" href="?ruta=admin/notificaciones">Limpiar</a>
     </form>
 
-    <div class="admin-tabla-wrap">
+    <div class="admin-tabla-wrap" tabindex="0">
         <table class="tabla-admin">
             <thead>
                 <tr>

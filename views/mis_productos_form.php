@@ -217,7 +217,7 @@ $imagenActual = trim($valor('imagen')) !== '' ? $valor('imagen') : $imagenPredet
   <?php if (empty($variantes)): ?>
   <p class="pv-vacio-mini">Este producto todavía no tiene variantes. Agrega la primera abajo.</p>
   <?php else: ?>
-  <div class="pv-tabla-wrap">
+  <div class="pv-tabla-wrap" tabindex="0">
    <table class="pv-tabla pv-tabla-variantes">
     <thead>
      <tr>
@@ -307,7 +307,7 @@ $imagenActual = trim($valor('imagen')) !== '' ? $valor('imagen') : $imagenPredet
   </div>
   <?php endif; ?>
 
-  <h3 class="pv-variante-subtitulo">➕ Agregar variante</h3>
+  <h3 class="pv-variante-subtitulo">Agregar variante</h3>
   <form method="post" action="?ruta=mis-productos/variantes/guardar" class="pv-variante-form pv-variante-nueva">
    <?= \Security\Proteccion::campo() ?>
    <input type="hidden" name="slug" value="<?= $e($slugEditar) ?>"/>
@@ -359,7 +359,7 @@ $imagenActual = trim($valor('imagen')) !== '' ? $valor('imagen') : $imagenPredet
   <?php if (empty($tramos)): ?>
   <p class="pv-vacio-mini">Sin tramos: se cobra el precio publicado para cualquier cantidad.</p>
   <?php else: ?>
-  <div class="pv-tabla-wrap">
+  <div class="pv-tabla-wrap" tabindex="0">
    <table class="pv-tabla">
     <thead>
      <tr>
@@ -395,7 +395,7 @@ $imagenActual = trim($valor('imagen')) !== '' ? $valor('imagen') : $imagenPredet
   </div>
   <?php endif; ?>
 
-  <h3 class="pv-variante-subtitulo"><?= $editandoTramo !== null ? '✏️ Editar tramo' : '➕ Agregar tramo' ?></h3>
+  <h3 class="pv-variante-subtitulo"><?= $editandoTramo !== null ? 'Editar tramo' : 'Agregar tramo' ?></h3>
   <form method="post" action="?ruta=mis-productos/volumen/guardar" class="pv-variante-form pv-variante-nueva">
    <?= \Security\Proteccion::campo() ?>
    <input type="hidden" name="slug" value="<?= $e($slugEditar) ?>"/>

@@ -78,7 +78,7 @@ $tarjetas = [
     </div>
 
     <div class="admin-grid-inventario">
-        <div class="admin-tabla-wrap">
+        <div class="admin-tabla-wrap" tabindex="0">
             <table class="tabla-admin">
                 <thead>
                     <tr><th>Producto</th><th>Interacciones</th></tr>
@@ -97,7 +97,7 @@ $tarjetas = [
             </table>
         </div>
 
-        <div class="admin-tabla-wrap">
+        <div class="admin-tabla-wrap" tabindex="0">
             <table class="tabla-admin">
                 <thead>
                     <tr><th>Área</th><th>Preguntas</th></tr>
@@ -113,7 +113,7 @@ $tarjetas = [
     </div>
 
     <div class="admin-grid-listas">
-        <div class="admin-tabla-wrap">
+        <div class="admin-tabla-wrap" tabindex="0">
             <table class="tabla-admin">
                 <thead>
                     <tr><th>Página</th><th>Visitas</th></tr>
@@ -132,7 +132,7 @@ $tarjetas = [
             </table>
         </div>
 
-        <div class="admin-tabla-wrap">
+        <div class="admin-tabla-wrap" tabindex="0">
             <table class="tabla-admin">
                 <thead>
                     <tr><th>Término de búsqueda</th><th>Búsquedas</th></tr>

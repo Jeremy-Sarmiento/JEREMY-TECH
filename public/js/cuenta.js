@@ -1,5 +1,5 @@
 /**
- * @fileoverview Módulo de la cuenta del cliente — Jeremy Tech (MVC).
+ * @fileoverview Módulo de la cuenta del cliente - Jeremy Tech (MVC).
  * @description Mejora progresiva de la Fase 1:
  *   - alterna favoritos por AJAX sin recargar (los formularios siguen
  *     funcionando con POST normal si este archivo no carga);
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
       boton.setAttribute('title', etiqueta);
 
       if (icono) {
-        icono.textContent = esFavorito ? '♥' : '♡';
+        icono.classList.toggle('activo', esFavorito);
       }
       if (texto) {
         texto.textContent = esFavorito ? 'En favoritos' : 'Guardar en favoritos';
@@ -276,10 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
    * @param {number} promedio
    * @returns {string}
    */
-  function estrellasTexto(promedio) {
-    const llenas = Math.max(0, Math.min(5, Math.round(Number(promedio) || 0)));
-    return '★'.repeat(llenas) + '☆'.repeat(5 - llenas);
-  }
+  // estrellasTexto eliminada: ahora se renderizan SVGs inline por accesibilidad.
 
   /**
    * Refresca la valoración visible de la ficha tras guardar una reseña.
@@ -317,7 +314,23 @@ document.addEventListener('DOMContentLoaded', () => {
         enlace.append(estrellas, numero, cuenta);
       }
 
-      estrellas.textContent = estrellasTexto(promedio);
+      
+  estrellas.innerHTML = '';
+  const llenas = Math.floor(promedio);
+  const media = promedio - llenas >= 0.5;
+  for (let i = 0; i < 5; i++) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 24 24');
+    svg.setAttribute('aria-hidden','true');
+    svg.classList.add('estrella');
+    if (i < llenas || (i === llenas && media)) {
+      svg.innerHTML = '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/>';
+    } else {
+      svg.innerHTML = '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" fill="none" stroke-width="2"/>';
+    }
+    estrellas.appendChild(svg);
+  }
+
       numero.textContent = promedio.toFixed(1);
       cuenta.textContent = total + (total === 1 ? ' opinión' : ' opiniones');
     });
@@ -331,7 +344,23 @@ document.addEventListener('DOMContentLoaded', () => {
         num.textContent = promedio.toFixed(1);
       }
       if (estrellas) {
-        estrellas.textContent = estrellasTexto(promedio);
+        
+  estrellas.innerHTML = '';
+  const llenas = Math.floor(promedio);
+  const media = promedio - llenas >= 0.5;
+  for (let i = 0; i < 5; i++) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 24 24');
+    svg.setAttribute('aria-hidden','true');
+    svg.classList.add('estrella');
+    if (i < llenas || (i === llenas && media)) {
+      svg.innerHTML = '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/>';
+    } else {
+      svg.innerHTML = '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" fill="none" stroke-width="2"/>';
+    }
+    estrellas.appendChild(svg);
+  }
+
       }
       if (cuenta) {
         cuenta.textContent = total + (total === 1 ? ' opinión' : ' opiniones');
@@ -395,7 +424,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const estrellas = document.createElement('span');
     estrellas.className = 'resena-item-estrellas';
-    estrellas.textContent = estrellasTexto(datos.resena.calificacion);
+    estrellas.innerHTML = '';
+  const p = datos.resena.calificacion;
+  const llenas = Math.floor(p);
+  const media = p - llenas >= 0.5;
+  for (let i = 0; i < 5; i++) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 24 24');
+    svg.setAttribute('aria-hidden','true');
+    svg.classList.add('estrella');
+    if (i < llenas || (i === llenas && media)) {
+      svg.innerHTML = '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/>';
+    } else {
+      svg.innerHTML = '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" fill="none" stroke-width="2"/>';
+    }
+    estrellas.appendChild(svg);
+  }
 
     const fecha = document.createElement('time');
     fecha.className = 'resena-item-fecha';
@@ -502,7 +546,22 @@ document.addEventListener('DOMContentLoaded', () => {
       const detalles = form.closest('details');
       const resumenWidget = detalles ? detalles.querySelector('summary') : null;
       if (resumenWidget && datos.resena) {
-        resumenWidget.textContent = 'Tu opinión: ' + estrellasTexto(datos.resena.calificacion);
+        resumenWidget.textContent = 'Tu opinión: ';
+  const p = datos.resena.calificacion;
+  const llenas = Math.floor(p);
+  const media = p - llenas >= 0.5;
+  for (let i = 0; i < 5; i++) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 24 24');
+    svg.setAttribute('aria-hidden','true');
+    svg.classList.add('estrella');
+    if (i < llenas || (i === llenas && media)) {
+      svg.innerHTML = '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/>';
+    } else {
+      svg.innerHTML = '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" fill="none" stroke-width="2"/>';
+    }
+    resumenWidget.appendChild(svg);
+  }
       }
 
       if (boton) {
@@ -613,7 +672,22 @@ document.addEventListener('DOMContentLoaded', () => {
       const detalles = form.closest('details');
       const resumenWidget = detalles ? detalles.querySelector('summary') : null;
       if (resumenWidget) {
-        resumenWidget.textContent = 'Tu calificación de ' + nombre + ': ' + estrellasTexto(calificacion);
+        resumenWidget.textContent = 'Tu calificación de ' + nombre + ': ';
+  const p = calificacion;
+  const llenas = Math.floor(p);
+  const media = p - llenas >= 0.5;
+  for (let i = 0; i < 5; i++) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 24 24');
+    svg.setAttribute('aria-hidden','true');
+    svg.classList.add('estrella');
+    if (i < llenas || (i === llenas && media)) {
+      svg.innerHTML = '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor"/>';
+    } else {
+      svg.innerHTML = '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="currentColor" fill="none" stroke-width="2"/>';
+    }
+    resumenWidget.appendChild(svg);
+  }
       }
 
       const titulo = form.querySelector('.resena-titulo');

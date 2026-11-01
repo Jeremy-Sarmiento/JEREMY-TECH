@@ -1,5 +1,5 @@
 /* ============================================================
-   Login / Cuenta (Jeremy Tech) — auth.css
+   Login / Cuenta (Jeremy Tech) - auth.css
    Se carga en cada página junto a styles.css y carrito.css.
    ============================================================ */
 
@@ -18,7 +18,7 @@
   text-decoration: none;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   white-space: nowrap;
 }
 .nav-login-btn:hover {
@@ -43,7 +43,7 @@
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   white-space: nowrap;
   max-width: 180px;
   overflow: hidden;
@@ -94,7 +94,7 @@
   border: none;
   color: #E0E0E0;
   text-decoration: none;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.88rem;
   padding: 10px 12px;
   border-radius: 8px;
@@ -188,7 +188,7 @@
   border: none;
   background: transparent;
   color: #8899AA;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.9rem;
   font-weight: 600;
   border-radius: 9px;
@@ -222,7 +222,7 @@
   padding: 12px 14px;
   color: #E0E0E0;
   font-size: 0.92rem;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   outline: none;
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
@@ -239,7 +239,7 @@
   padding: 12px 14px;
   color: #E0E0E0;
   font-size: 0.92rem;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   outline: none;
   cursor: pointer;
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
@@ -350,7 +350,7 @@
   border-radius: 8px;
   color: #00D4FF;
   cursor: pointer;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.76rem;
   padding: 6px 10px;
 }
@@ -365,7 +365,7 @@
   border-radius: 12px;
   background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%);
   color: #0A0F1A;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
@@ -424,7 +424,7 @@ a.btn-checkout-card:hover {
   border-radius: 12px;
   background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%);
   color: #0A0F1A;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-weight: 700;
   text-decoration: none;
   transition: transform 0.2s ease, box-shadow 0.2s ease;

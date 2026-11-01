@@ -105,7 +105,7 @@ if ($esVendedor && $vendedorId !== null) {
     </div>
 
     <h3 class="admin-subtitulo"><?= $esVendedor ? 'Pedidos con tus productos' : 'Últimos pedidos' ?></h3>
-    <div class="admin-tabla-wrap">
+    <div class="admin-tabla-wrap" tabindex="0">
         <table class="tabla-admin">
             <thead>
                 <tr><th>#</th><th>Cliente</th><th>Total (S/)</th><th>Estado</th><th>Fecha</th></tr>

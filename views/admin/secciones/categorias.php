@@ -51,7 +51,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
     </dialog>
 
     <div class="admin-tarjetas-grid">
-        <div class="admin-tabla-wrap">
+        <div class="admin-tabla-wrap" tabindex="0">
             <table class="tabla-admin">
                 <thead><tr><th>ID</th><th>Nombre</th><th>Slug</th><th>Descripción</th><th>Acciones</th></tr></thead>
                 <tbody>

@@ -99,6 +99,10 @@
   <symbol id="icon-check" viewBox="0 0 24 24">
     <polyline points="20 6 9 17 4 12"></polyline>
   </symbol>
+  <symbol id="icon-close" viewBox="0 0 24 24">
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
+  </symbol>
   <symbol id="icon-truck" viewBox="0 0 24 24">
     <rect x="1" y="3" width="15" height="13" rx="1"></rect>
     <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>

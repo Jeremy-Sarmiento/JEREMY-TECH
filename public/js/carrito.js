@@ -1,5 +1,5 @@
 /**
- * @fileoverview Módulo del Carrito y Checkout — Jeremy Tech (Jeremy Tech MVC)
+ * @fileoverview Módulo del Carrito y Checkout - Jeremy Tech (Jeremy Tech MVC)
  * @description El carrito vive en la sesión del servidor (src/Model/Carrito.php).
  * Este JS comunica las acciones (agregar, eliminar, cantidad, cupón y pago)
  * mediante endpoints JSON de public/index.php, actualiza badges y toasts,
@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const entregaTexto = (modalidad === 'tienda')
         ? 'Recojo en Sede Central (La Joya, Arequipa)'
-        : 'Envío a Domicilio · ' + (zonaTextoActual() || 'Sin zona') + ' (' + (direccion || '—') + ')';
+        : 'Envío a Domicilio · ' + (zonaTextoActual() || 'Sin zona') + ' (' + (direccion || '-') + ')';
 
       const totalSpan = document.getElementById('checkoutTotalMonto') || document.getElementById('cartTotal');
       const totalTexto = totalSpan ? totalSpan.textContent : 'PEN 0.00';
@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
         comprobante: comprobanteTexto,
         metodoPago: metodoPagoTexto,
         estadoPago: r.estadoPago || 'Pendiente',
-        transaccion: r.transaccionId || '—',
+        transaccion: r.transaccionId || '-',
         fecha: fecha,
         total: totalTexto
       };
@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.enviarReciboWhatsApp = function () {
     if (!ultimoPedido) return;
     const numeroWhatsApp = '51997833866';
-    let mensaje = '*COMPROBANTE DE COMPRA — JEREMY TECH*\n';
+    let mensaje = '*COMPROBANTE DE COMPRA - JEREMY TECH*\n';
     mensaje += '━━━━━━━━━━━━━━━━━━━━━━━\n';
     mensaje += '*Orden:* ' + ultimoPedido.id + '\n';
     mensaje += '*Fecha:* ' + ultimoPedido.fecha + '\n';
@@ -430,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /** Texto del destino para el ticket de éxito. */
   function direccionResumida() {
     const sel = document.querySelector('input[name="direccion_id"]:checked');
-    if (sel && sel.value !== '0') return sel.dataset.texto || sel.dataset.zona || '—';
+    if (sel && sel.value !== '0') return sel.dataset.texto || sel.dataset.zona || '-';
     const dir = document.getElementById('clienteDireccion');
     return dir ? (dir.value || '').trim() : '';
   }

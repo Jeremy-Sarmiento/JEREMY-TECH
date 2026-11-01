@@ -1,5 +1,5 @@
 /* ============================================================
-   Estilos de la CUENTA del cliente (Jeremy Tech — MVC)
+   Estilos de la CUENTA del cliente (Jeremy Tech - MVC)
    Perfil, favoritos y bandeja de notificaciones.
    Complementa carrito.css (cart-page / cart-page-section) y
    styles.css (variables, tarjetas del catálogo).
@@ -176,7 +176,7 @@
   padding: 11px 26px !important;
   border: none;
   cursor: pointer;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.9rem;
   font-weight: 700;
 }
@@ -317,7 +317,7 @@
   border: 1px solid rgba(255, 255, 255, 0.22);
   background: rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.85);
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -707,7 +707,7 @@
 }
 
 /* ============================================================
-   FASE 2 — Mis pedidos y reseñas de productos
+   FASE 2 - Mis pedidos y reseñas de productos
    ============================================================ */
 
 /* Utilidad de accesibilidad (etiquetas solo para lectores de pantalla). */
@@ -733,7 +733,7 @@
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.05);
   color: var(--text-soft, #b0b8c4);
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.78rem;
   font-weight: 600;
   text-decoration: none;
@@ -966,7 +966,7 @@
   border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 10px;
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.85rem;
   resize: vertical;
   outline: none;
@@ -1412,7 +1412,7 @@
 }
 
 /* ============================================================
-   FASE 3 — Panel "Mis productos" del vendedor C2C
+   FASE 3 - Panel "Mis productos" del vendedor C2C
    Reutiliza la estética de la tienda: paneles oscuros, acento
    cian y tarjetas del catálogo.
    ============================================================ */
@@ -1487,7 +1487,7 @@
   border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 10px;
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.88rem;
   outline: none;
   transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
@@ -1517,7 +1517,7 @@
   border-radius: 10px;
   background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
   color: #0a0f1a;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.88rem;
   font-weight: 700;
   text-decoration: none;
@@ -1704,7 +1704,7 @@
   border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 8px;
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.82rem;
   outline: none;
 }
@@ -2124,7 +2124,7 @@
   border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 8px;
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.82rem;
   outline: none;
 }
@@ -2200,7 +2200,7 @@
   border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 10px;
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.88rem;
   outline: none;
   transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
@@ -2414,7 +2414,7 @@
   border: 1px solid rgba(0, 212, 255, 0.2);
   border-radius: 10px;
   color: #fff;
-  font-family: 'Poppins', sans-serif;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-size: 0.88rem;
   line-height: 1.55;
   outline: none;
