@@ -71,7 +71,7 @@ final class ProductoVendedor
 
         $busqueda = trim($busqueda);
         if ($busqueda !== '') {
-            $sql .= ' AND (p.nombre LIKE ? OR p.modelo LIKE ? OR p.codigo_sku LIKE ?)';
+            $sql .= ' AND (p.nombre ILIKE ? OR p.modelo ILIKE ? OR p.codigo_sku ILIKE ?)';
             $comodin = '%' . $busqueda . '%';
             array_push($parametros, $comodin, $comodin, $comodin);
         }
@@ -121,12 +121,12 @@ final class ProductoVendedor
         }
 
         $stmt = conexion()->prepare(
-            'SELECT COALESCE(SUM(archivado_en IS NULL), 0) AS total,
-                    COALESCE(SUM(archivado_en IS NULL AND activo = 1), 0) AS activos,
-                    COALESCE(SUM(archivado_en IS NULL AND activo = 0), 0) AS ocultos,
-                    COALESCE(SUM(archivado_en IS NULL AND stock <= stock_minimo), 0) AS stock_bajo,
+            'SELECT COALESCE(SUM(CASE WHEN archivado_en IS NULL THEN 1 ELSE 0 END), 0) AS total,
+                    COALESCE(SUM(CASE WHEN archivado_en IS NULL AND activo = 1 THEN 1 ELSE 0 END), 0) AS activos,
+                    COALESCE(SUM(CASE WHEN archivado_en IS NULL AND activo = 0 THEN 1 ELSE 0 END), 0) AS ocultos,
+                    COALESCE(SUM(CASE WHEN archivado_en IS NULL AND stock <= stock_minimo THEN 1 ELSE 0 END), 0) AS stock_bajo,
                     COALESCE(SUM(CASE WHEN archivado_en IS NULL THEN precio_pen * stock ELSE 0 END), 0) AS valor,
-                    COALESCE(SUM(archivado_en IS NOT NULL), 0) AS archivados
+                    COALESCE(SUM(CASE WHEN archivado_en IS NOT NULL THEN 1 ELSE 0 END), 0) AS archivados
                FROM productos
               WHERE vendedor_id = ?'
         );
@@ -304,7 +304,7 @@ final class ProductoVendedor
         }
 
         // El SKU es UNIQUE global. Se comprueba antes de escribir para dar un
-        // mensaje claro en lugar de un error 500 de MySQL.
+        // mensaje claro en lugar de un error 500 de PostgreSQL.
         if ($sku !== '') {
             $q = $pdo->prepare('SELECT slug FROM productos WHERE codigo_sku = ? AND slug <> ? LIMIT 1');
             $q->execute([$sku, $slug]);
@@ -676,10 +676,10 @@ final class ProductoVendedor
         }
 
         $stmt = conexion()->prepare(
-            'DELETE pv FROM producto_variantes pv
-               JOIN productos p ON p.id = pv.producto_id
-              WHERE pv.id = ? AND p.vendedor_id = ? AND p.slug = ?
-                AND p.archivado_en IS NULL'
+            'DELETE FROM producto_variantes
+              WHERE id = ? AND producto_id IN (
+                    SELECT id FROM productos
+                     WHERE vendedor_id = ? AND slug = ? AND archivado_en IS NULL)'
         );
         $stmt->execute([$id, $vendedorId, $slug]);
 
@@ -778,10 +778,10 @@ final class ProductoVendedor
         }
 
         $stmt = conexion()->prepare(
-            'DELETE pv FROM precios_volumen pv
-               JOIN productos p ON p.id = pv.producto_id
-              WHERE pv.id = ? AND p.vendedor_id = ? AND p.slug = ?
-                AND p.archivado_en IS NULL'
+            'DELETE FROM precios_volumen
+              WHERE id = ? AND producto_id IN (
+                    SELECT id FROM productos
+                     WHERE vendedor_id = ? AND slug = ? AND archivado_en IS NULL)'
         );
         $stmt->execute([$id, $vendedorId, $slug]);
 

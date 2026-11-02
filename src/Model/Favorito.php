@@ -91,10 +91,11 @@ final class Favorito
             return null;
         }
 
-        // INSERT IGNORE evita duplicados si dos pestañas envían el clic a la
-        // vez; la clave única (cliente_id, producto_id) es la última defensa.
+        // INSERT ... ON CONFLICT evita duplicados si dos pestañas envían el clic
+        // a la vez; la clave única (cliente_id, producto_id) es la última defensa.
         $pdo->prepare(
-            'INSERT IGNORE INTO favoritos (cliente_id, producto_id) VALUES (?, ?)'
+            'INSERT INTO favoritos (cliente_id, producto_id) VALUES (?, ?)
+             ON CONFLICT (cliente_id, producto_id) DO NOTHING'
         )->execute([$clienteId, $productoId]);
 
         return true;

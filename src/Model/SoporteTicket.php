@@ -234,8 +234,8 @@ final class SoporteTicket
 
         $buscar = trim($buscar);
         if ($buscar !== '') {
-            $sql .= ' AND (t.asunto LIKE ? OR t.descripcion LIKE ? OR t.respuesta LIKE ?
-                           OR u.name LIKE ? OR u.email LIKE ?)';
+            $sql .= ' AND (t.asunto ILIKE ? OR t.descripcion ILIKE ? OR t.respuesta ILIKE ?
+                           OR u.name ILIKE ? OR u.email ILIKE ?)';
             $like = '%' . $buscar . '%';
             for ($i = 0; $i < 5; $i++) {
                 $params[] = $like;
@@ -243,7 +243,7 @@ final class SoporteTicket
         }
 
         $limite = max(1, min(500, $limite));
-        $sql .= " ORDER BY FIELD(t.estado, 'abierto', 'en_proceso', 'resuelto', 'cerrado'), t.id DESC
+        $sql .= " ORDER BY CASE t.estado WHEN 'abierto' THEN 0 WHEN 'en_proceso' THEN 1 WHEN 'resuelto' THEN 2 ELSE 3 END, t.id DESC
                   LIMIT " . $limite;
 
         $stmt = conexion()->prepare($sql);

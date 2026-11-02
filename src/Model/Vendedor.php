@@ -39,19 +39,19 @@ class Vendedor
                     u.verificado, u.comision_porcentaje,
                     (SELECT COUNT(*) FROM productos p
                       WHERE p.vendedor_id = u.id) AS productos,
-                    (SELECT IFNULL(SUM(c.monto_venta), 0) FROM comisiones c
+                    (SELECT COALESCE(SUM(c.monto_venta), 0) FROM comisiones c
                       JOIN pedidos pd ON pd.id = c.pedido_id
                      WHERE c.vendedor_id = u.id
                        AND pd.estado NOT IN ('Cancelado', 'Pendiente')) AS ventas,
-                    (SELECT IFNULL(SUM(c.monto_comision), 0) FROM comisiones c
+                    (SELECT COALESCE(SUM(c.monto_comision), 0) FROM comisiones c
                       JOIN pedidos pd ON pd.id = c.pedido_id
                      WHERE c.vendedor_id = u.id
                        AND pd.estado NOT IN ('Cancelado', 'Pendiente')) AS comisiones,
-                    (SELECT IFNULL(SUM(c.monto_vendedor), 0) FROM comisiones c
+                    (SELECT COALESCE(SUM(c.monto_vendedor), 0) FROM comisiones c
                       JOIN pedidos pd ON pd.id = c.pedido_id
                      WHERE c.vendedor_id = u.id
                        AND pd.estado NOT IN ('Cancelado', 'Pendiente')) AS ganancias,
-                    (SELECT IFNULL(SUM(pv.monto), 0) FROM pagos_vendedor pv
+                    (SELECT COALESCE(SUM(pv.monto), 0) FROM pagos_vendedor pv
                      WHERE pv.vendedor_id = u.id) AS liquidado
                FROM users u
               WHERE " . self::CONDICION_VENDEDOR . ' AND u.deleted_at IS NULL
@@ -147,7 +147,7 @@ class Vendedor
     public static function gananciasDe(int $vendedorId): float
     {
         $stmt = conexion()->prepare(
-            "SELECT IFNULL(SUM(c.monto_vendedor), 0)
+            "SELECT COALESCE(SUM(c.monto_vendedor), 0)
                FROM comisiones c
                JOIN pedidos p ON p.id = c.pedido_id
               WHERE c.vendedor_id = ?
@@ -163,7 +163,7 @@ class Vendedor
     public static function liquidadoDe(int $vendedorId): float
     {
         $stmt = conexion()->prepare(
-            'SELECT IFNULL(SUM(monto), 0) FROM pagos_vendedor WHERE vendedor_id = ?'
+            'SELECT COALESCE(SUM(monto), 0) FROM pagos_vendedor WHERE vendedor_id = ?'
         );
         $stmt->execute([$vendedorId]);
         return (float) $stmt->fetchColumn();
@@ -200,9 +200,9 @@ class Vendedor
         }
 
         $stmt = conexion()->prepare(
-            "SELECT IFNULL(SUM(c.monto_venta), 0)    AS vendido,
-                    IFNULL(SUM(c.monto_comision), 0) AS comision,
-                    IFNULL(SUM(c.monto_vendedor), 0) AS neto
+            "SELECT COALESCE(SUM(c.monto_venta), 0)    AS vendido,
+                    COALESCE(SUM(c.monto_comision), 0) AS comision,
+                    COALESCE(SUM(c.monto_vendedor), 0) AS neto
                FROM comisiones c
                JOIN pedidos p ON p.id = c.pedido_id
               WHERE c.vendedor_id = ?
@@ -303,17 +303,17 @@ class Vendedor
             ->format('Y-m-d 00:00:00');
 
         $stmt = conexion()->prepare(
-            "SELECT DATE_FORMAT(p.creado_en, '%Y-%m') AS mes,
+            "SELECT to_char(p.creado_en, 'YYYY-MM') AS mes,
                     COUNT(DISTINCT p.id) AS pedidos,
-                    IFNULL(SUM(c.monto_venta), 0) AS vendido,
-                    IFNULL(SUM(c.monto_comision), 0) AS comision,
-                    IFNULL(SUM(c.monto_vendedor), 0) AS neto
+                    COALESCE(SUM(c.monto_venta), 0) AS vendido,
+                    COALESCE(SUM(c.monto_comision), 0) AS comision,
+                    COALESCE(SUM(c.monto_vendedor), 0) AS neto
                FROM comisiones c
                JOIN pedidos p ON p.id = c.pedido_id
               WHERE c.vendedor_id = ?
                 AND p.estado NOT IN ('Cancelado', 'Pendiente')
                 AND p.creado_en >= ?
-              GROUP BY mes"
+              GROUP BY 1"
         );
         $stmt->execute([$vendedorId, $desde]);
         $ventas = [];
@@ -322,14 +322,14 @@ class Vendedor
         }
 
         $stmt = conexion()->prepare(
-            "SELECT DATE_FORMAT(p.creado_en, '%Y-%m') AS mes,
-                    IFNULL(SUM(dp.cantidad), 0) AS unidades
+            "SELECT to_char(p.creado_en, 'YYYY-MM') AS mes,
+                    COALESCE(SUM(dp.cantidad), 0) AS unidades
                FROM detalle_pedido dp
                JOIN pedidos p ON p.id = dp.pedido_id
               WHERE dp.vendedor_id = ?
                 AND p.estado NOT IN ('Cancelado', 'Pendiente')
                 AND p.creado_en >= ?
-              GROUP BY mes"
+              GROUP BY 1"
         );
         $stmt->execute([$vendedorId, $desde]);
         $unidades = $stmt->fetchAll(\PDO::FETCH_KEY_PAIR);
@@ -366,8 +366,8 @@ class Vendedor
         $limite = max(1, min(20, $limite));
         $stmt = conexion()->prepare(
             'SELECT dp.producto_nombre AS nombre,
-                    IFNULL(SUM(dp.cantidad), 0) AS unidades,
-                    IFNULL(SUM(dp.cantidad * dp.precio_unitario_pen), 0) AS ingresos
+                    COALESCE(SUM(dp.cantidad), 0) AS unidades,
+                    COALESCE(SUM(dp.cantidad * dp.precio_unitario_pen), 0) AS ingresos
                FROM detalle_pedido dp
                JOIN pedidos p ON p.id = dp.pedido_id
               WHERE dp.vendedor_id = ?
@@ -400,7 +400,7 @@ class Vendedor
         $stmt = conexion()->prepare(
             'SELECT u.name AS nombre, u.apellidos,
                     COUNT(DISTINCT p.id) AS pedidos,
-                    IFNULL(SUM(dp.cantidad * dp.precio_unitario_pen), 0) AS total
+                    COALESCE(SUM(dp.cantidad * dp.precio_unitario_pen), 0) AS total
                FROM detalle_pedido dp
                JOIN pedidos p ON p.id = dp.pedido_id
                JOIN users u ON u.id = p.cliente_id

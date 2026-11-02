@@ -367,7 +367,7 @@ final class AdminController
             $totales['liquidado']  = \Model\Vendedor::liquidadoDe($vendedorId);
 
             $q = $pdo->prepare(
-                "SELECT IFNULL(SUM(c.monto_venta), 0) FROM comisiones c
+                "SELECT COALESCE(SUM(c.monto_venta), 0) FROM comisiones c
                    JOIN pedidos p ON p.id = c.pedido_id
                   WHERE c.vendedor_id = ? AND p.estado NOT IN ('Cancelado', 'Pendiente')"
             );
@@ -379,7 +379,7 @@ final class AdminController
                    FROM pedidos p
                    JOIN users c ON c.id = p.cliente_id
                    JOIN detalle_pedido dp ON dp.pedido_id = p.id AND dp.vendedor_id = ?
-                  GROUP BY p.id
+                  GROUP BY p.id, c.name, c.apellidos
                   ORDER BY p.id DESC LIMIT 8'
             );
             $q->execute([$vendedorId]);
@@ -403,7 +403,7 @@ final class AdminController
             'vendedores' => (int) $pdo->query(
                 "SELECT COUNT(*) FROM users WHERE rol = 'vendedor' AND deleted_at IS NULL"
             )->fetchColumn(),
-            'comisiones' => (float) $pdo->query('SELECT IFNULL(SUM(monto_comision), 0) FROM comisiones')->fetchColumn(),
+            'comisiones' => (float) $pdo->query('SELECT COALESCE(SUM(monto_comision), 0) FROM comisiones')->fetchColumn(),
         ];
 
         $ultimos = $pdo->query(
@@ -520,7 +520,7 @@ final class AdminController
             }
 
             // El SKU es único (uq_productos_sku): avisar en el panel en lugar
-            // de dejar que MySQL devuelva un error 500.
+            // de dejar que PostgreSQL devuelva un error 500.
             if ($sku !== null) {
                 $qSku = $pdo->prepare('SELECT slug FROM productos WHERE codigo_sku = ? AND slug <> ? LIMIT 1');
                 $qSku->execute([$sku, $slugId]);
@@ -538,7 +538,7 @@ final class AdminController
                     // Si el admin vuelve a activar una publicación archivada,
                     // se limpia el archivo: el estado "archivado" siempre
                     // implica `activo = 0`.
-                    . 'archivado_en = IF(? = 1, NULL, archivado_en), '
+                    . 'archivado_en = CASE WHEN ? = 1 THEN NULL ELSE archivado_en END, '
                     . 'imagen = ?, especificaciones = ?, '
                     . 'peso_kg = ?, dimensiones = ?, colores = ?, vendedor_id = ? WHERE slug = ?'
                 )->execute([
@@ -575,7 +575,7 @@ final class AdminController
                 // archivada no puede quedar visible en la tienda.
                 $pdo->prepare(
                     'UPDATE productos
-                        SET archivado_en = IF(activo = 1, archivado_en, NULL),
+                        SET archivado_en = CASE WHEN activo = 1 THEN archivado_en ELSE NULL END,
                             activo = 1 - activo
                       WHERE slug = ?'
                 )->execute([$slug]);
@@ -604,7 +604,7 @@ final class AdminController
                 LEFT JOIN users v ON v.id = p.vendedor_id AND v.deleted_at IS NULL
                WHERE 1=1 ' . $alcance;
         if ($palabra !== '') {
-            $sql .= ' AND p.nombre LIKE ?';
+            $sql .= ' AND p.nombre ILIKE ?';
             $params[] = '%' . $palabra . '%';
         }
         $sql .= ' ORDER BY p.nombre ASC';
@@ -927,7 +927,7 @@ final class AdminController
                 $valor = (string) ($_POST[$clave] ?? '');
                 $pdo->prepare(
                     'INSERT INTO configuracion (clave, valor) VALUES (?, ?)
-                     ON DUPLICATE KEY UPDATE valor = VALUES(valor)'
+                     ON CONFLICT (clave) DO UPDATE SET valor = EXCLUDED.valor'
                 )->execute([$clave, $valor]);
             }
             $this->auditar($admin, 'configuracion/guardar', 0, 'Actualizó la configuración de la tienda');
@@ -1322,7 +1322,7 @@ final class AdminController
                     && $this->esUltimoAdminActivo($pdo, $id)) {
                     $this->flash('No puedes desactivar al único administrador activo.', true);
                 } else {
-                    $pdo->prepare('UPDATE users SET activo = IF(activo = 1, 0, 1) WHERE id = ?')
+                    $pdo->prepare('UPDATE users SET activo = CASE WHEN activo = 1 THEN 0 ELSE 1 END WHERE id = ?')
                         ->execute([$id]);
                     $this->auditar($admin, 'usuarios/estado', $id, 'Cambió el estado del usuario #' . $id);
                     $this->flash('Estado actualizado.');
@@ -1446,9 +1446,9 @@ final class AdminController
 
         $this->vista('usuarios', [
             'usuarios' => $pdo->query(
-                'SELECT id, name, apellidos, email, usuario, rol, tipo, activo, ultimo_ingreso, created_at
+                "SELECT id, name, apellidos, email, usuario, rol, tipo, activo, ultimo_ingreso, created_at
                  FROM users WHERE deleted_at IS NULL
-                 ORDER BY FIELD(rol, "admin", "vendedor", "cliente"), id'
+                 ORDER BY CASE rol WHEN 'admin' THEN 0 WHEN 'vendedor' THEN 1 ELSE 2 END, id"
             )->fetchAll(),
         ]);
     }

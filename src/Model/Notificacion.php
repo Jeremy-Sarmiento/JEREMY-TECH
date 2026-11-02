@@ -159,8 +159,8 @@ final class Notificacion
 
         $buscar = trim($buscar);
         if ($buscar !== '') {
-            $sql .= ' AND (n.destinatario LIKE ? OR n.asunto LIKE ? OR n.cuerpo LIKE ?
-                           OR CAST(n.pedido_id AS CHAR) LIKE ?)';
+            $sql .= ' AND (n.destinatario ILIKE ? OR n.asunto ILIKE ? OR n.cuerpo ILIKE ?
+                           OR CAST(n.pedido_id AS text) ILIKE ?)';
             $like = '%' . $buscar . '%';
             $params[] = $like;
             $params[] = $like;

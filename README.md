@@ -1,9 +1,9 @@
 # Jeremy Tech
 
 Tienda de tecnología en PHP puro (MVC propio) con panel de
-administración y soporte multi-vendedor. BD MariaDB `jeremy_tech`.
+administración y soporte multi-vendedor. BD PostgreSQL `jeremy_tech`.
 
-**Stack:** PHP 8.1+ (probado en 8.5) · MariaDB 10.11+ · PDO `utf8mb4`
+**Stack:** PHP 8.1+ (probado en 8.5) · PostgreSQL 14+ · PDO `pdo_pgsql`
 
 ## Entregables
 
@@ -17,13 +17,14 @@ Informes PDF de las sesiones de desarrollo:
 ## Instalación
 
 ```bash
-mysql -u root -p < database/jeremy_tech_full.sql
+createdb jeremy_tech
+psql -d jeremy_tech -f database/jeremy_tech_full.sql
 cp .env.example .env   # rellenar DB_USER / DB_PASS
 php -S 127.0.0.1:8000 -t public
 ```
 
-El volcado incluye `CREATE DATABASE` y los datos: impórtalo sobre una
-instalación vacía (no es idempotente).
+El volcado recrea las tablas y carga los datos: impórtalo sobre una
+base vacía (no es idempotente). Requiere la extensión `pdo_pgsql`.
 
 ## Credenciales
 
@@ -85,11 +86,10 @@ y C2C (segunda mano, con stock y reputación).
   vuelve a la página 1. El filtro de vendedor (`vendedor`) y la búsqueda se
   conservan al cambiar el resto de filtros.
 
-La búsqueda usa `LIKE` sobre el texto normalizado porque necesita
-coincidencias parciales (`%son%`). Un índice `FULLTEXT` queda como mejora
-opcional para catálogos mucho más grandes: habría que cambiar la consulta a
-`MATCH ... AGAINST` y aceptar la semántica de palabras completas/prefijos.
-La paginación en servidor ya evita cargar todo el catálogo en cada visita.
+La búsqueda usa `ILIKE` sobre el texto normalizado porque necesita
+coincidencias parciales (`%son%`). Un índice GIN con la extensión `pg_trgm`
+queda como mejora opcional para catálogos mucho más grandes. La paginación en
+servidor ya evita cargar todo el catálogo en cada visita.
 
 ### Búsqueda con filtros activos (Bloque 5)
 
@@ -398,7 +398,7 @@ este Apache el `DirectoryIndex` global solo sirve `index.html`.
 
 `.github/workflows/ci.yml` corre en cada push y pull request: sintaxis
 (`php -l`), estilo (`composer cs-check`), análisis estático (`composer stan`),
-PHPUnit contra un MariaDB temporal con el dump sanitizado y un smoke test HTTP
+PHPUnit contra un PostgreSQL temporal con el dump y un smoke test HTTP
 (`tools/smoke-test.sh`) que comprueba portada, login, catálogo, la redirección
 del panel y el rechazo de POST sin CSRF.
 

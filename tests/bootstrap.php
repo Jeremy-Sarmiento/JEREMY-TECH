@@ -3,8 +3,9 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 putenv('DB_HOST=127.0.0.1');
+putenv('DB_PORT=5432');
 putenv('DB_NAME=jeremy_tech_test');
-putenv('DB_USER=root');
+putenv('DB_USER=postgres');
 putenv('DB_PASS=admin');
 putenv('APP_TIMEZONE=America/Lima');
 putenv('APP_URL=http://localhost');
@@ -17,9 +18,9 @@ require_once __DIR__ . '/../config/conexion.php';
 function testPdo(): \PDO
 {
     return new \PDO(
-        'mysql:host=127.0.0.1;dbname=jeremy_tech_test;charset=utf8mb4',
-        'root',
-        'admin',
+        'pgsql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME,
+        DB_USER,
+        DB_PASS,
         [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
     );
 }
@@ -27,19 +28,21 @@ function testPdo(): \PDO
 function ensureTestDb(): void
 {
     $server = new \PDO(
-        'mysql:host=127.0.0.1;charset=utf8mb4',
-        'root',
-        'admin',
+        'pgsql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=postgres',
+        DB_USER,
+        DB_PASS,
         [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
     );
-    $server->exec('CREATE DATABASE IF NOT EXISTS `jeremy_tech_test` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
+    $existe = $server->query("SELECT 1 FROM pg_database WHERE datname = 'jeremy_tech_test'")->fetchColumn();
+    if ($existe === false) {
+        $server->exec('CREATE DATABASE jeremy_tech_test');
+    }
     $pdo = testPdo();
-    $tables = $pdo->query('SHOW TABLES')->fetchAll(\PDO::FETCH_COLUMN);
-    if (count($tables) < 30) {
-        $sql = file_get_contents(__DIR__ . '/../database/jeremy_tech_full.sql');
-        $sql = str_replace('`jeremy_tech`', '`jeremy_tech_test`', $sql);
-        $sql = str_replace('USE `jeremy_tech`', 'USE `jeremy_tech_test`', $sql);
-        $pdo->exec($sql);
+    $tablas = (int) $pdo->query(
+        "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public'"
+    )->fetchColumn();
+    if ($tablas < 30) {
+        $pdo->exec(file_get_contents(__DIR__ . '/../database/jeremy_tech_full.sql'));
     }
 }
 
@@ -47,11 +50,10 @@ function resetTestDb(): void
 {
     ensureTestDb();
     $pdo = testPdo();
-    $pdo->exec('SET FOREIGN_KEY_CHECKS=0;');
-    foreach ($pdo->query('SHOW TABLES')->fetchAll(\PDO::FETCH_COLUMN) as $table) {
-        $pdo->exec("TRUNCATE TABLE `$table`;");
-    }
-    $pdo->exec('SET FOREIGN_KEY_CHECKS=1;');
+    $tablas = $pdo->query(
+        "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
+    )->fetchAll(\PDO::FETCH_COLUMN);
+    $pdo->exec('TRUNCATE TABLE ' . implode(', ', $tablas) . ' RESTART IDENTITY CASCADE');
     // Seed tarifas
     $pdo->exec("INSERT INTO tarifas_envio (id, zona, costo, dias_estimados, activo) VALUES
         (1, 'Lima Metropolitana', 15.00, '1-2', 1),
@@ -67,6 +69,14 @@ function resetTestDb(): void
         (3,'Cliente','Demo','cliente@example.com',NULL,'" . password_hash('cliente', PASSWORD_DEFAULT) . "','cliente','B2C',1,1,'999000002','Av. Demo','00000001','','','','¿Cómo se llamaba tu colegio de primaria?','" . password_hash('colegio', PASSWORD_DEFAULT) . "',NOW()),
         (4,'Cliente','B2B','cliente_b2b@example.com',NULL,'" . password_hash('cliente', PASSWORD_DEFAULT) . "','cliente','B2B',1,1,'999000003','Av. Demo','','20123456789','Empresa B2B','','¿Cuál es tu plato favorito?','" . password_hash('plato', PASSWORD_DEFAULT) . "',NOW()),
         (5,'Cliente','C2C','cliente_c2c@example.com',NULL,'" . password_hash('cliente', PASSWORD_DEFAULT) . "','cliente','C2C',1,1,'999000004','Av. Demo','','','','Facebook','¿Cuál es el apellido de soltera de tu madre?','" . password_hash('madre', PASSWORD_DEFAULT) . "',NOW());");
+    // Los ids explícitos no avanzan la secuencia identity: hay que sincronizarla.
+    foreach (['users', 'tarifas_envio'] as $tabla) {
+        $pdo->exec(sprintf(
+            "SELECT setval(pg_get_serial_sequence('%s', 'id'), (SELECT MAX(id) FROM %s))",
+            $tabla,
+            $tabla
+        ));
+    }
 }
 
 function findTestUser(string $email): ?array

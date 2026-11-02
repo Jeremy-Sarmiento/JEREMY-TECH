@@ -109,16 +109,16 @@ final class CalificacionVendedor
             return 'Solo puedes calificar a un vendedor si le compraste y pagaste algo.';
         }
 
-        // ON DUPLICATE KEY UPDATE usa la UNIQUE (vendedor_id, cliente_id):
+        // ON CONFLICT usa la UNIQUE (vendedor_id, cliente_id):
         // volver a calificar actualiza la fila en vez de duplicarla. La
         // fecha original se conserva para que editarla no la haga parecer
         // una compra nueva.
         $stmt = conexion()->prepare(
             'INSERT INTO calificaciones_vendedor (vendedor_id, cliente_id, calificacion, comentario)
              VALUES (?, ?, ?, ?)
-             ON DUPLICATE KEY UPDATE
-                calificacion = VALUES(calificacion),
-                comentario = VALUES(comentario)'
+             ON CONFLICT (vendedor_id, cliente_id) DO UPDATE SET
+                calificacion = EXCLUDED.calificacion,
+                comentario = EXCLUDED.comentario'
         );
         $stmt->execute([$vendedorId, $clienteId, $calificacion, $comentario]);
 

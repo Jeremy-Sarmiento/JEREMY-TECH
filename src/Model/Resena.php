@@ -245,15 +245,15 @@ final class Resena
             return 'Solo puedes opinar sobre productos que ya compraste.';
         }
 
-        // ON DUPLICATE KEY UPDATE usa la UNIQUE (producto_id, cliente_id):
+        // ON CONFLICT usa la UNIQUE (producto_id, cliente_id):
         // volver a opinar actualiza la reseña en vez de duplicarla. La fecha
         // original se conserva para que la edición no la haga parecer nueva.
         $stmt = conexion()->prepare(
             'INSERT INTO resenas (producto_id, cliente_id, calificacion, comentario)
              VALUES (?, ?, ?, ?)
-             ON DUPLICATE KEY UPDATE
-                calificacion = VALUES(calificacion),
-                comentario = VALUES(comentario)'
+             ON CONFLICT (producto_id, cliente_id) DO UPDATE SET
+                calificacion = EXCLUDED.calificacion,
+                comentario = EXCLUDED.comentario'
         );
         $stmt->execute([$productoId, $clienteId, $calificacion, $comentario]);
 
@@ -283,7 +283,7 @@ final class Resena
 
         $buscar = trim($buscar);
         if ($buscar !== '') {
-            $sql .= ' AND (r.comentario LIKE ? OR p.nombre LIKE ? OR u.name LIKE ? OR u.email LIKE ?)';
+            $sql .= ' AND (r.comentario ILIKE ? OR p.nombre ILIKE ? OR u.name ILIKE ? OR u.email ILIKE ?)';
             $like = '%' . $buscar . '%';
             for ($i = 0; $i < 4; $i++) {
                 $params[] = $like;

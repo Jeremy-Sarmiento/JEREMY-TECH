@@ -189,7 +189,7 @@ class Producto
         $condiciones = [];
         $parametros = [];
         foreach ($terminos as $termino) {
-            $condiciones[] = "LOWER(CONCAT_WS(' ', p.nombre, p.modelo, p.categoria, p.especificaciones, p.codigo_sku)) LIKE ?";
+            $condiciones[] = "LOWER(CONCAT_WS(' ', p.nombre, p.modelo, p.categoria, p.especificaciones, p.codigo_sku)) ILIKE ?";
             $parametros[] = '%' . $termino . '%';
         }
 
@@ -377,7 +377,7 @@ class Producto
         }
 
         foreach ($terminos as $termino) {
-            $where[] = "LOWER(CONCAT_WS(' ', p.nombre, p.modelo, p.codigo_sku, p.categoria, p.especificaciones)) LIKE ?";
+            $where[] = "LOWER(CONCAT_WS(' ', p.nombre, p.modelo, p.codigo_sku, p.categoria, p.especificaciones)) ILIKE ?";
             $parametros[] = '%' . $termino . '%';
         }
 

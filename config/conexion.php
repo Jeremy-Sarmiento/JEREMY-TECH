@@ -14,10 +14,11 @@ declare(strict_types=1);
  * volcado `database/jeremy_tech_full.sql`. Antes de servir la app por primera
  * vez (o tras clonar), ejecuta:
  *
- *   mysql -u root -p < database/jeremy_tech_full.sql
+ *   createdb jeremy_tech
+ *   psql -d jeremy_tech -f database/jeremy_tech_full.sql
  *
- * El volcado incluye CREATE DATABASE + los datos completos, así que debe
- * importarse sobre una instalación vacía (no es idempotente).
+ * El volcado recrea las tablas y carga los datos completos, así que debe
+ * importarse sobre una base vacía (no es idempotente).
  *
  * Las credenciales ya NO se escriben aquí: se leen desde el archivo `.env`
  * (no versionado), que es la fuente principal. Copia `.env.example` a `.env`
@@ -123,8 +124,9 @@ function env(string $clave, string $porDefecto = ''): string
 }
 
 define('DB_HOST', env('DB_HOST', '127.0.0.1'));
+define('DB_PORT', env('DB_PORT', '5432'));
 define('DB_NAME', env('DB_NAME', 'jeremy_tech'));
-define('DB_USER', env('DB_USER', 'root'));
+define('DB_USER', env('DB_USER', 'postgres'));
 define('DB_PASS', env('DB_PASS', ''));
 
 // Directorio de los correos simulados. Debe quedar FUERA del DocumentRoot:
@@ -166,7 +168,7 @@ if (!defined('APP_URL')) {
     define('APP_URL', rtrim($appUrl, '/'));
 }
 
-// Zona horaria de la app. El sistema y MariaDB corren en America/Lima; sin
+// Zona horaria de la app. El sistema y PostgreSQL corren en America/Lima; sin
 // fijarla, PHP queda en UTC y la lógica que compara fechas con `date()`
 // (p.ej. la vigencia de los cupones en Carrito::aplicarCupon) se evalúa
 // 5 horas desplazada: a las 20:00 en Lima un cupón que vence hoy ya parece
@@ -209,7 +211,7 @@ spl_autoload_register(function (string $clase): void {
 // 3. Conexión PDO segura (patrón singleton)
 // ---------------------------------------------------------------------------
 /**
- * Devuelve la instancia única de PDO hacia MariaDB/MySQL.
+ * Devuelve la instancia única de PDO hacia PostgreSQL.
  */
 function conexion(): PDO
 {
@@ -221,34 +223,31 @@ function conexion(): PDO
 
     try {
         $pdo = new PDO(
-            'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4',
+            'pgsql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME,
             DB_USER,
             DB_PASS,
             [
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES   => false,
             ]
         );
     } catch (PDOException $error) {
         http_response_code(500);
         die(
             "No se pudo conectar a la base de datos '" . DB_NAME . "'. Verifica que " .
-            'MariaDB esté encendido y que la base exista (CREATE DATABASE jeremy_tech;).<br>' .
+            'PostgreSQL esté encendido y que la base exista (createdb jeremy_tech).<br>' .
             'Detalle técnico: ' . htmlspecialchars($error->getMessage())
         );
     }
 
-    // Alinea el reloj de la SESIÓN MySQL con el de PHP. Las columnas con
-    // CURRENT_TIMESTAMP escriben con la zona horaria de la sesión, no con la
-    // del servidor: si una de las dos está en UTC y la otra en Lima, los
-    // `creado_en` salen 5 horas corridos respecto a cualquier `date()` de PHP.
-    // Se usa el offset numérico (y no el nombre IANA) porque MySQL solo
-    // acepta nombres si su tabla de zonas horarias está cargada.
-    // Best-effort: en hosts que prohíban `SET time_zone` la app sigue viva.
+    // Alinea la zona horaria de la SESIÓN con la de PHP. Las columnas con
+    // CURRENT_TIMESTAMP escriben con la zona de la sesión: si una de las dos
+    // está en UTC y la otra en Lima, los `creado_en` salen 5 horas corridos
+    // respecto a cualquier `date()` de PHP.
+    // Best-effort: si el rol no puede cambiarla, la app sigue viva.
     try {
-        $offset = (new DateTimeImmutable('now', new DateTimeZone(APP_TIMEZONE)))->format('P');
-        $pdo->exec('SET time_zone = ' . $pdo->quote($offset));
+        $pdo->exec('SET TIME ZONE ' . $pdo->quote(APP_TIMEZONE));
+        $pdo->exec("SET client_encoding = 'UTF8'");
     } catch (Throwable) {
         // El servidor no permite cambiar la zona: se queda con la suya.
     }

@@ -22,21 +22,23 @@ jobs:
     name: Generar la vista estática
     runs-on: ubuntu-latest
     services:
-      mariadb:
-        image: mariadb:11.4
+      postgres:
+        image: postgres:16
         env:
-          MARIADB_ROOT_PASSWORD: admin
+          POSTGRES_PASSWORD: admin
+          POSTGRES_DB: jeremy_tech
         ports:
-          - 3306:3306
+          - 5432:5432
         options: >-
-          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-cmd="pg_isready -U postgres"
           --health-interval=5s
           --health-timeout=5s
           --health-retries=20
     env:
       DB_HOST: 127.0.0.1
+      DB_PORT: 5432
       DB_NAME: jeremy_tech
-      DB_USER: root
+      DB_USER: postgres
       DB_PASS: admin
       APP_TIMEZONE: America/Lima
       MAIL_STORAGE_PATH: /tmp/jeremy-tech-mail
@@ -48,10 +50,13 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+          extensions: pdo_pgsql
           coverage: none
 
-      - name: Importar el dump sanitizado
-        run: mysql -h 127.0.0.1 -u root -padmin < database/jeremy_tech_full.sql
+      - name: Importar el dump
+        env:
+          PGPASSWORD: admin
+        run: psql -h 127.0.0.1 -U postgres -d jeremy_tech -f database/jeremy_tech_full.sql
 
       - name: Generar _site
         run: bash tools/build-preview.sh _site

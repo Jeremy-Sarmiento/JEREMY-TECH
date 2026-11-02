@@ -54,7 +54,7 @@ final class LimiteIntentos
 
     /**
      * Registra un intento fallido (o una solicitud) y bloquea si corresponde.
-     * La operación es atómica: un INSERT ... ON DUPLICATE KEY UPDATE evita
+     * La operación es atómica: un INSERT ... ON CONFLICT DO UPDATE evita
      * que dos peticiones simultáneas pierdan la cuenta.
      */
     public static function registrar(
@@ -70,20 +70,21 @@ final class LimiteIntentos
             return;
         }
 
+        // PostgreSQL evalúa todas las asignaciones del ON CONFLICT con la fila
+        // anterior; la condición del contador se repite para decidir el bloqueo
+        // con el valor nuevo, como hacía MySQL de izquierda a derecha.
+        $reinicia = 'intentos_acceso.ultimo_intento < (NOW() - INTERVAL \'' . $ventana . ' seconds\')'
+            . ' OR (intentos_acceso.bloqueado_hasta IS NOT NULL AND intentos_acceso.bloqueado_hasta <= NOW())';
+
         $sql = 'INSERT INTO intentos_acceso (ambito, clave, ip, intentos, bloqueado_hasta, ultimo_intento)
                 VALUES (?, ?, ?, 1, NULL, NOW())
-                ON DUPLICATE KEY UPDATE
-                    intentos = IF(
-                        ultimo_intento < (NOW() - INTERVAL ' . $ventana . ' SECOND)
-                        OR (bloqueado_hasta IS NOT NULL AND bloqueado_hasta <= NOW()),
-                        1,
-                        intentos + 1
-                    ),
-                    bloqueado_hasta = IF(
-                        intentos >= ' . $max . ',
-                        DATE_ADD(NOW(), INTERVAL ' . $bloqueo . ' SECOND),
-                        NULL
-                    ),
+                ON CONFLICT (ambito, clave) DO UPDATE SET
+                    intentos = CASE WHEN ' . $reinicia . ' THEN 1 ELSE intentos_acceso.intentos + 1 END,
+                    bloqueado_hasta = CASE
+                        WHEN (CASE WHEN ' . $reinicia . ' THEN 1 ELSE intentos_acceso.intentos + 1 END) >= ' . $max . '
+                        THEN NOW() + INTERVAL \'' . $bloqueo . ' seconds\'
+                        ELSE NULL
+                    END,
                     ultimo_intento = NOW()';
 
         conexion()->prepare($sql)->execute([$ambito, $clave, mb_substr($ip, 0, 45)]);

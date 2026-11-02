@@ -39,7 +39,7 @@ class ReportesVendedorTest extends TestCase
         // Pedido cobrado de hace dos meses: 1 unidad de B.
         $pdo->exec(
             "INSERT INTO pedidos (id, cliente_id, total_pen, subtotal, igv_monto, envio_costo, envio_zona, comprobante_documento, courier, estado, creado_en)
-             VALUES (2, 4, 59.00, 50.00, 9.00, 0, 'Lima', '', '', 'Pagado', DATE_SUB(NOW(), INTERVAL 2 MONTH))"
+             VALUES (2, 4, 59.00, 50.00, 9.00, 0, 'Lima', '', '', 'Pagado', NOW() - INTERVAL '2 months')"
         );
         $pdo->exec(
             "INSERT INTO detalle_pedido (pedido_id, cantidad, precio_unitario_pen, variante_nombre, producto_id, producto_nombre, vendedor_id)

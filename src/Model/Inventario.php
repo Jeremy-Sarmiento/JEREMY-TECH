@@ -205,7 +205,7 @@ class Inventario
 
         $buscar = trim($buscar);
         if ($buscar !== '') {
-            $sql .= ' AND (p.nombre LIKE ? OR p.slug LIKE ? OR m.motivo LIKE ?)';
+            $sql .= ' AND (p.nombre ILIKE ? OR p.slug ILIKE ? OR m.motivo ILIKE ?)';
             $like = '%' . $buscar . '%';
             $params[] = $like;
             $params[] = $like;
@@ -273,7 +273,7 @@ class Inventario
 
         $buscar = trim($buscar);
         if ($buscar !== '') {
-            $sql .= ' AND (p.nombre LIKE ? OR p.slug LIKE ? OR p.codigo_sku LIKE ?)';
+            $sql .= ' AND (p.nombre ILIKE ? OR p.slug ILIKE ? OR p.codigo_sku ILIKE ?)';
             $like = '%' . $buscar . '%';
             $params[] = $like;
             $params[] = $like;

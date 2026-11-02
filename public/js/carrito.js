@@ -4,7 +4,7 @@
  * Este JS comunica las acciones (agregar, eliminar, cantidad, cupón y pago)
  * mediante endpoints JSON de public/index.php, actualiza badges y toasts,
  * y mantiene el ticket de éxito en el cliente. La persistencia (localStorage,
- * db-modelo.js) ya no se usa: la base de datos es MariaDB.
+ * db-modelo.js) ya no se usa: la base de datos es PostgreSQL.
  * @author Jeremy Tech
  * @version 2.0.0
  */
