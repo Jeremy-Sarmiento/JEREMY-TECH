@@ -35,7 +35,9 @@
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
   <header>
    <div class="logo-text">
-    <img class="logo-svg" src="img/logo.svg" alt="JEREMY TECH"/>
+    <a class="logo-link" href="index.php" aria-label="JEREMY TECH, ir al inicio">
+     <img class="logo-svg" src="img/logo.svg" alt="JEREMY TECH"/>
+    </a>
    </div>
    <p>
     La Paz Soldan, frente al salon de eventos "los portales" |
@@ -56,65 +58,78 @@
     <span aria-hidden="true"></span>
    </button>
    <div class="nav-main-links" id="navMainLinks">
-    <?php $rutaCatalogo = in_array($rutaVista ?? '', ['carrito', 'login', 'producto', 'direcciones', 'pagina', 'perfil', 'favoritos', 'notificaciones', 'mis-pedidos', 'mis-productos'], true) ? '?ruta=catalogo' : ''; ?>
-    <a href="<?= $rutaCatalogo ?>#inicio">
-     INICIO
-    </a>
-    <a href="<?= $rutaCatalogo ?>#celulares">
-     CELULARES
-    </a>
-    <a href="<?= $rutaCatalogo ?>#laptops">
-     LAPTOPS
-    </a>
-    <a href="<?= $rutaCatalogo ?>#audifonos">
-     AUDIFONOS
-    </a>
-    <a href="<?= $rutaCatalogo ?>#accesorios">
-     ACCESORIOS
-    </a>
-    <a href="<?= $rutaCatalogo ?>#smartwatches">
-     SMARTWATCHES
-    </a>
-    <a href="<?= $rutaCatalogo ?>#tablets">
-     TABLETS
-    </a>
-    <a href="<?= $rutaCatalogo ?>#gaming">
-     GAMING
-    </a>
+    <?php
+     // Filtros del catálogo en la cabecera (sustituyen a los enlaces de categorías).
+     // En la vista del catálogo el controlador ya dejó listas las opciones y el
+     // filtro aplicado; en el resto de rutas se usan los valores por defecto.
+     $navFiltro = (isset($filtros) && is_array($filtros)) ? $filtros : $_GET;
+     $navCategoria = (string) ($navFiltro['categoria'] ?? '');
+     $navMarca = (string) ($navFiltro['marca'] ?? '');
+     $navOrden = (string) ($navFiltro['orden'] ?? 'relevancia');
+     $navBusqueda = trim((string) ($navFiltro['q'] ?? ''));
+     $navVendedor = $navFiltro['vendedor'] ?? null;
+
+     $navCategorias = $categoriasDisponibles ?? array_keys(\Model\Producto::GRIDS);
+     $navMarcas = $marcasDisponibles ?? \Model\Producto::marcasDisponibles();
+     $navOrdenes = $ordenesDisponibles ?? \Controller\ProductoController::ORDENES;
+
+     $navEsc = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+    ?>
+     <form class="filtros-nav" action="index.php" method="get" role="search" aria-label="Buscar y filtrar el catálogo" data-suggest-url="?ruta=catalogo/sugerencias">
+      <input type="hidden" name="ruta" value="catalogo">
+      <?php if (!empty($navVendedor)): ?>
+      <input type="hidden" name="vendedor" value="<?= (int) $navVendedor ?>">
+      <?php endif; ?>
+
+      <div class="nav-search-field">
+       <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <use href="img/icons.svg#icon-search"/>
+       </svg>
+       <input type="search" id="busquedaInput" name="q" value="<?= $navEsc($navBusqueda) ?>" placeholder="Buscar productos" autocomplete="off" enterkeyhint="search" aria-label="Buscar productos"/>
+       <button type="button" id="btnLimpiarBusqueda" class="btn-clear-search" style="display:none;" title="Limpiar búsqueda" aria-label="Limpiar búsqueda" onclick="limpiarBusqueda()">&times;</button>
+      </div>
+
+      <div class="filtro-grupo">
+       <label class="sr-only" for="filtro-categoria">Categoría</label>
+       <select id="filtro-categoria" name="categoria">
+        <option value="">Categoría</option>
+        <?php foreach ($navCategorias as $categoriaOpcion): ?>
+        <option value="<?= $navEsc($categoriaOpcion) ?>"<?= $categoriaOpcion === $navCategoria ? ' selected' : '' ?>>
+         <?= $navEsc($categoriaOpcion) ?>
+        </option>
+        <?php endforeach; ?>
+       </select>
+      </div>
+
+      <div class="filtro-grupo">
+       <label class="sr-only" for="filtro-marca">Marca</label>
+       <select id="filtro-marca" name="marca">
+        <option value="">Marca</option>
+        <?php foreach ($navMarcas as $marcaOpcion): ?>
+        <option value="<?= $navEsc($marcaOpcion['nombre']) ?>"<?= $marcaOpcion['nombre'] === $navMarca ? ' selected' : '' ?>>
+         <?= $navEsc($marcaOpcion['nombre']) ?>
+        </option>
+        <?php endforeach; ?>
+       </select>
+      </div>
+
+      <div class="filtro-grupo filtro-grupo-orden">
+       <label class="sr-only" for="filtro-orden">Ordenar por</label>
+       <select id="filtro-orden" name="orden">
+        <?php foreach ($navOrdenes as $valorOrden => $textoOrden): ?>
+        <option value="<?= $navEsc($valorOrden) ?>"<?= $valorOrden === $navOrden ? ' selected' : '' ?>>
+         <?= $navEsc($textoOrden) ?>
+        </option>
+        <?php endforeach; ?>
+       </select>
+      </div>
+
+      <button type="submit" class="btn-aplicar-filtros">Buscar</button>
+
+      <div id="searchSuggest" class="search-suggest" aria-live="polite" hidden></div>
+     </form>
    </div>
    <div class="nav-actions">
-    <?php
-     $busquedaActual = isset($_GET['q']) && is_scalar($_GET['q']) ? (string) $_GET['q'] : '';
-     $vendedorBusqueda = !empty($vendedorFiltro) && isset($idVendedor) ? (int) $idVendedor : 0;
-    ?>
-    <form class="nav-search-box" action="index.php" method="get" role="search" data-suggest-url="?ruta=catalogo/sugerencias">
-     <input type="hidden" name="ruta" value="catalogo"/>
-     <?php if ($vendedorBusqueda > 0): ?>
-     <input type="hidden" name="vendedor" value="<?= $vendedorBusqueda ?>"/>
-     <?php endif; ?>
-     <?php
-      // (Bloque 5) Al enviar una búsqueda desde la navegación se conservan los
-      // filtros activos del catálogo (categoría, marca, rango de precio y
-      // orden). El controlador ignora los valores inválidos, así que basta con
-      // reenviar lo que haya en la URL actual.
-      $navCategoria = isset($_GET['categoria']) && is_scalar($_GET['categoria']) ? trim((string) $_GET['categoria']) : '';
-      $navMarca = isset($_GET['marca']) && is_scalar($_GET['marca']) ? trim((string) $_GET['marca']) : '';
-      $navPrecioMin = isset($_GET['precio_min']) && is_scalar($_GET['precio_min']) ? trim((string) $_GET['precio_min']) : '';
-      $navPrecioMax = isset($_GET['precio_max']) && is_scalar($_GET['precio_max']) ? trim((string) $_GET['precio_max']) : '';
-      $navOrden = isset($_GET['orden']) && is_scalar($_GET['orden']) ? trim((string) $_GET['orden']) : '';
-     ?>
-     <input type="hidden" name="categoria" value="<?= htmlspecialchars($navCategoria, ENT_QUOTES, 'UTF-8') ?>"/>
-     <input type="hidden" name="marca" value="<?= htmlspecialchars($navMarca, ENT_QUOTES, 'UTF-8') ?>"/>
-     <input type="hidden" name="precio_min" value="<?= htmlspecialchars($navPrecioMin, ENT_QUOTES, 'UTF-8') ?>"/>
-     <input type="hidden" name="precio_max" value="<?= htmlspecialchars($navPrecioMax, ENT_QUOTES, 'UTF-8') ?>"/>
-     <input type="hidden" name="orden" value="<?= htmlspecialchars($navOrden, ENT_QUOTES, 'UTF-8') ?>"/>
-     <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-      <use href="img/icons.svg#icon-search"/>
-     </svg>
-     <input type="search" id="busquedaInput" name="q" value="<?= htmlspecialchars($busquedaActual, ENT_QUOTES, 'UTF-8') ?>" placeholder="Nombre, modelo, SKU o categoría" autocomplete="off" enterkeyhint="search" aria-label="Buscar productos"/>
-     <button type="button" id="btnLimpiarBusqueda" class="btn-clear-search" style="display:none;" title="Limpiar búsqueda" aria-label="Limpiar búsqueda" onclick="limpiarBusqueda()">&times;</button>
-     <div id="searchSuggest" class="search-suggest" aria-live="polite" hidden></div>
-    </form>
     <div class="nav-moneda">
      <button class="nav-moneda-btn"
              id="monedaBtn"
@@ -186,12 +201,6 @@
     <?php if (\Model\Administrador::estaAutenticado()): ?>
     <a class="nav-admin-btn" href="?ruta=admin" title="Panel de administración" aria-label="Panel de administración"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-settings"/></svg><span class="nav-admin-label">Panel</span></a>
     <?php endif; ?>
-    <a class="nav-orders-btn" id="ordersNavBtn" href="?ruta=mis-pedidos" title="Ver mis pedidos" aria-label="Ver mis pedidos">
-     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-      <use href="img/icons.svg#icon-pedidos"/>
-     </svg>
-     <span class="nav-orders-label">Mis Pedidos</span>
-    </a>
     <button class="nav-cart-btn" id="cartNavBtn" type="button" onclick="abrirCarrito()" title="Ver carrito de compras" aria-label="Ver carrito de compras">
      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
       <use href="img/icons.svg#icon-cart"/>

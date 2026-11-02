@@ -18,15 +18,19 @@ class ProductoController
 {
     /**
      * Tarjetas (grupos de variantes) por página del catálogo.
+     *
+     * shortcut: el catálogo ya no muestra paginador, así que se pinta entero de
+     * una vez; si el inventario supera este tope hay que volver a paginar o
+     * cargar por tramos.
      */
-    private const POR_PAGINA = 12;
+    private const POR_PAGINA = 250;
 
     /**
      * Órdenes disponibles, en el mismo orden del desplegable.
      *
      * @var array<string, string>
      */
-    private const ORDENES = [
+    public const ORDENES = [
         'relevancia'  => 'Relevancia',
         'nombre'      => 'Nombre (A-Z)',
         'precio_asc'  => 'Precio: menor a mayor',

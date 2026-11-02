@@ -281,183 +281,32 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // =========================================================================
-  // 3. CARRUSELES INDEPENDIENTES DE VARIANTES EN CARDS
+  // 3. SELECTOR DE VARIANTES EN LAS TARJETAS
   // =========================================================================
 
-  /** Mapa de temporizadores de auto-rotación para tarjetas de productos */
-  const cardCarousels = new Map();
-
   /**
-   * Controlador de evento invocado al hacer clic en las flechas prev/next de una tarjeta.
-   * @param {HTMLElement} button - Botón presionado dentro de la card.
-   * @param {number} direction - -1 para anterior, 1 para siguiente.
+   * Cambia la variante visible de una tarjeta: imagen, datos y estado del botón.
+   * @param {HTMLElement} boton - Botón de variante presionado.
    */
-  function changeCardSlide(button, direction) {
-    const card = button.closest('.card');
-    changeCardSlideLogic(card, direction);
-    resetCardAutoPlay(card);
-  }
-
-  /**
-   * Aplica la transición y sincroniza la variante activa (imagen, dots y datos de texto/precio).
-   * @param {HTMLElement} card - Elemento contenedor de la tarjeta.
-   * @param {number} direction - Desplazamiento relativo del índice.
-   */
-  function changeCardSlideLogic(card, direction) {
-    if (!card) return;
-    const carousel = card.querySelector('.card-carousel');
-    if (!carousel) return;
-    const inner = carousel.querySelector('.card-carousel-inner');
-    if (!inner) return;
-    const items = carousel.querySelectorAll('.card-carousel-item');
-    const dots = carousel.querySelectorAll('.card-carousel-dot');
-    const infoItems = card.querySelectorAll('.card-info-item');
-    const totalItems = items.length;
-
-    let currentIndex = 0;
-    dots.forEach((dot, index) => {
-      if (dot.classList.contains('active')) currentIndex = index;
-    });
-
-    let newIndex = currentIndex + direction;
-    if (newIndex >= totalItems) newIndex = 0;
-    if (newIndex < 0) newIndex = totalItems - 1;
-
-    inner.style.transform = 'translateX(' + (-newIndex * 100) + '%)';
-
-    dots.forEach((dot, index) => {
-      dot.classList.toggle('active', index === newIndex);
-      dot.setAttribute('aria-current', index === newIndex ? 'true' : 'false');
-    });
-
-    items.forEach((item, index) => {
-      item.classList.toggle('active', index === newIndex);
-      // La variante visible es la única que debe recibir foco por Tab.
-      item.toggleAttribute('inert', index !== newIndex);
-    });
-
-    infoItems.forEach((info, index) => {
-      info.classList.toggle('active', index === newIndex);
-    });
-  }
-
-  /**
-   * Inicia la rotación automática de variantes para una tarjeta (cada 4 segundos).
-   * @param {HTMLElement} card - Elemento contenedor de la tarjeta.
-   */
-  function startCardAutoPlay(card) {
-    if (!card) return;
-    const items = card.querySelectorAll('.card-carousel-item');
-    if (!finePointer || reduceMotion || document.hidden || items.length < 2) return;
-    if (card.contains(document.activeElement)) return;
-    stopCardAutoPlay(card);
-    const interval = setInterval(() => {
-      changeCardSlideLogic(card, 1);
-    }, 4000);
-    cardCarousels.set(card, interval);
-  }
-
-  /**
-   * Detiene la rotación automática de una tarjeta (ej. al posar el cursor).
-   * @param {HTMLElement} card - Elemento contenedor de la tarjeta.
-   */
-  function stopCardAutoPlay(card) {
-    if (!card) return;
-    if (cardCarousels.has(card)) {
-      clearInterval(cardCarousels.get(card));
-      cardCarousels.delete(card);
-    }
-  }
-
-  /**
-   * Reinicia el temporizador de auto-rotación de una tarjeta tras la interacción del usuario.
-   * @param {HTMLElement} card - Elemento contenedor de la tarjeta.
-   */
-  function resetCardAutoPlay(card) {
-    stopCardAutoPlay(card);
-    startCardAutoPlay(card);
-  }
-
-  // Inicializar observadores y eventos para todas las cards
-  document.querySelectorAll('.card').forEach(card => {
-    const firstItem = card.querySelector('.card-carousel-item');
-    if (firstItem) firstItem.classList.add('active');
-
-    startCardAutoPlay(card);
-
-    card.addEventListener('mouseenter', () => stopCardAutoPlay(card));
-    card.addEventListener('mouseleave', () => startCardAutoPlay(card));
-    card.addEventListener('focusin', () => stopCardAutoPlay(card));
-    card.addEventListener('focusout', event => {
-      if (!card.contains(event.relatedTarget)) startCardAutoPlay(card);
-    });
-  });
-
-  // Delegación de eventos para clics directos sobre los puntos (dots) de las cards.
-  document.addEventListener('click', (e) => {
-    const dot = e.target.closest('.card-carousel-dot');
-    if (!dot) return;
-
-    const card = dot.closest('.card');
-    if (!card) return;
-    const dots = card.querySelectorAll('.card-carousel-dot');
-    const items = card.querySelectorAll('.card-carousel-item');
-    const clickedIndex = Array.from(dots).indexOf(dot);
-    const currentIndex = Array.from(dots).findIndex(item => item.classList.contains('active'));
-    const direction = clickedIndex - currentIndex;
-
-    items.forEach((item, index) => {
-      item.classList.toggle('active', index === clickedIndex);
-    });
-
-    changeCardSlideLogic(card, direction);
-    resetCardAutoPlay(card);
-  });
-
-  // Swipe horizontal en las tarjetas. Se ignora el gesto sobre flechas/dots.
-  let cardSwipe = null;
-  document.addEventListener('touchstart', (event) => {
-    const carousel = event.target.closest('.card-carousel');
-    const variantes = carousel ? carousel.querySelectorAll('.card-carousel-item') : [];
-    if (!carousel || variantes.length < 2 || event.touches.length !== 1 || event.target.closest('.card-carousel-btn, .card-carousel-dot')) {
-      cardSwipe = null;
-      return;
-    }
-    cardSwipe = {
-      card: carousel.closest('.card'),
-      x: event.touches[0].clientX,
-      y: event.touches[0].clientY,
-    };
-  }, { passive: true });
-
-  document.addEventListener('touchend', (event) => {
-    if (!cardSwipe || !event.changedTouches.length) {
-      cardSwipe = null;
-      return;
-    }
-    const dx = event.changedTouches[0].clientX - cardSwipe.x;
-    const dy = event.changedTouches[0].clientY - cardSwipe.y;
-    const card = cardSwipe.card;
-    cardSwipe = null;
-
-    if (!card || Math.abs(dx) < 40 || Math.abs(dx) <= Math.abs(dy) * 1.2) return;
-
-    card.dataset.swiped = '1';
-    window.setTimeout(() => {
-      delete card.dataset.swiped;
-    }, 350);
-    changeCardSlideLogic(card, dx < 0 ? 1 : -1);
-    resetCardAutoPlay(card);
-  }, { passive: true });
-
-  // Evita que un swipe termine abriendo la ficha del producto por accidente.
   document.addEventListener('click', (event) => {
-    const card = event.target.closest('.card');
-    if (card && card.dataset.swiped === '1') {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-  }, true);
+    const boton = event.target.closest('.card-variante');
+    if (!boton) return;
+    const card = boton.closest('.card');
+    if (!card) return;
+    const indice = Number(boton.dataset.indice);
+
+    card.querySelectorAll('.card-variante').forEach((otro, i) => {
+      otro.classList.toggle('active', i === indice);
+      otro.setAttribute('aria-pressed', i === indice ? 'true' : 'false');
+    });
+    card.querySelectorAll('.card-media-item').forEach((item, i) => {
+      item.classList.toggle('active', i === indice);
+      item.toggleAttribute('inert', i !== indice);
+    });
+    card.querySelectorAll('.card-info-item').forEach((info, i) => {
+      info.classList.toggle('active', i === indice);
+    });
+  });
 
   // =========================================================================
   // 4. CONSULTAS DIRECTAS VÍA WHATSAPP
@@ -760,6 +609,5 @@ document.addEventListener('DOMContentLoaded', () => {
   window.nextSlide = nextSlide;
   window.previousSlide = previousSlide;
   window.goToSlide = goToSlide;
-  window.changeCardSlide = changeCardSlide;
 
 });

@@ -297,6 +297,12 @@ final class ProductoVendedor
             $slug = self::slugUnico($nombre);
         }
 
+        // Auto-generar SKU si no fue proporcionado, tomando el modelo y añadiendo
+        // un sufijo incremental para garantizar unicidad.
+        if ($sku === '') {
+            $sku = self::generarCodigoSku($modelo, $vendedorId);
+        }
+
         // El SKU es UNIQUE global. Se comprueba antes de escribir para dar un
         // mensaje claro en lugar de un error 500 de MySQL.
         if ($sku !== '') {
@@ -978,6 +984,76 @@ final class ProductoVendedor
             $slug = $candidato;
             $sufijo++;
         }
+    }
+
+    /**
+     * Genera un código SKU único a partir del modelo del producto.
+     * Si el modelo está vacío, usa el nombre. Si el SKU generado ya existe,
+     * incrementa un sufijo numérico (ej. -2, -3) hasta encontrar uno libre.
+     * Devuelve null si no hay datos suficientes para generar uno.
+     */
+    private static function generarCodigoSku(string $modelo, int $vendedorId): ?string
+    {
+        $base = trim((string) $modelo);
+        if ($base === '') {
+            return null;
+        }
+
+        // Normalizar: minúsculas, quitar espacios, reemplazar chars raros
+        $base = mb_strtolower(trim($base));
+        $base = preg_replace('/[^a-z0-9]+/', '-', $base);
+        $base = trim($base, '-');
+
+        // Si el base está vacío después de limpiar, no hay suficiente info
+        if ($base === '') {
+            return null;
+        }
+
+        // Tomar las primeras partes para formar un código tipo "marca-modelo-storage"
+        // Ejemplo: "iphone 15 pro" -> "iphone-15-pro", "samsung galaxy s24 ultra" -> "samsung-galaxy-s24-ultra"
+        $partes = explode(' ', $base);
+        // Usar hasta 4 partes como máximo, unirlas con guión
+        $candidato = implode('-', array_slice($partes, 0, 4));
+
+        // Si tras tomar 4 partes el candidato está vacío (caso raro), usar el base completo
+        if ($candidato === '') {
+            $candidato = $base;
+        }
+
+        // Asegurar longitud máxima 60 caracteres (tamaño del campo en BD)
+        if (mb_strlen($candidato) > 55) {
+            $candidato = mb_substr($candidato, 0, 55);
+        }
+
+        // Verificar unicidad contra la base de datos
+        $pdo = conexion();
+        $stmt = $pdo->prepare('SELECT 1 FROM productos WHERE codigo_sku = ? LIMIT 1');
+        $sufijo = 2;
+        $stmt->execute([$candidato]);
+        $fila = $stmt->fetchColumn();
+        if (!$fila) {
+            return $candidato;
+        }
+
+        // Probar con sufijo incremental: candidato-2, candidato-3, etc.
+        $maxIntentos = 1000;
+        $intento = 0;
+        while ($intento < $maxIntentos) {
+            $sufijado = $candidato . '-' . $sufijo;
+            if (mb_strlen($sufijado) > 60) {
+                $baseCorto = mb_substr($candidato, 0, 55 - mb_strlen((string) $sufijo) - 1);
+                $sufijado = $baseCorto . '-' . $sufijo;
+            }
+            $stmt->execute([$sufijado]);
+            if (!$stmt->fetchColumn()) {
+                return $sufijado;
+            }
+            $sufijo++;
+            $intento++;
+        }
+        // Si agotamos los intentos, devolver el candidato original (aunque ya
+        // debería estar en uso; el controlador mostrará el error correspondiente).
+        return $candidato;
     }
 
     private static function slugify(string $texto): string

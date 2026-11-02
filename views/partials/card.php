@@ -24,22 +24,60 @@ $esFavorito = isset($favoritosIds[(int) ($ficha['id'] ?? 0)]);
 // (Fase 2) Valoración media por producto (mapa id => total/promedio).
 $resenasResumen = $resenasResumen ?? [];
 
-$carouselItems = '';
+// Etiqueta corta de cada variante: los tramos de especificaciones que cambian
+// respecto al resto del grupo ("256GB", "16GB RAM · 512GB SSD"...). Si las
+// especificaciones son idénticas, se numera la variante.
+$partesSpecs = array_map(
+    static fn (array $v): array => array_map('trim', explode('|', (string) ($v['especificaciones'] ?? ''))),
+    $grupo
+);
+$posicionesVariables = [];
+$maxPartes = $partesSpecs === [] ? 0 : max(array_map('count', $partesSpecs));
+for ($posicion = 0; $posicion < $maxPartes; $posicion++) {
+    $valores = [];
+    foreach ($partesSpecs as $partes) {
+        $valor = (string) ($partes[$posicion] ?? '');
+        if ($valor !== '') {
+            $valores[$valor] = true;
+        }
+    }
+    if (count($valores) > 1) {
+        $posicionesVariables[] = $posicion;
+    }
+}
+$etiquetasVariante = [];
+foreach ($partesSpecs as $indice => $partes) {
+    $trozos = [];
+    foreach ($posicionesVariables as $posicion) {
+        $valor = (string) ($partes[$posicion] ?? '');
+        if ($valor !== '') {
+            $trozos[] = $valor;
+        }
+    }
+    $etiquetasVariante[$indice] = $trozos !== [] ? implode(' · ', $trozos) : 'Variante ' . ($indice + 1);
+}
+
+$mediaItems = '';
 foreach ($grupo as $indice => $variante) {
     // Las variantes fuera de pantalla siguen en el DOM: `inert` las saca del
-    // orden de tabulación y del árbol de accesibilidad sin ocultar la imagen.
-    $carouselItems .= '<a class="card-carousel-item"'
+    // orden de tabulación y del árbol de accesibilidad; el CSS las oculta.
+    $mediaItems .= '<a class="card-media-item' . ($indice === 0 ? ' active' : '') . '"'
         . ($indice === 0 ? '' : ' inert') . ' href="' . $urlFicha . '">' .
-        '<img alt="' . htmlspecialchars($variante['nombre'], ENT_QUOTES) . '" loading="lazy" src="' .
+        '<img alt="' . htmlspecialchars($variante['nombre'] . ', ' . $etiquetasVariante[$indice], ENT_QUOTES) . '" loading="lazy" src="' .
         htmlspecialchars(Producto::imagenOptimizada((string) $variante['imagen']), ENT_QUOTES) . '"/>' .
         '</a>';
 }
 
-$dots = '';
-foreach ($grupo as $indice => $varianteUnused) {
-    $dots .= '<button type="button" class="card-carousel-dot' . ($indice === 0 ? ' active' : '') . '"'
-        . ' aria-label="Ver variante ' . ($indice + 1) . '"'
-        . ' aria-current="' . ($indice === 0 ? 'true' : 'false') . '"></button>';
+$selectorVariantes = '';
+if ($tieneMulti) {
+    $selectorVariantes = '<div class="card-variantes" role="group" aria-label="Elegir variante">';
+    foreach ($grupo as $indice => $varianteUnused) {
+        $selectorVariantes .= '<button type="button" class="card-variante' . ($indice === 0 ? ' active' : '') . '"'
+            . ' data-indice="' . $indice . '"'
+            . ' aria-pressed="' . ($indice === 0 ? 'true' : 'false') . '">'
+            . htmlspecialchars($etiquetasVariante[$indice], ENT_QUOTES) . '</button>';
+    }
+    $selectorVariantes .= '</div>';
 }
 
 // (Etapa 6) Atribución: quién publica este producto en el marketplace.
@@ -62,10 +100,6 @@ $vendedorHTML = $duenoNombre !== ''
 
 $infoItems = '';
 foreach ($grupo as $indice => $variante) {
-    $colores = '';
-    foreach ($variante['colores'] as $color) {
-        $colores .= '<div class="color-dot"' . Producto::colorStyle($color) . '></div>';
-    }
     $whatsapp = htmlspecialchars(
         str_replace(['\\', "'"], ['\\\\', "\\'"], $variante['nombre'] . ' - ' . $variante['especificaciones']),
         ENT_QUOTES
@@ -96,7 +130,6 @@ foreach ($grupo as $indice => $variante) {
             ? '<p class="card-desde">desde <strong>PEN ' .
                 number_format((float) $precioDesde[$variante['id']], 2) . '</strong> por volumen</p>'
             : '') .
-        '<div class="colors">' . $colores . '</div>' .
         '<div class="card-actions">' .
         // (Etapa 7) "Ver ficha" para ver variantes y precios por volumen.
         '<a class="btn-ver-ficha" href="' . $urlFicha . '">Ver ficha</a>' .
@@ -115,18 +148,10 @@ foreach ($grupo as $indice => $variante) {
         '</div>';
 }
 
-$btnsHTML = $tieneMulti
-    ? '<button type="button" class="card-carousel-btn prev" onclick="changeCardSlide(this, -1)" aria-label="Variante anterior"><span aria-hidden="true">‹</span></button>' .
-      '<button type="button" class="card-carousel-btn next" onclick="changeCardSlide(this, 1)" aria-label="Siguiente variante"><span aria-hidden="true">›</span></button>'
-    : '';
-$dotsClass = $tieneMulti ? '' : ' style="display:none"';
 ?>
 <div class="card" data-search="<?= Producto::textoBusqueda($grupo) ?>">
-  <div class="card-carousel" role="group" aria-label="Imágenes del producto" aria-roledescription="carrusel">
-    <div class="card-carousel-inner"><?= $carouselItems ?></div>
-    <?= $btnsHTML ?>
-    <div class="card-carousel-dots" role="group" aria-label="Seleccionar variante"<?= $dotsClass ?>><?= $dots ?></div>
-  </div>
+  <div class="card-media"><?= $mediaItems ?></div>
+  <?= $selectorVariantes ?>
   <form method="post" action="?ruta=favoritos/alternar" class="favorito-form favorito-card-form">
     <?= \Security\Proteccion::campo() ?>
     <input type="hidden" name="producto_id" value="<?= (int) ($ficha['id'] ?? 0) ?>">
