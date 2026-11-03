@@ -5,7 +5,7 @@ $yoId = (int) (\Model\Administrador::usuarioActual()['id'] ?? 0);
 $usuarios = $pdo->query(
     'SELECT id, name, apellidos, email, usuario, rol, tipo, activo, ultimo_ingreso, created_at
      FROM users WHERE deleted_at IS NULL
-     ORDER BY FIELD(rol, "admin", "vendedor", "cliente"), id'
+     ORDER BY CASE rol WHEN \'admin\' THEN 0 WHEN \'vendedor\' THEN 1 ELSE 2 END, id'
 )->fetchAll();
 
 $editando = null;
