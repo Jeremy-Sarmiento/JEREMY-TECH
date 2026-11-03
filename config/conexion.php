@@ -10,15 +10,17 @@ declare(strict_types=1);
  *  2. Autocarga PSR-4 mínima (Model\ -> src/Model, Controller\ -> src/Controller).
  *  3. Conexión PDO única con atributos seguros.
  *
- * NOTA: el esquema y las semillas ya NO se crean desde PHP. Ahora viven en el
- * volcado `database/jeremy_tech_full.sql`. Antes de servir la app por primera
- * vez (o tras clonar), ejecuta:
+ * NOTA: el esquema y las semillas ya NO se crean desde PHP. Ahora viven en
+ * `database/jeremy_tech_estructura.sql` (tablas, índices, claves y
+ * disparadores) y `database/jeremy_tech_datos.sql` (filas). Antes de servir
+ * la app por primera vez (o tras clonar), ejecuta:
  *
  *   createdb jeremy_tech
- *   psql -d jeremy_tech -f database/jeremy_tech_full.sql
+ *   psql -d jeremy_tech -f database/jeremy_tech_estructura.sql
+ *   psql -d jeremy_tech -f database/jeremy_tech_datos.sql
  *
- * El volcado recrea las tablas y carga los datos completos, así que debe
- * importarse sobre una base vacía (no es idempotente).
+ * Los archivos recrean las tablas y cargan los datos completos, así que deben
+ * importarse en ese orden sobre una base vacía (no son idempotentes).
  *
  * Las credenciales ya NO se escriben aquí: se leen desde el archivo `.env`
  * (no versionado), que es la fuente principal. Copia `.env.example` a `.env`
@@ -129,6 +131,47 @@ define('DB_NAME', env('DB_NAME', 'jeremy_tech'));
 define('DB_USER', env('DB_USER', 'postgres'));
 define('DB_PASS', env('DB_PASS', ''));
 
+/**
+ * Traduce una DATABASE_URL (postgresql://usuario:clave@host:puerto/base) al
+ * DSN de PDO y sus credenciales. Es el formato que entregan Supabase y otros
+ * proveedores alojados; tiene prioridad sobre DB_HOST, DB_PORT y compañía.
+ *
+ * @return array{0: string, 1: string, 2: string} DSN, usuario y contraseña.
+ */
+function dsn_desde_url(string $url): array
+{
+    $partes = parse_url($url);
+    if ($partes === false || !isset($partes['host'])) {
+        throw new RuntimeException(
+            'DATABASE_URL no tiene el formato postgresql://usuario:clave@host:puerto/base'
+        );
+    }
+
+    $dsn = 'pgsql:host=' . $partes['host'];
+    if (isset($partes['port'])) {
+        $dsn .= ';port=' . $partes['port'];
+    }
+    $dsn .= ';dbname=' . ltrim($partes['path'] ?? '', '/');
+
+    // Supabase exige SSL. `require` cifra sin validar el certificado, que es
+    // lo que permite el pooler; se puede cambiar con ?sslmode=disable.
+    $ssl = 'require';
+    if (isset($partes['query'])) {
+        parse_str($partes['query'], $consulta);
+        if (isset($consulta['sslmode'])
+            && in_array($consulta['sslmode'], ['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'], true)
+        ) {
+            $ssl = $consulta['sslmode'];
+        }
+    }
+
+    return [
+        $dsn . ';sslmode=' . $ssl,
+        isset($partes['user']) ? rawurldecode($partes['user']) : DB_USER,
+        isset($partes['pass']) ? rawurldecode($partes['pass']) : DB_PASS,
+    ];
+}
+
 // Directorio de los correos simulados. Debe quedar FUERA del DocumentRoot:
 // los `.htaccess` no protegen nada si Apache tiene AllowOverride None.
 // Se configura en `.env` (o en `.ht.env`, si existe, como respaldo); el
@@ -152,7 +195,10 @@ if (!defined('APP_URL')) {
             // con la ruta del script de turno (p. ej. /tmp/...).
             $appUrl = 'http://localhost';
         } else {
-            $esquema = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $esquema = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+                || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https'
+                ? 'https'
+                : 'http';
             $host = preg_replace('/[^A-Za-z0-9.\-:\[\]]/', '', (string) ($_SERVER['HTTP_HOST'] ?? 'localhost'));
             if ($host === '') {
                 $host = 'localhost';
@@ -222,20 +268,27 @@ function conexion(): PDO
     }
 
     try {
+        // Supabase y otros proveedores entregan una sola URL. Si existe,
+        // manda sobre DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASS.
+        $url = env('DATABASE_URL');
+        [$dsn, $usuario, $clave] = $url !== ''
+            ? dsn_desde_url($url)
+            : ['pgsql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME, DB_USER, DB_PASS];
+
         $pdo = new PDO(
-            'pgsql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME,
-            DB_USER,
-            DB_PASS,
+            $dsn,
+            $usuario,
+            $clave,
             [
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             ]
         );
-    } catch (PDOException $error) {
+    } catch (Throwable $error) {
         http_response_code(500);
         die(
-            "No se pudo conectar a la base de datos '" . DB_NAME . "'. Verifica que " .
-            'PostgreSQL esté encendido y que la base exista (createdb jeremy_tech).<br>' .
+            'No se pudo conectar a la base de datos configurada. Verifica que ' .
+            'PostgreSQL esté encendido y que la base exista.<br>' .
             'Detalle técnico: ' . htmlspecialchars($error->getMessage())
         );
     }

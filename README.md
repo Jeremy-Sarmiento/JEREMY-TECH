@@ -18,13 +18,61 @@ Informes PDF de las sesiones de desarrollo:
 
 ```bash
 createdb jeremy_tech
-psql -d jeremy_tech -f database/jeremy_tech_full.sql
+psql -d jeremy_tech -f database/jeremy_tech_estructura.sql
+psql -d jeremy_tech -f database/jeremy_tech_datos.sql
 cp .env.example .env   # rellenar DB_USER / DB_PASS
 php -S 127.0.0.1:8000 -t public
 ```
 
-El volcado recrea las tablas y carga los datos: impórtalo sobre una
-base vacía (no es idempotente). Requiere la extensión `pdo_pgsql`.
+La estructura crea las tablas, índices, claves y disparadores; los datos
+cargan las filas. Hay que importarlos en ese orden sobre una base vacía (no
+son idempotentes). Requiere la extensión `pdo_pgsql`.
+
+### Base alojada (Supabase)
+
+En lugar de `DB_*`, define `DATABASE_URL` en `.env` con la cadena que da el
+panel del proveedor:
+
+```bash
+DATABASE_URL="postgresql://postgres.[ID]:[CLAVE]@aws-0-[REGION].pooler.supabase.com:5432/postgres"
+psql "$DATABASE_URL" -f database/jeremy_tech_estructura.sql
+psql "$DATABASE_URL" -f database/jeremy_tech_datos.sql
+```
+
+`DATABASE_URL` tiene prioridad y la conexión usa SSL (`sslmode=require`). Si la
+red no acepta IPv6, usa el puerto `6543` del pooler. No subas `.env` al
+repositorio.
+
+## Despliegue en Render
+
+El repositorio incluye `Dockerfile`, `docker/apache.conf` y `render.yaml`. La
+imagen usa PHP 8.2 con Apache, `pdo_pgsql` y el DocumentRoot en `public/`.
+
+1. Crea el proyecto en Supabase y copia la cadena **Session pooler** del panel
+   (Connect). Importa el esquema y aplica el endurecimiento:
+
+```bash
+psql "$DATABASE_URL" -f database/jeremy_tech_estructura.sql
+psql "$DATABASE_URL" -f database/jeremy_tech_datos.sql
+psql "$DATABASE_URL" -f database/supabase-endurecer.sql
+```
+
+2. En Render, New > Blueprint, elige este repositorio y la rama `postgresql`.
+   Render lee `render.yaml` y pide `DATABASE_URL`: pega la cadena de Supabase.
+
+3. Al terminar el despliegue, la app queda en
+   `https://<servicio>.onrender.com`. La URL pública se deduce del host y de
+   `X-Forwarded-Proto`, así que los enlaces de los correos salen en HTTPS.
+
+Notas de operación:
+
+- El plan free suspende el servicio tras un periodo de inactividad: la primera
+  visita tarda en responder.
+- El disco del contenedor es efímero. Las sesiones y los correos simulados se
+  pierden al reiniciar; la base de datos vive en Supabase.
+- `supabase-endurecer.sql` activa RLS y retira los permisos de `anon` y
+  `authenticated`, porque la API REST de Supabase queda expuesta con la clave
+  anon aunque la app PHP no la use.
 
 ## Credenciales
 
@@ -447,7 +495,7 @@ src/Controller/     Controladores (Producto, Carrito, Login, Admin, ...)
 src/Model/          Modelos con SQL directo vía PDO
 views/              Vistas de tienda + views/admin/ (panel y secciones)
 config/conexion.php Carga .env, autocarga PSR-4 y singleton PDO
-database/           jeremy_tech_full.sql (esquema + datos)
+database/           jeremy_tech_estructura.sql (esquema) y jeremy_tech_datos.sql (datos)
 ```
 
 ## Rutas

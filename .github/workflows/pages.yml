@@ -53,10 +53,12 @@ jobs:
           extensions: pdo_pgsql
           coverage: none
 
-      - name: Importar el dump
+      - name: Importar estructura y datos
         env:
           PGPASSWORD: admin
-        run: psql -h 127.0.0.1 -U postgres -d jeremy_tech -f database/jeremy_tech_full.sql
+        run: |
+          psql -h 127.0.0.1 -U postgres -d jeremy_tech -f database/jeremy_tech_estructura.sql
+          psql -h 127.0.0.1 -U postgres -d jeremy_tech -f database/jeremy_tech_datos.sql
 
       - name: Generar _site
         run: bash tools/build-preview.sh _site

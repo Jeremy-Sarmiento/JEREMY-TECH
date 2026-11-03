@@ -42,7 +42,8 @@ function ensureTestDb(): void
         "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public'"
     )->fetchColumn();
     if ($tablas < 30) {
-        $pdo->exec(file_get_contents(__DIR__ . '/../database/jeremy_tech_full.sql'));
+        // Los tests truncan y siembran sus propias filas: basta la estructura.
+        $pdo->exec(file_get_contents(__DIR__ . '/../database/jeremy_tech_estructura.sql'));
     }
 }
 
