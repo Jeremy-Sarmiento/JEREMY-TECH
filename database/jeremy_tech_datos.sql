@@ -1,5 +1,6 @@
 -- Jeremy Tech: datos para PostgreSQL 14+
 -- Requiere haber cargado antes database/jeremy_tech_estructura.sql.
+-- Las filas van en orden de dependencia (primero las tablas referenciadas).
 -- Uso: psql -d jeremy_tech -f database/jeremy_tech_datos.sql
 
 SET client_encoding = 'UTF8';
@@ -59,9 +60,6 @@ INSERT INTO chatbot_faq VALUES
 (8,'¿Los productos tienen garantía?','garantia, garantias, original, fabricante','Sí. Todos los productos son originales y la garantía depende del fabricante y del modelo; la ficha del producto muestra la cobertura aplicable.',1,80,'2026-10-28 01:03:00','2026-10-28 01:03:00'),
 (9,'¿Mis datos y pagos están seguros?','seguridad, seguro, datos, privacidad, contrasena','Las contraseñas se almacenan con hash, los formularios usan tokens CSRF y las consultas son preparadas. No almacenamos datos de tarjeta. En esta demo los pagos no son reales.',1,90,'2026-10-28 01:03:00','2026-10-28 01:03:00'),
 (10,'¿Cómo contacto a una persona?','contacto, whatsapp, correo, telefono, asesor','Puedes escribirnos por WhatsApp al +51 999 000 000, al correo soporte@example.com o usar el chatbot de la tienda.',1,100,'2026-10-28 01:03:00','2026-10-29 04:52:49');
-INSERT INTO comisiones VALUES
-(5,10,2,6598.00,15.00,838.73,4752.80,'2026-10-28 05:51:24'),
-(6,12,2,2499.00,15.00,317.67,1800.13,'2026-10-29 04:07:31');
 INSERT INTO configuracion VALUES
 ('comision_marketplace_porcentaje','15'),
 ('igv_porcentaje','18'),
@@ -72,26 +70,6 @@ INSERT INTO cupones VALUES
 (2,'PRIMERACOMPRA','porcentaje',15.00,NULL,NULL,NULL,0,1,'2026-10-27 01:38:38'),
 (3,'JEREMY50','fijo',50.00,NULL,NULL,NULL,0,1,'2026-10-27 01:38:38'),
 (4,'OFERTA2026','porcentaje',12.00,NULL,NULL,NULL,0,1,'2026-10-27 01:38:38');
-INSERT INTO detalle_pedido VALUES
-(1,1,1,7499.00,NULL,'',3,'Samsung Galaxy S24 Ultra',NULL),
-(2,2,1,4299.00,NULL,'',5,'Xiaomi 14',NULL),
-(3,3,1,100.00,NULL,'',6,'Xiaomi 14 Pro',NULL),
-(4,4,1,4999.00,NULL,'',10,'HP Pavilion 15',NULL),
-(5,4,1,8799.00,NULL,'',9,'Lenovo ThinkPad X1 Carbon',NULL),
-(9,8,1,5499.00,NULL,'',1,'iPhone 15 Pro',NULL),
-(10,8,3,7499.00,NULL,'',3,'Samsung Galaxy S24 Ultra',NULL),
-(11,8,3,11999.00,11,'16 GB · 512 GB',7,'MacBook Air M3',NULL),
-(12,9,1,1899.00,NULL,'',12,'Apple AirPods Pro 2',NULL),
-(13,10,2,3299.00,NULL,'',16,'Bose QuietComfort Ultra',2),
-(14,10,1,5499.00,NULL,'',1,'iPhone 15 Pro',NULL),
-(15,10,3,7499.00,NULL,'',3,'Samsung Galaxy S24 Ultra',NULL),
-(16,11,5,1899.00,NULL,'',12,'Apple AirPods Pro 2',NULL),
-(17,12,1,2499.00,NULL,'',13,'Sony WH-1000XM5',2);
-INSERT INTO direcciones VALUES
-(1,3,'Entrega','Av. Demo 123','Ref. demo',2,NULL,NULL,1,'2026-10-28 02:01:18'),
-(5,11,'Principal','Av. Demo 123','Ref. demo',2,NULL,NULL,1,'2026-10-28 02:55:40'),
-(8,11,'Entrega','Av. Demo 123','Ref. demo',4,NULL,NULL,0,'2026-10-28 05:54:14'),
-(9,18,'Principal','Av. Demo 123','Ref. demo',2,NULL,NULL,1,'2026-10-29 02:38:55');
 INSERT INTO eventos_analitica VALUES
 (46,'visita','[]','index.php',NULL,'2026-10-28 01:08:29'),
 (47,'visita','[]','index.php',NULL,'2026-10-28 01:08:31'),
@@ -1258,10 +1236,6 @@ INSERT INTO eventos_analitica VALUES
 (1208,'producto_visto','{"producto_id":1}','producto',NULL,'2026-10-29 04:52:39'),
 (1209,'visita','[]','producto',NULL,'2026-10-29 04:52:39'),
 (1210,'visita','[]','catalogo',NULL,'2026-10-29 04:52:40');
-INSERT INTO favoritos VALUES
-(2,3,'2026-10-27 01:39:37',3),
-(4,1,'2026-10-28 01:15:07',10),
-(5,1,'2026-10-28 01:15:08',7);
 INSERT INTO garantias VALUES
 (1,'Garantia del fabricante 6 meses',6,'Defectos de fabricacion y componentes',0.00,1,'2026-10-27 01:38:38'),
 (2,'Garantia extendida 12 meses',12,'Cobertura ampliada de fabricacion',49.90,1,'2026-10-27 01:38:38'),
@@ -1289,19 +1263,75 @@ INSERT INTO marcas VALUES
 (10,'Logitech','logitech','',1,'2026-10-27 01:38:38'),
 (11,'Microsoft','microsoft','',1,'2026-10-27 01:38:38'),
 (12,'PlayStation','playstation','',1,'2026-10-27 01:38:38');
-INSERT INTO movimientos_inventario VALUES
-(14,'salida',1,'Venta del pedido #4 · HP Pavilion 15','2026-10-28 02:01:18',10,NULL,4),
-(15,'salida',1,'Venta del pedido #4 · Lenovo ThinkPad X1 Carbon','2026-10-28 02:01:18',9,NULL,4),
-(19,'salida',1,'Venta del pedido #8 · iPhone 15 Pro','2026-10-28 03:09:44',1,NULL,8),
-(20,'salida',3,'Venta del pedido #8 · Samsung Galaxy S24 Ultra','2026-10-28 03:09:44',3,NULL,8),
-(21,'salida',3,'Venta del pedido #8 · MacBook Air M3 (16 GB · 512 GB)','2026-10-28 03:09:44',7,11,8),
-(22,'salida',1,'Venta del pedido #9 · Apple AirPods Pro 2','2026-10-28 03:11:44',12,NULL,9),
-(27,'entrada',1,'Cancelación del pedido #9 · Apple AirPods Pro 2','2026-10-28 05:00:39',12,NULL,9),
-(28,'salida',2,'Venta del pedido #10 · Bose QuietComfort Ultra','2026-10-28 05:51:24',16,NULL,10),
-(29,'salida',1,'Venta del pedido #10 · iPhone 15 Pro','2026-10-28 05:51:24',1,NULL,10),
-(30,'salida',3,'Venta del pedido #10 · Samsung Galaxy S24 Ultra','2026-10-28 05:51:24',3,NULL,10),
-(31,'salida',5,'Venta del pedido #11 · Apple AirPods Pro 2','2026-10-28 05:54:14',12,NULL,11),
-(32,'salida',1,'Venta del pedido #12 · Sony WH-1000XM5','2026-10-29 04:07:31',13,NULL,12);
+INSERT INTO pagos VALUES
+(1,1,7499.00,'Tarjeta','TEST-123','simulada','','Pagado','2026-10-28 02:08:07','2026-10-27 01:42:49'),
+(2,4,13806.00,'tarjeta','SIM-CARD-20261027210118-4741','simulada','','Pagado','2026-10-28 02:08:07','2026-10-28 02:01:18'),
+(6,8,64001.00,'yape','SIM-YAPE-20261027220944-9459','simulada','','Pagado','2026-10-28 03:09:44','2026-10-28 03:09:44'),
+(7,9,1907.00,'yape','SIM-YAPE-20261027221144-6688','simulada','','Reembolsado','2026-10-28 05:00:39','2026-10-28 03:11:44'),
+(10,10,34602.00,'yape','SIM-YAPE-20261028005124-2991','simulada','','Pagado','2026-10-28 05:51:24','2026-10-28 05:51:24'),
+(11,11,9513.00,'contraentrega','SIM-CONTRA-20261028005414-8567','simulada','','Pendiente','2026-10-28 05:54:14','2026-10-28 05:54:14'),
+(12,12,2507.00,'tarjeta','SIM-CARD-20261028230731-7571','simulada','','Pagado','2026-10-29 04:07:31','2026-10-29 04:07:31');
+INSERT INTO pedidos VALUES
+(1,3,7499.00,7499.00,0.00,0.00,'',0.00,NULL,NULL,NULL,'boleta','','','','',NULL,'Pagado','2026-10-27 01:42:49'),
+(2,3,4299.00,4299.00,0.00,0.00,'',0.00,NULL,NULL,NULL,'boleta','','','','',NULL,'Entregado','2026-10-27 02:11:33'),
+(3,3,100.00,100.00,0.00,0.00,'',0.00,NULL,NULL,NULL,'boleta','','','','',NULL,'Cancelado','2026-10-27 02:11:33'),
+(4,3,13806.00,13798.00,2483.64,8.00,'Arequipa Metropolitana',0.00,NULL,1,'Av. Demo 123','boleta','','','','',NULL,'Pagado','2026-10-28 02:01:18'),
+(8,11,64001.00,63993.00,11518.74,8.00,'Arequipa Metropolitana',0.00,NULL,5,'Av. Demo 123','boleta','','','','',NULL,'Pagado','2026-10-28 03:09:44'),
+(9,11,1907.00,1899.00,341.82,8.00,'Arequipa Metropolitana',0.00,NULL,5,'Av. Demo 123','boleta','','','','',NULL,'Cancelado','2026-10-28 03:11:44'),
+(10,11,34602.00,34594.00,6226.92,8.00,'Arequipa Metropolitana',0.00,NULL,5,'Av. Demo 123','boleta','','','','',NULL,'Pagado','2026-10-28 05:51:24'),
+(11,11,9513.00,9495.00,1709.10,18.00,'Lima',0.00,NULL,8,'Av. Demo 123','boleta','','','','',NULL,'Pendiente','2026-10-28 05:54:14'),
+(12,3,2507.00,2499.00,381.20,8.00,'Arequipa Metropolitana',0.00,NULL,1,'Av. Demo 123','boleta','12345678','','','',NULL,'Pagado','2026-10-29 04:07:31');
+INSERT INTO pedido_eventos VALUES
+(9,4,'pedido_creado','Pagado','Pedido registrado en la tienda.','2026-10-28 02:01:18'),
+(10,4,'pago_confirmado','Pagado','Pago aprobado en el checkout simulado.','2026-10-28 02:01:18'),
+(15,8,'pedido_creado','Pagado','Pedido registrado en la tienda.','2026-10-28 03:09:44'),
+(16,8,'pago_confirmado','Pagado','Pago aprobado en el checkout simulado.','2026-10-28 03:09:44'),
+(17,9,'pedido_creado','Pagado','Pedido registrado en la tienda.','2026-10-28 03:11:45'),
+(18,9,'pago_confirmado','Pagado','Pago aprobado en el checkout simulado.','2026-10-28 03:11:45'),
+(19,9,'pedido_reembolsado','Cancelado','Reembolso de S/ 1,907.00 · cecea','2026-10-28 05:00:39'),
+(20,10,'pedido_creado','Pagado','Pedido registrado en la tienda.','2026-10-28 05:51:24'),
+(21,10,'pago_confirmado','Pagado','Pago aprobado en el checkout simulado.','2026-10-28 05:51:24'),
+(22,11,'pedido_creado','Pendiente','Pedido registrado en la tienda.','2026-10-28 05:54:14'),
+(23,12,'pedido_creado','Pagado','Pedido registrado en la tienda.','2026-10-29 04:07:31'),
+(24,12,'pago_confirmado','Pagado','Pago aprobado en el checkout simulado.','2026-10-29 04:07:31');
+INSERT INTO tarifas_envio VALUES
+(1,'Recojo en tienda (Cercado, Arequipa)',0.00,'El mismo día',1,'2026-10-27 01:38:38'),
+(2,'Arequipa Metropolitana',8.00,'1-2 días',1,'2026-10-27 01:38:38'),
+(3,'Arequipa Provincia',15.00,'2-4 días',1,'2026-10-27 01:38:38'),
+(4,'Lima',18.00,'3-5 días',1,'2026-10-27 01:38:38'),
+(5,'Otras regiones del Perú',25.00,'4-7 días',1,'2026-10-27 01:38:38');
+INSERT INTO tokens_recuperacion VALUES
+(2,'cliente',1,'75e2c402bd94ae6120970a34fbb6c85702daf622ba2a9b2a1bcc33ecb06c2ffa','2026-10-28 02:01:43',1,'2026-10-28 01:31:43'),
+(7,'cliente',1,'d1201d02510457be4a0f319b34f6b96809e67d85523bc37ebce87aedfa5239e4','2026-10-28 02:22:47',0,'2026-10-28 01:52:47');
+INSERT INTO users VALUES
+(1,'Admin','Demo','admin@example.com','jeremytech','$2y$12$h6t9y9/nJVYDtYH2nRALUu1WgUv1StECs0MGqmFufzGIn0Jq/XfFK','admin',NULL,0,1,'999000000','Av. Demo 123','C2C','','','','','','','2026-10-29 02:35:28','2026-10-27 01:38:38','2026-10-29 04:52:56',NULL),
+(2,'Vendedor','Demo','vendedor@example.com','vendedor','$2y$12$DAvLpC1IqRUe.mxKXGSlAOrwCF.vKw0EvSj7Ip7yQbDyj3zotI0c6','vendedor',15.00,1,1,'999000001','Av. Demo 123','B2B','','','','','¿Cuál es el nombre de tu primera mascota?','$2y$12$NKjVyGkafkvm3A3QK0TLrOwajZxO9mthKrHo9dgo2PytGc9o1EQNu','2026-10-29 02:09:36','2026-10-27 01:38:38','2026-10-29 04:52:56',NULL),
+(3,'Cliente','','cliente@example.com',NULL,'$2y$12$nD6dIfvWyBC0DwP6UV.IFeNL8vfZE03ehO.LQoyzCOSs6sQW.l6SC','cliente',NULL,0,1,'999000002','Av. Demo 123','B2C','','','','','','',NULL,'2026-10-27 01:38:48','2026-10-29 04:52:56',NULL),
+(11,'Cliente','Demo2','cliente2@example.com','cliente2','$2y$12$9/uh8C2l1U5BBN.ToahxXeNTYeMVYezUl/YOJhFauFV0KXveiB.Dm','cliente',NULL,0,1,'999000003','Av. Demo 123','B2C','Empresa Demo','20123456789','','00000001','¿En qué ciudad naciste?','$2y$12$NO4DkvjUt40RSSlr9.OLPONJltsrf09L9TTSJqVIwPjrGe6fDPr0K',NULL,'2026-10-28 02:55:40','2026-10-29 04:52:56',NULL),
+(18,'Empresa','Demo','empresa@example.com','empresa','$2y$12$yfzi08jn2TafhdIYcZrtqeYOys6IGvLDpAXMx6vISKUoABH/l1yxa','vendedor',NULL,0,1,'999000004','Av. Demo 123','B2B','Empresa Demo SAC','20123456789','','00000002','¿En qué ciudad naciste?','$2y$12$cJU1qPj9CIbswjSnhY3PVe0tXNpmU2JSXF076g8L//GxyxoeS1QQO',NULL,'2026-10-29 02:38:55','2026-10-29 04:52:56',NULL);
+INSERT INTO comisiones VALUES
+(5,10,2,6598.00,15.00,838.73,4752.80,'2026-10-28 05:51:24'),
+(6,12,2,2499.00,15.00,317.67,1800.13,'2026-10-29 04:07:31');
+INSERT INTO detalle_pedido VALUES
+(1,1,1,7499.00,NULL,'',3,'Samsung Galaxy S24 Ultra',NULL),
+(2,2,1,4299.00,NULL,'',5,'Xiaomi 14',NULL),
+(3,3,1,100.00,NULL,'',6,'Xiaomi 14 Pro',NULL),
+(4,4,1,4999.00,NULL,'',10,'HP Pavilion 15',NULL),
+(5,4,1,8799.00,NULL,'',9,'Lenovo ThinkPad X1 Carbon',NULL),
+(9,8,1,5499.00,NULL,'',1,'iPhone 15 Pro',NULL),
+(10,8,3,7499.00,NULL,'',3,'Samsung Galaxy S24 Ultra',NULL),
+(11,8,3,11999.00,11,'16 GB · 512 GB',7,'MacBook Air M3',NULL),
+(12,9,1,1899.00,NULL,'',12,'Apple AirPods Pro 2',NULL),
+(13,10,2,3299.00,NULL,'',16,'Bose QuietComfort Ultra',2),
+(14,10,1,5499.00,NULL,'',1,'iPhone 15 Pro',NULL),
+(15,10,3,7499.00,NULL,'',3,'Samsung Galaxy S24 Ultra',NULL),
+(16,11,5,1899.00,NULL,'',12,'Apple AirPods Pro 2',NULL),
+(17,12,1,2499.00,NULL,'',13,'Sony WH-1000XM5',2);
+INSERT INTO direcciones VALUES
+(1,3,'Entrega','Av. Demo 123','Ref. demo',2,NULL,NULL,1,'2026-10-28 02:01:18'),
+(5,11,'Principal','Av. Demo 123','Ref. demo',2,NULL,NULL,1,'2026-10-28 02:55:40'),
+(8,11,'Entrega','Av. Demo 123','Ref. demo',4,NULL,NULL,0,'2026-10-28 05:54:14'),
+(9,18,'Principal','Av. Demo 123','Ref. demo',2,NULL,NULL,1,'2026-10-29 02:38:55');
 INSERT INTO notificaciones VALUES
 (13,1,NULL,'admin@example.com','recuperacion_cliente','Recuperación de contraseña — Jeremy Tech','JEREMY-TECH
 Recuperación de contraseña
@@ -1432,59 +1462,6 @@ Entrega: Entrega — Calle Demo 456
 Ver seguimiento: http://127.0.0.1:8099/index.php?ruta=carrito#historial
 
 Este mensaje fue generado en modo de demostración. No se envió por correo.','/dev/shm/jeremy-tech-mail/2026/10/20261028_230731_pago_confirmado_pedido-12_4763c418.eml','',0,NULL,'2026-10-29 04:07:31');
-INSERT INTO pagos VALUES
-(1,1,7499.00,'Tarjeta','TEST-123','simulada','','Pagado','2026-10-28 02:08:07','2026-10-27 01:42:49'),
-(2,4,13806.00,'tarjeta','SIM-CARD-20261027210118-4741','simulada','','Pagado','2026-10-28 02:08:07','2026-10-28 02:01:18'),
-(6,8,64001.00,'yape','SIM-YAPE-20261027220944-9459','simulada','','Pagado','2026-10-28 03:09:44','2026-10-28 03:09:44'),
-(7,9,1907.00,'yape','SIM-YAPE-20261027221144-6688','simulada','','Reembolsado','2026-10-28 05:00:39','2026-10-28 03:11:44'),
-(10,10,34602.00,'yape','SIM-YAPE-20261028005124-2991','simulada','','Pagado','2026-10-28 05:51:24','2026-10-28 05:51:24'),
-(11,11,9513.00,'contraentrega','SIM-CONTRA-20261028005414-8567','simulada','','Pendiente','2026-10-28 05:54:14','2026-10-28 05:54:14'),
-(12,12,2507.00,'tarjeta','SIM-CARD-20261028230731-7571','simulada','','Pagado','2026-10-29 04:07:31','2026-10-29 04:07:31');
-INSERT INTO pedido_eventos VALUES
-(9,4,'pedido_creado','Pagado','Pedido registrado en la tienda.','2026-10-28 02:01:18'),
-(10,4,'pago_confirmado','Pagado','Pago aprobado en el checkout simulado.','2026-10-28 02:01:18'),
-(15,8,'pedido_creado','Pagado','Pedido registrado en la tienda.','2026-10-28 03:09:44'),
-(16,8,'pago_confirmado','Pagado','Pago aprobado en el checkout simulado.','2026-10-28 03:09:44'),
-(17,9,'pedido_creado','Pagado','Pedido registrado en la tienda.','2026-10-28 03:11:45'),
-(18,9,'pago_confirmado','Pagado','Pago aprobado en el checkout simulado.','2026-10-28 03:11:45'),
-(19,9,'pedido_reembolsado','Cancelado','Reembolso de S/ 1,907.00 · cecea','2026-10-28 05:00:39'),
-(20,10,'pedido_creado','Pagado','Pedido registrado en la tienda.','2026-10-28 05:51:24'),
-(21,10,'pago_confirmado','Pagado','Pago aprobado en el checkout simulado.','2026-10-28 05:51:24'),
-(22,11,'pedido_creado','Pendiente','Pedido registrado en la tienda.','2026-10-28 05:54:14'),
-(23,12,'pedido_creado','Pagado','Pedido registrado en la tienda.','2026-10-29 04:07:31'),
-(24,12,'pago_confirmado','Pagado','Pago aprobado en el checkout simulado.','2026-10-29 04:07:31');
-INSERT INTO pedidos VALUES
-(1,3,7499.00,7499.00,0.00,0.00,'',0.00,NULL,NULL,NULL,'boleta','','','','',NULL,'Pagado','2026-10-27 01:42:49'),
-(2,3,4299.00,4299.00,0.00,0.00,'',0.00,NULL,NULL,NULL,'boleta','','','','',NULL,'Entregado','2026-10-27 02:11:33'),
-(3,3,100.00,100.00,0.00,0.00,'',0.00,NULL,NULL,NULL,'boleta','','','','',NULL,'Cancelado','2026-10-27 02:11:33'),
-(4,3,13806.00,13798.00,2483.64,8.00,'Arequipa Metropolitana',0.00,NULL,1,'Av. Demo 123','boleta','','','','',NULL,'Pagado','2026-10-28 02:01:18'),
-(8,11,64001.00,63993.00,11518.74,8.00,'Arequipa Metropolitana',0.00,NULL,5,'Av. Demo 123','boleta','','','','',NULL,'Pagado','2026-10-28 03:09:44'),
-(9,11,1907.00,1899.00,341.82,8.00,'Arequipa Metropolitana',0.00,NULL,5,'Av. Demo 123','boleta','','','','',NULL,'Cancelado','2026-10-28 03:11:44'),
-(10,11,34602.00,34594.00,6226.92,8.00,'Arequipa Metropolitana',0.00,NULL,5,'Av. Demo 123','boleta','','','','',NULL,'Pagado','2026-10-28 05:51:24'),
-(11,11,9513.00,9495.00,1709.10,18.00,'Lima',0.00,NULL,8,'Av. Demo 123','boleta','','','','',NULL,'Pendiente','2026-10-28 05:54:14'),
-(12,3,2507.00,2499.00,381.20,8.00,'Arequipa Metropolitana',0.00,NULL,1,'Av. Demo 123','boleta','12345678','','','',NULL,'Pagado','2026-10-29 04:07:31');
-INSERT INTO precios_volumen VALUES
-(1,15,2,4,679.00,'2026-10-27 01:38:38'),
-(2,15,5,NULL,649.00,'2026-10-27 01:38:38'),
-(4,13,2,3,2449.00,'2026-10-27 01:38:38'),
-(5,13,4,NULL,2379.00,'2026-10-27 01:38:38'),
-(7,18,2,4,139.00,'2026-10-27 01:38:38'),
-(8,18,5,NULL,129.00,'2026-10-27 01:38:38'),
-(10,30,2,4,335.00,'2026-10-27 01:38:38'),
-(11,30,5,NULL,320.00,'2026-10-27 01:38:38'),
-(13,20,2,4,239.00,'2026-10-27 01:38:38'),
-(14,20,5,NULL,229.00,'2026-10-27 01:38:38');
-INSERT INTO producto_variantes VALUES
-(1,'Titanio Natural',0.00,6,'#B0B0A0',1,'2026-10-27 01:38:38',1),
-(2,'Titanio Azul',0.00,4,'#4A5A6B',1,'2026-10-27 01:38:38',1),
-(3,'Titanio Negro',0.00,5,'#2B2B2B',1,'2026-10-27 01:38:38',1),
-(4,'Negro',0.00,8,'#111111',1,'2026-10-27 01:38:38',15),
-(5,'Azul Medianoche',0.00,5,'#1F3A5F',1,'2026-10-27 01:38:38',15),
-(6,'Rojo',0.00,3,'#C0392B',1,'2026-10-27 01:38:38',15),
-(7,'Verde Bosque',0.00,2,'#1E6F4B',1,'2026-10-27 01:38:38',15),
-(11,'16 GB · 512 GB',2500.00,1,'',1,'2026-10-27 01:38:38',7),
-(12,'24 GB · 1 TB',4500.00,3,'',1,'2026-10-27 01:38:38',7),
-(16,'plkjhnji',10.00,50,'',1,'2026-10-29 02:20:25',42);
 INSERT INTO productos VALUES
 ('iphone-15-pro-256',1,'Celulares','iPhone 15 Pro','Chip A17 Pro | 256GB | Camara 48MP',5499.00,10,1,NULL,1,NULL,NULL,'["#3B4C5A","#F5F5DC","#1A1C72"]','img/Celulares/iPhone_15_Pro/imagen_1.png','JT-00001',NULL,NULL,NULL,5,'2026-10-27 01:38:38','2026-10-28 05:51:24'),
 ('iphone-15-pro-512',2,'Celulares','iPhone 15 Pro','Chip A17 Pro | 512GB | Camara 48MP',10999.00,8,1,NULL,1,NULL,NULL,'["#3B4C5A","#F5F5DC"]','img/Celulares/iPhone_15_Pro/imagen_2.png','JT-00002',NULL,NULL,NULL,5,'2026-10-27 01:38:38','2026-10-27 01:38:38'),
@@ -1519,110 +1496,50 @@ INSERT INTO productos VALUES
 ('agua',35,'Accesorios','agua','wcqw',12.00,10,0,'2026-10-28 04:04:10',6,1,11,'[]','img/producto-sin-imagen.svg',NULL,'dd',2.000,'10x5',5,'2026-10-28 03:15:12','2026-10-28 04:04:10'),
 ('boton',42,'Tablets','boton','jyhgtrfedwsqawertyhu7
 trbeb5ebt',500.00,40,1,NULL,3,3,11,'[]','img/producto-sin-imagen.svg',NULL,'tgh',6.000,'10x5',5,'2026-10-29 02:18:51','2026-10-29 02:19:48');
+INSERT INTO favoritos VALUES
+(2,3,'2026-10-27 01:39:37',3),
+(4,1,'2026-10-28 01:15:07',10),
+(5,1,'2026-10-28 01:15:08',7);
+INSERT INTO precios_volumen VALUES
+(1,15,2,4,679.00,'2026-10-27 01:38:38'),
+(2,15,5,NULL,649.00,'2026-10-27 01:38:38'),
+(4,13,2,3,2449.00,'2026-10-27 01:38:38'),
+(5,13,4,NULL,2379.00,'2026-10-27 01:38:38'),
+(7,18,2,4,139.00,'2026-10-27 01:38:38'),
+(8,18,5,NULL,129.00,'2026-10-27 01:38:38'),
+(10,30,2,4,335.00,'2026-10-27 01:38:38'),
+(11,30,5,NULL,320.00,'2026-10-27 01:38:38'),
+(13,20,2,4,239.00,'2026-10-27 01:38:38'),
+(14,20,5,NULL,229.00,'2026-10-27 01:38:38');
+INSERT INTO producto_variantes VALUES
+(1,'Titanio Natural',0.00,6,'#B0B0A0',1,'2026-10-27 01:38:38',1),
+(2,'Titanio Azul',0.00,4,'#4A5A6B',1,'2026-10-27 01:38:38',1),
+(3,'Titanio Negro',0.00,5,'#2B2B2B',1,'2026-10-27 01:38:38',1),
+(4,'Negro',0.00,8,'#111111',1,'2026-10-27 01:38:38',15),
+(5,'Azul Medianoche',0.00,5,'#1F3A5F',1,'2026-10-27 01:38:38',15),
+(6,'Rojo',0.00,3,'#C0392B',1,'2026-10-27 01:38:38',15),
+(7,'Verde Bosque',0.00,2,'#1E6F4B',1,'2026-10-27 01:38:38',15),
+(11,'16 GB · 512 GB',2500.00,1,'',1,'2026-10-27 01:38:38',7),
+(12,'24 GB · 1 TB',4500.00,3,'',1,'2026-10-27 01:38:38',7),
+(16,'plkjhnji',10.00,50,'',1,'2026-10-29 02:20:25',42);
+INSERT INTO movimientos_inventario VALUES
+(14,'salida',1,'Venta del pedido #4 · HP Pavilion 15','2026-10-28 02:01:18',10,NULL,4),
+(15,'salida',1,'Venta del pedido #4 · Lenovo ThinkPad X1 Carbon','2026-10-28 02:01:18',9,NULL,4),
+(19,'salida',1,'Venta del pedido #8 · iPhone 15 Pro','2026-10-28 03:09:44',1,NULL,8),
+(20,'salida',3,'Venta del pedido #8 · Samsung Galaxy S24 Ultra','2026-10-28 03:09:44',3,NULL,8),
+(21,'salida',3,'Venta del pedido #8 · MacBook Air M3 (16 GB · 512 GB)','2026-10-28 03:09:44',7,11,8),
+(22,'salida',1,'Venta del pedido #9 · Apple AirPods Pro 2','2026-10-28 03:11:44',12,NULL,9),
+(27,'entrada',1,'Cancelación del pedido #9 · Apple AirPods Pro 2','2026-10-28 05:00:39',12,NULL,9),
+(28,'salida',2,'Venta del pedido #10 · Bose QuietComfort Ultra','2026-10-28 05:51:24',16,NULL,10),
+(29,'salida',1,'Venta del pedido #10 · iPhone 15 Pro','2026-10-28 05:51:24',1,NULL,10),
+(30,'salida',3,'Venta del pedido #10 · Samsung Galaxy S24 Ultra','2026-10-28 05:51:24',3,NULL,10),
+(31,'salida',5,'Venta del pedido #11 · Apple AirPods Pro 2','2026-10-28 05:54:14',12,NULL,11),
+(32,'salida',1,'Venta del pedido #12 · Sony WH-1000XM5','2026-10-29 04:07:31',13,NULL,12);
 INSERT INTO resenas VALUES
 (6,3,4,'cevqerv','visible','','',NULL,'2026-10-28 02:18:39','2026-10-28 02:02:16',3),
 (10,3,4,'','visible','','',NULL,'2026-10-28 02:12:59','2026-10-28 02:12:59',9);
 INSERT INTO soporte_tickets VALUES
 (2,11,8,'reembolso','Pedido','rembolsame','no','jeremytech','2026-10-28 05:02:29','resuelto','2026-10-28 05:03:14','2026-10-28 05:01:27');
-INSERT INTO tarifas_envio VALUES
-(1,'Recojo en tienda (Cercado, Arequipa)',0.00,'El mismo día',1,'2026-10-27 01:38:38'),
-(2,'Arequipa Metropolitana',8.00,'1-2 días',1,'2026-10-27 01:38:38'),
-(3,'Arequipa Provincia',15.00,'2-4 días',1,'2026-10-27 01:38:38'),
-(4,'Lima',18.00,'3-5 días',1,'2026-10-27 01:38:38'),
-(5,'Otras regiones del Perú',25.00,'4-7 días',1,'2026-10-27 01:38:38');
-INSERT INTO tokens_recuperacion VALUES
-(2,'cliente',1,'75e2c402bd94ae6120970a34fbb6c85702daf622ba2a9b2a1bcc33ecb06c2ffa','2026-10-28 02:01:43',1,'2026-10-28 01:31:43'),
-(7,'cliente',1,'d1201d02510457be4a0f319b34f6b96809e67d85523bc37ebce87aedfa5239e4','2026-10-28 02:22:47',0,'2026-10-28 01:52:47');
-INSERT INTO users VALUES
-(1,'Admin','Demo','admin@example.com','jeremytech','$2y$12$h6t9y9/nJVYDtYH2nRALUu1WgUv1StECs0MGqmFufzGIn0Jq/XfFK','admin',NULL,0,1,'999000000','Av. Demo 123','C2C','','','','','','','2026-10-29 02:35:28','2026-10-27 01:38:38','2026-10-29 04:52:56',NULL),
-(2,'Vendedor','Demo','vendedor@example.com','vendedor','$2y$12$DAvLpC1IqRUe.mxKXGSlAOrwCF.vKw0EvSj7Ip7yQbDyj3zotI0c6','vendedor',15.00,1,1,'999000001','Av. Demo 123','B2B','','','','','¿Cuál es el nombre de tu primera mascota?','$2y$12$NKjVyGkafkvm3A3QK0TLrOwajZxO9mthKrHo9dgo2PytGc9o1EQNu','2026-10-29 02:09:36','2026-10-27 01:38:38','2026-10-29 04:52:56',NULL),
-(3,'Cliente','','cliente@example.com',NULL,'$2y$12$nD6dIfvWyBC0DwP6UV.IFeNL8vfZE03ehO.LQoyzCOSs6sQW.l6SC','cliente',NULL,0,1,'999000002','Av. Demo 123','B2C','','','','','','',NULL,'2026-10-27 01:38:48','2026-10-29 04:52:56',NULL),
-(11,'Cliente','Demo2','cliente2@example.com','cliente2','$2y$12$9/uh8C2l1U5BBN.ToahxXeNTYeMVYezUl/YOJhFauFV0KXveiB.Dm','cliente',NULL,0,1,'999000003','Av. Demo 123','B2C','Empresa Demo','20123456789','','00000001','¿En qué ciudad naciste?','$2y$12$NO4DkvjUt40RSSlr9.OLPONJltsrf09L9TTSJqVIwPjrGe6fDPr0K',NULL,'2026-10-28 02:55:40','2026-10-29 04:52:56',NULL),
-(18,'Empresa','Demo','empresa@example.com','empresa','$2y$12$yfzi08jn2TafhdIYcZrtqeYOys6IGvLDpAXMx6vISKUoABH/l1yxa','vendedor',NULL,0,1,'999000004','Av. Demo 123','B2B','Empresa Demo SAC','20123456789','','00000002','¿En qué ciudad naciste?','$2y$12$cJU1qPj9CIbswjSnhY3PVe0tXNpmU2JSXF076g8L//GxyxoeS1QQO',NULL,'2026-10-29 02:38:55','2026-10-29 04:52:56',NULL);
-
-CREATE INDEX idx_calificaciones_vendedor_fk_cal_cliente ON calificaciones_vendedor (cliente_id);
-CREATE INDEX idx_carrito_items_fk_caritem_producto ON carrito_items (producto_id);
-CREATE INDEX idx_chatbot_faq_idx_chatbot_faq_activo_orden ON chatbot_faq (activo, orden);
-CREATE INDEX idx_comisiones_fk_com_vendedor ON comisiones (vendedor_id);
-CREATE INDEX idx_detalle_pedido_idx_detalle_vendedor ON detalle_pedido (vendedor_id);
-CREATE INDEX idx_direcciones_fk_direcciones_cliente ON direcciones (cliente_id);
-CREATE INDEX idx_direcciones_fk_direcciones_tarifa ON direcciones (tarifa_envio_id);
-CREATE INDEX idx_eventos_analitica_idx_eventos_analitica_tipo_fecha ON eventos_analitica (tipo_evento, creado_en);
-CREATE INDEX idx_eventos_analitica_idx_eventos_analitica_fecha ON eventos_analitica (creado_en);
-CREATE INDEX idx_favoritos_fk_fav_producto ON favoritos (producto_id);
-CREATE INDEX idx_intentos_acceso_idx_intento_bloqueo ON intentos_acceso (bloqueado_hasta);
-CREATE INDEX idx_movimientos_inventario_fk_mov_producto ON movimientos_inventario (producto_id);
-CREATE INDEX idx_movimientos_inventario_fk_mov_variante ON movimientos_inventario (variante_id);
-CREATE INDEX idx_movimientos_inventario_idx_mov_pedido ON movimientos_inventario (pedido_id);
-CREATE INDEX idx_movimientos_inventario_idx_mov_creado ON movimientos_inventario (creado_en);
-CREATE INDEX idx_notificaciones_fk_notif_cliente ON notificaciones (cliente_id);
-CREATE INDEX idx_notificaciones_idx_notif_pedido ON notificaciones (pedido_id);
-CREATE INDEX idx_pagos_idx_pagos_referencia ON pagos (referencia_externa);
-CREATE INDEX idx_pagos_idx_pagos_transaccion ON pagos (transaccion_id);
-CREATE INDEX idx_pagos_vendedor_fk_pagven_vendedor ON pagos_vendedor (vendedor_id);
-CREATE INDEX idx_pagos_webhooks_idx_webhook_pedido ON pagos_webhooks (pedido_id);
-CREATE INDEX idx_pagos_webhooks_idx_webhook_pago ON pagos_webhooks (pago_id);
-CREATE INDEX idx_pedido_eventos_idx_evento_pedido ON pedido_eventos (pedido_id, id);
-CREATE INDEX idx_precios_volumen_idx_pv_producto ON precios_volumen (producto_id, cantidad_minima);
-CREATE INDEX idx_producto_variantes_fk_var_producto ON producto_variantes (producto_id);
-CREATE INDEX idx_productos_fk_productos_garantia ON productos (garantia_id);
-CREATE INDEX idx_productos_idx_productos_vendedor ON productos (vendedor_id);
-CREATE INDEX idx_productos_idx_productos_archivado ON productos (vendedor_id, archivado_en);
-CREATE INDEX idx_resenas_fk_res_cliente ON resenas (cliente_id);
-CREATE INDEX idx_resenas_idx_resena_estado ON resenas (producto_id, estado);
-CREATE INDEX idx_solicitudes_vendedor_idx_solicitud_estado ON solicitudes_vendedor (estado, creado_en);
-CREATE INDEX idx_solicitudes_vendedor_idx_solicitud_usuario ON solicitudes_vendedor (usuario_id, estado);
-CREATE INDEX idx_soporte_tickets_fk_soporte_cliente ON soporte_tickets (cliente_id);
-CREATE INDEX idx_soporte_tickets_idx_soporte_cliente ON soporte_tickets (cliente_id, estado);
-CREATE INDEX idx_soporte_tickets_idx_soporte_estado ON soporte_tickets (estado, creado_en);
-CREATE INDEX idx_tokens_recuperacion_idx_tokens_tipo_usuario ON tokens_recuperacion (tipo, usuario_id, usado);
-CREATE INDEX idx_users_users_rol_index ON users (rol);
-
-ALTER TABLE calificaciones_vendedor ADD CONSTRAINT fk_cal_cliente FOREIGN KEY (cliente_id) REFERENCES users (id) NOT VALID;
-ALTER TABLE calificaciones_vendedor ADD CONSTRAINT fk_cal_vendedor FOREIGN KEY (vendedor_id) REFERENCES users (id) NOT VALID;
-ALTER TABLE carrito_items ADD CONSTRAINT fk_caritem_carrito FOREIGN KEY (carrito_id) REFERENCES carritos (id) NOT VALID;
-ALTER TABLE carrito_items ADD CONSTRAINT fk_caritem_producto FOREIGN KEY (producto_id) REFERENCES productos (id) NOT VALID;
-ALTER TABLE carritos ADD CONSTRAINT fk_car_cliente FOREIGN KEY (cliente_id) REFERENCES users (id) NOT VALID;
-ALTER TABLE comisiones ADD CONSTRAINT fk_com_pedido FOREIGN KEY (pedido_id) REFERENCES pedidos (id) NOT VALID;
-ALTER TABLE comisiones ADD CONSTRAINT fk_com_vendedor FOREIGN KEY (vendedor_id) REFERENCES users (id) NOT VALID;
-ALTER TABLE detalle_pedido ADD CONSTRAINT fk_detalle_vendedor FOREIGN KEY (vendedor_id) REFERENCES users (id) NOT VALID;
-ALTER TABLE direcciones ADD CONSTRAINT fk_direcciones_cliente FOREIGN KEY (cliente_id) REFERENCES users (id) NOT VALID;
-ALTER TABLE direcciones ADD CONSTRAINT fk_direcciones_tarifa FOREIGN KEY (tarifa_envio_id) REFERENCES tarifas_envio (id) NOT VALID;
-ALTER TABLE favoritos ADD CONSTRAINT fk_fav_cliente FOREIGN KEY (cliente_id) REFERENCES users (id) NOT VALID;
-ALTER TABLE favoritos ADD CONSTRAINT fk_fav_producto FOREIGN KEY (producto_id) REFERENCES productos (id) NOT VALID;
-ALTER TABLE movimientos_inventario ADD CONSTRAINT fk_mov_pedido FOREIGN KEY (pedido_id) REFERENCES pedidos (id) NOT VALID;
-ALTER TABLE movimientos_inventario ADD CONSTRAINT fk_mov_producto FOREIGN KEY (producto_id) REFERENCES productos (id) NOT VALID;
-ALTER TABLE movimientos_inventario ADD CONSTRAINT fk_mov_variante FOREIGN KEY (variante_id) REFERENCES producto_variantes (id) NOT VALID;
-ALTER TABLE notificaciones ADD CONSTRAINT fk_notif_cliente FOREIGN KEY (cliente_id) REFERENCES users (id) NOT VALID;
-ALTER TABLE pagos_vendedor ADD CONSTRAINT fk_pagven_vendedor FOREIGN KEY (vendedor_id) REFERENCES users (id) NOT VALID;
-ALTER TABLE pedido_eventos ADD CONSTRAINT fk_evento_pedido FOREIGN KEY (pedido_id) REFERENCES pedidos (id) NOT VALID;
-ALTER TABLE precios_volumen ADD CONSTRAINT fk_pv_producto FOREIGN KEY (producto_id) REFERENCES productos (id) NOT VALID;
-ALTER TABLE producto_variantes ADD CONSTRAINT fk_var_producto FOREIGN KEY (producto_id) REFERENCES productos (id) NOT VALID;
-ALTER TABLE productos ADD CONSTRAINT fk_productos_garantia FOREIGN KEY (garantia_id) REFERENCES garantias (id) NOT VALID;
-ALTER TABLE productos ADD CONSTRAINT fk_productos_vendedor FOREIGN KEY (vendedor_id) REFERENCES users (id) NOT VALID;
-ALTER TABLE resenas ADD CONSTRAINT fk_res_cliente FOREIGN KEY (cliente_id) REFERENCES users (id) NOT VALID;
-ALTER TABLE resenas ADD CONSTRAINT fk_res_producto FOREIGN KEY (producto_id) REFERENCES productos (id) NOT VALID;
-ALTER TABLE soporte_tickets ADD CONSTRAINT fk_soporte_cliente FOREIGN KEY (cliente_id) REFERENCES users (id) NOT VALID;
-
-CREATE OR REPLACE FUNCTION touch_actualizado_en() RETURNS trigger AS $$
-BEGIN
-  NEW.actualizado_en = CURRENT_TIMESTAMP;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-CREATE OR REPLACE FUNCTION touch_updated_at() RETURNS trigger AS $$
-BEGIN
-  NEW.updated_at = CURRENT_TIMESTAMP;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-CREATE TRIGGER trg_carritos_actualizado_en BEFORE UPDATE ON carritos FOR EACH ROW EXECUTE FUNCTION touch_actualizado_en();
-CREATE TRIGGER trg_chatbot_faq_actualizado_en BEFORE UPDATE ON chatbot_faq FOR EACH ROW EXECUTE FUNCTION touch_actualizado_en();
-CREATE TRIGGER trg_pagos_actualizado_en BEFORE UPDATE ON pagos FOR EACH ROW EXECUTE FUNCTION touch_actualizado_en();
-CREATE TRIGGER trg_productos_updated_at BEFORE UPDATE ON productos FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
-CREATE TRIGGER trg_resenas_actualizado_en BEFORE UPDATE ON resenas FOR EACH ROW EXECUTE FUNCTION touch_actualizado_en();
-CREATE TRIGGER trg_soporte_tickets_actualizado_en BEFORE UPDATE ON soporte_tickets FOR EACH ROW EXECUTE FUNCTION touch_actualizado_en();
-CREATE TRIGGER trg_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
 
 SELECT setval(pg_get_serial_sequence('auditoria_admin', 'id'), COALESCE((SELECT MAX(id) FROM auditoria_admin), 1), (SELECT COUNT(*) > 0 FROM auditoria_admin));
 SELECT setval(pg_get_serial_sequence('calificaciones_vendedor', 'id'), COALESCE((SELECT MAX(id) FROM calificaciones_vendedor), 1), (SELECT COUNT(*) > 0 FROM calificaciones_vendedor));

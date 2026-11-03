@@ -2,7 +2,7 @@
 /**
  * VISTA: solicitud de enlace de recuperación por correo (Jeremy Tech).
  * Variables preparadas por src/Controller/CuentaController.php:
- *   $flash  array{tipo: '', 'ok'|'error', mensaje: string}
+ *   $flash  array{tipo: '', 'ok'|'error', mensaje: string, html?: bool}
  *   $email  string  correo (vacío en GET; el POST redirige con flash)
  */
 $flash = $flash ?? ['tipo' => '', 'mensaje' => ''];
@@ -17,7 +17,13 @@ $email = $email ?? '';
    </div>
 
    <?php if ($flash['mensaje']): ?>
-   <div class="auth-flash auth-flash-<?= $flash['tipo'] === 'ok' ? 'ok' : 'error' ?>"><?= htmlspecialchars($flash['mensaje']) ?></div>
+   <div class="auth-flash auth-flash-<?= $flash['tipo'] === 'ok' ? 'ok' : 'error' ?>">
+       <?php if (!empty($flash['html'])): ?>
+           <?= $flash['mensaje'] ?>
+       <?php else: ?>
+           <?= htmlspecialchars($flash['mensaje']) ?>
+       <?php endif; ?>
+   </div>
    <?php endif; ?>
 
    <form class="auth-form" action="?ruta=login/recuperar" method="post">

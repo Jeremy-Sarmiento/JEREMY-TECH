@@ -31,27 +31,28 @@ final class Recuperacion
      * El llamador debe responder siempre lo mismo para no revelar si el
      * correo está registrado.
      */
-    public static function solicitarCliente(string $email): bool
+    public static function solicitarCliente(string $email): ?string
     {
         $usuario = Cuenta::porEmail($email);
         if ($usuario === null || (int) ($usuario['activo'] ?? 0) !== 1) {
-            return false;
+            return null;
         }
 
-        return self::emitir(self::CLIENTE, $usuario);
+        return self::emitirYDevolver(self::CLIENTE, $usuario);
     }
 
     /**
      * Emite un token para una cuenta del panel (por usuario).
+     * Devuelve el token en claro si la cuenta existe y está activa; null si no.
      */
-    public static function solicitarAdmin(string $usuario): bool
+    public static function solicitarAdmin(string $usuario): ?string
     {
         $cuenta = Administrador::porUsuario($usuario);
         if ($cuenta === null || (int) ($cuenta['activo'] ?? 0) !== 1) {
-            return false;
+            return null;
         }
 
-        return self::emitir(self::ADMIN, $cuenta);
+        return self::emitirYDevolver(self::ADMIN, $cuenta);
     }
 
     /**
@@ -131,17 +132,18 @@ final class Recuperacion
 
     /**
      * Crea el token, invalida los anteriores y envía el correo simulado.
+     * Devuelve el token en claro (64 chars hex) o null si falla.
      *
      * @param array<string, mixed> $usuario
      */
-    private static function emitir(string $tipo, array $usuario): bool
+    private static function emitirYDevolver(string $tipo, array $usuario): ?string
     {
         $usuarioId = (int) ($usuario['id'] ?? 0);
         if ($usuarioId <= 0) {
-            return false;
+            return null;
         }
 
-        $token = bin2hex(random_bytes(32)); // 64 caracteres hex
+        $token = bin2hex(random_bytes(32));
         $expira = date('Y-m-d H:i:s', time() + self::MINUTOS_VALIDEZ * 60);
         $pdo = conexion();
         $pdo->beginTransaction();
@@ -161,11 +163,11 @@ final class Recuperacion
         } catch (\Throwable $e) {
             $pdo->rollBack();
             error_log('No se pudo crear el token de recuperación: ' . $e->getMessage());
-            return false;
+            return null;
         }
 
         self::enviarCorreo($tipo, $usuario, $token);
-        return true;
+        return $token;
     }
 
     /**
