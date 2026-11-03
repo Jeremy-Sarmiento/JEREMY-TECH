@@ -400,6 +400,10 @@ class Cuenta
         \Security\Proteccion::rotarToken();
         $_SESSION[self::SESION_CLAVE] = (int) $cuenta['id'];
 
+        // Un administrador o vendedor entra también al panel con el mismo
+        // inicio de sesión; el menú de cuenta muestra el botón "Panel".
+        Administrador::vincularCuenta($cuenta);
+
         return true;
     }
 
@@ -409,7 +413,12 @@ class Cuenta
     public static function cerrarSesion(): void
     {
         self::arrancarSesion();
+        $id = (int) ($_SESSION[self::SESION_CLAVE] ?? 0);
         unset($_SESSION[self::SESION_CLAVE]);
+        if ($id > 0) {
+            // Si el panel se abrió con esta misma cuenta, se cierra con ella.
+            Administrador::desvincularCuenta($id);
+        }
         session_regenerate_id(true);
         \Security\Proteccion::rotarToken();
     }

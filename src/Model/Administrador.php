@@ -175,6 +175,38 @@ class Administrador
     }
 
     /**
+     * Abre la sesión del panel para una cuenta de la tienda con rol de panel.
+     *
+     * Se llama al iniciar sesión en la tienda para que el botón "Panel" del
+     * menú de cuenta no exija un segundo ingreso. La cuenta ya se validó
+     * contra la misma contraseña de `users`.
+     *
+     * @param array<string, mixed> $cuenta Fila de `users` ya autenticada.
+     */
+    public static function vincularCuenta(array $cuenta): void
+    {
+        $rol = (string) ($cuenta['rol'] ?? '');
+        if (!in_array($rol, ['admin', 'vendedor'], true) || (int) ($cuenta['activo'] ?? 0) !== 1) {
+            return;
+        }
+
+        self::arrancarSesion();
+        $_SESSION[self::SESION_CLAVE] = (int) ($cuenta['id'] ?? 0);
+    }
+
+    /**
+     * Cierra el panel solo si pertenece a la cuenta que cierra sesión en la
+     * tienda, para no tumbar una sesión de panel abierta con otra cuenta.
+     */
+    public static function desvincularCuenta(int $id): void
+    {
+        self::arrancarSesion();
+        if ((int) ($_SESSION[self::SESION_CLAVE] ?? 0) === $id) {
+            unset($_SESSION[self::SESION_CLAVE]);
+        }
+    }
+
+    /**
      * Registra una mutación del administrador en la tabla de auditoría.
      *
      * @param int|string|null $referenciaId

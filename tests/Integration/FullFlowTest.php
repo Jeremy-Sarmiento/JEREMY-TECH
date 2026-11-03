@@ -202,4 +202,18 @@ class FullFlowTest extends TestCase
         $this->assertTrue($producto['imagenDb']);
         $this->assertSame('?ruta=producto/imagen&slug=con-imagen', \Model\Producto::urlImagen($producto));
     }
+
+    public function testElLoginDeLaTiendaAbreElPanelSoloParaAdminOVendedor(): void
+    {
+        $this->assertTrue(Cuenta::iniciarSesion('cliente@example.com', 'cliente'));
+        $this->assertFalse(\Model\Administrador::estaAutenticado());
+        Cuenta::cerrarSesion();
+
+        $this->assertTrue(Cuenta::iniciarSesion('admin@example.com', 'admin'));
+        $this->assertTrue(\Model\Administrador::estaAutenticado());
+        $this->assertSame(1, \Model\Administrador::idSesion());
+
+        Cuenta::cerrarSesion();
+        $this->assertFalse(\Model\Administrador::estaAutenticado());
+    }
 }

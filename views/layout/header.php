@@ -178,6 +178,9 @@
       <?php if ($puedePublicarCuenta): ?>
       <div class="nav-account-rol"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-briefcase"/></svg> Vendedor<?= (int) ($usuarioCuenta['verificado'] ?? 0) === 1 ? ' verificado' : '' ?></div>
       <?php endif; ?>
+      <?php if (\Model\Administrador::estaAutenticado()): ?>
+      <a href="?ruta=admin" class="nav-account-panel"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-settings"/></svg>Panel de administración</a>
+      <?php endif; ?>
       <a href="?ruta=perfil"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-user"/></svg>Mi Perfil</a>
       <a href="?ruta=mis-pedidos"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-pedidos"/></svg>Mis Pedidos</a>
       <a href="?ruta=favoritos"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-heart"/></svg>Mis Favoritos</a>
@@ -198,7 +201,7 @@
      <svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-user"/></svg><span class="nav-login-label">Iniciar sesión</span>
     </a>
     <?php endif; ?>
-    <?php if (\Model\Administrador::estaAutenticado()): ?>
+    <?php if (\Model\Administrador::estaAutenticado() && !$usuarioCuenta): ?>
     <a class="nav-admin-btn" href="?ruta=admin" title="Panel de administración" aria-label="Panel de administración"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-settings"/></svg><span class="nav-admin-label">Panel</span></a>
     <?php endif; ?>
     <button class="nav-cart-btn" id="cartNavBtn" type="button" onclick="abrirCarrito()" title="Ver carrito de compras" aria-label="Ver carrito de compras">
