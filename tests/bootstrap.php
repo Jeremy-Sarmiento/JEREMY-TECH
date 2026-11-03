@@ -2,6 +2,9 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+// Anula DATABASE_URL del .env: las pruebas deben usar solo la base local,
+// nunca la base alojada configurada para producción.
+putenv('DATABASE_URL=');
 putenv('DB_HOST=127.0.0.1');
 putenv('DB_PORT=5432');
 putenv('DB_NAME=jeremy_tech_test');
