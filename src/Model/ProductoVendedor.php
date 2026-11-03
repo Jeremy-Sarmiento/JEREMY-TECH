@@ -42,6 +42,7 @@ final class ProductoVendedor
         $sql = 'SELECT p.id, p.slug, p.nombre, p.modelo, p.categoria, p.codigo_sku,
                        p.precio_pen, p.stock, p.stock_minimo, p.activo, p.imagen,
                        p.archivado_en, p.created_at, p.updated_at,
+                       (EXISTS (SELECT 1 FROM producto_imagenes pi WHERE pi.producto_id = p.id)) AS imagen_db,
                        m.nombre AS marca_nombre, g.nombre AS garantia_nombre,
                        COALESCE(v.unidades, 0) AS unidades_vendidas,
                        (SELECT COUNT(*) FROM detalle_pedido dp2
@@ -156,7 +157,8 @@ final class ProductoVendedor
         }
 
         $stmt = conexion()->prepare(
-            'SELECT p.*, m.nombre AS marca_nombre, g.nombre AS garantia_nombre
+            'SELECT p.*, m.nombre AS marca_nombre, g.nombre AS garantia_nombre,
+                    (EXISTS (SELECT 1 FROM producto_imagenes pi WHERE pi.producto_id = p.id)) AS imagen_db
                FROM productos p
                LEFT JOIN marcas m ON m.id = p.marca_id
                LEFT JOIN garantias g ON g.id = p.garantia_id
@@ -174,12 +176,26 @@ final class ProductoVendedor
      *
      * @param array<string, mixed> $datos Datos del formulario (POST).
      * @param string $slugEditar Slug del producto a editar; vacío = nuevo.
+     * @param array<string, mixed>|null $archivo Entrada de `$_FILES` para la imagen.
      * @return array{ok:bool, error:string, slug:string}
      */
-    public static function guardar(int $vendedorId, array $datos, string $slugEditar = ''): array
-    {
+    public static function guardar(
+        int $vendedorId,
+        array $datos,
+        string $slugEditar = '',
+        ?array $archivo = null
+    ): array {
         if ($vendedorId <= 0) {
             return ['ok' => false, 'error' => 'La sesión no es válida. Vuelve a iniciar sesión.', 'slug' => ''];
+        }
+
+        $imagenSubida = ImagenProducto::leer($archivo);
+        if ($imagenSubida['estado'] === 'error') {
+            return [
+                'ok'    => false,
+                'error' => (string) ($imagenSubida['error'] ?? 'La imagen no es válida.'),
+                'slug'  => $slugEditar,
+            ];
         }
 
         // Un POST manipulado puede enviar arrays donde se espera texto.
@@ -325,6 +341,8 @@ final class ProductoVendedor
         ];
 
         try {
+            $pdo->beginTransaction();
+
             if ($esEdicion) {
                 $stmt = $pdo->prepare(
                     'UPDATE productos
@@ -336,19 +354,39 @@ final class ProductoVendedor
                 );
                 $stmt->execute(array_merge($valores, [$slug, $vendedorId]));
                 if ($stmt->rowCount() === 0 && !self::porSlug($vendedorId, $slug)) {
+                    $pdo->rollBack();
                     return ['ok' => false, 'error' => 'No se pudo actualizar el producto.', 'slug' => $slugEditar];
                 }
+                $productoId = (int) ($actual['id'] ?? 0);
             } else {
                 $stmt = $pdo->prepare(
                     'INSERT INTO productos
                         (categoria, nombre, modelo, codigo_sku, marca_id, garantia_id,
                          precio_pen, stock, stock_minimo, activo, imagen, especificaciones,
                          peso_kg, dimensiones, colores, vendedor_id, slug)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     RETURNING id'
                 );
                 $stmt->execute(array_merge($valores, [$vendedorId, $slug]));
+                $productoId = (int) $stmt->fetchColumn();
             }
-        } catch (\PDOException $e) {
+
+            if ($imagenSubida['estado'] === 'ok') {
+                $guardada = ImagenProducto::guardar(
+                    $productoId,
+                    (string) ($imagenSubida['datos'] ?? ''),
+                    (string) ($imagenSubida['mime'] ?? '')
+                );
+                if (!$guardada) {
+                    throw new \RuntimeException('No se pudo guardar la imagen del producto.');
+                }
+            }
+
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             error_log('ProductoVendedor::guardar — ' . $e->getMessage());
             return ['ok' => false, 'error' => 'No se pudo guardar la publicación. Revisa los datos e inténtalo de nuevo.', 'slug' => $slugEditar];
         }

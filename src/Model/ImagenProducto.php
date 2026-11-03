@@ -53,7 +53,14 @@ final class ImagenProducto
             return ['estado' => 'error', 'error' => 'No se pudo leer el archivo subido.'];
         }
 
-        return self::validarArchivo($tmp, (int) ($archivo['size'] ?? 0));
+        // El tamaño real del archivo manda: el que informa el navegador se
+        // puede falsificar.
+        $tamano = (int) @filesize($tmp);
+        if ($tamano <= 0) {
+            $tamano = (int) ($archivo['size'] ?? 0);
+        }
+
+        return self::validarArchivo($tmp, $tamano);
     }
 
     /**
@@ -126,6 +133,12 @@ final class ImagenProducto
             return null;
         }
 
-        return ['mime' => (string) $fila['mime'], 'datos' => (string) $fila['datos']];
+        // pdo_pgsql entrega BYTEA como flujo; hay que leerlo antes de servirlo.
+        $datos = $fila['datos'];
+        if (is_resource($datos)) {
+            $datos = stream_get_contents($datos);
+        }
+
+        return ['mime' => (string) $fila['mime'], 'datos' => (string) $datos];
     }
 }

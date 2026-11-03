@@ -48,6 +48,8 @@ function ensureTestDb(): void
         // Los tests truncan y siembran sus propias filas: basta la estructura.
         $pdo->exec(file_get_contents(__DIR__ . '/../database/jeremy_tech_estructura.sql'));
     }
+    // Migraciones idempotentes que una base de pruebas ya creada no tiene.
+    $pdo->exec(file_get_contents(__DIR__ . '/../database/imagenes-producto.sql'));
 }
 
 function resetTestDb(): void

@@ -117,6 +117,7 @@ final class Favorito
 
         $stmt = conexion()->prepare(
             'SELECT p.id, p.slug, p.nombre, p.categoria, p.precio_pen, p.imagen,
+                    (EXISTS (SELECT 1 FROM producto_imagenes pi WHERE pi.producto_id = p.id)) AS imagen_db,
                     p.stock, p.activo, p.vendedor_id,
                     v.name AS vendedor_nombre, v.usuario AS vendedor_usuario,
                     v.verificado AS vendedor_verificado,

@@ -88,10 +88,6 @@
      $stock = (int) ($p['stock'] ?? 0);
      $stockMinimo = (int) ($p['stock_minimo'] ?? 0);
      $stockBajo = $stock <= $stockMinimo;
-     $imagen = trim((string) ($p['imagen'] ?? ''));
-     if ($imagen === '') {
-         $imagen = $imagenPredeterminada;
-     }
      $unidades = (int) ($p['unidades_vendidas'] ?? 0);
      $archivada = ($p['archivado_en'] ?? null) !== null;
      $eliminable = (bool) ($p['eliminable'] ?? false);
@@ -99,7 +95,7 @@
    ?>
    <article class="pv-card<?= $claseCard ?>">
     <div class="pv-card-media">
-     <img src="<?= $e(\Model\Producto::imagenOptimizada($imagen)) ?>" alt="<?= $e($p['nombre'] ?? 'Producto') ?>" loading="lazy"/>
+     <img src="<?= $e(\Model\Producto::urlImagen($p)) ?>" alt="<?= $e($p['nombre'] ?? 'Producto') ?>" loading="lazy"/>
      <span class="pv-badge <?= $archivada ? 'pv-badge-archivada' : ($activo ? 'pv-badge-ok' : 'pv-badge-off') ?>">
       <?= $archivada ? 'Archivado' : ($activo ? 'Activo' : 'Oculto') ?>
      </span>

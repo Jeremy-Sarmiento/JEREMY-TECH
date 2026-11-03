@@ -147,7 +147,12 @@ class VendedorController
             ? trim((string) $_POST['slug_editar'])
             : '';
 
-        $resultado = ProductoVendedor::guardar($vendedorId, $_POST, $slugEditar);
+        $resultado = ProductoVendedor::guardar(
+            $vendedorId,
+            $_POST,
+            $slugEditar,
+            $_FILES['imagen_archivo'] ?? null
+        );
 
         if (!$resultado['ok']) {
             self::guardarBorrador($_POST);
@@ -595,6 +600,7 @@ class VendedorController
                 'especificaciones' => '',
                 'colores' => '',
                 'imagen' => '',
+                'imagen_db' => false,
                 'activo' => 1,
             ];
         }
@@ -620,6 +626,7 @@ class VendedorController
             'especificaciones' => (string) ($producto['especificaciones'] ?? ''),
             'colores' => $colores,
             'imagen' => (string) ($producto['imagen'] ?? ''),
+            'imagen_db' => !empty($producto['imagen_db']),
             'activo' => (int) ($producto['activo'] ?? 1),
         ];
     }

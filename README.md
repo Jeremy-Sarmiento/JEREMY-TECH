@@ -45,8 +45,8 @@ repositorio.
 
 ## Despliegue en Render
 
-El repositorio incluye `Dockerfile`, `docker/apache.conf` y `render.yaml`. La
-imagen usa PHP 8.2 con Apache, `pdo_pgsql` y el DocumentRoot en `public/`.
+El repositorio incluye `Dockerfile`, `docker/apache.conf` y `docker/php.ini`.
+La imagen usa PHP 8.2 con Apache, `pdo_pgsql` y el DocumentRoot en `public/`.
 
 1. Crea el proyecto en Supabase y copia la cadena **Session pooler** del panel
    (Connect). Importa el esquema y aplica el endurecimiento:
@@ -57,8 +57,12 @@ psql "$DATABASE_URL" -f database/jeremy_tech_datos.sql
 psql "$DATABASE_URL" -f database/supabase-endurecer.sql
 ```
 
-2. En Render, New > Blueprint, elige este repositorio y la rama `postgresql`.
-   Render lee `render.yaml` y pide `DATABASE_URL`: pega la cadena de Supabase.
+Si la base ya existía antes de las imágenes de producto, aplica la migración
+idempotente `database/imagenes-producto.sql` en lugar de reimportar todo.
+
+2. En Render, New > Web Service, elige este repositorio y la rama
+   `postgresql`. En Runtime selecciona Docker y define `DATABASE_URL` con la
+   cadena de Supabase.
 
 3. Al terminar el despliegue, la app queda en
    `https://<servicio>.onrender.com`. La URL pública se deduce del host y de
@@ -442,7 +446,7 @@ no se define, en web se deduce del host de la petición; en CLI se usa
 `http://localhost`. Los enlaces incluyen `index.php` explícitamente porque en
 este Apache el `DirectoryIndex` global solo sirve `index.html`.
 
-## Integración continua y vista en GitHub Pages
+## Integración continua
 
 `.github/workflows/ci.yml` corre en cada push y pull request: sintaxis
 (`php -l`), estilo (`composer cs-check`), análisis estático (`composer stan`),
@@ -450,19 +454,10 @@ PHPUnit contra un PostgreSQL temporal con el dump y un smoke test HTTP
 (`tools/smoke-test.sh`) que comprueba portada, login, catálogo, la redirección
 del panel y el rechazo de POST sin CSRF.
 
-`.github/workflows/pages.yml` publica en GitHub Pages una copia estática de la
-portada generada con `tools/build-preview.sh` (renderiza el catálogo con la
-base importada y copia `public/css`, `public/js` y `public/img`). El repo ya
-está configurado con **Settings → Pages → Source: GitHub Actions**; la vista
-queda en <https://jeremy-sarmiento.github.io/JEREMY-TECH/>. Pages no ejecuta
-PHP: solo se ve la maqueta de la portada, y los enlaces con `?ruta=...`
-recargan esa misma página.
-
 En local, con la base importada:
 
 ```bash
-bash tools/smoke-test.sh          # smoke test HTTP
-bash tools/build-preview.sh _site # genera la vista estática
+bash tools/smoke-test.sh # smoke test HTTP
 ```
 
 ## Entorno

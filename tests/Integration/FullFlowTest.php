@@ -175,4 +175,31 @@ class FullFlowTest extends TestCase
         $this->assertIsArray($productos);
         $this->assertArrayHasKey('neto', $ganancias);
     }
+
+    public function testGuardaYLeeLaImagenDelProductoEnLaBase(): void
+    {
+        $pdo = testPdo();
+        $productoId = (int) $pdo->query(
+            "INSERT INTO productos (slug, categoria, nombre, especificaciones, precio_pen, stock, activo, colores, imagen, stock_minimo)
+             VALUES ('con-imagen', 'Celulares', 'Con imagen', '', 10.00, 1, 1, '', '', 1)
+             RETURNING id"
+        )->fetchColumn();
+
+        $datos = (string) base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+            true
+        );
+
+        $this->assertTrue(\Model\ImagenProducto::guardar($productoId, $datos, 'image/png'));
+
+        $imagen = \Model\ImagenProducto::deSlug('con-imagen');
+        $this->assertNotNull($imagen);
+        $this->assertSame('image/png', $imagen['mime']);
+        $this->assertSame($datos, $imagen['datos']);
+
+        $producto = \Model\Producto::porSlug('con-imagen');
+        $this->assertNotNull($producto);
+        $this->assertTrue($producto['imagenDb']);
+        $this->assertSame('?ruta=producto/imagen&slug=con-imagen', \Model\Producto::urlImagen($producto));
+    }
 }

@@ -121,6 +121,10 @@ switch ($ruta) {
         (new Controller\ProductoController())->detalle();
         break;
 
+    case 'producto/imagen':
+        (new Controller\ProductoController())->imagen();
+        break;
+
     case 'login':
         (new Controller\CuentaController())->ver();
         break;

@@ -15,7 +15,9 @@ $fmt = static fn (float $monto): string => 'S/ ' . number_format($monto, 2);
 $imagenPredeterminada = 'img/producto-sin-imagen.svg';
 $valor = static fn (string $clave, string $porDefecto = ''): string => (string) ($formulario[$clave] ?? $porDefecto);
 $categoriaActual = $valor('categoria');
-$imagenActual = trim($valor('imagen')) !== '' ? $valor('imagen') : $imagenPredeterminada;
+$imagenActual = !empty($formulario['imagen_db']) && $slugEditar !== ''
+    ? '?ruta=producto/imagen&slug=' . rawurlencode($slugEditar)
+    : (trim($valor('imagen')) !== '' ? $valor('imagen') : $imagenPredeterminada);
 ?>
 <main class="cart-page cuenta-page mis-productos-page mis-productos-form-page">
  <div class="cart-page-header pv-form-header">
@@ -37,7 +39,7 @@ $imagenActual = trim($valor('imagen')) !== '' ? $valor('imagen') : $imagenPredet
  <?php endif; ?>
 
  <form method="post" action="?ruta=mis-productos/guardar" class="pv-form" id="productoForm"
-       data-imagen-default="<?= $e($imagenPredeterminada) ?>">
+       enctype="multipart/form-data" data-imagen-default="<?= $e($imagenPredeterminada) ?>">
   <?= \Security\Proteccion::campo() ?>
   <input type="hidden" name="slug_editar" value="<?= $e($slugEditar) ?>"/>
 
@@ -169,7 +171,7 @@ $imagenActual = trim($valor('imagen')) !== '' ? $valor('imagen') : $imagenPredet
    <section class="cart-page-section pv-form-card">
     <div class="cart-page-section-head">
      <h2>Imagen y publicación</h2>
-     <p>Usa una ruta interna (img/...) o una URL http(s).</p>
+     <p>Sube una foto (JPEG, PNG, WebP o GIF, máximo 3 MB). Se guarda en la base de datos.</p>
     </div>
 
     <div class="pv-imagen-campo">
@@ -178,10 +180,16 @@ $imagenActual = trim($valor('imagen')) !== '' ? $valor('imagen') : $imagenPredet
            alt="Vista previa de la imagen del producto"/>
      </div>
      <div class="form-group">
-      <label for="productoImagen">Imagen</label>
+      <label for="productoImagenArchivo">Imagen</label>
+      <input id="productoImagenArchivo" type="file" name="imagen_archivo"
+             accept="image/jpeg,image/png,image/webp,image/gif"/>
+      <small class="pv-ayuda">Si no subes una, se usa la ruta de abajo o la imagen genérica.</small>
+     </div>
+     <div class="form-group">
+      <label for="productoImagen">O una ruta o URL</label>
       <input id="productoImagen" type="text" name="imagen" maxlength="255"
              value="<?= $e($valor('imagen')) ?>" placeholder="img/Celulares/... o https://..."/>
-      <small class="pv-ayuda">Si la dejas vacía se usará una imagen genérica.</small>
+      <small class="pv-ayuda">Solo se usa si no subes un archivo.</small>
      </div>
     </div>
 

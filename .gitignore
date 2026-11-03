@@ -14,6 +14,3 @@ storage/mail/
 /node_modules/
 /package.json
 /package-lock.json
-
-# Vista estática generada para GitHub Pages
-/_site/

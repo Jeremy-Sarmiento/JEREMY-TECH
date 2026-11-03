@@ -493,6 +493,15 @@ final class AdminController
                 exit;
             }
 
+            // La imagen subida se valida antes de tocar la base: si el archivo
+            // no es una imagen real, no se guarda nada del formulario.
+            $imagenSubida = \Model\ImagenProducto::leer($_FILES['imagen_archivo'] ?? null);
+            if ($imagenSubida['estado'] === 'error') {
+                $this->flash((string) ($imagenSubida['error'] ?? 'La imagen no es válida.'), true);
+                header('Location: ?ruta=admin/productos');
+                exit;
+            }
+
             // El formulario envía el slug de la categoría; la tabla `productos`
             // guarda el nombre visible (como las semillas y la tienda).
             $stmtCat = $pdo->prepare('SELECT nombre FROM categorias WHERE slug = ?');
@@ -531,8 +540,10 @@ final class AdminController
                 }
             }
 
+            $pdo->beginTransaction();
+
             if ($id !== '') {
-                $pdo->prepare(
+                $stmt = $pdo->prepare(
                     'UPDATE productos SET categoria = ?, nombre = ?, modelo = ?, codigo_sku = ?, marca_id = ?, garantia_id = ?, '
                     . 'precio_pen = ?, stock = ?, stock_minimo = ?, activo = ?, '
                     // Si el admin vuelve a activar una publicación archivada,
@@ -540,25 +551,54 @@ final class AdminController
                     // implica `activo = 0`.
                     . 'archivado_en = CASE WHEN ? = 1 THEN NULL ELSE archivado_en END, '
                     . 'imagen = ?, especificaciones = ?, '
-                    . 'peso_kg = ?, dimensiones = ?, colores = ?, vendedor_id = ? WHERE slug = ?'
-                )->execute([
+                    . 'peso_kg = ?, dimensiones = ?, colores = ?, vendedor_id = ? WHERE slug = ? '
+                    . 'RETURNING id'
+                );
+                $stmt->execute([
                     $categoria, $nombre, $modelo, $sku, $marcaId, $garantiaId,
                     $precio, $stock, $stockMinimo, $activo, $activo, $imagen, $especificaciones,
                     $pesoKg, $dimensiones, $colores, $vendedorId, $id,
                 ]);
+                $productoId = (int) $stmt->fetchColumn();
                 $this->auditar($admin, 'productos/editar', 0, 'Editó el producto "' . $nombre . '"');
             } else {
-                $pdo->prepare(
+                $stmt = $pdo->prepare(
                     'INSERT INTO productos (slug, categoria, nombre, modelo, codigo_sku, marca_id, garantia_id, '
                     . 'precio_pen, stock, stock_minimo, activo, imagen, especificaciones, peso_kg, dimensiones, colores, vendedor_id)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-                )->execute([
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id'
+                );
+                $stmt->execute([
                     $slugId, $categoria, $nombre, $modelo, $sku, $marcaId, $garantiaId,
                     $precio, $stock, $stockMinimo, $activo, $imagen, $especificaciones,
                     $pesoKg, $dimensiones, $colores, $vendedorId,
                 ]);
+                $productoId = (int) $stmt->fetchColumn();
                 $this->auditar($admin, 'productos/crear', 0, 'Creó el producto "' . $nombre . '"');
             }
+
+            if ($productoId <= 0) {
+                $pdo->rollBack();
+                $this->flash('No se pudo guardar el producto.', true);
+                header('Location: ?ruta=admin/productos');
+                exit;
+            }
+
+            if ($imagenSubida['estado'] === 'ok') {
+                $guardada = \Model\ImagenProducto::guardar(
+                    $productoId,
+                    (string) ($imagenSubida['datos'] ?? ''),
+                    (string) ($imagenSubida['mime'] ?? '')
+                );
+                if (!$guardada) {
+                    $pdo->rollBack();
+                    $this->flash('No se pudo guardar la imagen del producto.', true);
+                    header('Location: ?ruta=admin/productos');
+                    exit;
+                }
+            }
+
+            $pdo->commit();
+
             header('Location: ?ruta=admin/productos');
             exit;
         }

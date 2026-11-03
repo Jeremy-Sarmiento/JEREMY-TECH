@@ -31,7 +31,8 @@ class Producto
      */
     private const COLUMNAS = 'p.id, p.slug, p.categoria, p.nombre, p.modelo, p.codigo_sku, p.especificaciones, '
         . 'p.precio_pen, p.stock, p.stock_minimo, p.activo, p.archivado_en, p.colores, p.imagen, p.peso_kg, p.dimensiones, '
-        . 'p.vendedor_id, p.marca_id';
+        . 'p.vendedor_id, p.marca_id, '
+        . '(EXISTS (SELECT 1 FROM producto_imagenes pi WHERE pi.producto_id = p.id)) AS imagen_db';
 
     /**
      * Columnas extra que solo aporta el listado del catálogo (Etapa 6):
@@ -698,6 +699,21 @@ class Producto
     }
 
     /**
+     * URL de la imagen de un producto: la subida a la base de datos manda
+     * sobre la ruta heredada (`imagen`).
+     *
+     * @param array<string, mixed> $producto
+     */
+    public static function urlImagen(array $producto): string
+    {
+        if (!empty($producto['imagenDb'])) {
+            return '?ruta=producto/imagen&slug=' . rawurlencode((string) ($producto['slug'] ?? ''));
+        }
+
+        return self::imagenOptimizada((string) ($producto['imagen'] ?? ''));
+    }
+
+    /**
      * Texto de índice para el filtro de búsqueda del catálogo (atributo data-search).
      * Incluye nombre, modelo, SKU, especificaciones, categoría y vendedor.
      * @param array<int, array<string, mixed>> $grupo Variantes que comparten tarjeta.
@@ -782,6 +798,7 @@ class Producto
             'archivado'       => $fila['archivado_en'] !== null,
             'colores'         => json_decode($fila['colores'] ?: '[]', true) ?: [],
             'imagen'          => $fila['imagen'],
+            'imagenDb'        => !empty($fila['imagen_db']),
             'pesoKg'          => $fila['peso_kg'] !== null ? (float) $fila['peso_kg'] : null,
             'dimensiones'     => $fila['dimensiones'] !== null ? (string) $fila['dimensiones'] : null,
             // Etapa 6: dueño de la publicación (solo lo aporta el listado).

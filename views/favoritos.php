@@ -45,8 +45,8 @@ $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'
      $slug = (string) ($p['slug'] ?? '');
      $urlFicha = '?ruta=producto&slug=' . urlencode($slug);
      $imagen = trim((string) ($p['imagen'] ?? ''));
-     $imagenHTML = $imagen !== ''
-         ? '<img src="' . $e(\Model\Producto::imagenOptimizada($imagen)) . '" alt="' . $e($p['nombre'] ?? 'Producto') . '" loading="lazy">'
+     $imagenHTML = $imagen !== '' || !empty($p['imagen_db'])
+         ? '<img src="' . $e(\Model\Producto::urlImagen($p)) . '" alt="' . $e($p['nombre'] ?? 'Producto') . '" loading="lazy">'
          : '<span class="favorito-imagen-vacia" aria-hidden="true"><svg class="inline-icon" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-bag"/></svg></span>';
      $vendedor = trim((string) ($p['vendedor_usuario'] ?? ''));
      if ($vendedor === '') {

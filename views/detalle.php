@@ -72,7 +72,7 @@ $datosJS = [
 
     <div class="producto-cuerpo">
         <div class="producto-galeria">
-            <img id="prodImagen" alt="<?= $e($nombre) ?>" src="<?= $e(Producto::imagenOptimizada((string) $producto['imagen'])) ?>">
+            <img id="prodImagen" alt="<?= $e($nombre) ?>" src="<?= $e(Producto::urlImagen($producto)) ?>">
         </div>
 
         <div class="producto-info">

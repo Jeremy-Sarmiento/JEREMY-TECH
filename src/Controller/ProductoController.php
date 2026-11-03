@@ -211,7 +211,7 @@ class ProductoController
             'categoria' => (string) $p['categoria'],
             'precioPEN' => (float) $p['precioPEN'],
             'slug' => (string) $p['slug'],
-            'imagen' => (string) $p['imagen'],
+            'imagen' => Producto::urlImagen($p),
         ], $items);
 
         echo json_encode($salida, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '[]';
@@ -304,5 +304,33 @@ class ProductoController
         require BASE_PATH . '/views/layout/header.php';
         require BASE_PATH . '/views/detalle.php';
         require BASE_PATH . '/views/layout/footer.php';
+    }
+
+    /**
+     * Sirve la imagen del producto guardada en la base de datos.
+     *
+     * Ruta: ?ruta=producto/imagen&slug=<slug>
+     *
+     * La imagen se guarda en `producto_imagenes` (BYTEA) porque el disco de
+     * Render es efímero. El MIME lo validó `ImagenProducto` al subirla.
+     */
+    public function imagen(): void
+    {
+        $slug = isset($_GET['slug']) && is_scalar($_GET['slug'])
+            ? trim((string) $_GET['slug']) : '';
+        $imagen = $slug !== '' ? \Model\ImagenProducto::deSlug($slug) : null;
+
+        if ($imagen === null) {
+            http_response_code(404);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'Imagen no encontrada';
+            return;
+        }
+
+        header('Content-Type: ' . $imagen['mime']);
+        header('Content-Length: ' . strlen($imagen['datos']));
+        header('X-Content-Type-Options: nosniff');
+        header('Cache-Control: public, max-age=86400');
+        echo $imagen['datos'];
     }
 }
