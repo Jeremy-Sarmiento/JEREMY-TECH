@@ -202,8 +202,13 @@ class Cuenta
         if (!in_array($tipo, ['B2C', 'B2B', 'C2C'], true)) {
             return 'Elige un tipo de cliente válido';
         }
-        if ($tipo === 'B2B' && $ruc !== '' && !preg_match('/^\d{11}$/', $ruc)) {
-            return 'El RUC debe tener exactamente 11 dígitos';
+        if ($tipo === 'B2B') {
+            if ($ruc === '') {
+                return 'El RUC es obligatorio para cuentas de empresa (B2B)';
+            }
+            if (!preg_match('/^\d{11}$/', $ruc)) {
+                return 'El RUC debe tener exactamente 11 dígitos';
+            }
         }
         if (mb_strlen($plataforma) > 120) {
             return 'La plataforma de reventa no puede superar los 120 caracteres';

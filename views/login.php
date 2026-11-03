@@ -182,11 +182,11 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
     </div>
 
     <div class="form-group" id="regCampoRuc"<?= $tipoCliente === 'B2B' ? '' : ' hidden' ?>>
-     <label for="regRuc">RUC de la empresa</label>
+     <label for="regRuc">RUC de la empresa <span class="auth-req">*</span></label>
      <input type="text" id="regRuc" name="ruc" maxlength="11" pattern="[0-9]{11}"
             inputmode="numeric" autocomplete="off" placeholder="Ej. 20123456789"
-            value="<?= $v('ruc') ?>"/>
-     <p class="auth-hint">11 dígitos. Lo usaremos si pides factura.</p>
+            value="<?= $v('ruc') ?>" required/>
+     <p class="auth-hint">11 dígitos. Obligatorio para factura y validación B2B.</p>
     </div>
 
     <div class="form-group" id="regCampoReventa"<?= $tipoCliente === 'C2C' ? '' : ' hidden' ?>>
