@@ -10,5 +10,10 @@ storage/mail/
 # PHP CS Fixer cache
 /.php-cs-fixer.cache
 
+# Dependencias JS (la app es PHP; no hay build de Node)
+/node_modules/
+/package.json
+/package-lock.json
+
 # Vista estática generada para GitHub Pages
 /_site/
