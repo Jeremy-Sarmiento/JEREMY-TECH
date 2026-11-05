@@ -82,7 +82,7 @@ Notas de operación:
 
 | Rol | Usuario / email | Contraseña |
 | --- | --- | --- |
-| Admin | `jeremytech` | `jeremytech` |
+| Admin | `admin@example.com` | `jeremytech` |
 
 ## Registro de clientes
 
@@ -514,8 +514,9 @@ como alternativa.
 envíos consulta las tarifas activas de `tarifas_envio` y la de contacto reutiliza
 los datos de `configuracion`.
 
-**Panel:** `admin/login` (autenticar, cerrar) · `admin/recuperar`
-(+ `recuperar/restablecer`) · `admin?seccion=...`. Secciones según rol vía
+**Panel:** `admin/cerrar` · `admin?seccion=...`. Se ingresa desde el login de la
+tienda con una cuenta admin o vendedor; el botón "Panel de administración"
+aparece en el menú de la cuenta. Secciones según rol vía
 `Administrador::seccionesPermitidas()`:
 
 - **Admin:** dashboard, productos, variantes, categorías, marcas, garantías, cupones,

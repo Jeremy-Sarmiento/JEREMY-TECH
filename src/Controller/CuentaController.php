@@ -372,7 +372,7 @@ class CuentaController
 
         $token = trim((string) ($_GET['token'] ?? $_POST['token'] ?? ''));
         $flash = self::tomarFlash();
-        $valido = Recuperacion::tokenValido(Recuperacion::CLIENTE, $token);
+        $valido = Recuperacion::tokenValido($token);
         $claveReset = $token !== '' ? $token : 'ip:' . LimiteIntentos::ipActual();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -394,7 +394,6 @@ class CuentaController
             }
 
             $error = Recuperacion::restablecer(
-                Recuperacion::CLIENTE,
                 $token,
                 (string) ($_POST['password'] ?? ''),
                 (string) ($_POST['confirmar'] ?? '')

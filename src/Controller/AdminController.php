@@ -7,10 +7,8 @@ namespace Controller;
 use Model\Administrador as Admin;
 use Model\ChatbotFaq;
 use Model\Envio;
-use Model\LimiteIntentos;
 use Model\Notificacion;
 use Model\PedidoEvento;
-use Model\Recuperacion;
 
 /**
  * Panel de administración de Jeremy Tech (vía ?ruta=admin/...).
@@ -35,21 +33,15 @@ final class AdminController
             \Security\Proteccion::exigirPost();
         }
 
-        if ($subRuta === 'login' || $subRuta === 'login/autenticar') {
-            $this->login($subRuta);
-            return;
-        }
         if ($subRuta === 'cerrar') {
             $this->cerrar();
             return;
         }
-        if ($subRuta === 'recuperar' || $subRuta === 'recuperar/restablecer') {
-            $this->recuperar($subRuta);
-            return;
-        }
 
         if (!Admin::estaAutenticado()) {
-            header('Location: ?ruta=admin/login');
+            // Un solo login: la sesión del panel se abre al entrar a la
+            // tienda con una cuenta admin o vendedor.
+            header('Location: ?ruta=login');
             exit;
         }
 
@@ -58,7 +50,7 @@ final class AdminController
         $permitidas = Admin::seccionesPermitidas();
         if ($permitidas === []) {
             Admin::cerrarSesion();
-            header('Location: ?ruta=admin/login');
+            header('Location: ?ruta=login');
             exit;
         }
 
@@ -115,65 +107,6 @@ final class AdminController
         return 'admin/dashboard';
     }
 
-    // ------------------------------------------------------------ //
-    //  Autenticación
-    // ------------------------------------------------------------ //
-
-    private function login(string $subRuta): void
-    {
-        if (Admin::estaAutenticado()) {
-            header('Location: ?ruta=admin');
-            exit;
-        }
-
-        if ($subRuta === 'login/autenticar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-            $usuario = trim((string) ($_POST['usuario'] ?? ''));
-            $clave   = (string) ($_POST['clave'] ?? '');
-            $ip      = LimiteIntentos::ipActual();
-            $llave   = $usuario !== '' ? mb_strtolower($usuario) : 'ip:' . $ip;
-            // Igual que en el login de clientes: límite por cuenta y por IP.
-            $llaveIp = 'ip:' . $ip;
-
-            $restante = max(
-                LimiteIntentos::restante('admin_login', $llave),
-                LimiteIntentos::restante('admin_login', $llaveIp)
-            );
-            if ($restante > 0) {
-                $this->flash(LimiteIntentos::mensajeBloqueo($restante), true);
-                header('Location: ?ruta=admin/login');
-                exit;
-            }
-
-            if (Admin::iniciarSesion($usuario, $clave)) {
-                LimiteIntentos::limpiar('admin_login', $llave);
-                LimiteIntentos::limpiar('admin_login', $llaveIp);
-                $admin = Admin::usuarioActual();
-                Admin::auditar(
-                    (string) ($admin['usuario'] ?? $usuario),
-                    'admin/login',
-                    (int) ($admin['id'] ?? 0),
-                    'Ingreso al panel de administración'
-                );
-                header('Location: ?ruta=admin');
-                exit;
-            }
-
-            LimiteIntentos::registrar('admin_login', $llave, $ip);
-            if ($llaveIp !== $llave) {
-                LimiteIntentos::registrar('admin_login', $llaveIp, $ip, 20);
-            }
-            $this->flash('Usuario o contraseña incorrectos (o cuenta inactiva).', true);
-            header('Location: ?ruta=admin/login');
-            exit;
-        }
-
-        $flash = $this->tomarFlash();
-        $tituloAdmin = 'Acceso';
-        require BASE_PATH . '/views/admin/header.php';
-        require BASE_PATH . '/views/admin/login.php';
-        require BASE_PATH . '/views/admin/footer.php';
-    }
-
     private function cerrar(): void
     {
         $admin = Admin::usuarioActual();
@@ -185,101 +118,11 @@ final class AdminController
                 'Cierre de sesión del panel'
             );
         }
+        // El panel comparte cuenta con la tienda: se cierran las dos sesiones.
+        \Model\Cuenta::cerrarSesion();
         Admin::cerrarSesion();
-        header('Location: ?ruta=admin/login');
+        header('Location: ?ruta=login');
         exit;
-    }
-
-    /**
-     * Recuperación de acceso al panel por token enviado al correo.
-     * Se atiende antes de exigir sesión: el usuario aún no está autenticado.
-     */
-    private function recuperar(string $subRuta): void
-    {
-        if (Admin::estaAutenticado()) {
-            header('Location: ?ruta=admin');
-            exit;
-        }
-
-        $flash = $this->tomarFlash();
-        $token = trim((string) ($_GET['token'] ?? $_POST['token'] ?? ''));
-
-        if ($subRuta === 'recuperar/restablecer') {
-            $valido = Recuperacion::tokenValido(Recuperacion::ADMIN, $token);
-            $claveReset = $token !== '' ? $token : 'ip:' . LimiteIntentos::ipActual();
-
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $restante = LimiteIntentos::restante('admin_restablecer', $claveReset);
-                if ($restante > 0) {
-                    $this->flash(LimiteIntentos::mensajeBloqueo($restante), true);
-                    header('Location: ?ruta=admin/recuperar');
-                    exit;
-                }
-
-                if (!$valido) {
-                    LimiteIntentos::registrar('admin_restablecer', $claveReset, LimiteIntentos::ipActual());
-                    $this->flash(
-                        'El enlace de recuperación no es válido o ya expiró. Solicita uno nuevo.',
-                        true
-                    );
-                    header('Location: ?ruta=admin/recuperar');
-                    exit;
-                }
-
-                $error = Recuperacion::restablecer(
-                    Recuperacion::ADMIN,
-                    $token,
-                    (string) ($_POST['password'] ?? ''),
-                    (string) ($_POST['confirmar'] ?? '')
-                );
-
-                if ($error === null) {
-                    LimiteIntentos::limpiar('admin_restablecer', $claveReset);
-                    $this->flash('Contraseña actualizada. Ya puedes ingresar al panel.', false);
-                    header('Location: ?ruta=admin/login');
-                    exit;
-                }
-
-                $flash = ['tipo' => 'error', 'mensaje' => $error];
-            }
-
-            $tituloAdmin = 'Nueva contraseña';
-            require BASE_PATH . '/views/admin/header.php';
-            require BASE_PATH . '/views/admin/restablecer.php';
-            require BASE_PATH . '/views/admin/footer.php';
-            return;
-        }
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $usuario = trim((string) ($_POST['usuario'] ?? ''));
-            $llave = $usuario !== '' ? mb_strtolower($usuario) : 'ip:' . LimiteIntentos::ipActual();
-
-            $restante = LimiteIntentos::restante('admin_recuperar', $llave);
-            if ($restante > 0) {
-                $this->flash(LimiteIntentos::mensajeBloqueo($restante), true);
-                header('Location: ?ruta=admin/recuperar');
-                exit;
-            }
-
-            // Cada solicitud cuenta, exista o no el usuario: evita enumerar
-            // cuentas del panel y limita el envío masivo de correos.
-            LimiteIntentos::registrar('admin_recuperar', $llave, LimiteIntentos::ipActual());
-            if ($usuario !== '') {
-                Recuperacion::solicitarAdmin($usuario);
-            }
-
-            $this->flash(
-                'Si el usuario existe y tiene un correo configurado, enviamos un enlace de recuperación.',
-                false
-            );
-            header('Location: ?ruta=admin/recuperar');
-            exit;
-        }
-
-        $tituloAdmin = 'Recuperar acceso';
-        require BASE_PATH . '/views/admin/header.php';
-        require BASE_PATH . '/views/admin/recuperar.php';
-        require BASE_PATH . '/views/admin/footer.php';
     }
 
     private function renderizar(string $seccion, array $datos): void

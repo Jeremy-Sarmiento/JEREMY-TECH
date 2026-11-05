@@ -5,6 +5,9 @@
   <meta name="csrf-token" content="<?= htmlspecialchars(\Security\Proteccion::token(), ENT_QUOTES, 'UTF-8') ?>"/>
   <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
   <meta content="#070A0E" name="theme-color"/>
+  <link href="favicon.svg" rel="icon" type="image/svg+xml"/>
+  <link href="favicon.ico" rel="icon" sizes="any"/>
+  <link href="apple-touch-icon.png" rel="apple-touch-icon"/>
   <title><?= htmlspecialchars($tituloPagina ?? 'Jeremy Tech - Tienda de Tecnologia', ENT_QUOTES, 'UTF-8') ?></title>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
 <link href="css/styles.css?v=<?= (int) @filemtime(BASE_PATH . '/public/css/styles.css') ?>" rel="stylesheet"/>
@@ -200,9 +203,6 @@
     <a class="nav-login-btn" href="?ruta=login" title="Iniciar sesión" aria-label="Iniciar sesión">
      <svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-user"/></svg><span class="nav-login-label">Iniciar sesión</span>
     </a>
-    <?php endif; ?>
-    <?php if (\Model\Administrador::estaAutenticado() && !$usuarioCuenta): ?>
-    <a class="nav-admin-btn" href="?ruta=admin" title="Panel de administración" aria-label="Panel de administración"><svg class="nav-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-settings"/></svg><span class="nav-admin-label">Panel</span></a>
     <?php endif; ?>
     <button class="nav-cart-btn" id="cartNavBtn" type="button" onclick="abrirCarrito()" title="Ver carrito de compras" aria-label="Ver carrito de compras">
      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
