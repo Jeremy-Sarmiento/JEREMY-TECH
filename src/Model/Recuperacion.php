@@ -57,8 +57,8 @@ final class Recuperacion
         string $nueva,
         string $confirmar
     ): ?string {
-        if (strlen($nueva) < 6) {
-            return 'La contraseña debe tener al menos 6 caracteres';
+        if (($errorClave = \Security\Contrasena::error($nueva)) !== null) {
+            return $errorClave;
         }
         if ($nueva !== $confirmar) {
             return 'Las contraseñas no coinciden';

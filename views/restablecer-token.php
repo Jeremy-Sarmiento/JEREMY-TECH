@@ -30,11 +30,11 @@ $valido = $valido ?? false;
     <div class="form-row">
      <div class="form-group">
       <label for="resPassword">Nueva contraseña (mín. 6) *</label>
-      <input type="password" id="resPassword" name="password" minlength="6" required autocomplete="new-password"/>
+      <input type="password" id="resPassword" name="password" minlength="8" required autocomplete="new-password"/>
      </div>
      <div class="form-group">
       <label for="resConfirmar">Confirmar contraseña *</label>
-      <input type="password" id="resConfirmar" name="confirmar" minlength="6" required autocomplete="new-password"/>
+      <input type="password" id="resConfirmar" name="confirmar" minlength="8" required autocomplete="new-password"/>
      </div>
     </div>
     <button type="submit" class="btn-auth">Cambiar mi contraseña</button>

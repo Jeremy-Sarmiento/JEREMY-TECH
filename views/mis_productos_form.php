@@ -42,6 +42,9 @@ $imagenActual = !empty($formulario['imagen_db']) && $slugEditar !== ''
        enctype="multipart/form-data" data-imagen-default="<?= $e($imagenPredeterminada) ?>">
   <?= \Security\Proteccion::campo() ?>
   <input type="hidden" name="slug_editar" value="<?= $e($slugEditar) ?>"/>
+  <?php if ($esEdicion): ?>
+  <input type="hidden" name="stock_original" value="<?= $e($valor('stock_original')) ?>"/>
+  <?php endif; ?>
 
   <div class="pv-form-grid">
    <section class="cart-page-section pv-form-card">
@@ -124,7 +127,10 @@ $imagenActual = !empty($formulario['imagen_db']) && $slugEditar !== ''
      <div class="form-group">
       <label for="productoStock">Stock disponible *</label>
       <input id="productoStock" type="number" name="stock" min="0" max="9999999" step="1"
-             value="<?= $e($valor('stock', '0')) ?>" inputmode="numeric"/>
+             value="<?= $e($valor('stock', '0')) ?>" inputmode="numeric"<?= !empty($variantes) ? ' readonly aria-describedby="stock-por-variante"' : '' ?>/>
+      <?php if (!empty($variantes)): ?>
+      <small class="pv-ayuda" id="stock-por-variante">Ajusta el stock desde <a href="#variantes">cada variante</a>; el total se actualiza junto con ella.</small>
+      <?php endif; ?>
      </div>
      <div class="form-group">
       <label for="productoStockMinimo">Stock mínimo</label>
@@ -215,6 +221,7 @@ $imagenActual = !empty($formulario['imagen_db']) && $slugEditar !== ''
     <p class="pv-panel-nota">
      Cada variante es un SKU con su propio precio extra y stock. La ficha limita
      la compra al menor entre el stock del producto y el de la variante.
+     Los cambios de stock, incluida una variante nueva, ajustan también el total del producto.
     </p>
    </div>
    <span class="pv-panel-contador">
@@ -264,6 +271,7 @@ $imagenActual = !empty($formulario['imagen_db']) && $slugEditar !== ''
            <?= \Security\Proteccion::campo() ?>
            <input type="hidden" name="slug" value="<?= $e($slugEditar) ?>"/>
            <input type="hidden" name="id" value="<?= $vid ?>"/>
+           <input type="hidden" name="stock_original" value="<?= (int) ($v['stock'] ?? 0) ?>"/>
            <div class="pv-variante-campos">
             <div class="form-group">
              <label for="variante-nombre-<?= $vid ?>">Nombre *</label>
@@ -304,7 +312,7 @@ $imagenActual = !empty($formulario['imagen_db']) && $slugEditar !== ''
              ['slug' => $slugEditar, 'id' => $vid],
              'Eliminar',
              'btn-mini btn-mini-peligro',
-             '¿Eliminar esta variante? Las ventas pasadas conservan su nombre y precio.'
+             '¿Eliminar esta variante? Si tiene ventas o movimientos, usa Ocultar para conservar el historial.'
          ) ?>
         </div>
        </td>

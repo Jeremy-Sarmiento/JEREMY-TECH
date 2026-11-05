@@ -1,4 +1,4 @@
-<script>
+<script nonce="<?= htmlspecialchars(\Security\Proteccion::nonce(), ENT_QUOTES, 'UTF-8') ?>">
 // Drawer móvil del panel: abrir/cerrar sin JS de terceros (tema oscuro fijo).
 (function () {
   var shell = document.querySelector('.admin-shell');
@@ -23,7 +23,7 @@
 })();
 </script>
 
-<script>
+<script nonce="<?= htmlspecialchars(\Security\Proteccion::nonce(), ENT_QUOTES, 'UTF-8') ?>">
 // Modales de creación/edición (<dialog> nativo, estilo Filament).
 //  · [data-modal-abrir=ID]   abre el modal; con data-limpiar vacía el formulario.
 //  · [data-modal-cerrar]      cierra; si trae data-volver navega a esa ruta.

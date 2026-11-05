@@ -3,7 +3,7 @@
 Tienda de tecnología en PHP puro (MVC propio) con panel de
 administración y soporte multi-vendedor. BD PostgreSQL `jeremy_tech`.
 
-**Stack:** PHP 8.1+ (probado en 8.5) · PostgreSQL 14+ · PDO `pdo_pgsql`
+**Stack:** PHP 8.2+ (probado en 8.5) · PostgreSQL 14+ · PDO `pdo_pgsql`
 
 ## Entregables
 
@@ -64,9 +64,11 @@ idempotente `database/imagenes-producto.sql` en lugar de reimportar todo.
    `postgresql`. En Runtime selecciona Docker y define `DATABASE_URL` con la
    cadena de Supabase.
 
-3. Al terminar el despliegue, la app queda en
-   `https://<servicio>.onrender.com`. La URL pública se deduce del host y de
-   `X-Forwarded-Proto`, así que los enlaces de los correos salen en HTTPS.
+3. Fija `APP_URL=https://<servicio>.onrender.com`. Configura `TRUSTED_PROXIES`
+   con las IPs exactas de los proxies propios, separadas por comas (IPv4/IPv6,
+   sin CIDR ni comodines). Solo se aceptan X-Forwarded-For/Proto desde esas IPs;
+   el proxy debe añadir el peer a XFF y sobrescribir XFP. Sin proxy, déjalo vacío.
+   Verifica cookies Secure y HTTPS desde la URL pública después del despliegue.
 
 Notas de operación:
 
@@ -78,11 +80,57 @@ Notas de operación:
   `authenticated`, porque la API REST de Supabase queda expuesta con la clave
   anon aunque la app PHP no la use.
 
-## Credenciales
+## Administrador inicial y seguridad
 
-| Rol | Usuario / email | Contraseña |
-| --- | --- | --- |
-| Admin | `admin@example.com` | `jeremytech` |
+El seed conserva los IDs históricos, pero las cuentas de admin y vendedor demo
+quedan desactivadas y sin contraseña utilizable. No hay una contraseña pública
+de administrador. Desde la terminal del servidor, crea o recupera únicamente
+una cuenta admin (no convierte clientes en administradores):
+
+```bash
+export ADMIN_EMAIL=tu-correo@example.com ADMIN_USUARIO=tu-usuario
+read -rs -p 'Nueva contraseña: ' ADMIN_INITIAL_PASSWORD
+export ADMIN_INITIAL_PASSWORD
+php tools/establecer-admin.php
+unset ADMIN_INITIAL_PASSWORD
+```
+
+Requiere 8+ caracteres y rechaza claves comunes. Usa la base configurada en el
+entorno; **verifica el destino antes de ejecutarlo**. No imprime la contraseña.
+Las cuentas ya desplegadas no cambian por actualizar el seed: rota sus claves
+desde el panel o con este comando. La rotación invalida tokens de recuperación,
+pero no cierra sesiones que ya estaban abiertas.
+
+**Excepción temporal de demo:** por decisión del proyecto, el enlace de
+recuperación sigue visible para quien lo solicita. Esto permite tomar cuentas
+activas conociendo su correo; no abrir la demo a usuarios reales hasta retirarlo.
+La pregunta de seguridad tampoco sustituye la verificación por correo.
+
+Los `.env*` reales no entran en Git ni en la imagen Docker. Si una imagen o
+credencial anterior se compartió, rota las claves de BD/chat en el proveedor;
+excluir el archivo ahora no revoca lo que ya se filtró.
+
+La CSP aplica restricciones de objetos, URL base y marcos. La política de
+scripts con nonce está en **Report-Only** para no romper los manejadores inline
+existentes; aún no bloquea scripts no autorizados.
+
+### Actualizar una base existente
+
+No reimportes la estructura ni los datos: recrean tablas. Con respaldo previo,
+aplica `database/integridad-rendimiento.sql` usando `psql` con autocommit, nunca
+`--single-transaction` ni `BEGIN`: crea índices concurrentes y constraints
+`NOT VALID` sin borrar/reparar datos históricos. Las escrituras nuevas sí se
+validan; un UPDATE de una fila histórica inválida puede rechazarse. El propio
+script documenta validación manual y rollback. No se aplica automáticamente al
+desplegar.
+
+Los reportes sin IGV usan la suma de comisión y neto congelados, también para
+ventas anteriores, sin reescribir pagos o liquidaciones. El panel de pedidos
+pagina de 50 en 50 y consulta solo los detalles de esa página.
+
+**Cupones:** sigue pendiente decidir quién financia el descuento y qué productos
+del vendedor participan. El reparto anterior no cambia en esta entrega; no
+activar promociones con productos de terceros sin acordar esa política.
 
 ## Registro de clientes
 

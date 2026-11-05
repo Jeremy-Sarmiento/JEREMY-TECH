@@ -195,10 +195,8 @@ if (!defined('APP_URL')) {
             // con la ruta del script de turno (p. ej. /tmp/...).
             $appUrl = 'http://localhost';
         } else {
-            $esquema = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-                || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https'
-                ? 'https'
-                : 'http';
+            require_once BASE_PATH . '/src/Security/Proteccion.php';
+            $esquema = \Security\Proteccion::esHttps() ? 'https' : 'http';
             $host = preg_replace('/[^A-Za-z0-9.\-:\[\]]/', '', (string) ($_SERVER['HTTP_HOST'] ?? 'localhost'));
             if ($host === '') {
                 $host = 'localhost';
@@ -285,11 +283,15 @@ function conexion(): PDO
             ]
         );
     } catch (Throwable $error) {
+        error_log('Conexión a la base de datos fallida: ' . $error->getMessage());
+        if (PHP_SAPI === 'cli') {
+            fwrite(STDERR, 'No se pudo conectar a la base de datos configurada.' . PHP_EOL);
+            exit(1);
+        }
         http_response_code(500);
         die(
-            'No se pudo conectar a la base de datos configurada. Verifica que ' .
-            'PostgreSQL esté encendido y que la base exista.<br>' .
-            'Detalle técnico: ' . htmlspecialchars($error->getMessage())
+            'No se pudo conectar a la base de datos configurada. ' .
+            'Revisa la configuración del servidor o contacta al administrador.'
         );
     }
 

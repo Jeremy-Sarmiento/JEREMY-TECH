@@ -210,7 +210,7 @@ final class AdminController
             $totales['liquidado']  = \Model\Vendedor::liquidadoDe($vendedorId);
 
             $q = $pdo->prepare(
-                "SELECT COALESCE(SUM(c.monto_venta), 0) FROM comisiones c
+                "SELECT COALESCE(SUM(c.monto_comision + c.monto_vendedor), 0) FROM comisiones c
                    JOIN pedidos p ON p.id = c.pedido_id
                   WHERE c.vendedor_id = ? AND p.estado NOT IN ('Cancelado', 'Pendiente')"
             );
@@ -781,8 +781,18 @@ final class AdminController
 
         if ($subRuta === 'envios/eliminar') {
             $id = (int) ($_POST['id'] ?? 0);
-            $pdo->prepare('DELETE FROM tarifas_envio WHERE id = ?')->execute([$id]);
-            $this->auditar($admin, 'envios/eliminar', $id, 'Eliminó la tarifa #' . $id);
+            try {
+                $pdo->prepare('DELETE FROM tarifas_envio WHERE id = ?')->execute([$id]);
+                $this->auditar($admin, 'envios/eliminar', $id, 'Eliminó la tarifa #' . $id);
+                $this->flash('Tarifa eliminada.');
+            } catch (\PDOException $e) {
+                if (($e->errorInfo[0] ?? '') === '23503') {
+                    $this->flash('No se puede eliminar: la tarifa tiene direcciones asociadas.', true);
+                } else {
+                    error_log('AdminController::envios/eliminar — ' . $e->getMessage());
+                    $this->flash('No se pudo eliminar la tarifa. Inténtalo de nuevo.', true);
+                }
+            }
             header('Location: ?ruta=admin/envios');
             exit;
         }
@@ -920,7 +930,9 @@ final class AdminController
                 if ($pdo->inTransaction()) {
                     $pdo->rollBack();
                 }
-                $this->flash('No se pudo reembolsar el pedido: ' . $e->getMessage(), true);
+                error_log('AdminController::pedidos/reembolsar — ' . $e->getMessage());
+                $this->flash(get_class($e) === \RuntimeException::class
+                    ? $e->getMessage() : 'No se pudo reembolsar el pedido. Inténtalo de nuevo.', true);
                 header('Location: ?ruta=admin/pedidos');
                 exit;
             }
@@ -1090,7 +1102,9 @@ final class AdminController
                 if ($pdo->inTransaction()) {
                     $pdo->rollBack();
                 }
-                $this->flash('No se pudo actualizar el pedido: ' . $e->getMessage(), true);
+                error_log('AdminController::pedidos/estado — ' . $e->getMessage());
+                $this->flash(get_class($e) === \RuntimeException::class
+                    ? $e->getMessage() : 'No se pudo actualizar el pedido. Inténtalo de nuevo.', true);
                 header('Location: ?ruta=admin/pedidos');
                 exit;
             }
@@ -1124,41 +1138,8 @@ final class AdminController
             exit;
         }
 
-        // (Etapa 6) Un vendedor solo ve los pedidos que llevan sus líneas y,
-        // dentro de ellos, solo sus propias líneas.
-        $alcance = \Model\Vendedor::alcancePanelPedidos();
-
-        $adminFilter = (string) ($_GET['estado'] ?? '');
-        $sql = 'SELECT ' . ($alcance[0] !== '' ? 'DISTINCT ' : '')
-             . 'p.*, c.name AS nombre, c.apellidos
-                FROM pedidos p
-                JOIN users c ON c.id = p.cliente_id'
-             . $alcance[0]
-             . ' WHERE ' . $alcance[1];
-        $params = $alcance[3];
-        if ($adminFilter !== '') {
-            $sql .= ' AND p.estado = ?';
-            $params[] = $adminFilter;
-        }
-        $sql .= ' ORDER BY p.id DESC';
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
-        $pedidos = $stmt->fetchAll();
-
-        $sqlDet = 'SELECT dp.*, pd.nombre AS producto_nombre
-                   FROM detalle_pedido dp
-                   JOIN productos pd ON pd.id = dp.producto_id
-                 WHERE ' . $alcance[2];
-        $stmtDet = $pdo->prepare($sqlDet);
-        $stmtDet->execute($alcance[3]);
-        $detalles = $stmtDet->fetchAll();
-
-        $mapa = [];
-        foreach ($detalles as $d) {
-            $mapa[(int) $d['pedido_id']][] = $d;
-        }
-
-        $this->vista('pedidos', ['pedidos' => $pedidos, 'detalles' => $mapa]);
+        // La vista ya consulta y pagina los pedidos; no duplicar todo el historial.
+        $this->vista('pedidos', []);
     }
 
     // ------------------------------------------------------------ //
@@ -1267,10 +1248,8 @@ final class AdminController
                 $error = 'Ingresa un correo electrónico válido.';
             } elseif ($rol !== 'cliente' && $usuario === '') {
                 $error = 'El nombre de usuario es obligatorio para administradores y vendedores.';
-            } elseif (!$esEdicion && strlen($clave) < 6) {
-                $error = 'La contraseña debe tener al menos 6 caracteres.';
-            } elseif ($esEdicion && $clave !== '' && strlen($clave) < 6) {
-                $error = 'La contraseña debe tener al menos 6 caracteres.';
+            } elseif ((!$esEdicion || $clave !== '') && ($errorClave = \Security\Contrasena::error($clave)) !== null) {
+                $error = $errorClave;
             } else {
                 $error = $this->ultimoErrorFlash($pdo, $id, $email, $usuario);
             }
@@ -1531,7 +1510,8 @@ final class AdminController
                 if ($pdo->inTransaction()) {
                     $pdo->rollBack();
                 }
-                $this->flash('No se pudo registrar el ajuste: ' . $e->getMessage(), true);
+                error_log('AdminController::inventario/ajustar — ' . $e->getMessage());
+                $this->flash('No se pudo registrar el ajuste. Inténtalo de nuevo.', true);
                 header('Location: ' . $volver);
                 exit;
             }

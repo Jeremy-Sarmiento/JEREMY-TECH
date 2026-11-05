@@ -110,11 +110,10 @@ final class LimiteIntentos
             . ($minutos === 1 ? '' : 's') . ' antes de volver a intentarlo.';
     }
 
-    /** IP del cliente (solo REMOTE_ADDR; no se confía en cabeceras reenviadas). */
+    /** Misma frontera de confianza que las cookies/cabeceras de seguridad. */
     public static function ipActual(): string
     {
-        $ip = (string) ($_SERVER['REMOTE_ADDR'] ?? '');
-        return filter_var($ip, FILTER_VALIDATE_IP) !== false ? $ip : '';
+        return \Security\Proteccion::ipCliente();
     }
 
     private static function normalizar(string $clave): string

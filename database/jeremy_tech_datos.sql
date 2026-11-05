@@ -1,10 +1,12 @@
 -- Jeremy Tech: datos para PostgreSQL 14+
 -- Requiere haber cargado antes database/jeremy_tech_estructura.sql.
--- Las filas van en orden de dependencia (primero las tablas referenciadas).
+-- La transacción difiere las nuevas FK para cargar hijos antes de sus padres.
 -- Uso: psql -d jeremy_tech -f database/jeremy_tech_datos.sql
 
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
+BEGIN;
+SET CONSTRAINTS ALL DEFERRED;
 
 INSERT INTO auditoria_admin VALUES
 (18,'jeremytech','admin/login',1,'Ingreso al panel de administración','2026-10-27 23:21:00'),
@@ -1304,8 +1306,8 @@ INSERT INTO tokens_recuperacion VALUES
 (2,'cliente',1,'75e2c402bd94ae6120970a34fbb6c85702daf622ba2a9b2a1bcc33ecb06c2ffa','2026-10-28 02:01:43',1,'2026-10-28 01:31:43'),
 (7,'cliente',1,'d1201d02510457be4a0f319b34f6b96809e67d85523bc37ebce87aedfa5239e4','2026-10-28 02:22:47',0,'2026-10-28 01:52:47');
 INSERT INTO users VALUES
-(1,'Admin','Demo','admin@example.com','jeremytech','$2y$12$h6t9y9/nJVYDtYH2nRALUu1WgUv1StECs0MGqmFufzGIn0Jq/XfFK','admin',NULL,0,1,'999000000','Av. Demo 123','C2C','','','','','','','2026-10-29 02:35:28','2026-10-27 01:38:38','2026-10-29 04:52:56',NULL),
-(2,'Vendedor','Demo','vendedor@example.com','vendedor','$2y$12$DAvLpC1IqRUe.mxKXGSlAOrwCF.vKw0EvSj7Ip7yQbDyj3zotI0c6','vendedor',15.00,1,1,'999000001','Av. Demo 123','B2B','','','','','¿Cuál es el nombre de tu primera mascota?','$2y$12$NKjVyGkafkvm3A3QK0TLrOwajZxO9mthKrHo9dgo2PytGc9o1EQNu','2026-10-29 02:09:36','2026-10-27 01:38:38','2026-10-29 04:52:56',NULL),
+(1,'Admin','Demo','admin@example.com','jeremytech','!','admin',NULL,0,0,'999000000','Av. Demo 123','C2C','','','','','','','2026-10-29 02:35:28','2026-10-27 01:38:38','2026-10-29 04:52:56',NULL),
+(2,'Vendedor','Demo','vendedor@example.com','vendedor','!','vendedor',15.00,1,0,'999000001','Av. Demo 123','B2B','','','','','¿Cuál es el nombre de tu primera mascota?','!','2026-10-29 02:09:36','2026-10-27 01:38:38','2026-10-29 04:52:56',NULL),
 (3,'Cliente','','cliente@example.com',NULL,'$2y$12$nD6dIfvWyBC0DwP6UV.IFeNL8vfZE03ehO.LQoyzCOSs6sQW.l6SC','cliente',NULL,0,1,'999000002','Av. Demo 123','B2C','','','','','','',NULL,'2026-10-27 01:38:48','2026-10-29 04:52:56',NULL),
 (11,'Cliente','Demo2','cliente2@example.com','cliente2','$2y$12$9/uh8C2l1U5BBN.ToahxXeNTYeMVYezUl/YOJhFauFV0KXveiB.Dm','cliente',NULL,0,1,'999000003','Av. Demo 123','B2C','Empresa Demo','20123456789','','00000001','¿En qué ciudad naciste?','$2y$12$NO4DkvjUt40RSSlr9.OLPONJltsrf09L9TTSJqVIwPjrGe6fDPr0K',NULL,'2026-10-28 02:55:40','2026-10-29 04:52:56',NULL),
 (18,'Empresa','Demo','empresa@example.com','empresa','$2y$12$yfzi08jn2TafhdIYcZrtqeYOys6IGvLDpAXMx6vISKUoABH/l1yxa','vendedor',NULL,0,1,'999000004','Av. Demo 123','B2B','Empresa Demo SAC','20123456789','','00000002','¿En qué ciudad naciste?','$2y$12$cJU1qPj9CIbswjSnhY3PVe0tXNpmU2JSXF076g8L//GxyxoeS1QQO',NULL,'2026-10-29 02:38:55','2026-10-29 04:52:56',NULL);
@@ -1572,3 +1574,4 @@ SELECT setval(pg_get_serial_sequence('soporte_tickets', 'id'), COALESCE((SELECT 
 SELECT setval(pg_get_serial_sequence('tarifas_envio', 'id'), COALESCE((SELECT MAX(id) FROM tarifas_envio), 1), (SELECT COUNT(*) > 0 FROM tarifas_envio));
 SELECT setval(pg_get_serial_sequence('tokens_recuperacion', 'id'), COALESCE((SELECT MAX(id) FROM tokens_recuperacion), 1), (SELECT COUNT(*) > 0 FROM tokens_recuperacion));
 SELECT setval(pg_get_serial_sequence('users', 'id'), COALESCE((SELECT MAX(id) FROM users), 1), (SELECT COUNT(*) > 0 FROM users));
+COMMIT;

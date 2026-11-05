@@ -183,13 +183,16 @@
      </p>
      <?php endif; ?>
 
-     <?php if (!$archivada): ?>
+     <?php if (!$archivada && (int) ($p['variantes_total'] ?? 0) > 0): ?>
+     <p class="pv-sub">Ajusta el stock desde <a href="?ruta=mis-productos/editar&amp;slug=<?= urlencode($slug) ?>#variantes">cada variante</a>.</p>
+     <?php elseif (!$archivada): ?>
      <form method="post" action="?ruta=mis-productos/stock" class="pv-stock-form">
       <?= \Security\Proteccion::campo() ?>
       <input type="hidden" name="slug" value="<?= $e($slug) ?>"/>
+      <input type="hidden" name="stock_original" value="<?= $stock ?>"/>
       <label for="stock-<?= (int) ($p['id'] ?? 0) ?>">Stock</label>
       <input id="stock-<?= (int) ($p['id'] ?? 0) ?>" type="number" name="stock"
-             min="0" step="1" value="<?= $stock ?>" inputmode="numeric"/>
+             min="0" max="9999999" step="1" value="<?= $stock ?>" inputmode="numeric"/>
       <button type="submit" class="btn-mini">Actualizar</button>
      </form>
      <?php endif; ?>

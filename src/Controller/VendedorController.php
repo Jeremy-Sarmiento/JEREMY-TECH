@@ -218,11 +218,22 @@ class VendedorController
         $stockRaw = isset($_POST['stock']) && is_scalar($_POST['stock'])
             ? trim((string) $_POST['stock'])
             : '';
+        $stockOriginalRaw = isset($_POST['stock_original']) && is_scalar($_POST['stock_original'])
+            ? trim((string) $_POST['stock_original'])
+            : '';
 
-        if ($slug === '' || !preg_match('/^\d+$/', $stockRaw)) {
-            self::guardarFlash('Ingresa un stock válido (número entero mayor o igual a 0).', true);
-        } elseif (!ProductoVendedor::actualizarStock((int) $vendedor['id'], $slug, (int) $stockRaw)) {
-            self::guardarFlash('No se pudo actualizar el stock del producto.', true);
+        if ($slug === '' || !preg_match('/^\d+$/', $stockRaw) || (int) $stockRaw > 9999999) {
+            self::guardarFlash('Ingresa un stock válido (entero entre 0 y 9 999 999).', true);
+        } elseif (!preg_match('/^\d+$/', $stockOriginalRaw) || (int) $stockOriginalRaw > 9999999) {
+            self::guardarFlash('Falta un stock original válido. Recarga la página antes de guardar.', true);
+        } elseif (!ProductoVendedor::actualizarStock(
+            (int) $vendedor['id'],
+            $slug,
+            (int) $stockRaw,
+            (int) $stockOriginalRaw,
+            $errorStock
+        )) {
+            self::guardarFlash($errorStock ?? 'No se pudo actualizar el stock del producto.', true);
         } else {
             self::guardarFlash('Stock actualizado.');
         }
@@ -390,8 +401,8 @@ class VendedorController
             ? (int) $_POST['id']
             : 0;
 
-        if ($slug === '' || !ProductoVendedor::eliminarVariante((int) $vendedor['id'], $slug, $id)) {
-            self::guardarFlash('No se pudo eliminar la variante.', true);
+        if ($slug === '' || !ProductoVendedor::eliminarVariante((int) $vendedor['id'], $slug, $id, $errorVariante)) {
+            self::guardarFlash($errorVariante ?? 'No se pudo eliminar la variante.', true);
         } else {
             self::guardarFlash('Variante eliminada.');
         }
@@ -620,6 +631,7 @@ class VendedorController
             'codigo_sku' => (string) ($producto['codigo_sku'] ?? ''),
             'precio_pen' => (string) ($producto['precio_pen'] ?? ''),
             'stock' => (string) ($producto['stock'] ?? '0'),
+            'stock_original' => (string) ($producto['stock'] ?? '0'),
             'stock_minimo' => (string) ($producto['stock_minimo'] ?? '5'),
             'peso_kg' => $producto['peso_kg'] !== null ? (string) $producto['peso_kg'] : '',
             'dimensiones' => (string) ($producto['dimensiones'] ?? ''),
@@ -642,7 +654,7 @@ class VendedorController
 
         $permitidos = [
             'nombre', 'modelo', 'categoria', 'marca_id', 'garantia_id', 'codigo_sku',
-            'precio_pen', 'stock', 'stock_minimo', 'peso_kg', 'dimensiones',
+            'precio_pen', 'stock', 'stock_original', 'stock_minimo', 'peso_kg', 'dimensiones',
             'especificaciones', 'colores', 'imagen', 'activo',
         ];
         $borrador = [];

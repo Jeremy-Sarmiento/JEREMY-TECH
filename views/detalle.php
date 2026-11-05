@@ -332,7 +332,7 @@ $datosJS = [
     </section>
 </section>
 
-<script>
+<script nonce="<?= htmlspecialchars(\Security\Proteccion::nonce(), ENT_QUOTES, 'UTF-8') ?>">
 window.JT_PRODUCTO = <?= json_encode($datosJS, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 </script>
 <script src="js/producto.js"></script>

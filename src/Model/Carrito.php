@@ -439,6 +439,10 @@ class Carrito
                 }
             }
 
+            // Bloquear inventario antes del detalle: las FK toman KEY SHARE;
+            // invertir este orden provoca deadlocks entre compras del mismo producto.
+            Inventario::descontar($pdo, $lineas, $pedidoId);
+
             // 3. Detalle del pedido. `vendedor_id` se copia del producto en
             //    el momento de la compra: una línea histórica no cambia de
             //    dueño aunque el producto se reasigne después.
@@ -473,13 +477,6 @@ class Carrito
                 $reparto[$vendedorId] += (float) $linea['subtotal'];
             }
 
-            // (Etapa 8) Se descuenta el stock REAL de producto y variante con
-            // bloqueo de fila (SELECT ... FOR UPDATE). Si no alcanza, lanza y
-            // toda la transacción hace rollback: ni el pedido, ni las
-            // comisiones, ni el stock quedan a medias. Es lo único que impide
-            // que dos compras simultáneas vendan la misma última unidad.
-            Inventario::descontar($pdo, $lineas, $pedidoId);
-
             // 4. Reparto de comisiones (Etapa 6): UNA fila por pedido y
             //    vendedor, con el porcentaje congelado al comprar. El reparto
             //    se hace sobre la base SIN IGV.
@@ -496,7 +493,7 @@ class Carrito
                 $stmtComision->execute([
                     $pedidoId,
                     (int) $vendedorId,
-                    round($ventaVendedor, 2),
+                    $repartido['base'],
                     $repartido['porcentaje'],
                     $repartido['comision'],
                     $repartido['vendedor'],

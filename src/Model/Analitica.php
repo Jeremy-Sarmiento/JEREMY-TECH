@@ -9,7 +9,7 @@ namespace Model;
  *
  * Escribe los eventos que reciben el endpoint público y calcula los agregados
  * que consume el dashboard del panel. Los eventos se guardan en
- * `eventos_analitica`; el payload se guarda como JSON acotado a 1000 bytes.
+ * `eventos_analitica`; el payload se guarda como JSON de hasta 1000 caracteres.
  *
  * Reglas:
  *  - No se aceptan eventos desconocidos desde el endpoint: el controlador valida
@@ -28,6 +28,12 @@ final class Analitica
      */
     public static function registrar(string $tipoEvento, array $datos = [], string $pagina = '', ?int $clienteId = null): bool
     {
+        $datosJson = json_encode($datos, JSON_UNESCAPED_UNICODE) ?: '{}';
+        // Conserva el evento sin datos ilegibles: el JSON antes truncado ya se leía como payload vacío.
+        if (mb_strlen($datosJson) > 1000) {
+            $datosJson = '{}';
+        }
+
         $pdo = conexion();
 
         $stmt = $pdo->prepare(
@@ -37,7 +43,7 @@ final class Analitica
 
         return (bool) $stmt->execute([
             mb_substr($tipoEvento, 0, 60),
-            mb_substr(json_encode($datos, JSON_UNESCAPED_UNICODE) ?: '{}', 0, 1000),
+            $datosJson,
             mb_substr(trim($pagina), 0, 80),
             $clienteId,
         ]);
@@ -46,41 +52,20 @@ final class Analitica
     /**
      * Eventos dentro de un rango (fechas `Y-m-d`) y opcionalmente acotados a un
      * vendedor. Para un vendedor se filtran los eventos que remiten a productos
-     * de ese vendedor (payload con `producto_id`).
+     * de ese vendedor (payload con `producto_id` o `slug`).
      *
      * @return array<int, array<string, mixed>>
      */
     public static function eventosEntre(?string $desde = null, ?string $hasta = null, ?int $vendedorId = null): array
     {
-        $desdeSql = ($desde !== null && trim($desde) !== '') ? date('Y-m-d 00:00:00', strtotime($desde)) : '1970-01-01 00:00:00';
-        $hastaSql = ($hasta !== null && trim($hasta) !== '') ? date('Y-m-d 23:59:59', strtotime($hasta)) : date('Y-m-d 23:59:59');
-
-        $stmt = conexion()->prepare(
-            'SELECT id, tipo_evento, datos_json, pagina, cliente_id, creado_en
-               FROM eventos_analitica
-              WHERE creado_en BETWEEN ? AND ?'
+        $stmt = self::consultarEntre(
+            'SELECT id, tipo_evento, datos_json, pagina, cliente_id, creado_en FROM eventos',
+            $desde,
+            $hasta,
+            $vendedorId
         );
-        $stmt->execute([$desdeSql, $hastaSql]);
-        $filas = $stmt->fetchAll();
 
-        if ($vendedorId === null) {
-            return $filas;
-        }
-
-        $ids = self::idsDeVendedor($vendedorId);
-        if ($ids === []) {
-            return [];
-        }
-
-        $resultado = [];
-        foreach ($filas as $fila) {
-            if (!self::perteneceAVendedor((string) ($fila['tipo_evento'] ?? ''), (string) ($fila['datos_json'] ?? '{}'), $ids)) {
-                continue;
-            }
-            $resultado[] = $fila;
-        }
-
-        return $resultado;
+        return $stmt->fetchAll();
     }
 
     /**
@@ -90,51 +75,35 @@ final class Analitica
      */
     public static function resumenEntre(?string $desde = null, ?string $hasta = null, ?int $vendedorId = null): array
     {
-        $eventos = self::eventosEntre($desde, $hasta, $vendedorId);
-
-        $metricas = [
-            'visitas' => 0,
-            'vistas_producto' => 0,
-            'busquedas' => 0,
-            'agregados_carrito' => 0,
-            'checkouts' => 0,
-            'compras' => 0,
-            'ingresos_pen' => 0.0,
-            'clics_whatsapp' => 0,
-        ];
-
-        foreach ($eventos as $evento) {
-            $tipo = (string) ($evento['tipo_evento'] ?? '');
-            $datos = json_decode((string) ($evento['datos_json'] ?? '{}'), true);
-            if (!is_array($datos)) {
-                $datos = [];
-            }
-
-            switch ($tipo) {
-                case 'visita':
-                    $metricas['visitas']++;
-                    break;
-                case 'producto_visto':
-                    $metricas['vistas_producto']++;
-                    break;
-                case 'busqueda':
-                    $metricas['busquedas']++;
-                    break;
-                case 'agregar_carrito':
-                    $metricas['agregados_carrito']++;
-                    break;
-                case 'iniciar_checkout':
-                    $metricas['checkouts']++;
-                    break;
-                case 'compra':
-                    $metricas['compras']++;
-                    $metricas['ingresos_pen'] += (float) ($datos['total_pen'] ?? 0);
-                    break;
-                case 'clic_whatsapp':
-                    $metricas['clics_whatsapp']++;
-                    break;
+        $stmt = self::consultarEntre(
+            "SELECT tipo_evento, COUNT(*) AS c,
+                   SUM(CASE WHEN tipo_evento = 'compra'
+                       THEN pg_temp.analitica_numero(datos ->> 'total_pen') ELSE 0 END) AS ingresos
+               FROM eventos
+               GROUP BY tipo_evento",
+            $desde,
+            $hasta,
+            $vendedorId
+        );
+        $porTipo = [];
+        $ingresos = 0.0;
+        foreach ($stmt->fetchAll() as $fila) {
+            $porTipo[(string) $fila['tipo_evento']] = (int) $fila['c'];
+            if ($fila['tipo_evento'] === 'compra') {
+                $ingresos = (float) $fila['ingresos'];
             }
         }
+
+        $metricas = [
+            'visitas' => $porTipo['visita'] ?? 0,
+            'vistas_producto' => $porTipo['producto_visto'] ?? 0,
+            'busquedas' => $porTipo['busqueda'] ?? 0,
+            'agregados_carrito' => $porTipo['agregar_carrito'] ?? 0,
+            'checkouts' => $porTipo['iniciar_checkout'] ?? 0,
+            'compras' => $porTipo['compra'] ?? 0,
+            'ingresos_pen' => $ingresos,
+            'clics_whatsapp' => $porTipo['clic_whatsapp'] ?? 0,
+        ];
 
         $metricas['tasa_conversion'] = $metricas['visitas'] > 0
             ? round(($metricas['compras'] / $metricas['visitas']) * 100, 2)
@@ -150,37 +119,29 @@ final class Analitica
      */
     public static function topProductosEntre(?string $desde = null, ?string $hasta = null, int $limite = 10, ?int $vendedorId = null): array
     {
-        $eventos = self::eventosEntre($desde, $hasta, $vendedorId);
-        $agrupados = [];
-
-        foreach ($eventos as $evento) {
-            $tipo = (string) ($evento['tipo_evento'] ?? '');
-            if (!in_array($tipo, ['producto_visto', 'agregar_carrito', 'compra'], true)) {
-                continue;
-            }
-            $datos = json_decode((string) ($evento['datos_json'] ?? '{}'), true);
-            if (!is_array($datos)) {
-                continue;
-            }
-            $productoId = (int) ($datos['producto_id'] ?? 0);
-            $clave = $productoId > 0 ? 'id:' . $productoId : 'slug:' . mb_strtolower(trim((string) ($datos['slug'] ?? '')));
-            if ($clave === 'slug:') {
-                continue;
-            }
-            $agrupados[$clave] = ($agrupados[$clave] ?? 0) + 1;
-        }
-
-        $ordenados = array_keys($agrupados);
-        usort($ordenados, static function (string $a, string $b) use ($agrupados): int {
-            return $agrupados[$b] <=> $agrupados[$a];
-        });
+        $stmt = self::consultarEntre(
+            "SELECT
+                CASE WHEN producto_id > 0 THEN 'id:' || producto_id::text ELSE 'slug:' || slug END AS clave,
+                COUNT(*) AS c
+             FROM eventos
+             WHERE tipo_evento IN ('producto_visto','agregar_carrito','compra')
+               AND (producto_id > 0 OR slug <> '')
+             GROUP BY 1
+             ORDER BY c DESC, MIN(id)
+             LIMIT " . max(1, $limite),
+            $desde,
+            $hasta,
+            $vendedorId
+        );
+        $filas = $stmt->fetchAll();
 
         $resultado = [];
-        foreach (array_slice($ordenados, 0, max(1, $limite)) as $clave) {
+        foreach ($filas as $fila) {
+            $clave = (string) $fila['clave'];
             $resultado[] = [
                 'clave'  => $clave,
                 'etiqueta' => self::etiquetaProducto($clave),
-                'interacciones' => (int) $agrupados[$clave],
+                'interacciones' => (int) $fila['c'],
             ];
         }
 
@@ -194,31 +155,26 @@ final class Analitica
      */
     public static function chatbotEntre(?string $desde = null, ?string $hasta = null): array
     {
-        $eventos = self::eventosEntre($desde, $hasta);
-        $metricas = [
-            'total_preguntas' => 0,
-            'faq' => 0,
-            'ia' => 0,
-            'fallback' => 0,
+        $stmt = self::consultarEntre(
+            "SELECT
+                COUNT(*) AS total,
+                COUNT(*) FILTER (WHERE datos ->> 'origen' = 'faq') AS faq,
+                COUNT(*) FILTER (WHERE datos ->> 'origen' = 'ia') AS ia,
+                COUNT(*) FILTER (WHERE COALESCE(datos ->> 'origen', '') NOT IN ('faq', 'ia')) AS fallback
+             FROM eventos
+             WHERE tipo_evento = 'pregunta_chatbot'",
+            $desde,
+            $hasta,
+            null
+        );
+        $fila = $stmt->fetch() ?: [];
+
+        return [
+            'total_preguntas' => (int) ($fila['total'] ?? 0),
+            'faq' => (int) ($fila['faq'] ?? 0),
+            'ia' => (int) ($fila['ia'] ?? 0),
+            'fallback' => (int) ($fila['fallback'] ?? 0),
         ];
-
-        foreach ($eventos as $evento) {
-            if ((string) ($evento['tipo_evento'] ?? '') !== 'pregunta_chatbot') {
-                continue;
-            }
-            $metricas['total_preguntas']++;
-            $datos = json_decode((string) ($evento['datos_json'] ?? '{}'), true);
-            $origen = (string) ($datos['origen'] ?? 'fallback');
-            if ($origen === 'faq') {
-                $metricas['faq']++;
-            } elseif ($origen === 'ia') {
-                $metricas['ia']++;
-            } else {
-                $metricas['fallback']++;
-            }
-        }
-
-        return $metricas;
     }
 
     /**
@@ -228,30 +184,23 @@ final class Analitica
      */
     public static function topPaginasEntre(?string $desde = null, ?string $hasta = null, int $limite = 10, ?int $vendedorId = null): array
     {
-        $eventos = self::eventosEntre($desde, $hasta, $vendedorId);
-        $agrupados = [];
-
-        foreach ($eventos as $evento) {
-            if ((string) ($evento['tipo_evento'] ?? '') !== 'visita') {
-                continue;
-            }
-            $pagina = mb_strtolower(trim((string) ($evento['pagina'] ?? '')));
-            if ($pagina === '') {
-                $pagina = 'inicio';
-            }
-            $agrupados[$pagina] = ($agrupados[$pagina] ?? 0) + 1;
-        }
-
-        $ordenados = array_keys($agrupados);
-        usort($ordenados, static function (string $a, string $b) use ($agrupados): int {
-            return $agrupados[$b] <=> $agrupados[$a];
-        });
+        $stmt = self::consultarEntre(
+            "SELECT COALESCE(NULLIF(lower(btrim(pagina, E' \\t\\n\\r\\013')), ''), 'inicio') AS pagina, COUNT(*) AS c
+               FROM eventos
+              WHERE tipo_evento = 'visita'
+              GROUP BY 1
+              ORDER BY c DESC, MIN(id)
+              LIMIT " . max(1, $limite),
+            $desde,
+            $hasta,
+            $vendedorId
+        );
+        $filas = $stmt->fetchAll();
 
         $resultado = [];
-        foreach (array_slice($ordenados, 0, max(1, $limite)) as $pagina) {
-            $resultado[] = ['pagina' => $pagina, 'visitas' => (int) $agrupados[$pagina]];
+        foreach ($filas as $fila) {
+            $resultado[] = ['pagina' => (string) $fila['pagina'], 'visitas' => (int) $fila['c']];
         }
-
         return $resultado;
     }
 
@@ -262,34 +211,24 @@ final class Analitica
      */
     public static function topBusquedasEntre(?string $desde = null, ?string $hasta = null, int $limite = 10, ?int $vendedorId = null): array
     {
-        $eventos = self::eventosEntre($desde, $hasta, $vendedorId);
-        $agrupados = [];
-
-        foreach ($eventos as $evento) {
-            if ((string) ($evento['tipo_evento'] ?? '') !== 'busqueda') {
-                continue;
-            }
-            $datos = json_decode((string) ($evento['datos_json'] ?? '{}'), true);
-            if (!is_array($datos)) {
-                continue;
-            }
-            $consulta = mb_strtolower(trim((string) ($datos['consulta'] ?? '')));
-            if ($consulta === '') {
-                continue;
-            }
-            $agrupados[$consulta] = ($agrupados[$consulta] ?? 0) + 1;
-        }
-
-        $ordenados = array_keys($agrupados);
-        usort($ordenados, static function (string $a, string $b) use ($agrupados): int {
-            return $agrupados[$b] <=> $agrupados[$a];
-        });
+        $stmt = self::consultarEntre(
+            "SELECT lower(btrim(datos ->> 'consulta', E' \\t\\n\\r\\013')) AS consulta, COUNT(*) AS c
+               FROM eventos
+              WHERE tipo_evento = 'busqueda'
+                AND btrim(datos ->> 'consulta', E' \\t\\n\\r\\013') <> ''
+              GROUP BY 1
+              ORDER BY c DESC, MIN(id)
+              LIMIT " . max(1, $limite),
+            $desde,
+            $hasta,
+            $vendedorId
+        );
+        $filas = $stmt->fetchAll();
 
         $resultado = [];
-        foreach (array_slice($ordenados, 0, max(1, $limite)) as $consulta) {
-            $resultado[] = ['consulta' => $consulta, 'busquedas' => (int) $agrupados[$consulta]];
+        foreach ($filas as $fila) {
+            $resultado[] = ['consulta' => (string) $fila['consulta'], 'busquedas' => (int) $fila['c']];
         }
-
         return $resultado;
     }
 
@@ -300,56 +239,19 @@ final class Analitica
      */
     public static function eventosPorTipoEntre(?string $desde = null, ?string $hasta = null, ?int $vendedorId = null): array
     {
-        $eventos = self::eventosEntre($desde, $hasta, $vendedorId);
+        $stmt = self::consultarEntre(
+            'SELECT tipo_evento, COUNT(*) AS c
+               FROM eventos
+               GROUP BY tipo_evento',
+            $desde,
+            $hasta,
+            $vendedorId
+        );
         $porTipo = [];
-
-        foreach ($eventos as $evento) {
-            $tipo = (string) ($evento['tipo_evento'] ?? '');
-            $porTipo[$tipo] = ($porTipo[$tipo] ?? 0) + 1;
-        }
-
-        return $porTipo;
-    }
-
-    private static function idsDeVendedor(int $vendedorId): array
-    {
-        $stmt = conexion()->prepare('SELECT id FROM productos WHERE vendedor_id = ?');
-        $stmt->execute([$vendedorId]);
-        $ids = [];
         foreach ($stmt->fetchAll() as $fila) {
-            $ids[] = (int) $fila['id'];
+            $porTipo[(string) $fila['tipo_evento']] = (int) $fila['c'];
         }
-
-        return $ids;
-    }
-
-    private static function perteneceAVendedor(string $tipo, string $datosJson, array $ids): bool
-    {
-        if ($tipo === 'visita' || $tipo === 'busqueda' || $tipo === 'clic_whatsapp') {
-            // Sin producto en el payload no se puede acotar a un vendedor.
-            return false;
-        }
-
-        $datos = json_decode($datosJson, true);
-        if (!is_array($datos)) {
-            return false;
-        }
-
-        $productoId = (int) ($datos['producto_id'] ?? 0);
-        if ($productoId > 0) {
-            return in_array($productoId, $ids, true);
-        }
-
-        $slug = mb_strtolower(trim((string) ($datos['slug'] ?? '')));
-        if ($slug === '') {
-            return false;
-        }
-
-        $stmt = conexion()->prepare('SELECT id FROM productos WHERE slug = ?');
-        $stmt->execute([$slug]);
-        $productoId = (int) ($stmt->fetchColumn() ?: 0);
-
-        return in_array($productoId, $ids, true);
+        return $porTipo;
     }
 
     private static function etiquetaProducto(string $clave): string
@@ -390,5 +292,93 @@ final class Analitica
         }
 
         return (int) $fechaHora->getTimestamp();
+    }
+
+    private static function consultarEntre(string $consulta, ?string $desde, ?string $hasta, ?int $vendedorId): \PDOStatement
+    {
+        $pdo = conexion();
+        $transaccionPropia = !$pdo->inTransaction();
+        // Mantiene las funciones temporales y la consulta en la misma sesión incluso con pooler transaccional.
+        if ($transaccionPropia) {
+            $pdo->beginTransaction();
+        }
+
+        try {
+            [$eventosSql, $params] = self::eventosSql($desde, $hasta, $vendedorId);
+            $stmt = $pdo->prepare($eventosSql . ' ' . $consulta);
+            $stmt->execute($params);
+            if ($transaccionPropia) {
+                $pdo->commit();
+            }
+            return $stmt;
+        } catch (\Throwable $error) {
+            if ($transaccionPropia && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $error;
+        }
+    }
+
+    /**
+     * Fuente SQL compartida para agregar sin traer todos los eventos a PHP.
+     *
+     * @return array{string, array}
+     */
+    private static function eventosSql(?string $desde, ?string $hasta, ?int $vendedorId): array
+    {
+        // PG14 no tiene pg_input_is_valid; estas funciones son solo de sesión y no reescriben históricos.
+        conexion()->exec(<<<'SQL'
+            CREATE OR REPLACE FUNCTION pg_temp.analitica_jsonb(valor text) RETURNS jsonb
+            LANGUAGE plpgsql IMMUTABLE AS $$
+            BEGIN
+                RETURN COALESCE(valor::jsonb, '{}'::jsonb);
+            EXCEPTION WHEN data_exception THEN
+                RETURN '{}'::jsonb;
+            END;
+            $$;
+            CREATE OR REPLACE FUNCTION pg_temp.analitica_numero(valor text) RETURNS numeric
+            LANGUAGE plpgsql IMMUTABLE AS $$
+            BEGIN
+                RETURN COALESCE(substring(valor FROM '^[[:space:]]*[+-]?(?:[0-9]+(?:[.][0-9]*)?|[.][0-9]+)(?:[eE][+-]?[0-9]+)?')::numeric, 0);
+            EXCEPTION WHEN data_exception THEN
+                RETURN 0;
+            END;
+            $$;
+            SQL);
+
+        $desdeSql = ($desde !== null && trim($desde) !== '')
+            ? date('Y-m-d 00:00:00', strtotime($desde))
+            : '1970-01-01 00:00:00';
+        $hastaSql = ($hasta !== null && trim($hasta) !== '')
+            ? date('Y-m-d 23:59:59', strtotime($hasta))
+            : date('Y-m-d 23:59:59');
+
+        $params = [$desdeSql, $hastaSql];
+        $filtroVendedor = '';
+
+        if ($vendedorId !== null) {
+            $filtroVendedor = "WHERE tipo_evento NOT IN ('visita','busqueda','clic_whatsapp')
+                AND EXISTS (
+                    SELECT 1 FROM productos p WHERE p.vendedor_id = ?
+                    AND CASE WHEN e.producto_id > 0 THEN p.id = e.producto_id
+                             ELSE p.slug = NULLIF(e.slug, '') END
+                )";
+            $params[] = $vendedorId;
+        }
+
+        $sql = "WITH datos_eventos AS (
+                    SELECT ea.*, pg_temp.analitica_jsonb(datos_json) AS datos
+                    FROM eventos_analitica ea WHERE creado_en BETWEEN ? AND ?
+                ), eventos_normalizados AS (
+                    SELECT *,
+                        LEAST(GREATEST(trunc(pg_temp.analitica_numero(datos ->> 'producto_id')),
+                            -9223372036854775808), 9223372036854775807)::bigint AS producto_id,
+                        lower(btrim(COALESCE(datos ->> 'slug', ''), E' \\t\\n\\r\\013')) AS slug
+                    FROM datos_eventos
+                ), eventos AS (
+                    SELECT * FROM eventos_normalizados e $filtroVendedor
+                )";
+
+        return [$sql, $params];
     }
 }

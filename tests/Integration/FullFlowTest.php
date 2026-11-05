@@ -35,8 +35,8 @@ class FullFlowTest extends TestCase
             'tarifa_envio_id' => 1,
             'latitud' => '',
             'longitud' => '',
-            'password' => 'password123',
-            'confirmar' => 'password123',
+            'password' => 'Ejemplo-Pruebas-2026!',
+            'confirmar' => 'Ejemplo-Pruebas-2026!',
             'pregunta_secreta' => '¿Cuál es el nombre de tu primera mascota?',
             'respuesta_secreta' => 'firulais',
         ];
@@ -104,8 +104,8 @@ class FullFlowTest extends TestCase
             'tarifa_envio_id' => 1,
             'latitud' => '',
             'longitud' => '',
-            'password' => 'password123',
-            'confirmar' => 'password123',
+            'password' => 'Ejemplo-Pruebas-2026!',
+            'confirmar' => 'Ejemplo-Pruebas-2026!',
             'pregunta_secreta' => '¿En qué ciudad naciste?',
             'respuesta_secreta' => 'Arequipa',
         ];
@@ -149,8 +149,8 @@ class FullFlowTest extends TestCase
             'tarifa_envio_id' => 1,
             'latitud' => '',
             'longitud' => '',
-            'password' => 'password123',
-            'confirmar' => 'password123',
+            'password' => 'Ejemplo-Pruebas-2026!',
+            'confirmar' => 'Ejemplo-Pruebas-2026!',
             'pregunta_secreta' => '¿Cómo se llamaba tu colegio de primaria?',
             'respuesta_secreta' => 'Colegio 123',
         ];

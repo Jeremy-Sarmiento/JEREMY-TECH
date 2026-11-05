@@ -14,6 +14,7 @@ namespace Security;
 final class Proteccion
 {
     private const CLAVE_TOKEN = '_csrf_token';
+    private static ?string $nonce = null;
 
     /** Arranca la sesión con cookies endurecidas (idempotente). */
     public static function iniciarSesion(): void
@@ -41,6 +42,12 @@ final class Proteccion
         session_start();
     }
 
+    /** Genera y devuelve el nonce CSP de la petición actual. */
+    public static function nonce(): string
+    {
+        return self::$nonce ??= bin2hex(random_bytes(16));
+    }
+
     /** Cabeceras de seguridad comunes. */
     public static function cabeceras(): void
     {
@@ -55,7 +62,20 @@ final class Proteccion
         header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
         header('X-Permitted-Cross-Domain-Policies: none');
 
-        if (self::esHttps()) {
+        header("Content-Security-Policy: base-uri 'self'; object-src 'none'; frame-ancestors 'self'");
+
+        // shortcut: CSP de scripts solo report-only; aplicar tras migrar onclick/onsubmit e inventariar imágenes de vendedores.
+        // Google Fonts, Leaflet/OSM y el cambio PEN son los únicos proveedores de recursos fijos de las vistas/JS.
+        $https = self::esHttps();
+        $nonce = self::nonce();
+        $csp = "default-src 'self'; script-src 'self' 'nonce-" . $nonce . "' https://unpkg.com/leaflet@1.9.4/dist/leaflet.js; "
+            . "script-src-attr 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com/leaflet@1.9.4/dist/leaflet.css; "
+            . "img-src 'self' data: https://unpkg.com/leaflet@1.9.4/dist/images/ https://*.tile.openstreetmap.org; "
+            . "font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://open.er-api.com/v6/latest/PEN; "
+            . "object-src 'none'; frame-ancestors 'self'; base-uri 'self'; form-action 'self'";
+        header('Content-Security-Policy-Report-Only: ' . $csp);
+
+        if ($https) {
             header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
         }
 
@@ -220,13 +240,61 @@ final class Proteccion
             || str_contains($acepta, 'application/json');
     }
 
-    private static function esHttps(): bool
+    /** IP real: solo se retiran saltos de proxies IP explícitos en TRUSTED_PROXIES (separados por comas). */
+    public static function ipCliente(): string
+    {
+        $remoto = $_SERVER['REMOTE_ADDR'] ?? '';
+        if (!is_string($remoto) || filter_var($remoto, FILTER_VALIDATE_IP) === false) {
+            return '';
+        }
+
+        $forwarded = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
+        if (!self::esProxyConfiable($remoto) || !is_string($forwarded) || trim($forwarded) === '') {
+            return $remoto;
+        }
+
+        $actual = $remoto;
+        foreach (array_reverse(explode(',', $forwarded)) as $ip) {
+            if (!self::esProxyConfiable($actual)) {
+                break;
+            }
+            $ip = trim($ip);
+            if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+                return $remoto;
+            }
+            $actual = $ip;
+        }
+
+        return $actual;
+    }
+
+    /** El proxy configurado debe sobrescribir X-Forwarded-Proto y añadir su peer a X-Forwarded-For. */
+    public static function esHttps(): bool
     {
         if (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off') {
             return true;
         }
 
-        return strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
+        $remoto = $_SERVER['REMOTE_ADDR'] ?? '';
+        $proto = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '';
+
+        return is_string($remoto) && self::esProxyConfiable($remoto)
+            && is_string($proto) && strtolower($proto) === 'https';
+    }
+
+    private static function esProxyConfiable(string $ip): bool
+    {
+        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+            return false;
+        }
+        foreach (explode(',', (string) getenv('TRUSTED_PROXIES')) as $proxy) {
+            $proxy = trim($proxy);
+            if (filter_var($proxy, FILTER_VALIDATE_IP) !== false && inet_pton($ip) === inet_pton($proxy)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static function html(string $valor): string

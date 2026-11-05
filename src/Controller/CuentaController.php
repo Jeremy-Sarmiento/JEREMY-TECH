@@ -336,13 +336,14 @@ class CuentaController
 
             if ($token !== null) {
                 $enlace = APP_URL . '/index.php?ruta=login/restablecer&token=' . urlencode($token);
+                // shortcut: enlace visible para la demo; retirarlo antes de abrir a usuarios reales.
                 self::guardarFlash(
                     'Enlace de recuperación generado (modo demo):<br>'
                     . '<a href="' . htmlspecialchars($enlace) . '" target="_blank" rel="noopener">'
                     . htmlspecialchars($enlace) . '</a><br>'
                     . 'El enlace vence en ' . 30 . ' minutos y solo puede usarse una vez.',
                     false,
-                    true // permitir HTML
+                    true
                 );
             } else {
                 self::guardarFlash(

@@ -159,12 +159,12 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
     <div class="form-row">
      <div class="form-group">
       <label for="regPassword">Contraseña (mín. 6) *</label>
-      <input type="password" id="regPassword" name="password" minlength="6"
+      <input type="password" id="regPassword" name="password" minlength="8"
              autocomplete="new-password" required/>
      </div>
      <div class="form-group">
       <label for="regConfirmar">Confirmar contraseña *</label>
-      <input type="password" id="regConfirmar" name="confirmar" minlength="6"
+      <input type="password" id="regConfirmar" name="confirmar" minlength="8"
              autocomplete="new-password" required/>
      </div>
     </div>
@@ -222,7 +222,7 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
  </div>
 </main>
 
-<script>
+<script nonce="<?= htmlspecialchars(\Security\Proteccion::nonce(), ENT_QUOTES, 'UTF-8') ?>">
  function mostrarForm(nombre) {
   document.getElementById('formIniciar').style.display = (nombre === 'iniciar') ? '' : 'none';
   document.getElementById('formRegistro').style.display = (nombre === 'registro') ? '' : 'none';
@@ -293,7 +293,7 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
 
 <!-- Mapa opcional de precisión de entrega: Leaflet + OpenStreetMap (sin API key) -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script>
+<script nonce="<?= htmlspecialchars(\Security\Proteccion::nonce(), ENT_QUOTES, 'UTF-8') ?>">
  let regMapaLeaflet = null;
  let regMarcadorLeaflet = null;
  const REG_CENTRO = [-16.3988, -71.5369]; // Cercado, Arequipa

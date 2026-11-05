@@ -6,7 +6,7 @@
 $pdo = conexion();
 
 $filtroVendedor = (int) ($_GET['vendedor'] ?? 0);
-$sql = 'SELECT c.*, p.estado, p.creado_en AS pedido_fecha,
+$sql = 'SELECT c.*, (c.monto_comision + c.monto_vendedor) AS monto_venta, p.estado, p.creado_en AS pedido_fecha,
                u.name AS vendedor_nombre, u.usuario AS vendedor_usuario
           FROM comisiones c
           JOIN pedidos p ON p.id = c.pedido_id

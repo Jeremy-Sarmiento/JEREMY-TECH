@@ -222,8 +222,8 @@ class Cuenta
         if (($latitud === '') !== ($longitud === '')) {
             return 'Marca la ubicación completa (latitud y longitud) o deja ambas vacías';
         }
-        if (strlen($password) < 6) {
-            return 'La contraseña debe tener al menos 6 caracteres';
+        if (($errorClave = \Security\Contrasena::error($password)) !== null) {
+            return $errorClave;
         }
         if ($password !== $confirmar) {
             return 'Las contraseñas no coinciden';
@@ -280,7 +280,7 @@ class Cuenta
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
-            if ((string) $e->getCode() === '23000') {
+            if (in_array((string) $e->getCode(), ['23000', '23505'], true)) {
                 return 'Ya existe una cuenta con ese correo o usuario';
             }
             return 'No se pudo crear la cuenta. Inténtalo de nuevo.';
@@ -451,8 +451,8 @@ class Cuenta
     ): ?string {
         $email = strtolower(trim($email));
 
-        if (strlen($nueva) < 6) {
-            return 'La contraseña debe tener al menos 6 caracteres';
+        if (($errorClave = \Security\Contrasena::error($nueva)) !== null) {
+            return $errorClave;
         }
         if ($nueva !== $confirma) {
             return 'Las contraseñas no coinciden';

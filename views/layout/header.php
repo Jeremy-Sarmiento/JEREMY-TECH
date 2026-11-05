@@ -24,7 +24,7 @@
    <?php endif; ?>
    <!-- Capa de rediseño: se carga al final para tomar precedencia. -->
    <link href="css/rediseno.css?v=<?= (int) @filemtime(BASE_PATH . '/public/css/rediseno.css') ?>" rel="stylesheet"/>
-  <script>
+  <script nonce="<?= htmlspecialchars(\Security\Proteccion::nonce(), ENT_QUOTES, 'UTF-8') ?>">
    const JT_SESSION = {
     rutaVista: '<?= htmlspecialchars($rutaVista ?? 'catalogo', ENT_QUOTES) ?>',
     totalItems: <?= (int) \Model\Carrito::totalItems() ?>

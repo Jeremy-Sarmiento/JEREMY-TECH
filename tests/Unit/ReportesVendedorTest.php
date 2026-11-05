@@ -87,6 +87,18 @@ class ReportesVendedorTest extends TestCase
         $this->assertEquals(0.0, $filas[1]['neto']);
     }
 
+    public function testVentasHistoricasSeMuestranSinIgvSinModificarSusImportes(): void
+    {
+        testPdo()->exec('UPDATE comisiones SET monto_venta = monto_venta * 1.18');
+        $resumen = Vendedor::resumenGanancias(self::VENDEDOR);
+        $this->assertEquals(250, $resumen['vendido']);
+        $this->assertEquals($resumen['vendido'], $resumen['comision'] + $resumen['neto']);
+        $this->assertEquals(200, Vendedor::reporteMensual(self::VENDEDOR, 3)[2]['vendido']);
+        $reparto = Vendedor::repartir(118, self::VENDEDOR, 18);
+        $this->assertSame(100.0, $reparto['base']);
+        $this->assertEquals($reparto['base'], $reparto['comision'] + $reparto['vendedor']);
+    }
+
     public function testTopProductosExcluyeCancelados(): void
     {
         $top = Vendedor::topProductos(self::VENDEDOR, 5);

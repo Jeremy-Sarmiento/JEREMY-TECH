@@ -4,7 +4,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 // Anula DATABASE_URL del .env: las pruebas deben usar solo la base local,
 // nunca la base alojada configurada para producción.
-putenv('DATABASE_URL=');
+// No usar una cadena vacía: proc_open puede omitirla y cargar otra vez el .env remoto.
+putenv('DATABASE_URL=postgresql://postgres:admin@127.0.0.1:5432/jeremy_tech_test?sslmode=disable');
 putenv('DB_HOST=127.0.0.1');
 putenv('DB_PORT=5432');
 putenv('DB_NAME=jeremy_tech_test');

@@ -39,7 +39,7 @@ class Vendedor
                     u.verificado, u.comision_porcentaje,
                     (SELECT COUNT(*) FROM productos p
                       WHERE p.vendedor_id = u.id) AS productos,
-                    (SELECT COALESCE(SUM(c.monto_venta), 0) FROM comisiones c
+                    (SELECT COALESCE(SUM(c.monto_comision + c.monto_vendedor), 0) FROM comisiones c
                       JOIN pedidos pd ON pd.id = c.pedido_id
                      WHERE c.vendedor_id = u.id
                        AND pd.estado NOT IN ('Cancelado', 'Pendiente')) AS ventas,
@@ -118,23 +118,29 @@ class Vendedor
      * referencia: el IGV es dinero del estado, no de nadie.
      *
      * @param float $montoConIgv subtotal de la línea ya con IGV
-     * @return array{porcentaje: float, comision: float, vendedor: float}
+     * @return array{porcentaje: float, base: float, comision: float, vendedor: float}
      */
     public static function repartir(float $montoConIgv, ?int $vendedorId, float $igvPorcentaje): array
     {
         if ($vendedorId === null || $vendedorId <= 0) {
-            return ['porcentaje' => 0.0, 'comision' => 0.0, 'vendedor' => 0.0];
+            return ['porcentaje' => 0.0, 'base' => 0.0, 'comision' => 0.0, 'vendedor' => 0.0];
         }
 
         $porcentaje = self::comisionDe($vendedorId);
         $base = $igvPorcentaje > 0
             ? $montoConIgv * 100 / (100 + $igvPorcentaje)
             : $montoConIgv;
+        $base = round($base, 2);
 
         $comision = round($base * $porcentaje / 100, 2);
         $ganancia = round($base - $comision, 2);
 
-        return ['porcentaje' => $porcentaje, 'comision' => $comision, 'vendedor' => $ganancia];
+        return [
+            'porcentaje' => $porcentaje,
+            'base' => $base,
+            'comision' => $comision,
+            'vendedor' => $ganancia,
+        ];
     }
 
     /**
@@ -200,7 +206,7 @@ class Vendedor
         }
 
         $stmt = conexion()->prepare(
-            "SELECT COALESCE(SUM(c.monto_venta), 0)    AS vendido,
+            "SELECT COALESCE(SUM(c.monto_comision + c.monto_vendedor), 0) AS vendido,
                     COALESCE(SUM(c.monto_comision), 0) AS comision,
                     COALESCE(SUM(c.monto_vendedor), 0) AS neto
                FROM comisiones c
@@ -305,7 +311,7 @@ class Vendedor
         $stmt = conexion()->prepare(
             "SELECT to_char(p.creado_en, 'YYYY-MM') AS mes,
                     COUNT(DISTINCT p.id) AS pedidos,
-                    COALESCE(SUM(c.monto_venta), 0) AS vendido,
+                    COALESCE(SUM(c.monto_comision + c.monto_vendedor), 0) AS vendido,
                     COALESCE(SUM(c.monto_comision), 0) AS comision,
                     COALESCE(SUM(c.monto_vendedor), 0) AS neto
                FROM comisiones c
@@ -485,7 +491,7 @@ class Vendedor
     public static function ventasDe(int $vendedorId): array
     {
         $stmt = conexion()->prepare(
-            'SELECT c.id, c.pedido_id, c.monto_venta, c.porcentaje_comision,
+            'SELECT c.id, c.pedido_id, (c.monto_comision + c.monto_vendedor) AS monto_venta, c.porcentaje_comision,
                     c.monto_comision, c.monto_vendedor, c.creado_en,
                     p.estado, p.total_pen
                FROM comisiones c

@@ -1,7 +1,11 @@
 -- Jeremy Tech: estructura para PostgreSQL 14+
 -- Crea tablas, indices, claves foraneas y disparadores. No carga datos.
 -- Uso: createdb jeremy_tech && psql -d jeremy_tech -f database/jeremy_tech_estructura.sql
--- Despues: psql -d jeremy_tech -f database/jeremy_tech_datos.sql
+-- El seed contiene hijos antes que padres: importar entero y diferir las FK.
+-- Despues: psql -X -v ON_ERROR_STOP=1 -1 -d jeremy_tech -c 'SET CONSTRAINTS ALL DEFERRED' -f database/jeremy_tech_datos.sql
+-- Solo para instalaciones nuevas: este archivo elimina tablas. Para una BD
+-- existente usar integridad-rendimiento.sql (sin borrar ni corregir historial).
+-- Los limites de numeric(10,2) en CHECK tambien excluyen el valor especial NaN.
 
 DROP TABLE IF EXISTS auditoria_admin CASCADE;
 CREATE TABLE auditoria_admin (
@@ -23,7 +27,8 @@ CREATE TABLE calificaciones_vendedor (
   comentario varchar(500) NOT NULL DEFAULT '',
   creado_en timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  CONSTRAINT uq_calificaciones_vendedor_calificacion_vendedor_unica UNIQUE (vendedor_id, cliente_id)
+  CONSTRAINT uq_calificaciones_vendedor_calificacion_vendedor_unica UNIQUE (vendedor_id, cliente_id),
+  CONSTRAINT ck_calificaciones_vendedor_rango CHECK (calificacion BETWEEN 1 AND 5)
 );
 
 DROP TABLE IF EXISTS carrito_items CASCADE;
@@ -33,7 +38,8 @@ CREATE TABLE carrito_items (
   cantidad integer NOT NULL,
   producto_id bigint NOT NULL,
   PRIMARY KEY (id),
-  CONSTRAINT uq_carrito_items_carrito_item_unico UNIQUE (carrito_id, producto_id)
+  CONSTRAINT uq_carrito_items_carrito_item_unico UNIQUE (carrito_id, producto_id),
+  CONSTRAINT ck_carrito_items_cantidad CHECK (cantidad > 0)
 );
 
 DROP TABLE IF EXISTS carritos CASCADE;
@@ -81,7 +87,10 @@ CREATE TABLE comisiones (
   monto_vendedor numeric(10,2) NOT NULL,
   creado_en timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  CONSTRAINT uq_comisiones_comision_unica UNIQUE (pedido_id, vendedor_id)
+  CONSTRAINT uq_comisiones_comision_unica UNIQUE (pedido_id, vendedor_id),
+  CONSTRAINT ck_comisiones_montos CHECK (monto_venta BETWEEN 0 AND 99999999.99
+    AND monto_comision BETWEEN 0 AND 99999999.99 AND monto_vendedor BETWEEN 0 AND 99999999.99),
+  CONSTRAINT ck_comisiones_porcentaje CHECK (porcentaje_comision BETWEEN 0 AND 100)
 );
 
 DROP TABLE IF EXISTS configuracion CASCADE;
@@ -104,7 +113,9 @@ CREATE TABLE cupones (
   activo smallint NOT NULL DEFAULT 1,
   creado_en timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  CONSTRAINT uq_cupones_codigo UNIQUE (codigo)
+  CONSTRAINT uq_cupones_codigo UNIQUE (codigo),
+  CONSTRAINT ck_cupones_valor CHECK (valor > 0 AND valor <= 99999999.99 AND (tipo <> 'porcentaje' OR valor <= 100)),
+  CONSTRAINT ck_cupones_usos CHECK (usos_actuales >= 0 AND (usos_maximos IS NULL OR usos_maximos >= 0))
 );
 
 DROP TABLE IF EXISTS detalle_pedido CASCADE;
@@ -118,7 +129,9 @@ CREATE TABLE detalle_pedido (
   producto_id bigint NOT NULL,
   producto_nombre varchar(190) NOT NULL DEFAULT '',
   vendedor_id bigint NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  CONSTRAINT ck_detalle_pedido_cantidad CHECK (cantidad > 0),
+  CONSTRAINT ck_detalle_pedido_precio CHECK (precio_unitario_pen BETWEEN 0 AND 99999999.99)
 );
 
 DROP TABLE IF EXISTS direcciones CASCADE;
@@ -167,7 +180,8 @@ CREATE TABLE garantias (
   activo smallint NOT NULL DEFAULT 1,
   creado_en timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  CONSTRAINT uq_garantias_uq_garantias_nombre UNIQUE (nombre)
+  CONSTRAINT uq_garantias_uq_garantias_nombre UNIQUE (nombre),
+  CONSTRAINT ck_garantias_precio CHECK (precio_pen BETWEEN 0 AND 99999999.99)
 );
 
 DROP TABLE IF EXISTS intentos_acceso CASCADE;
@@ -206,7 +220,8 @@ CREATE TABLE movimientos_inventario (
   producto_id bigint NOT NULL,
   variante_id integer NULL,
   pedido_id integer NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  CONSTRAINT ck_movimientos_inventario_cantidad CHECK (cantidad > 0)
 );
 
 DROP TABLE IF EXISTS notificaciones CASCADE;
@@ -238,7 +253,8 @@ CREATE TABLE pagos (
   estado varchar(30) NOT NULL DEFAULT '',
   actualizado_en timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   creado_en timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  CONSTRAINT ck_pagos_monto CHECK (monto_pen BETWEEN 0 AND 99999999.99)
 );
 
 DROP TABLE IF EXISTS pagos_vendedor CASCADE;
@@ -249,7 +265,8 @@ CREATE TABLE pagos_vendedor (
   metodo varchar(60) NOT NULL DEFAULT '',
   referencia varchar(120) NOT NULL DEFAULT '',
   creado_en timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  CONSTRAINT ck_pagos_vendedor_monto CHECK (monto BETWEEN 0 AND 99999999.99)
 );
 
 DROP TABLE IF EXISTS pagos_webhooks CASCADE;
@@ -300,7 +317,10 @@ CREATE TABLE pedidos (
   fecha_envio timestamp NULL DEFAULT NULL,
   estado varchar(30) NOT NULL DEFAULT 'Pendiente',
   creado_en timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  CONSTRAINT ck_pedidos_montos CHECK (total_pen BETWEEN 0 AND 99999999.99
+    AND subtotal BETWEEN 0 AND 99999999.99 AND igv_monto BETWEEN 0 AND 99999999.99
+    AND envio_costo BETWEEN 0 AND 99999999.99 AND descuento_aplicado BETWEEN 0 AND 99999999.99)
 );
 
 DROP TABLE IF EXISTS precios_volumen CASCADE;
@@ -311,7 +331,10 @@ CREATE TABLE precios_volumen (
   cantidad_maxima integer NULL,
   precio_unitario numeric(10,2) NOT NULL,
   creado_en timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  CONSTRAINT ck_precios_volumen_cantidades CHECK (cantidad_minima > 0
+    AND (cantidad_maxima IS NULL OR cantidad_maxima >= cantidad_minima)),
+  CONSTRAINT ck_precios_volumen_precio CHECK (precio_unitario BETWEEN 0 AND 99999999.99)
 );
 
 DROP TABLE IF EXISTS producto_variantes CASCADE;
@@ -324,7 +347,9 @@ CREATE TABLE producto_variantes (
   activo smallint NOT NULL DEFAULT 1,
   creado_en timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   producto_id bigint NOT NULL,
-  PRIMARY KEY (id)
+  PRIMARY KEY (id),
+  CONSTRAINT ck_producto_variantes_stock CHECK (stock >= 0),
+  CONSTRAINT ck_producto_variantes_precio CHECK (precio_extra BETWEEN 0 AND 99999999.99)
 );
 
 DROP TABLE IF EXISTS productos CASCADE;
@@ -352,7 +377,9 @@ CREATE TABLE productos (
   updated_at timestamp NULL DEFAULT NULL,
   PRIMARY KEY (id),
   CONSTRAINT uq_productos_uq_productos_slug UNIQUE (slug),
-  CONSTRAINT uq_productos_uq_productos_sku UNIQUE (codigo_sku)
+  CONSTRAINT uq_productos_uq_productos_sku UNIQUE (codigo_sku),
+  CONSTRAINT ck_productos_stock CHECK (stock >= 0 AND stock_minimo >= 0),
+  CONSTRAINT ck_productos_precio CHECK (precio_pen BETWEEN 0 AND 99999999.99)
 );
 
 DROP TABLE IF EXISTS producto_imagenes CASCADE;
@@ -379,7 +406,8 @@ CREATE TABLE resenas (
   creado_en timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   producto_id bigint NOT NULL,
   PRIMARY KEY (id),
-  CONSTRAINT uq_resenas_resena_unica UNIQUE (producto_id, cliente_id)
+  CONSTRAINT uq_resenas_resena_unica UNIQUE (producto_id, cliente_id),
+  CONSTRAINT ck_resenas_calificacion CHECK (calificacion BETWEEN 1 AND 5)
 );
 
 DROP TABLE IF EXISTS solicitudes_vendedor CASCADE;
@@ -422,7 +450,8 @@ CREATE TABLE tarifas_envio (
   activo smallint NOT NULL DEFAULT 1,
   creado_en timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  CONSTRAINT uq_tarifas_envio_zona UNIQUE (zona)
+  CONSTRAINT uq_tarifas_envio_zona UNIQUE (zona),
+  CONSTRAINT ck_tarifas_envio_costo CHECK (costo BETWEEN 0 AND 99999999.99)
 );
 
 DROP TABLE IF EXISTS tokens_recuperacion CASCADE;
@@ -465,7 +494,8 @@ CREATE TABLE users (
   deleted_at timestamp NULL DEFAULT NULL,
   PRIMARY KEY (id),
   CONSTRAINT uq_users_users_email_unique UNIQUE (email),
-  CONSTRAINT uq_users_users_usuario_unique UNIQUE (usuario)
+  CONSTRAINT uq_users_users_usuario_unique UNIQUE (usuario),
+  CONSTRAINT ck_users_comision CHECK (comision_porcentaje BETWEEN 0 AND 100)
 );
 
 CREATE INDEX idx_calificaciones_vendedor_fk_cal_cliente ON calificaciones_vendedor (cliente_id);
@@ -473,6 +503,9 @@ CREATE INDEX idx_carrito_items_fk_caritem_producto ON carrito_items (producto_id
 CREATE INDEX idx_chatbot_faq_idx_chatbot_faq_activo_orden ON chatbot_faq (activo, orden);
 CREATE INDEX idx_comisiones_fk_com_vendedor ON comisiones (vendedor_id);
 CREATE INDEX idx_detalle_pedido_idx_detalle_vendedor ON detalle_pedido (vendedor_id);
+CREATE INDEX idx_detalle_pedido_pedido ON detalle_pedido (pedido_id);
+CREATE INDEX idx_detalle_pedido_producto ON detalle_pedido (producto_id);
+CREATE INDEX idx_detalle_pedido_variante ON detalle_pedido (variante_id);
 CREATE INDEX idx_direcciones_fk_direcciones_cliente ON direcciones (cliente_id);
 CREATE INDEX idx_direcciones_fk_direcciones_tarifa ON direcciones (tarifa_envio_id);
 CREATE INDEX idx_eventos_analitica_idx_eventos_analitica_tipo_fecha ON eventos_analitica (tipo_evento, creado_en);
@@ -487,10 +520,14 @@ CREATE INDEX idx_notificaciones_fk_notif_cliente ON notificaciones (cliente_id);
 CREATE INDEX idx_notificaciones_idx_notif_pedido ON notificaciones (pedido_id);
 CREATE INDEX idx_pagos_idx_pagos_referencia ON pagos (referencia_externa);
 CREATE INDEX idx_pagos_idx_pagos_transaccion ON pagos (transaccion_id);
+CREATE INDEX idx_pagos_pedido_id_desc ON pagos (pedido_id, id DESC);
 CREATE INDEX idx_pagos_vendedor_fk_pagven_vendedor ON pagos_vendedor (vendedor_id);
 CREATE INDEX idx_pagos_webhooks_idx_webhook_pedido ON pagos_webhooks (pedido_id);
 CREATE INDEX idx_pagos_webhooks_idx_webhook_pago ON pagos_webhooks (pago_id);
 CREATE INDEX idx_pedido_eventos_idx_evento_pedido ON pedido_eventos (pedido_id, id);
+CREATE INDEX idx_pedidos_cliente_id_desc ON pedidos (cliente_id, id DESC);
+CREATE INDEX idx_pedidos_cupon ON pedidos (cupon_id);
+CREATE INDEX idx_pedidos_direccion ON pedidos (direccion_id);
 CREATE INDEX idx_precios_volumen_idx_pv_producto ON precios_volumen (producto_id, cantidad_minima);
 CREATE INDEX idx_producto_variantes_fk_var_producto ON producto_variantes (producto_id);
 CREATE INDEX idx_productos_fk_productos_garantia ON productos (garantia_id);
@@ -498,6 +535,7 @@ CREATE INDEX idx_productos_idx_productos_vendedor ON productos (vendedor_id);
 CREATE INDEX idx_productos_idx_productos_archivado ON productos (vendedor_id, archivado_en);
 CREATE INDEX idx_resenas_fk_res_cliente ON resenas (cliente_id);
 CREATE INDEX idx_resenas_idx_resena_estado ON resenas (producto_id, estado);
+CREATE INDEX idx_resenas_visibles_recientes ON resenas (producto_id, creado_en DESC, id DESC) WHERE estado = 'visible';
 CREATE INDEX idx_solicitudes_vendedor_idx_solicitud_estado ON solicitudes_vendedor (estado, creado_en);
 CREATE INDEX idx_solicitudes_vendedor_idx_solicitud_usuario ON solicitudes_vendedor (usuario_id, estado);
 CREATE INDEX idx_soporte_tickets_fk_soporte_cliente ON soporte_tickets (cliente_id);
@@ -514,6 +552,11 @@ ALTER TABLE carritos ADD CONSTRAINT fk_car_cliente FOREIGN KEY (cliente_id) REFE
 ALTER TABLE comisiones ADD CONSTRAINT fk_com_pedido FOREIGN KEY (pedido_id) REFERENCES pedidos (id);
 ALTER TABLE comisiones ADD CONSTRAINT fk_com_vendedor FOREIGN KEY (vendedor_id) REFERENCES users (id);
 ALTER TABLE detalle_pedido ADD CONSTRAINT fk_detalle_vendedor FOREIGN KEY (vendedor_id) REFERENCES users (id);
+-- Con ventas se archiva el producto: Inventario::devolver necesita su id.
+ALTER TABLE detalle_pedido ADD CONSTRAINT fk_detalle_pedido FOREIGN KEY (pedido_id) REFERENCES pedidos (id) DEFERRABLE INITIALLY IMMEDIATE;
+ALTER TABLE detalle_pedido ADD CONSTRAINT fk_detalle_producto FOREIGN KEY (producto_id) REFERENCES productos (id) DEFERRABLE INITIALLY IMMEDIATE;
+-- El nombre/precio originales sobreviven al borrado permitido de una variante.
+ALTER TABLE detalle_pedido ADD CONSTRAINT fk_detalle_variante FOREIGN KEY (variante_id) REFERENCES producto_variantes (id) ON DELETE SET NULL DEFERRABLE INITIALLY IMMEDIATE;
 ALTER TABLE direcciones ADD CONSTRAINT fk_direcciones_cliente FOREIGN KEY (cliente_id) REFERENCES users (id);
 ALTER TABLE direcciones ADD CONSTRAINT fk_direcciones_tarifa FOREIGN KEY (tarifa_envio_id) REFERENCES tarifas_envio (id);
 ALTER TABLE favoritos ADD CONSTRAINT fk_fav_cliente FOREIGN KEY (cliente_id) REFERENCES users (id);
@@ -522,8 +565,14 @@ ALTER TABLE movimientos_inventario ADD CONSTRAINT fk_mov_pedido FOREIGN KEY (ped
 ALTER TABLE movimientos_inventario ADD CONSTRAINT fk_mov_producto FOREIGN KEY (producto_id) REFERENCES productos (id);
 ALTER TABLE movimientos_inventario ADD CONSTRAINT fk_mov_variante FOREIGN KEY (variante_id) REFERENCES producto_variantes (id);
 ALTER TABLE notificaciones ADD CONSTRAINT fk_notif_cliente FOREIGN KEY (cliente_id) REFERENCES users (id);
+ALTER TABLE pagos ADD CONSTRAINT fk_pagos_pedido FOREIGN KEY (pedido_id) REFERENCES pedidos (id) DEFERRABLE INITIALLY IMMEDIATE;
 ALTER TABLE pagos_vendedor ADD CONSTRAINT fk_pagven_vendedor FOREIGN KEY (vendedor_id) REFERENCES users (id);
 ALTER TABLE pedido_eventos ADD CONSTRAINT fk_evento_pedido FOREIGN KEY (pedido_id) REFERENCES pedidos (id);
+-- Las cuentas usan baja logica; nunca se elimina el pedido ni el dinero.
+ALTER TABLE pedidos ADD CONSTRAINT fk_pedidos_cliente FOREIGN KEY (cliente_id) REFERENCES users (id) DEFERRABLE INITIALLY IMMEDIATE;
+-- Direccion y descuento ya tienen snapshot en pedidos; borrar su origen es valido.
+ALTER TABLE pedidos ADD CONSTRAINT fk_pedidos_cupon FOREIGN KEY (cupon_id) REFERENCES cupones (id) ON DELETE SET NULL DEFERRABLE INITIALLY IMMEDIATE;
+ALTER TABLE pedidos ADD CONSTRAINT fk_pedidos_direccion FOREIGN KEY (direccion_id) REFERENCES direcciones (id) ON DELETE SET NULL DEFERRABLE INITIALLY IMMEDIATE;
 ALTER TABLE precios_volumen ADD CONSTRAINT fk_pv_producto FOREIGN KEY (producto_id) REFERENCES productos (id);
 ALTER TABLE producto_variantes ADD CONSTRAINT fk_var_producto FOREIGN KEY (producto_id) REFERENCES productos (id);
 ALTER TABLE productos ADD CONSTRAINT fk_productos_garantia FOREIGN KEY (garantia_id) REFERENCES garantias (id);
@@ -551,4 +600,3 @@ CREATE TRIGGER trg_productos_updated_at BEFORE UPDATE ON productos FOR EACH ROW 
 CREATE TRIGGER trg_resenas_actualizado_en BEFORE UPDATE ON resenas FOR EACH ROW EXECUTE FUNCTION touch_actualizado_en();
 CREATE TRIGGER trg_soporte_tickets_actualizado_en BEFORE UPDATE ON soporte_tickets FOR EACH ROW EXECUTE FUNCTION touch_actualizado_en();
 CREATE TRIGGER trg_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
-

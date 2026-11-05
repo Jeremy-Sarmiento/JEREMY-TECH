@@ -63,7 +63,7 @@ $zonasJson = array_map(static fn (array $z): array => [
     'costo' => (float) $z['costo'],
 ], $zonas);
 ?>
-<script>
+<script nonce="<?= htmlspecialchars(\Security\Proteccion::nonce(), ENT_QUOTES, 'UTF-8') ?>">
  const JT_CARRO = {
   estaVacio: <?= $estaVacio ? 'true' : 'false' ?>,
   subtotalPEN: <?= (float) $subtotal ?>,
