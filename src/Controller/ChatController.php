@@ -80,7 +80,23 @@ class ChatController
                 $this->responder($texto, $respuesta);
             }
 
-            // 3) IA con function calling: decide qué herramientas usar (buscar
+            // 3) Reglas locales instantáneas: saludos y búsquedas/listados de
+            //    producto con resultados reales. Ahorran una llamada a la IA
+            //    (varios segundos) sin inventar nada: si no hay coincidencias,
+            //    sigue el flujo normal.
+            $rapida = $this->respuestaRapida($texto) ?? $this->consultaListado($texto);
+            if ($rapida === null) {
+                $consulta = $this->consultaProducto($texto);
+                if ($consulta !== null) {
+                    $rapida = $this->respuestaProductos($consulta);
+                }
+            }
+            if ($rapida !== null) {
+                $this->registrarPregunta($texto, 'regla', 0);
+                $this->responder($texto, $rapida);
+            }
+
+            // 4) IA con function calling: decide qué herramientas usar (buscar
             //    productos, obtener envíos, consultar pedido) y responde con datos reales.
             if (env('CHAT_API_KEY') !== '') {
                 $respuestaIA = $this->askAI($texto);
@@ -93,7 +109,7 @@ class ChatController
                 }
             }
 
-            // 4) Fallback si la IA no está disponible o falla.
+            // 5) Fallback si la IA no está disponible o falla.
             $this->registrarPregunta($texto, 'fallback', 0);
             $this->responder($texto, $this->fallback());
         } catch (\Throwable $error) {
@@ -211,7 +227,7 @@ class ChatController
         }
 
         $patrones = [
-            '/(?:busco|buscar|quiero|quisiera|necesito|recomiendas?|recomi[eé]nda(?:me)?|tienes|hay|mu[eé]strame|precio de|cu[aá]nto cuesta)\s+(.{2,60})/iu',
+            '/(?:busco|buscar|quiero|quisiera|necesito|recomiendas?|recomi[eé]nda(?:me)?|tienes|tienen|vendes|venden|hay|mu[eé]strame|precio de|cu[aá]nto cuesta)\s+(.{2,60})/iu',
             '/\b(laptop|smartphone|celular|tel[eé]fono|aud[ií]fono|smartwatch|reloj|consola|teclado|mouse|parlante|gamer|gaming|apple|samsung|xiaomi|iphone|ipad|airpods|macbook|sony|bose|jbl|logitech|playstation|xbox|hp|lenovo)\b/iu',
         ];
 
@@ -229,17 +245,14 @@ class ChatController
         return null;
     }
 
-    private function respuestaProductos(string $consulta): array
+    private function respuestaProductos(string $consulta): ?array
     {
         $resultados = Producto::buscar($consulta, 6);
 
+        // Sin resultados se deja responder a la IA: evita el "no encontré"
+        // cuando la consulta era una recomendación y no una búsqueda literal.
         if ($resultados === []) {
-            return [
-                'reply' => 'No encontré productos que coincidan con "' . $consulta . '" 😕. '
-                    . 'Prueba con otra palabra o revisa el catálogo completo.',
-                'links' => [['label' => '🛍️ Ver catálogo', 'url' => '?ruta=catalogo']],
-                'quick' => $this->defaultQuickReplies(),
-            ];
+            return null;
         }
 
         return $this->listaProductos(
@@ -385,6 +398,43 @@ class ChatController
             'reply' => $titulo,
             'links' => $enlaces,
             'extra_links' => [['label' => '🛍️ Ver catálogo completo', 'url' => $urlCatalogo]],
+            'quick' => $this->defaultQuickReplies(),
+        ];
+    }
+
+    /**
+     * Saludos y agradecimientos sueltos: respuesta inmediata sin IA.
+     * Solo aplica si el mensaje completo es una de estas fórmulas.
+     */
+    private function respuestaRapida(string $texto): ?array
+    {
+        $t = mb_strtolower(trim($texto));
+        $t = str_replace(['á', 'é', 'í', 'ó', 'ú', 'ü', 'ñ'], ['a', 'e', 'i', 'o', 'u', 'u', 'n'], $t);
+        $t = (string) preg_replace('/[^\p{L}\s]+/u', ' ', $t);
+        $t = trim((string) preg_replace('/\s+/', ' ', $t));
+
+        $saludos = [
+            'hola', 'holi', 'buenas', 'buen dia', 'buenos dias', 'buenas tardes',
+            'buenas noches', 'hey', 'que tal', 'hola que tal', 'hola buenas',
+        ];
+        $agradecimientos = ['gracias', 'muchas gracias', 'gracias por la ayuda'];
+
+        if (in_array($t, $agradecimientos, true)) {
+            return [
+                'reply' => 'Con gusto. Si necesitas algo más, aquí estoy.',
+                'links' => $this->defaultLinks(),
+                'quick' => $this->defaultQuickReplies(),
+            ];
+        }
+
+        if (!in_array($t, $saludos, true)) {
+            return null;
+        }
+
+        return [
+            'reply' => 'Hola, soy Jeremy-Bot. Puedo ayudarte con productos, envíos, pagos, '
+                . 'garantías o el seguimiento de tu pedido. ¿Qué necesitas?',
+            'links' => $this->defaultLinks(),
             'quick' => $this->defaultQuickReplies(),
         ];
     }
@@ -598,9 +648,18 @@ class ChatController
 
         $linksAcumulados      = [];
         $extraLinksAcumulados = [];
+        // Presupuesto total para la IA: si el proveedor se demora, es mejor
+        // caer al respaldo local que dejar al cliente esperando 30+ segundos.
+        $inicioIA    = microtime(true);
+        $presupuesto = 18.0;
 
         // Hasta 3 rondas de function calling
         for ($ronda = 0; $ronda < 3; $ronda++) {
+            $restante = $presupuesto - (microtime(true) - $inicioIA);
+            if ($restante < 3) {
+                return null;
+            }
+
             $payload = [
                 'model'       => $modelo,
                 'messages'    => $mensajes,
@@ -610,8 +669,13 @@ class ChatController
                 'temperature' => 0.7,
             ];
 
-            $respuesta = $this->httpJson('POST', $endpoint, $payload, $cabeceras);
-            if ($respuesta === null && $proveedor === 'gemini' && !str_contains($payload['model'], 'lite')) {
+            $respuesta = $this->httpJson('POST', $endpoint, $payload, $cabeceras, (int) min(15, $restante));
+            // El cambio a lite solo tiene sentido si el fallo fue rápido
+            // (modelo no disponible); si fue un timeout, reintentar duplica la espera.
+            if ($respuesta === null && $proveedor === 'gemini'
+                && !str_contains((string) $payload['model'], 'lite')
+                && (microtime(true) - $inicioIA) < 5.0
+            ) {
                 $payload['model'] = 'gemini-3.5-flash-lite';
                 $respuesta = $this->httpJson('POST', $endpoint, $payload, $cabeceras);
             }
@@ -806,25 +870,32 @@ class ChatController
         return trim($texto);
     }
 
-    private function httpJson(string $metodo, string $url, array $payload, array $cabeceras): ?array
+    private function httpJson(string $metodo, string $url, array $payload, array $cabeceras, int $timeout = 15): ?array
     {
         $cuerpo = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
         if ($cuerpo === false) {
             return null;
         }
 
-        $ch = curl_init($url);
-        if ($ch === false) {
-            return null;
+        // El mismo handle reutiliza la conexión TLS entre las rondas de la IA.
+        static $ch = null;
+        if (!$ch instanceof \CurlHandle) {
+            $ch = curl_init();
+            if (!$ch instanceof \CurlHandle) {
+                return null;
+            }
         }
 
         curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CUSTOMREQUEST => $metodo,
             CURLOPT_POSTFIELDS => $cuerpo,
             CURLOPT_HTTPHEADER => array_merge(['Content-Type: application/json'], $cabeceras),
-            CURLOPT_CONNECTTIMEOUT => 8,
-            CURLOPT_TIMEOUT => 25,
+            CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_TIMEOUT => max(1, $timeout),
+            CURLOPT_ENCODING => '',
+            CURLOPT_TCP_KEEPALIVE => 1,
             CURLOPT_USERAGENT => 'JeremyTech-Chat/1.0',
         ]);
 
