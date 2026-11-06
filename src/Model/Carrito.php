@@ -6,7 +6,7 @@ namespace Model;
 
 /**
  * Modelo Carrito (Jeremy Tech MVC).
- * Capa de Datos / Negocio: carrito persistido en sesión PHP y registro
+ * Capa de Datos / Negocio: sesión para invitados, BD por cuenta y registro
  * transaccional de pedidos en las tablas relacionales (users, pedidos,
  * detalle_pedido, pagos).
  */
@@ -18,6 +18,7 @@ class Carrito
      * la dirección elegida en el checkout (Etapa 5).
      */
     private const MODALIDAD_RECOJO = 'tienda';
+    private const MAX_CANTIDAD = 2147483647;
 
     /**
      * Dispara la sesión PHP si aún no esta activa.
@@ -57,7 +58,33 @@ class Carrito
     public static function items(): array
     {
         self::iniciarSesion();
-        return $_SESSION['carrito'] ?? [];
+        $clienteId = Cuenta::idSesion();
+        if ($clienteId === null) {
+            return $_SESSION['carrito'] ?? [];
+        }
+        // Migrar también las sesiones autenticadas que existían antes del cambio.
+        if (!empty($_SESSION['carrito']) || !empty($_SESSION['carritos_pendientes'][$clienteId])) {
+            self::fusionarInvitado($clienteId);
+            unset($_SESSION['carrito'], $_SESSION['carritos_pendientes'][$clienteId]);
+        }
+
+        $stmt = conexion()->prepare(
+            'SELECT i.producto_id, i.variante_id, i.cantidad
+               FROM carrito_items i
+               JOIN carritos c ON c.id = i.carrito_id
+               JOIN users u ON u.id = c.cliente_id AND u.activo = 1 AND u.deleted_at IS NULL
+               JOIN productos p ON p.id = i.producto_id AND p.activo = 1 AND p.archivado_en IS NULL
+          LEFT JOIN producto_variantes v ON v.id = i.variante_id AND v.producto_id = p.id AND v.activo = 1
+              WHERE c.cliente_id = ? AND (i.variante_id IS NULL OR v.id IS NOT NULL)
+              ORDER BY i.id'
+        );
+        $stmt->execute([$clienteId]);
+        $items = [];
+        foreach ($stmt->fetchAll() as $fila) {
+            $varianteId = $fila['variante_id'] !== null ? (int) $fila['variante_id'] : null;
+            $items[self::clave((string) $fila['producto_id'], $varianteId)] = (int) $fila['cantidad'];
+        }
+        return $items;
     }
 
     /**
@@ -67,37 +94,36 @@ class Carrito
     public static function agregar(string $productoId, int $cantidad = 1, ?int $varianteId = null): void
     {
         self::iniciarSesion();
-        $producto = Producto::porId((int) $productoId);
-        if ($producto === null || !empty($producto['archivado']) || empty($producto['activo'])) {
-            // Ignora identificadores que no existen, publicaciones archivadas
-            // o retiradas: si entraran, la sesión quedaría "no vacía" y el
-            // checkout crearía un pedido en 0 (o vendería algo retirado).
+        $productoId = (string) (int) $productoId;
+        if (!self::lineaDisponible((int) $productoId, $varianteId)) {
             return;
         }
-        if ($varianteId !== null) {
-            $variante = ProductoVariante::porId($varianteId);
-            // Una variante de otro producto no debe poder entrar en la línea.
-            if ($variante === null || (int) $variante['productoId'] !== (int) $productoId) {
-                $varianteId = null;
-            } elseif (empty($variante['activo'])) {
-                return; // la variante está retirada: no se vende
-            }
-        }
-
         $clave = self::clave($productoId, $varianteId);
-        $cantidad = max(1, $cantidad);
-        $_SESSION['carrito'][$clave] = (int) ($_SESSION['carrito'][$clave] ?? 0) + $cantidad;
+        $cantidad = max(1, min(self::MAX_CANTIDAD, $cantidad));
+        if (($clienteId = Cuenta::idSesion()) !== null) {
+            self::items();
+            self::modificarGuardado($clienteId, $clave, $cantidad, true);
+            return;
+        }
+        $_SESSION['carrito'][$clave] = min(self::MAX_CANTIDAD, (int) ($_SESSION['carrito'][$clave] ?? 0) + $cantidad);
     }
 
     public static function eliminar(string $clave): void
     {
-        self::iniciarSesion();
-        unset($_SESSION['carrito'][$clave]);
+        self::cambiarCantidad($clave, 0);
     }
 
     public static function cambiarCantidad(string $clave, int $cantidad): void
     {
         self::iniciarSesion();
+        if (!preg_match('/^[1-9][0-9]*(?::[1-9][0-9]*)?$/D', $clave)) {
+            return;
+        }
+        if (($clienteId = Cuenta::idSesion()) !== null) {
+            self::items();
+            self::modificarGuardado($clienteId, $clave, min(self::MAX_CANTIDAD, $cantidad));
+            return;
+        }
         if ($cantidad <= 0) {
             unset($_SESSION['carrito'][$clave]);
             return;
@@ -110,7 +136,125 @@ class Carrito
     public static function vaciar(): void
     {
         self::iniciarSesion();
+        if (($clienteId = Cuenta::idSesion()) !== null) {
+            self::modificarGuardado($clienteId, null, 0);
+            unset($_SESSION['carritos_pendientes'][$clienteId]);
+        }
         unset($_SESSION['carrito']);
+    }
+
+    /** Se llama tras validar las credenciales, antes de cambiar la identidad de sesión. */
+    public static function fusionarInvitado(int $clienteId): void
+    {
+        self::iniciarSesion();
+        // Si se cambia de cuenta sin salir, cualquier sesión antigua pertenece a la anterior.
+        $propietario = Cuenta::idSesion() ?? $clienteId;
+        $items = $_SESSION['carritos_pendientes'][$propietario] ?? [];
+        foreach ($_SESSION['carrito'] ?? [] as $clave => $cantidad) {
+            $items[$clave] = min(self::MAX_CANTIDAD, (int) ($items[$clave] ?? 0) + (int) $cantidad);
+        }
+        self::fusionarGuardado($propietario, $items);
+    }
+
+    private static function lineaDisponible(int $productoId, ?int $varianteId): bool
+    {
+        $producto = Producto::porId($productoId);
+        if ($producto === null || !empty($producto['archivado']) || empty($producto['activo'])) {
+            return false;
+        }
+        if ($varianteId === null) {
+            return true;
+        }
+        $variante = ProductoVariante::porId($varianteId);
+        return $variante !== null && (int) $variante['productoId'] === $productoId && !empty($variante['activo']);
+    }
+
+    /** Una fila por cuenta; serializa cambios entre dispositivos sin reescribir otras líneas. */
+    private static function bloquearGuardado(\PDO $pdo, int $clienteId): int
+    {
+        $stmt = $pdo->prepare(
+            'INSERT INTO carritos (cliente_id)
+             SELECT id FROM users WHERE id = ? AND activo = 1 AND deleted_at IS NULL
+             ON CONFLICT (cliente_id) DO UPDATE SET actualizado_en = NOW() RETURNING id'
+        );
+        $stmt->execute([$clienteId]);
+        $id = $stmt->fetchColumn();
+        if ($id === false) {
+            throw new \RuntimeException('Tu sesión ya no está activa. Vuelve a iniciar sesión.');
+        }
+        return (int) $id;
+    }
+
+    private static function sumarGuardado(\PDO $pdo, int $carritoId, int $productoId, ?int $varianteId, int $cantidad): void
+    {
+        $pdo->prepare(
+            'INSERT INTO carrito_items (carrito_id, producto_id, variante_id, cantidad) VALUES (?, ?, ?, ?)
+             ON CONFLICT (carrito_id, producto_id, (COALESCE(variante_id, 0))) DO UPDATE
+                 SET cantidad = LEAST(2147483647, carrito_items.cantidad::bigint + EXCLUDED.cantidad)'
+        )->execute([$carritoId, $productoId, $varianteId, $cantidad]);
+    }
+
+    /** No cambia la sesión: el llamador la limpia solo cuando su transacción termina. */
+    private static function fusionarGuardado(int $clienteId, array $items): void
+    {
+        if ($items === []) {
+            return;
+        }
+        $pdo = conexion();
+        $propia = !$pdo->inTransaction();
+        if ($propia) {
+            $pdo->beginTransaction();
+        }
+        try {
+            $carritoId = self::bloquearGuardado($pdo, $clienteId);
+            foreach ($items as $clave => $cantidad) {
+                if (!preg_match('/^[1-9][0-9]*(?::[1-9][0-9]*)?$/D', (string) $clave) || (int) $cantidad <= 0) {
+                    continue;
+                }
+                [$productoId, $varianteId] = self::parsearClave((string) $clave);
+                if (self::lineaDisponible($productoId, $varianteId)) {
+                    self::sumarGuardado($pdo, $carritoId, $productoId, $varianteId, min(self::MAX_CANTIDAD, (int) $cantidad));
+                }
+            }
+            if ($propia) {
+                $pdo->commit();
+            }
+        } catch (\Throwable $error) {
+            if ($propia && $pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $error;
+        }
+    }
+
+    /** null vacía el carrito; sumar añade unidades; de lo contrario cambia o elimina una línea. */
+    private static function modificarGuardado(int $clienteId, ?string $clave, int $cantidad, bool $sumar = false): void
+    {
+        $pdo = conexion();
+        $pdo->beginTransaction();
+        try {
+            $carritoId = self::bloquearGuardado($pdo, $clienteId);
+            if ($clave === null) {
+                $pdo->prepare('DELETE FROM carrito_items WHERE carrito_id = ?')->execute([$carritoId]);
+            } else {
+                [$productoId, $varianteId] = self::parsearClave($clave);
+                if ($sumar) {
+                    self::sumarGuardado($pdo, $carritoId, $productoId, $varianteId, $cantidad);
+                } elseif ($cantidad <= 0) {
+                    $pdo->prepare('DELETE FROM carrito_items WHERE carrito_id = ? AND producto_id = ? AND variante_id IS NOT DISTINCT FROM ?')
+                        ->execute([$carritoId, $productoId, $varianteId]);
+                } else {
+                    $pdo->prepare('UPDATE carrito_items SET cantidad = ? WHERE carrito_id = ? AND producto_id = ? AND variante_id IS NOT DISTINCT FROM ?')
+                        ->execute([$cantidad, $carritoId, $productoId, $varianteId]);
+                }
+            }
+            $pdo->commit();
+        } catch (\Throwable $error) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $error;
+        }
     }
 
     public static function estaVacio(): bool
@@ -252,8 +396,11 @@ class Carrito
 
     public static function montoDescuentoPEN(): float
     {
-        $subtotal = self::subtotalPEN();
-        $cupon = self::cuponActivo();
+        return self::descuentoPara(self::subtotalPEN(), self::cuponActivo());
+    }
+
+    private static function descuentoPara(float $subtotal, ?array $cupon): float
+    {
         if (!$cupon) {
             return 0.0;
         }
@@ -334,47 +481,44 @@ class Carrito
         }
 
         $pdo = conexion();
-        $lineas = self::lineas();
-        if ($lineas === []) {
-            // Sesión con referencias a productos que ya no existen: no crear
-            // un pedido vacío con total 0.
-            return null;
-        }
-        $modalidad = (string) ($pago['modalidad'] ?? self::MODALIDAD_RECOJO);
-        $subtotal = self::subtotalPEN();
-        $cupon = self::cuponActivo();
-        $descuento = self::montoDescuentoPEN();
-        $igvPct = (float) self::configuracion('igv_porcentaje', '18');
-        // Los precios de la tienda ya incluyen IGV: se extrae del bruto, no se
-        // suma encima (misma fórmula que Vendedor::repartir()).
-        $igvMonto = round(($subtotal - $descuento) * ($igvPct / (100 + $igvPct)), 2);
-
-        // Destino de entrega (Etapa 5): la ZONA de la dirección elegida es lo
-        // único que fija el costo. Sin una zona vigente no se confirma.
-        $clienteId = (int) $clienteSesion['id'];
-        $destino = self::resolverDestino($clienteId, $modalidad, $pago);
-        if ($destino === null) {
-            throw new \RuntimeException('La dirección de entrega no tiene una zona de envío vigente.');
-        }
-        $envioZona   = $destino['zona'];
-        $envioCosto  = $destino['costo'];
-        $direccionId = $destino['direccion_id'];
-        $total = round($subtotal - $descuento + $envioCosto, 2);
-
-        // El controlador decide el resultado del pago simulado. Se aceptan solo
-        // estados conocidos para que un valor externo no pueda falsear el flujo.
-        $estadoPedido = (string) ($pago['estado_pedido'] ?? 'Pagado');
-        if (!in_array($estadoPedido, ['Pendiente', 'Pagado'], true)) {
-            $estadoPedido = 'Pendiente';
-        }
-        $estadoPago = (string) ($pago['estado_pago'] ?? 'Pagado');
-        if (!in_array($estadoPago, ['Pendiente', 'Pagado', 'En verificación', 'Rechazado'], true)) {
-            $estadoPago = 'Pendiente';
-        }
-        $transaccionId = mb_substr((string) ($pago['transaccion_id'] ?? ''), 0, 60);
-
         $pdo->beginTransaction();
         try {
+            $clienteId = (int) $clienteSesion['id'];
+            // Una sola compra/cambio por carrito: no duplicar pedidos entre dispositivos.
+            $carritoId = self::bloquearGuardado($pdo, $clienteId);
+            $lineas = self::lineas();
+            if ($lineas === []) {
+                $pdo->rollBack();
+                return null;
+            }
+            $modalidad = (string) ($pago['modalidad'] ?? self::MODALIDAD_RECOJO);
+            $subtotal = (float) array_sum(array_column($lineas, 'subtotal'));
+            $cupon = self::cuponActivo();
+            $descuento = self::descuentoPara($subtotal, $cupon);
+            $igvPct = (float) self::configuracion('igv_porcentaje', '18');
+            // Los precios ya incluyen IGV: extraerlo, no sumarlo de nuevo.
+            $igvMonto = round(($subtotal - $descuento) * ($igvPct / (100 + $igvPct)), 2);
+
+            $destino = self::resolverDestino($clienteId, $modalidad, $pago);
+            if ($destino === null) {
+                throw new \RuntimeException('La dirección de entrega no tiene una zona de envío vigente.');
+            }
+            $envioZona   = $destino['zona'];
+            $envioCosto  = $destino['costo'];
+            $direccionId = $destino['direccion_id'];
+            $total = round($subtotal - $descuento + $envioCosto, 2);
+
+            // Solo estados conocidos del pago simulado.
+            $estadoPedido = (string) ($pago['estado_pedido'] ?? 'Pagado');
+            if (!in_array($estadoPedido, ['Pendiente', 'Pagado'], true)) {
+                $estadoPedido = 'Pendiente';
+            }
+            $estadoPago = (string) ($pago['estado_pago'] ?? 'Pagado');
+            if (!in_array($estadoPago, ['Pendiente', 'Pagado', 'En verificación', 'Rechazado'], true)) {
+                $estadoPago = 'Pendiente';
+            }
+            $transaccionId = mb_substr((string) ($pago['transaccion_id'] ?? ''), 0, 60);
+
             // 1. Si el destino era una dirección nueva, se persiste aquí mismo
             //    (misma transacción que el pedido). La primera del cliente
             //    queda como predeterminada.
@@ -533,6 +677,7 @@ class Carrito
                 );
             }
 
+            $pdo->prepare('DELETE FROM carrito_items WHERE carrito_id = ?')->execute([$carritoId]);
             $pdo->commit();
         } catch (\Throwable $error) {
             if ($pdo->inTransaction()) {
@@ -541,7 +686,7 @@ class Carrito
             throw $error;
         }
 
-        self::vaciar();
+        unset($_SESSION['carrito']);
         self::quitarCupon();
 
         return $pedidoId;

@@ -38,12 +38,12 @@ $pregunta = $pregunta ?? null;
     </div>
     <div class="form-row">
      <div class="form-group">
-      <label for="rePassword">Nueva contraseña (mín. 6) *</label>
-      <input type="password" id="rePassword" name="password" required/>
+      <label for="rePassword">Nueva contraseña (mín. 8) *</label>
+      <input type="password" id="rePassword" name="password" minlength="8" required/>
      </div>
      <div class="form-group">
       <label for="reConfirmar">Confirmar contraseña *</label>
-      <input type="password" id="reConfirmar" name="confirmar" required/>
+      <input type="password" id="reConfirmar" name="confirmar" minlength="8" required/>
      </div>
     </div>
     <button type="submit" class="btn-auth">Cambiar mi contraseña</button>

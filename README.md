@@ -145,6 +145,50 @@ La primera dirección se guarda como `Principal` y predeterminada en
 checkout calcula el costo con la zona de la dirección. La pregunta de
 seguridad se conserva para la recuperación de contraseña sin correo.
 
+## Carrito por cuenta
+
+Se reutilizan `carritos` y `carrito_items`: `users.id` se relaciona con
+`carritos.cliente_id`, y cada línea con su carrito, producto y variante opcional.
+No se guardan precios en el carrito; se recalculan desde el catálogo al comprar.
+
+- **Invitado:** productos temporales en la sesión del navegador, sin crear una cuenta.
+- **Iniciar sesión o registrarse:** sumar una sola vez los productos del invitado
+  al carrito de esa cuenta. Una variante distinta es otra línea.
+- **Cerrar sesión:** limpiar el carrito visible y el cupón, conservando los
+  productos en BD. Otro usuario del navegador no recibe ese carrito.
+- **Volver a entrar, incluso desde otro dispositivo:** recuperar el carrito propio.
+  Las sesiones autenticadas anteriores al cambio se incorporan al primer uso.
+- **Comprar:** pedido, stock y limpieza del carrito se confirman juntos; si algo
+  falla, el carrito permanece. Dos dispositivos no compran dos veces el mismo
+  carrito. Los productos ocultos/archivados no se compran; una variante eliminada
+  se quita del carrito y nunca se convierte en el producto base.
+
+Guardar productos **no reserva stock**. El cupón sigue siendo de la sesión;
+no se guarda entre dispositivos ni se cambia quién financia el descuento.
+Si falla guardar un carrito heredado al salir, se cierra la cuenta igualmente y
+queda un respaldo privado en la sesión, asociado a su propietario, para reintentar
+al volver a entrar. Ese respaldo excepcional se pierde si la sesión caduca antes
+de poder guardarlo en BD; nunca aparece como carrito de invitado u otra cuenta.
+
+### Migrar el carrito existente
+
+Para una base ya instalada, respaldar y pausar las escrituras del carrito.
+Antes de desplegar el código nuevo, ejecutar:
+
+```bash
+psql -X -v ON_ERROR_STOP=1 "$DATABASE_URL" -f database/carrito-persistente.sql
+```
+
+El script añade `variante_id`, su FK y la unicidad por carrito/producto/variante
+sin borrar filas ni recrear tablas. Es idempotente y lleva su propia transacción:
+no envolverlo en otra. `lock_timeout=3s` limita la espera, no la duración del índice.
+En instalaciones nuevas, la estructura ya incluye estos cambios.
+
+Para volver al código anterior, consultar `database/carrito-persistente-down.sql`.
+El rollback se niega si existen variantes o duplicados cuya identidad se perdería;
+no los borra ni fusiona automáticamente. No reimportar la estructura sobre una BD
+con datos. Las migraciones no se ejecutan automáticamente desde las peticiones web.
+
 ## Roles: cliente y vendedor
 
 Toda cuenta se registra como **cliente** y elige su tipo comercial

@@ -56,7 +56,8 @@ class CuentaController
 
         $perfil = Cuenta::usuarioActual();
         if ($perfil === null) {
-            header('Location: ?ruta=login/cerrar');
+            Cuenta::cerrarSesion();
+            header('Location: ?ruta=login');
             exit;
         }
 

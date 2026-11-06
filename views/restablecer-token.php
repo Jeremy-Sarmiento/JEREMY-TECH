@@ -29,7 +29,7 @@ $valido = $valido ?? false;
     <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>"/>
     <div class="form-row">
      <div class="form-group">
-      <label for="resPassword">Nueva contraseña (mín. 6) *</label>
+      <label for="resPassword">Nueva contraseña (mín. 8) *</label>
       <input type="password" id="resPassword" name="password" minlength="8" required autocomplete="new-password"/>
      </div>
      <div class="form-group">

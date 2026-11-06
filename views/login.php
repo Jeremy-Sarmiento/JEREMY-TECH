@@ -79,7 +79,7 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
     <div class="form-row">
      <div class="form-group">
       <label for="regNombre">Nombres / Razón social *</label>
-      <input type="text" id="regNombre" name="nombre" maxlength="255" autocomplete="name"
+      <input type="text" id="regNombre" name="nombre" maxlength="<?= $tipoCliente === 'B2B' ? 120 : 255 ?>" autocomplete="name"
              placeholder="Ej. Juan / Minera Sur S.A.C." value="<?= $v('nombre') ?>" required/>
      </div>
      <div class="form-group">
@@ -158,7 +158,7 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
 
     <div class="form-row">
      <div class="form-group">
-      <label for="regPassword">Contraseña (mín. 6) *</label>
+      <label for="regPassword">Contraseña (mín. 8) *</label>
       <input type="password" id="regPassword" name="password" minlength="8"
              autocomplete="new-password" required/>
      </div>
@@ -185,7 +185,7 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
      <label for="regRuc">RUC de la empresa <span class="auth-req">*</span></label>
      <input type="text" id="regRuc" name="ruc" maxlength="11" pattern="[0-9]{11}"
             inputmode="numeric" autocomplete="off" placeholder="Ej. 20123456789"
-            value="<?= $v('ruc') ?>" required/>
+            value="<?= $v('ruc') ?>"<?= $tipoCliente === 'B2B' ? ' required' : ' disabled' ?>/>
      <p class="auth-hint">11 dígitos. Obligatorio para factura y validación B2B.</p>
     </div>
 
@@ -238,8 +238,15 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
   const tipo = document.getElementById('regTipoCliente').value;
   const campoRuc = document.getElementById('regCampoRuc');
   const campoReventa = document.getElementById('regCampoReventa');
+  const ruc = document.getElementById('regRuc');
+  const nombre = document.getElementById('regNombre');
   if (campoRuc) campoRuc.hidden = tipo !== 'B2B';
   if (campoReventa) campoReventa.hidden = tipo !== 'C2C';
+  if (ruc) {
+   ruc.required = tipo === 'B2B';
+   ruc.disabled = tipo !== 'B2B';
+  }
+  if (nombre) nombre.maxLength = tipo === 'B2B' ? 120 : 255;
  }
 
  /** Aviso inmediato si las contraseñas no coinciden. */
