@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jeremy Tech — Entregables por Sesión</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 30px 20px 80px;
+    color: #1f2937;
+    background: #fafafa;
+    line-height: 1.5;
+  }
+  header {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 28px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  h1 { font-size: 1.6rem; margin: 0 0 6px; color: #111827; }
+  .meta { color: #6b7280; font-size: 0.95rem; margin: 0; }
+  .datos-alumno {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #f3f4f6;
+    font-size: 0.88rem;
+    color: #4b5563;
+  }
+  .datos-alumno strong { color: #111827; }
+  .sesiones-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .sesion-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .sesion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .sesion-titulo {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1d4ed8;
+    margin: 0;
+  }
+  .badge {
+    background: #eff6ff;
+    color: #1e40af;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid #bfdbfe;
+  }
+  .links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .enlace-entregable {
+    display: block;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.15s ease;
+  }
+  .enlace-entregable:hover {
+    background: #ffffff;
+    border-color: #3b82f6;
+    box-shadow: 0 3px 6px rgba(59, 130, 246, 0.12);
+    transform: translateY(-1px);
+  }
+  .entregable-num {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .entregable-nombre {
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 4px 0 2px;
+  }
+  .enlace-entregable:hover .entregable-nombre {
+    color: #1d4ed8;
+  }
+  .entregable-desc {
+    font-size: 0.82rem;
+    color: #6b7280;
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Jeremy Tech — Entregables del Curso</h1>
+  <p class="meta">Directorio de plantillas e informes interactivos organizados en orden cronológico (Sesiones 1 a 8).</p>
+  <div class="datos-alumno">
+    <span><strong>Alumno:</strong> Jeremy Sarmiento Tapia</span>
+    <span><strong>Proyecto:</strong> Jeremy Tech (Tienda de Tecnología — La Joya, Arequipa)</span>
+    <span><strong>Stack:</strong> PHP 8.2+ · PostgreSQL 14+ (Supabase) · Docker / Render</span>
+  </div>
+</header>
+
+<main class="sesiones-grid">
+
+  <!-- Sesión 1 -->
+  <section class="sesion-card">
+    <div class="sesion-header">
+      <h2 class="sesion-titulo">Sesión 1 — Introducción a los Negocios Electrónicos y E-business</h2>
+      <span class="badge">Sesión 1</span>
+    </div>
+    <div class="links-grid">
+      <a class="enlace-entregable" href="Plantilla-ADN-Corporativo.html">
+        <span class="entregable-num">Entregable 1.1</span>
+        <div class="entregable-nombre">El ADN Corporativo</div>
+        <p class="entregable-desc">Datos generales, justificación de viabilidad y propósito del negocio en La Joya.</p>
+      </a>
+      <a class="enlace-entregable" href="Plantilla-Planos-Transformacion.html">
+        <span class="entregable-num">Entregable 1.2</span>
+        <div class="entregable-nombre">Los Planos de Transformación (As-Is / To-Be)</div>
+        <p class="entregable-desc">Flujo actual manual vs arquitectura digital automatizada 24/7.</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- Sesión 2 -->
+  <section class="sesion-card">
+    <div class="sesion-header">
+      <h2 class="sesion-titulo">Sesión 2 — E-business &amp; E-commerce</h2>
+      <span class="badge">Sesión 2</span>
+    </div>
+    <div class="links-grid">
+      <a class="enlace-entregable" href="Plantilla-Radiografia-Tecnica.html">
+        <span class="entregable-num">Entregable 2.1</span>
+        <div class="entregable-nombre">La Radiografía Técnica</div>
+        <p class="entregable-desc">Clasificación y justificación de procesos E-commerce vs E-business.</p>
+      </a>
+      <a class="enlace-entregable" href="Plantilla-Reporte-Puente-Digital.html">
+        <span class="entregable-num">Entregable 2.2</span>
+        <div class="entregable-nombre">El Puente Digital — Reporte Técnico</div>
+        <p class="entregable-desc">Integración con ExchangeRate-API para cálculo multimoneda en vivo.</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- Sesión 3 -->
+  <section class="sesion-card">
+    <div class="sesion-header">
+      <h2 class="sesion-titulo">Sesión 3 — Negocios Digitales y Diagrama Entidad-Relación (DER)</h2>
+      <span class="badge">Sesión 3</span>
+    </div>
+    <div class="links-grid">
+      <a class="enlace-entregable" href="Plantilla-Radiografia-Comercial.html">
+        <span class="entregable-num">Entregable 3.1</span>
+        <div class="entregable-nombre">La Radiografía Comercial</div>
+        <p class="entregable-desc">Segmentación y coexistencia de modelos B2C, B2B y C2C en la plataforma.</p>
+      </a>
+      <a class="enlace-entregable" href="Plantilla-Plano-Maestro-DER.html">
+        <span class="entregable-num">Entregable 3.2</span>
+        <div class="entregable-nombre">El Plano Maestro de la Memoria — DER</div>
+        <p class="entregable-desc">Diagrama relacional en PostgreSQL (31 tablas), integridad y protección de datos.</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- Sesión 4 -->
+  <section class="sesion-card">
+    <div class="sesion-header">
+      <h2 class="sesion-titulo">Sesión 4 — Modelo Canvas y Escalabilidad Lógica</h2>
+      <span class="badge">Sesión 4</span>
+    </div>
+    <div class="links-grid">
+      <a class="enlace-entregable" href="Plantilla-Mapa-Maestro-Canvas.html">
+        <span class="entregable-num">Entregable 4.1</span>
+        <div class="entregable-nombre">El Mapa Maestro — Modelo Canvas</div>
+        <p class="entregable-desc">Los 9 módulos estratégicos aplicados a Jeremy Tech y análisis de vulnerabilidad.</p>
+      </a>
+      <a class="enlace-entregable" href="Plantilla-Arquitectura-Gigante.html">
+        <span class="entregable-num">Entregable 4.2</span>
+        <div class="entregable-nombre">La Arquitectura del Gigante</div>
+        <p class="entregable-desc">Diseño lógico de escalabilidad, paginación e índices O(log N) para catálogos masivos.</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- Sesión 5 -->
+  <section class="sesion-card">
+    <div class="sesion-header">
+      <h2 class="sesion-titulo">Sesión 5 — Marketing Digital y Analítica en Vivo</h2>
+      <span class="badge">Sesión 5</span>
+    </div>
+    <div class="links-grid">
+      <a class="enlace-entregable" href="Plantilla-Plan-de-Trafico.html">
+        <span class="entregable-num">Entregable 5.1</span>
+        <div class="entregable-nombre">El Lanzamiento Invisible — Plan de Tráfico</div>
+        <p class="entregable-desc">Público objetivo, palabras clave SEO local, campañas simuladas y metadatos reales.</p>
+      </a>
+      <a class="enlace-entregable" href="Plantilla-Tienda-que-Observa.html">
+        <span class="entregable-num">Entregable 5.2</span>
+        <div class="entregable-nombre">La Tienda que Observa — Analítica en Vivo</div>
+        <p class="entregable-desc">Instrumentación de eventos, captura en eventos_analitica y toma de decisiones.</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- Sesión 6 -->
+  <section class="sesion-card">
+    <div class="sesion-header">
+      <h2 class="sesion-titulo">Sesión 6 — Herramientas, Análisis de Mercado y Chatbots</h2>
+      <span class="badge">Sesión 6</span>
+    </div>
+    <div class="links-grid">
+      <a class="enlace-entregable" href="Plantilla-Benchmark-Tecnologico.html">
+        <span class="entregable-num">Entregable 6.1</span>
+        <div class="entregable-nombre">El Benchmark Tecnológico</div>
+        <p class="entregable-desc">Evaluación de herramientas para analítica, CRM y asistentes con IA.</p>
+      </a>
+      <a class="enlace-entregable" href="Plantilla-Asistente-Virtual.html">
+        <span class="entregable-num">Entregable 6.2</span>
+        <div class="entregable-nombre">El Asistente Virtual en Acción</div>
+        <p class="entregable-desc">Chatbot FAQ incrustado en la tienda con base de conocimiento en PostgreSQL.</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- Sesión 7 -->
+  <section class="sesion-card">
+    <div class="sesion-header">
+      <h2 class="sesion-titulo">Sesión 7 — Soluciones de Pago y Automatización Webhook</h2>
+      <span class="badge">Sesión 7</span>
+    </div>
+    <div class="links-grid">
+      <a class="enlace-entregable" href="Plantilla-Transaccion-Perfecta.html">
+        <span class="entregable-num">Entregable 7.1</span>
+        <div class="entregable-nombre">La Transacción Perfecta</div>
+        <p class="entregable-desc">Justificación de pasarela y procesamiento transaccional atómico en el checkout.</p>
+      </a>
+      <a class="enlace-entregable" href="Plantilla-Panel-Control-Inteligente.html">
+        <span class="entregable-num">Entregable 7.2</span>
+        <div class="entregable-nombre">El Panel de Control Inteligente</div>
+        <p class="entregable-desc">Evidencia de webhook HMAC-SHA256, conciliación automática y alcance del proyecto.</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- Sesión 8 -->
+  <section class="sesion-card">
+    <div class="sesion-header">
+      <h2 class="sesion-titulo">Sesión 8 — Seguridad, Ética y Tienda Publicada</h2>
+      <span class="badge">Sesión 8</span>
+    </div>
+    <div class="links-grid">
+      <a class="enlace-entregable" href="Plantilla-Informe-Etica-Ciberseguridad.html">
+        <span class="entregable-num">Entregable 8.1</span>
+        <div class="entregable-nombre">Informe de Ética y Ciberseguridad</div>
+        <p class="entregable-desc">Cumplimiento de la Ley N° 29733, tokens CSRF, rate limit y defensas activas.</p>
+      </a>
+      <a class="enlace-entregable" href="Plantilla-Tienda-Publicada.html">
+        <span class="entregable-num">Entregable 8.2</span>
+        <div class="entregable-nombre">La Tienda Virtual Creada y Publicada</div>
+        <p class="entregable-desc">Hito final: checklist de producción, despliegue Render/Supabase y conclusiones.</p>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+</body>
+</html>
