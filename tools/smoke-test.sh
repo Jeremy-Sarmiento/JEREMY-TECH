@@ -35,8 +35,8 @@ check() {
 
 check "$base/" 200
 check "$base/favicon.ico" 200
-check "$base/favicon.svg" 200
-check "$base/apple-touch-icon.png" 200
+check "$base/img/favicon.svg" 200
+check "$base/img/apple-touch-icon.png" 200
 check "$base/?ruta=login" 200
 check "$base/?ruta=catalogo" 200
 check "$base/?ruta=admin" 302
