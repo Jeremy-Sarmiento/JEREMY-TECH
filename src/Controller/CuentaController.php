@@ -56,7 +56,8 @@ class CuentaController
 
         $perfil = Cuenta::usuarioActual();
         if ($perfil === null) {
-            header('Location: ?ruta=login/cerrar');
+            Cuenta::cerrarSesion();
+            header('Location: ?ruta=login');
             exit;
         }
 
@@ -329,14 +330,28 @@ class CuentaController
             // puede usar este formulario para enumerar cuentas ni para spam.
             LimiteIntentos::registrar('cliente_recuperar', $clave, LimiteIntentos::ipActual());
 
+            $token = null;
             if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL) !== false) {
-                Recuperacion::solicitarCliente($email);
+                $token = Recuperacion::solicitarCliente($email);
             }
 
-            self::guardarFlash(
-                'Si el correo está registrado, enviamos un enlace de recuperación. Revisa tu bandeja.',
-                false
-            );
+            if ($token !== null) {
+                $enlace = APP_URL . '/index.php?ruta=login/restablecer&token=' . urlencode($token);
+                // shortcut: enlace visible para la demo; retirarlo antes de abrir a usuarios reales.
+                self::guardarFlash(
+                    'Enlace de recuperación generado (modo demo):<br>'
+                    . '<a href="' . htmlspecialchars($enlace) . '" target="_blank" rel="noopener">'
+                    . htmlspecialchars($enlace) . '</a><br>'
+                    . 'El enlace vence en ' . 30 . ' minutos y solo puede usarse una vez.',
+                    false,
+                    true
+                );
+            } else {
+                self::guardarFlash(
+                    'Si el correo está registrado, enviamos un enlace de recuperación. Revisa tu bandeja.',
+                    false
+                );
+            }
             header('Location: ?ruta=login/recuperar');
             exit;
         }
@@ -359,7 +374,7 @@ class CuentaController
 
         $token = trim((string) ($_GET['token'] ?? $_POST['token'] ?? ''));
         $flash = self::tomarFlash();
-        $valido = Recuperacion::tokenValido(Recuperacion::CLIENTE, $token);
+        $valido = Recuperacion::tokenValido($token);
         $claveReset = $token !== '' ? $token : 'ip:' . LimiteIntentos::ipActual();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -381,7 +396,6 @@ class CuentaController
             }
 
             $error = Recuperacion::restablecer(
-                Recuperacion::CLIENTE,
                 $token,
                 (string) ($_POST['password'] ?? ''),
                 (string) ($_POST['confirmar'] ?? '')
@@ -406,12 +420,13 @@ class CuentaController
     /**
      * Guarda un mensaje flash en la sesión.
      */
-    private static function guardarFlash(string $mensaje, bool $esError): void
+    private static function guardarFlash(string $mensaje, bool $esError, bool $html = false): void
     {
         \Security\Proteccion::iniciarSesion();
         $_SESSION['flash_login'] = [
             'tipo'    => $esError ? 'error' : 'ok',
             'mensaje' => $mensaje,
+            'html'    => $html,
         ];
     }
 

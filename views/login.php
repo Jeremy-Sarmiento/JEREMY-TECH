@@ -79,7 +79,7 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
     <div class="form-row">
      <div class="form-group">
       <label for="regNombre">Nombres / Razón social *</label>
-      <input type="text" id="regNombre" name="nombre" maxlength="255" autocomplete="name"
+      <input type="text" id="regNombre" name="nombre" maxlength="<?= $tipoCliente === 'B2B' ? 120 : 255 ?>" autocomplete="name"
              placeholder="Ej. Juan / Minera Sur S.A.C." value="<?= $v('nombre') ?>" required/>
      </div>
      <div class="form-group">
@@ -158,13 +158,13 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
 
     <div class="form-row">
      <div class="form-group">
-      <label for="regPassword">Contraseña (mín. 6) *</label>
-      <input type="password" id="regPassword" name="password" minlength="6"
+      <label for="regPassword">Contraseña (mín. 8) *</label>
+      <input type="password" id="regPassword" name="password" minlength="8"
              autocomplete="new-password" required/>
      </div>
      <div class="form-group">
       <label for="regConfirmar">Confirmar contraseña *</label>
-      <input type="password" id="regConfirmar" name="confirmar" minlength="6"
+      <input type="password" id="regConfirmar" name="confirmar" minlength="8"
              autocomplete="new-password" required/>
      </div>
     </div>
@@ -182,11 +182,11 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
     </div>
 
     <div class="form-group" id="regCampoRuc"<?= $tipoCliente === 'B2B' ? '' : ' hidden' ?>>
-     <label for="regRuc">RUC de la empresa</label>
+     <label for="regRuc">RUC de la empresa <span class="auth-req">*</span></label>
      <input type="text" id="regRuc" name="ruc" maxlength="11" pattern="[0-9]{11}"
             inputmode="numeric" autocomplete="off" placeholder="Ej. 20123456789"
-            value="<?= $v('ruc') ?>"/>
-     <p class="auth-hint">11 dígitos. Lo usaremos si pides factura.</p>
+            value="<?= $v('ruc') ?>"<?= $tipoCliente === 'B2B' ? ' required' : ' disabled' ?>/>
+     <p class="auth-hint">11 dígitos. Obligatorio para factura y validación B2B.</p>
     </div>
 
     <div class="form-group" id="regCampoReventa"<?= $tipoCliente === 'C2C' ? '' : ' hidden' ?>>
@@ -222,7 +222,7 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
  </div>
 </main>
 
-<script>
+<script nonce="<?= htmlspecialchars(\Security\Proteccion::nonce(), ENT_QUOTES, 'UTF-8') ?>">
  function mostrarForm(nombre) {
   document.getElementById('formIniciar').style.display = (nombre === 'iniciar') ? '' : 'none';
   document.getElementById('formRegistro').style.display = (nombre === 'registro') ? '' : 'none';
@@ -238,8 +238,15 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
   const tipo = document.getElementById('regTipoCliente').value;
   const campoRuc = document.getElementById('regCampoRuc');
   const campoReventa = document.getElementById('regCampoReventa');
+  const ruc = document.getElementById('regRuc');
+  const nombre = document.getElementById('regNombre');
   if (campoRuc) campoRuc.hidden = tipo !== 'B2B';
   if (campoReventa) campoReventa.hidden = tipo !== 'C2C';
+  if (ruc) {
+   ruc.required = tipo === 'B2B';
+   ruc.disabled = tipo !== 'B2B';
+  }
+  if (nombre) nombre.maxLength = tipo === 'B2B' ? 120 : 255;
  }
 
  /** Aviso inmediato si las contraseñas no coinciden. */
@@ -293,7 +300,7 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
 
 <!-- Mapa opcional de precisión de entrega: Leaflet + OpenStreetMap (sin API key) -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script>
+<script nonce="<?= htmlspecialchars(\Security\Proteccion::nonce(), ENT_QUOTES, 'UTF-8') ?>">
  let regMapaLeaflet = null;
  let regMarcadorLeaflet = null;
  const REG_CENTRO = [-16.3988, -71.5369]; // Cercado, Arequipa

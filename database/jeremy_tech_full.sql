@@ -135,11 +135,17 @@ CREATE TABLE `carrito_items` (
   `carrito_id` int(11) NOT NULL,
   `cantidad` int(11) NOT NULL,
   `producto_id` bigint(20) unsigned NOT NULL,
+  `variante_id` int(11) DEFAULT NULL,
+  `variante_clave` int(11) AS (coalesce(`variante_id`,0)) STORED,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `carrito_item_unico` (`carrito_id`,`producto_id`),
+  UNIQUE KEY `uq_carrito_items_linea` (`carrito_id`,`producto_id`,`variante_clave`),
   KEY `fk_caritem_producto` (`producto_id`),
+  KEY `idx_carrito_items_variante` (`variante_id`),
   CONSTRAINT `fk_caritem_carrito` FOREIGN KEY (`carrito_id`) REFERENCES `carritos` (`id`),
-  CONSTRAINT `fk_caritem_producto` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`)
+  CONSTRAINT `fk_caritem_producto` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`),
+  CONSTRAINT `fk_caritem_variante` FOREIGN KEY (`variante_id`) REFERENCES `producto_variantes` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `ck_carrito_items_variante` CHECK (`variante_id` is null or `variante_id` > 0),
+  CONSTRAINT `ck_carrito_items_cantidad` CHECK (`cantidad` > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1851,7 +1857,7 @@ CREATE TABLE `movimientos_inventario` (
   KEY `idx_mov_creado` (`creado_en`),
   CONSTRAINT `fk_mov_pedido` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_mov_producto` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`),
-  CONSTRAINT `fk_mov_variante` FOREIGN KEY (`variante_id`) REFERENCES `producto_variantes` (`id`) ON DELETE SET NULL
+  CONSTRAINT `fk_mov_variante` FOREIGN KEY (`variante_id`) REFERENCES `producto_variantes` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -2569,6 +2575,20 @@ SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
 --
 -- Dumping routines for database 'jeremy_tech'
 --
+--
+-- Table structure for table `producto_imagenes`
+--
+
+DROP TABLE IF EXISTS `producto_imagenes`;
+CREATE TABLE `producto_imagenes` (
+  `producto_id` bigint(20) unsigned NOT NULL,
+  `mime` varchar(60) NOT NULL,
+  `datos` longblob NOT NULL,
+  `actualizado_en` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`producto_id`),
+  CONSTRAINT `fk_prodimg_producto` FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

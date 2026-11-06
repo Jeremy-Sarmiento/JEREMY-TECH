@@ -91,10 +91,11 @@ final class Favorito
             return null;
         }
 
-        // INSERT IGNORE evita duplicados si dos pestañas envían el clic a la
-        // vez; la clave única (cliente_id, producto_id) es la última defensa.
+        // INSERT ... ON DUPLICATE KEY evita duplicados si dos pestañas envían el clic
+        // a la vez; la clave única (cliente_id, producto_id) es la última defensa.
         $pdo->prepare(
-            'INSERT IGNORE INTO favoritos (cliente_id, producto_id) VALUES (?, ?)'
+            'INSERT INTO favoritos (cliente_id, producto_id) VALUES (?, ?)
+             ON DUPLICATE KEY UPDATE id = id'
         )->execute([$clienteId, $productoId]);
 
         return true;
@@ -116,6 +117,7 @@ final class Favorito
 
         $stmt = conexion()->prepare(
             'SELECT p.id, p.slug, p.nombre, p.categoria, p.precio_pen, p.imagen,
+                    (EXISTS (SELECT 1 FROM producto_imagenes pi WHERE pi.producto_id = p.id)) AS imagen_db,
                     p.stock, p.activo, p.vendedor_id,
                     v.name AS vendedor_nombre, v.usuario AS vendedor_usuario,
                     v.verificado AS vendedor_verificado,

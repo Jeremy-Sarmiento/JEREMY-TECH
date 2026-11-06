@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Jeremy Tech">
+  <rect width="64" height="64" rx="14" fill="#070a0e"/>
+  <path d="M23 16v26a10 10 0 0 1-10 10h-2v-7h2a3 3 0 0 0 3-3V16z" fill="#e9eff6"/>
+  <rect x="31" y="16" width="22" height="7" rx="1.5" fill="#2fd9f0"/>
+  <rect x="38.5" y="16" width="7" height="30" rx="1.5" fill="#2fd9f0"/>
+</svg>

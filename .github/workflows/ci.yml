@@ -42,6 +42,7 @@ jobs:
         image: mariadb:11.4
         env:
           MARIADB_ROOT_PASSWORD: admin
+          MARIADB_DATABASE: jeremy_tech
         ports:
           - 3306:3306
         options: >-
@@ -51,6 +52,7 @@ jobs:
           --health-retries=20
     env:
       DB_HOST: 127.0.0.1
+      DB_PORT: 3306
       DB_NAME: jeremy_tech
       DB_USER: root
       DB_PASS: admin
@@ -65,14 +67,18 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+          extensions: pdo_mysql
           tools: composer
           coverage: none
 
       - name: Instalar dependencias
         run: composer install --no-interaction --prefer-dist --no-progress
 
-      - name: Importar el dump sanitizado
-        run: mysql -h 127.0.0.1 -u root -padmin < database/jeremy_tech_full.sql
+      - name: Instalar cliente MariaDB
+        run: sudo apt-get update && sudo apt-get install -y mariadb-client
+
+      - name: Importar el dump completo
+        run: mariadb -h 127.0.0.1 -u root -padmin < database/jeremy_tech_full.sql
 
       - name: PHPUnit
         run: php vendor/bin/phpunit

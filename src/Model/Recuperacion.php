@@ -7,11 +7,10 @@ namespace Model;
 /**
  * Recuperación de contraseña mediante token de un solo uso.
  *
- * Usa la tabla `tokens_recuperacion` (hasta ahora sin uso):
+ * Usa la tabla `tokens_recuperacion`:
  *   - el token que viaja por correo se guarda HASHEADO (SHA-256), nunca en claro;
  *   - vence a los 30 minutos;
- *   - es de un solo uso y, al emitir uno nuevo, se invalidan los anteriores;
- *   - distingue `cliente` (acceso por correo) de `admin` (acceso por usuario).
+ *   - es de un solo uso y, al emitir uno nuevo, se invalidan los anteriores.
  *
  * El correo se materializa con `CorreoSimulado` y se registra en
  * `notificaciones` (pedido_id NULL) para que el panel pueda auditar el envío.
@@ -21,9 +20,8 @@ final class Recuperacion
     /** Minutos de validez del enlace. */
     private const MINUTOS_VALIDEZ = 30;
 
-    /** Tipos admitidos por el ENUM de `tokens_recuperacion`. */
-    public const CLIENTE = 'cliente';
-    public const ADMIN = 'admin';
+    /** Tipo con el que se registran los tokens en `tokens_recuperacion`. */
+    private const TIPO = 'cliente';
 
     /**
      * Emite un token para una cuenta de la tienda (por correo).
@@ -31,35 +29,22 @@ final class Recuperacion
      * El llamador debe responder siempre lo mismo para no revelar si el
      * correo está registrado.
      */
-    public static function solicitarCliente(string $email): bool
+    public static function solicitarCliente(string $email): ?string
     {
         $usuario = Cuenta::porEmail($email);
         if ($usuario === null || (int) ($usuario['activo'] ?? 0) !== 1) {
-            return false;
+            return null;
         }
 
-        return self::emitir(self::CLIENTE, $usuario);
+        return self::emitirYDevolver($usuario);
     }
 
     /**
-     * Emite un token para una cuenta del panel (por usuario).
+     * ¿El token existe y sigue vigente?
      */
-    public static function solicitarAdmin(string $usuario): bool
+    public static function tokenValido(string $token): bool
     {
-        $cuenta = Administrador::porUsuario($usuario);
-        if ($cuenta === null || (int) ($cuenta['activo'] ?? 0) !== 1) {
-            return false;
-        }
-
-        return self::emitir(self::ADMIN, $cuenta);
-    }
-
-    /**
-     * ¿El token existe, pertenece al tipo indicado y sigue vigente?
-     */
-    public static function tokenValido(string $tipo, string $token): bool
-    {
-        return self::filaPorToken($tipo, $token) !== null;
+        return self::filaPorToken($token) !== null;
     }
 
     /**
@@ -68,19 +53,18 @@ final class Recuperacion
      * @return string|null null si se actualizó, o el mensaje de error.
      */
     public static function restablecer(
-        string $tipo,
         string $token,
         string $nueva,
         string $confirmar
     ): ?string {
-        if (strlen($nueva) < 6) {
-            return 'La contraseña debe tener al menos 6 caracteres';
+        if (($errorClave = \Security\Contrasena::error($nueva)) !== null) {
+            return $errorClave;
         }
         if ($nueva !== $confirmar) {
             return 'Las contraseñas no coinciden';
         }
 
-        $fila = self::filaPorToken($tipo, $token);
+        $fila = self::filaPorToken($token);
         if ($fila === null) {
             return 'El enlace de recuperación no es válido o ya expiró. Solicita uno nuevo.';
         }
@@ -131,17 +115,18 @@ final class Recuperacion
 
     /**
      * Crea el token, invalida los anteriores y envía el correo simulado.
+     * Devuelve el token en claro (64 chars hex) o null si falla.
      *
      * @param array<string, mixed> $usuario
      */
-    private static function emitir(string $tipo, array $usuario): bool
+    private static function emitirYDevolver(array $usuario): ?string
     {
         $usuarioId = (int) ($usuario['id'] ?? 0);
         if ($usuarioId <= 0) {
-            return false;
+            return null;
         }
 
-        $token = bin2hex(random_bytes(32)); // 64 caracteres hex
+        $token = bin2hex(random_bytes(32));
         $expira = date('Y-m-d H:i:s', time() + self::MINUTOS_VALIDEZ * 60);
         $pdo = conexion();
         $pdo->beginTransaction();
@@ -155,33 +140,31 @@ final class Recuperacion
             $pdo->prepare(
                 'INSERT INTO tokens_recuperacion (tipo, usuario_id, token, expira_en, usado)
                  VALUES (?, ?, ?, ?, 0)'
-            )->execute([$tipo, $usuarioId, hash('sha256', $token), $expira]);
+            )->execute([self::TIPO, $usuarioId, hash('sha256', $token), $expira]);
 
             $pdo->commit();
         } catch (\Throwable $e) {
             $pdo->rollBack();
             error_log('No se pudo crear el token de recuperación: ' . $e->getMessage());
-            return false;
+            return null;
         }
 
-        self::enviarCorreo($tipo, $usuario, $token);
-        return true;
+        self::enviarCorreo($usuario, $token);
+        return $token;
     }
 
     /**
      * @param array<string, mixed> $usuario
      */
-    private static function enviarCorreo(string $tipo, array $usuario, string $token): void
+    private static function enviarCorreo(array $usuario, string $token): void
     {
         $email = trim((string) ($usuario['email'] ?? ''));
         $nombre = trim((string) ($usuario['name'] ?? '') . ' ' . (string) ($usuario['apellidos'] ?? ''));
-        $esAdmin = $tipo === self::ADMIN;
-        $ruta = $esAdmin ? 'admin/recuperar/restablecer' : 'login/restablecer';
-        $enlace = APP_URL . '/index.php?ruta=' . $ruta . '&token=' . urlencode($token);
+        $enlace = APP_URL . '/index.php?ruta=login/restablecer&token=' . urlencode($token);
         $asunto = 'Recuperación de contraseña — Jeremy Tech';
 
         $h = static fn ($valor): string => htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
-        $saludo = $nombre !== '' ? $nombre : ($esAdmin ? 'usuario' : 'cliente');
+        $saludo = $nombre !== '' ? $nombre : 'cliente';
 
         $html = '<!doctype html><html lang="es"><head><meta charset="utf-8">'
             . '<meta name="viewport" content="width=device-width, initial-scale=1">'
@@ -223,7 +206,7 @@ final class Recuperacion
 
         try {
             $archivo = CorreoSimulado::guardar(
-                'recuperacion_' . $tipo,
+                'recuperacion_cliente',
                 0,
                 $email,
                 $asunto,
@@ -232,7 +215,7 @@ final class Recuperacion
             );
         } catch (\Throwable $e) {
             $error = mb_substr($e->getMessage(), 0, 255);
-            error_log('Correo de recuperación (' . $tipo . '): ' . $error);
+            error_log('Correo de recuperación: ' . $error);
         }
 
         try {
@@ -243,7 +226,7 @@ final class Recuperacion
             )->execute([
                 (int) ($usuario['id'] ?? 0),
                 mb_substr($email, 0, 190),
-                'recuperacion_' . $tipo,
+                'recuperacion_cliente',
                 mb_substr($asunto, 0, 180),
                 // Resumen sin el token: el enlace completo solo vive en el
                 // correo simulado y el token en la BD está hasheado.
@@ -260,12 +243,10 @@ final class Recuperacion
     /**
      * @return array<string, mixed>|null
      */
-    private static function filaPorToken(string $tipo, string $token): ?array
+    private static function filaPorToken(string $token): ?array
     {
         $token = trim($token);
-        if (!in_array($tipo, [self::CLIENTE, self::ADMIN], true)
-            || preg_match('/^[a-f0-9]{64}$/', $token) !== 1
-        ) {
+        if (preg_match('/^[a-f0-9]{64}$/', $token) !== 1) {
             return null;
         }
 
@@ -278,7 +259,7 @@ final class Recuperacion
                 AND u.activo = 1 AND u.deleted_at IS NULL
               LIMIT 1'
         );
-        $stmt->execute([$tipo, hash('sha256', $token)]);
+        $stmt->execute([self::TIPO, hash('sha256', $token)]);
         $fila = $stmt->fetch();
 
         return $fila ?: null;

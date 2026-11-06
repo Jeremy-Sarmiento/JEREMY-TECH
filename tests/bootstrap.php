@@ -41,6 +41,10 @@ function ensureTestDb(): void
         $sql = str_replace('USE `jeremy_tech`', 'USE `jeremy_tech_test`', $sql);
         $pdo->exec($sql);
     }
+    // Actualiza bases creadas antes de las migraciones de imágenes y carrito.
+    $pdo->exec(file_get_contents(__DIR__ . '/../database/imagenes-producto.sql'));
+    $pdo->exec(file_get_contents(__DIR__ . '/../database/carrito-persistente.sql'));
+    $pdo->exec(file_get_contents(__DIR__ . '/../database/integridad-rendimiento.sql'));
 }
 
 function resetTestDb(): void

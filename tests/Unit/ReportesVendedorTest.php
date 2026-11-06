@@ -39,7 +39,7 @@ class ReportesVendedorTest extends TestCase
         // Pedido cobrado de hace dos meses: 1 unidad de B.
         $pdo->exec(
             "INSERT INTO pedidos (id, cliente_id, total_pen, subtotal, igv_monto, envio_costo, envio_zona, comprobante_documento, courier, estado, creado_en)
-             VALUES (2, 4, 59.00, 50.00, 9.00, 0, 'Lima', '', '', 'Pagado', DATE_SUB(NOW(), INTERVAL 2 MONTH))"
+             VALUES (2, 4, 59.00, 50.00, 9.00, 0, 'Lima', '', '', 'Pagado', NOW() - INTERVAL 2 MONTH)"
         );
         $pdo->exec(
             "INSERT INTO detalle_pedido (pedido_id, cantidad, precio_unitario_pen, variante_nombre, producto_id, producto_nombre, vendedor_id)
@@ -85,6 +85,18 @@ class ReportesVendedorTest extends TestCase
 
         $this->assertEquals(0, $filas[1]['pedidos']);
         $this->assertEquals(0.0, $filas[1]['neto']);
+    }
+
+    public function testVentasHistoricasSeMuestranSinIgvSinModificarSusImportes(): void
+    {
+        testPdo()->exec('UPDATE comisiones SET monto_venta = monto_venta * 1.18');
+        $resumen = Vendedor::resumenGanancias(self::VENDEDOR);
+        $this->assertEquals(250, $resumen['vendido']);
+        $this->assertEquals($resumen['vendido'], $resumen['comision'] + $resumen['neto']);
+        $this->assertEquals(200, Vendedor::reporteMensual(self::VENDEDOR, 3)[2]['vendido']);
+        $reparto = Vendedor::repartir(118, self::VENDEDOR, 18);
+        $this->assertSame(100.0, $reparto['base']);
+        $this->assertEquals($reparto['base'], $reparto['comision'] + $reparto['vendedor']);
     }
 
     public function testTopProductosExcluyeCancelados(): void

@@ -123,6 +123,7 @@ function env(string $clave, string $porDefecto = ''): string
 }
 
 define('DB_HOST', env('DB_HOST', '127.0.0.1'));
+define('DB_PORT', env('DB_PORT', '3306'));
 define('DB_NAME', env('DB_NAME', 'jeremy_tech'));
 define('DB_USER', env('DB_USER', 'root'));
 define('DB_PASS', env('DB_PASS', ''));
@@ -150,7 +151,8 @@ if (!defined('APP_URL')) {
             // con la ruta del script de turno (p. ej. /tmp/...).
             $appUrl = 'http://localhost';
         } else {
-            $esquema = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            require_once BASE_PATH . '/src/Security/Proteccion.php';
+            $esquema = \Security\Proteccion::esHttps() ? 'https' : 'http';
             $host = preg_replace('/[^A-Za-z0-9.\-:\[\]]/', '', (string) ($_SERVER['HTTP_HOST'] ?? 'localhost'));
             if ($host === '') {
                 $host = 'localhost';
@@ -221,7 +223,7 @@ function conexion(): PDO
 
     try {
         $pdo = new PDO(
-            'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4',
+            'mysql:host=' . DB_HOST . ';port=' . DB_PORT . ';dbname=' . DB_NAME . ';charset=utf8mb4',
             DB_USER,
             DB_PASS,
             [
@@ -230,13 +232,26 @@ function conexion(): PDO
                 PDO::ATTR_EMULATE_PREPARES   => false,
             ]
         );
-    } catch (PDOException $error) {
+    } catch (Throwable $error) {
+        error_log('Conexión a la base de datos fallida: ' . $error->getMessage());
+        if (PHP_SAPI === 'cli') {
+            fwrite(STDERR, 'No se pudo conectar a la base de datos configurada.' . PHP_EOL);
+            exit(1);
+        }
         http_response_code(500);
         die(
-            "No se pudo conectar a la base de datos '" . DB_NAME . "'. Verifica que " .
-            'MariaDB esté encendido y que la base exista (CREATE DATABASE jeremy_tech;).<br>' .
-            'Detalle técnico: ' . htmlspecialchars($error->getMessage())
+            'No se pudo conectar a la base de datos configurada. ' .
+            'Revisa la configuración del servidor o contacta al administrador.'
         );
+    }
+
+    // El código usa bloqueos explícitos (FOR UPDATE) para serializar compras.
+    // READ COMMITTED evita el error 1020 de MariaDB cuando otra transacción
+    // modificó una fila leída antes de pedir el bloqueo.
+    try {
+        $pdo->exec('SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED');
+    } catch (Throwable) {
+        // El servidor no permite cambiarla: se queda con REPEATABLE READ.
     }
 
     // Alinea el reloj de la SESIÓN MySQL con el de PHP. Las columnas con

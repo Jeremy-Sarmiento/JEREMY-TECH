@@ -23,6 +23,8 @@ final class ProductoVendedor
     /** Límite de colores distintos por publicación. */
     private const MAX_COLORES = 10;
 
+    private const ERROR_STOCK_CAMBIADO = 'El stock cambió desde que abriste el formulario. Recarga la página y revisa las existencias antes de guardar.';
+
     /**
      * Productos del vendedor, con sus métricas de venta.
      *
@@ -42,6 +44,7 @@ final class ProductoVendedor
         $sql = 'SELECT p.id, p.slug, p.nombre, p.modelo, p.categoria, p.codigo_sku,
                        p.precio_pen, p.stock, p.stock_minimo, p.activo, p.imagen,
                        p.archivado_en, p.created_at, p.updated_at,
+                       (EXISTS (SELECT 1 FROM producto_imagenes pi WHERE pi.producto_id = p.id)) AS imagen_db,
                        m.nombre AS marca_nombre, g.nombre AS garantia_nombre,
                        COALESCE(v.unidades, 0) AS unidades_vendidas,
                        (SELECT COUNT(*) FROM detalle_pedido dp2
@@ -121,12 +124,12 @@ final class ProductoVendedor
         }
 
         $stmt = conexion()->prepare(
-            'SELECT COALESCE(SUM(archivado_en IS NULL), 0) AS total,
-                    COALESCE(SUM(archivado_en IS NULL AND activo = 1), 0) AS activos,
-                    COALESCE(SUM(archivado_en IS NULL AND activo = 0), 0) AS ocultos,
-                    COALESCE(SUM(archivado_en IS NULL AND stock <= stock_minimo), 0) AS stock_bajo,
+            'SELECT COALESCE(SUM(CASE WHEN archivado_en IS NULL THEN 1 ELSE 0 END), 0) AS total,
+                    COALESCE(SUM(CASE WHEN archivado_en IS NULL AND activo = 1 THEN 1 ELSE 0 END), 0) AS activos,
+                    COALESCE(SUM(CASE WHEN archivado_en IS NULL AND activo = 0 THEN 1 ELSE 0 END), 0) AS ocultos,
+                    COALESCE(SUM(CASE WHEN archivado_en IS NULL AND stock <= stock_minimo THEN 1 ELSE 0 END), 0) AS stock_bajo,
                     COALESCE(SUM(CASE WHEN archivado_en IS NULL THEN precio_pen * stock ELSE 0 END), 0) AS valor,
-                    COALESCE(SUM(archivado_en IS NOT NULL), 0) AS archivados
+                    COALESCE(SUM(CASE WHEN archivado_en IS NOT NULL THEN 1 ELSE 0 END), 0) AS archivados
                FROM productos
               WHERE vendedor_id = ?'
         );
@@ -156,7 +159,8 @@ final class ProductoVendedor
         }
 
         $stmt = conexion()->prepare(
-            'SELECT p.*, m.nombre AS marca_nombre, g.nombre AS garantia_nombre
+            'SELECT p.*, m.nombre AS marca_nombre, g.nombre AS garantia_nombre,
+                    (EXISTS (SELECT 1 FROM producto_imagenes pi WHERE pi.producto_id = p.id)) AS imagen_db
                FROM productos p
                LEFT JOIN marcas m ON m.id = p.marca_id
                LEFT JOIN garantias g ON g.id = p.garantia_id
@@ -174,12 +178,26 @@ final class ProductoVendedor
      *
      * @param array<string, mixed> $datos Datos del formulario (POST).
      * @param string $slugEditar Slug del producto a editar; vacío = nuevo.
+     * @param array<string, mixed>|null $archivo Entrada de `$_FILES` para la imagen.
      * @return array{ok:bool, error:string, slug:string}
      */
-    public static function guardar(int $vendedorId, array $datos, string $slugEditar = ''): array
-    {
+    public static function guardar(
+        int $vendedorId,
+        array $datos,
+        string $slugEditar = '',
+        ?array $archivo = null
+    ): array {
         if ($vendedorId <= 0) {
             return ['ok' => false, 'error' => 'La sesión no es válida. Vuelve a iniciar sesión.', 'slug' => ''];
+        }
+
+        $imagenSubida = ImagenProducto::leer($archivo);
+        if ($imagenSubida['estado'] === 'error') {
+            return [
+                'ok'    => false,
+                'error' => (string) ($imagenSubida['error'] ?? 'La imagen no es válida.'),
+                'slug'  => $slugEditar,
+            ];
         }
 
         // Un POST manipulado puede enviar arrays donde se espera texto.
@@ -245,6 +263,11 @@ final class ProductoVendedor
             return ['ok' => false, 'error' => 'El stock debe ser un número entero entre 0 y 9 999 999.', 'slug' => $slugEditar];
         }
 
+        $stockOriginal = self::enteroNoNegativo($datos['stock_original'] ?? null);
+        if ($slugEditar !== '' && ($stockOriginal === null || $stockOriginal > 9999999)) {
+            return ['ok' => false, 'error' => 'Falta un stock original válido. Recarga la página antes de guardar.', 'slug' => $slugEditar];
+        }
+
         $stockMinimo = self::enteroNoNegativo($datos['stock_minimo'] ?? null);
         if ($stockMinimo === null || $stockMinimo > 9999999) {
             return ['ok' => false, 'error' => 'El stock mínimo debe ser un número entero entre 0 y 9 999 999.', 'slug' => $slugEditar];
@@ -304,7 +327,7 @@ final class ProductoVendedor
         }
 
         // El SKU es UNIQUE global. Se comprueba antes de escribir para dar un
-        // mensaje claro en lugar de un error 500 de MySQL.
+        // mensaje claro en lugar de un error 500 de MariaDB.
         if ($sku !== '') {
             $q = $pdo->prepare('SELECT slug FROM productos WHERE codigo_sku = ? AND slug <> ? LIMIT 1');
             $q->execute([$sku, $slug]);
@@ -325,7 +348,14 @@ final class ProductoVendedor
         ];
 
         try {
+            $pdo->beginTransaction();
+
             if ($esEdicion) {
+                $errorStock = self::ajustarStockProducto($pdo, $vendedorId, $slug, $stock, $stockOriginal);
+                if ($errorStock !== null) {
+                    $pdo->rollBack();
+                    return ['ok' => false, 'error' => $errorStock, 'slug' => $slugEditar];
+                }
                 $stmt = $pdo->prepare(
                     'UPDATE productos
                         SET categoria = ?, nombre = ?, modelo = ?, codigo_sku = ?,
@@ -335,9 +365,14 @@ final class ProductoVendedor
                       WHERE slug = ? AND vendedor_id = ?'
                 );
                 $stmt->execute(array_merge($valores, [$slug, $vendedorId]));
-                if ($stmt->rowCount() === 0 && !self::porSlug($vendedorId, $slug)) {
+                $stmtId = $pdo->prepare('SELECT id FROM productos WHERE slug = ? AND vendedor_id = ?');
+                $stmtId->execute([$slug, $vendedorId]);
+                $productoId = $stmtId->fetchColumn();
+                if ($productoId === false) {
+                    $pdo->rollBack();
                     return ['ok' => false, 'error' => 'No se pudo actualizar el producto.', 'slug' => $slugEditar];
                 }
+                $productoId = (int) $productoId;
             } else {
                 $stmt = $pdo->prepare(
                     'INSERT INTO productos
@@ -347,8 +382,25 @@ final class ProductoVendedor
                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
                 );
                 $stmt->execute(array_merge($valores, [$vendedorId, $slug]));
+                $productoId = (int) $pdo->lastInsertId();
             }
-        } catch (\PDOException $e) {
+
+            if ($imagenSubida['estado'] === 'ok') {
+                $guardada = ImagenProducto::guardar(
+                    $productoId,
+                    (string) ($imagenSubida['datos'] ?? ''),
+                    (string) ($imagenSubida['mime'] ?? '')
+                );
+                if (!$guardada) {
+                    throw new \RuntimeException('No se pudo guardar la imagen del producto.');
+                }
+            }
+
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             error_log('ProductoVendedor::guardar — ' . $e->getMessage());
             return ['ok' => false, 'error' => 'No se pudo guardar la publicación. Revisa los datos e inténtalo de nuevo.', 'slug' => $slugEditar];
         }
@@ -376,27 +428,79 @@ final class ProductoVendedor
 
     /**
      * Actualiza el stock disponible de una publicación propia.
+     *
+     * Exige el stock original mostrado: bloquear y calcular un delta contra
+     * el stock actual NO impide que un formulario antiguo reponga una venta.
      */
-    public static function actualizarStock(int $vendedorId, string $slug, int $stock): bool
-    {
-        if ($vendedorId <= 0 || $slug === '' || $stock < 0) {
+    public static function actualizarStock(
+        int $vendedorId,
+        string $slug,
+        int $stock,
+        ?int $stockOriginal = null,
+        ?string &$error = null
+    ): bool {
+        $error = null;
+        if ($vendedorId <= 0 || $slug === '' || $stock < 0 || $stock > 9999999) {
+            $error = 'No se pudo actualizar el stock. Revisa el producto y la cantidad.';
+            return false;
+        }
+        if ($stockOriginal === null || $stockOriginal < 0 || $stockOriginal > 9999999) {
+            $error = 'Falta un stock original válido. Recarga la página antes de guardar.';
             return false;
         }
 
-        $stmt = conexion()->prepare(
-            'UPDATE productos SET stock = ?
-              WHERE vendedor_id = ? AND slug = ? AND archivado_en IS NULL'
-        );
-        $stmt->execute([$stock, $vendedorId, $slug]);
+        $pdo = conexion();
+        try {
+            $pdo->beginTransaction();
+            $error = self::ajustarStockProducto($pdo, $vendedorId, $slug, $stock, $stockOriginal);
+            if ($error !== null) {
+                $pdo->rollBack();
+                return false;
+            }
 
-        if ($stmt->rowCount() > 0) {
+            $pdo->commit();
             return true;
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            error_log('ProductoVendedor::actualizarStock — ' . $e->getMessage());
+            $error = 'No se pudo actualizar el stock. Inténtalo de nuevo.';
+            return false;
+        }
+    }
+
+    /** Comprueba el original y ajusta con historial dentro de la transacción del llamador. */
+    private static function ajustarStockProducto(
+        \PDO $pdo,
+        int $vendedorId,
+        string $slug,
+        int $stock,
+        int $stockOriginal
+    ): ?string {
+        $stmt = $pdo->prepare(
+            'SELECT id, stock FROM productos
+              WHERE vendedor_id = ? AND slug = ? AND archivado_en IS NULL
+              FOR UPDATE'
+        );
+        $stmt->execute([$vendedorId, $slug]);
+        $producto = $stmt->fetch();
+        if ($producto === false) {
+            return 'El producto no está disponible o no tienes permiso para editarlo.';
+        }
+        if ((int) $producto['stock'] !== $stockOriginal) {
+            return self::ERROR_STOCK_CAMBIADO;
         }
 
-        // rowCount() es 0 cuando el stock enviado es el mismo que ya tenía.
-        // Se confirma que el producto existe, es propio y no está archivado.
-        $producto = self::porSlug($vendedorId, $slug);
-        return $producto !== null && ($producto['archivado_en'] ?? null) === null;
+        $delta = $stock - $stockOriginal;
+        return $delta === 0 ? null : Inventario::ajustar(
+            $pdo,
+            (int) $producto['id'],
+            null,
+            $delta > 0 ? 'entrada' : 'salida',
+            abs($delta),
+            'Stock del vendedor'
+        );
     }
 
     /**
@@ -608,33 +712,76 @@ final class ProductoVendedor
 
         $extra = round((float) $extraRaw, 2);
         $stock = (int) $stockRaw;
+        $stockOriginal = self::enteroNoNegativo($datos['stock_original'] ?? null);
+        if ($id > 0 && ($stockOriginal === null || $stockOriginal > 9999999)) {
+            return ['ok' => false, 'error' => 'Falta un stock original válido. Recarga la página antes de guardar.'];
+        }
 
         try {
+            $pdo->beginTransaction();
+            // Mismo orden de bloqueo que ventas y ajustes: producto, luego variante.
+            $propio = $pdo->prepare(
+                'SELECT id FROM productos
+                  WHERE id = ? AND vendedor_id = ? AND slug = ? AND archivado_en IS NULL
+                  FOR UPDATE'
+            );
+            $propio->execute([$productoId, $vendedorId, $slug]);
+            if (!$propio->fetchColumn()) {
+                $pdo->rollBack();
+                return ['ok' => false, 'error' => 'El producto no está disponible o no tienes permiso para editarlo.'];
+            }
+
             if ($id > 0) {
                 $propia = $pdo->prepare(
-                    'SELECT pv.id
-                       FROM producto_variantes pv
-                       JOIN productos p ON p.id = pv.producto_id
-                      WHERE pv.id = ? AND p.vendedor_id = ? AND p.slug = ? LIMIT 1'
+                    'SELECT stock FROM producto_variantes
+                      WHERE id = ? AND producto_id = ? FOR UPDATE'
                 );
-                $propia->execute([$id, $vendedorId, $slug]);
-                if (!$propia->fetchColumn()) {
+                $propia->execute([$id, $productoId]);
+                $stockActual = $propia->fetchColumn();
+                if ($stockActual === false) {
+                    $pdo->rollBack();
                     return ['ok' => false, 'error' => 'Esa variante no pertenece a este producto.'];
                 }
-
-                $pdo->prepare(
-                    'UPDATE producto_variantes
-                        SET nombre_variante = ?, precio_extra = ?, stock = ?, color = ?, activo = ?
-                      WHERE id = ?'
-                )->execute([$nombre, $extra, $stock, $color, $activo, $id]);
+                if ((int) $stockActual !== $stockOriginal) {
+                    $pdo->rollBack();
+                    return ['ok' => false, 'error' => self::ERROR_STOCK_CAMBIADO];
+                }
             } else {
-                $pdo->prepare(
+                $stockOriginal = 0;
+                $nueva = $pdo->prepare(
                     'INSERT INTO producto_variantes
                         (producto_id, nombre_variante, precio_extra, stock, color, activo)
-                     VALUES (?, ?, ?, ?, ?, ?)'
-                )->execute([$productoId, $nombre, $extra, $stock, $color, $activo]);
+                     VALUES (?, ?, ?, 0, ?, ?)'
+                );
+                $nueva->execute([$productoId, $nombre, $extra, $color, $activo]);
+                $id = (int) $pdo->lastInsertId();
             }
-        } catch (\PDOException $e) {
+
+            $delta = $stock - $stockOriginal;
+            if ($delta !== 0) {
+                $errorStock = Inventario::ajustar(
+                    $pdo,
+                    $productoId,
+                    $id,
+                    $delta > 0 ? 'entrada' : 'salida',
+                    abs($delta),
+                    'Stock de variante del vendedor'
+                );
+                if ($errorStock !== null) {
+                    $pdo->rollBack();
+                    return ['ok' => false, 'error' => $errorStock];
+                }
+            }
+            $pdo->prepare(
+                'UPDATE producto_variantes
+                    SET nombre_variante = ?, precio_extra = ?, color = ?, activo = ?
+                  WHERE id = ? AND producto_id = ?'
+            )->execute([$nombre, $extra, $color, $activo, $id, $productoId]);
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             error_log('ProductoVendedor::guardarVariante — ' . $e->getMessage());
             return ['ok' => false, 'error' => 'No se pudo guardar la variante. Inténtalo de nuevo.'];
         }
@@ -653,10 +800,11 @@ final class ProductoVendedor
 
         $stmt = conexion()->prepare(
             'UPDATE producto_variantes pv
-               JOIN productos p ON p.id = pv.producto_id
-                SET pv.activo = 1 - pv.activo
-              WHERE pv.id = ? AND p.vendedor_id = ? AND p.slug = ?
-                AND p.archivado_en IS NULL'
+                SET activo = 1 - pv.activo
+              WHERE pv.id = ?
+                AND EXISTS (SELECT 1 FROM productos p
+                             WHERE p.id = pv.producto_id AND p.vendedor_id = ?
+                               AND p.slug = ? AND p.archivado_en IS NULL)'
         );
         $stmt->execute([$id, $vendedorId, $slug]);
 
@@ -666,24 +814,66 @@ final class ProductoVendedor
     /**
      * Elimina una variante de una publicación propia.
      *
-     * Es seguro aunque la variante se haya vendido: `detalle_pedido` guarda
-     * una copia del nombre y del precio, no una FK a esta fila.
+     * Conserva ventas y movimientos incluso si la instalación carece de FK
+     * desde detalle_pedido. Para retirar una variante con historial se oculta.
      */
-    public static function eliminarVariante(int $vendedorId, string $slug, int $id): bool
-    {
+    public static function eliminarVariante(
+        int $vendedorId,
+        string $slug,
+        int $id,
+        ?string &$error = null
+    ): bool {
+        $error = 'No se pudo eliminar la variante. Revisa que te pertenezca y que el producto no esté archivado.';
         if ($vendedorId <= 0 || $slug === '' || $id <= 0) {
             return false;
         }
 
-        $stmt = conexion()->prepare(
-            'DELETE pv FROM producto_variantes pv
-               JOIN productos p ON p.id = pv.producto_id
-              WHERE pv.id = ? AND p.vendedor_id = ? AND p.slug = ?
-                AND p.archivado_en IS NULL'
-        );
-        $stmt->execute([$id, $vendedorId, $slug]);
+        $pdo = conexion();
+        try {
+            $pdo->beginTransaction();
+            $producto = $pdo->prepare(
+                'SELECT id FROM productos
+                  WHERE vendedor_id = ? AND slug = ? AND archivado_en IS NULL FOR UPDATE'
+            );
+            $producto->execute([$vendedorId, $slug]);
+            $productoId = $producto->fetchColumn();
+            if ($productoId === false) {
+                $pdo->rollBack();
+                return false;
+            }
+            $variante = $pdo->prepare(
+                'SELECT id FROM producto_variantes WHERE id = ? AND producto_id = ? FOR UPDATE'
+            );
+            $variante->execute([$id, (int) $productoId]);
+            if (!$variante->fetchColumn()) {
+                $pdo->rollBack();
+                return false;
+            }
 
-        return $stmt->rowCount() > 0;
+            $historial = $pdo->prepare(
+                'SELECT (SELECT COUNT(*) FROM detalle_pedido WHERE variante_id = ?)
+                      + (SELECT COUNT(*) FROM movimientos_inventario WHERE variante_id = ?)'
+            );
+            $historial->execute([$id, $id]);
+            if ((int) $historial->fetchColumn() > 0) {
+                $pdo->rollBack();
+                $error = 'Esta variante tiene ventas o movimientos de inventario. Oculta la variante para conservar el historial.';
+                return false;
+            }
+
+            $stmt = $pdo->prepare('DELETE FROM producto_variantes WHERE id = ? AND producto_id = ?');
+            $stmt->execute([$id, (int) $productoId]);
+            $pdo->commit();
+            $error = null;
+            return $stmt->rowCount() > 0;
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            error_log('ProductoVendedor::eliminarVariante — ' . $e->getMessage());
+            $error = 'No se pudo eliminar la variante. Inténtalo de nuevo; si tiene historial, usa Ocultar.';
+            return false;
+        }
     }
 
     /**
@@ -778,10 +968,10 @@ final class ProductoVendedor
         }
 
         $stmt = conexion()->prepare(
-            'DELETE pv FROM precios_volumen pv
-               JOIN productos p ON p.id = pv.producto_id
-              WHERE pv.id = ? AND p.vendedor_id = ? AND p.slug = ?
-                AND p.archivado_en IS NULL'
+            'DELETE FROM precios_volumen
+              WHERE id = ? AND producto_id IN (
+                    SELECT id FROM productos
+                     WHERE vendedor_id = ? AND slug = ? AND archivado_en IS NULL)'
         );
         $stmt->execute([$id, $vendedorId, $slug]);
 

@@ -721,16 +721,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const formProducto = document.getElementById('productoForm');
   if (formProducto instanceof HTMLFormElement) {
     const inputImagen = document.getElementById('productoImagen');
+    const inputArchivo = document.getElementById('productoImagenArchivo');
     const previewImagen = document.getElementById('productoImagenPreview');
     const imagenDefecto = formProducto.dataset.imagenDefault || 'img/producto-sin-imagen.svg';
 
-    if (inputImagen instanceof HTMLInputElement && previewImagen instanceof HTMLImageElement) {
+    if (previewImagen instanceof HTMLImageElement) {
       previewImagen.addEventListener('error', () => {
         if (previewImagen.getAttribute('src') !== imagenDefecto) {
           previewImagen.src = imagenDefecto;
         }
       });
+    }
 
+    if (inputImagen instanceof HTMLInputElement && previewImagen instanceof HTMLImageElement) {
       const actualizarImagen = () => {
         const valor = inputImagen.value.trim();
         previewImagen.src = valor === '' ? imagenDefecto : valor;
@@ -738,6 +741,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
       inputImagen.addEventListener('input', actualizarImagen);
       inputImagen.addEventListener('change', actualizarImagen);
+    }
+
+    if (inputArchivo instanceof HTMLInputElement && previewImagen instanceof HTMLImageElement) {
+      inputArchivo.addEventListener('change', () => {
+        const archivo = inputArchivo.files && inputArchivo.files[0];
+        previewImagen.src = archivo ? URL.createObjectURL(archivo) : imagenDefecto;
+      });
     }
 
     const inputColores = document.getElementById('productoColores');

@@ -156,31 +156,14 @@ final class Pasarela
         }
 
         try {
-            $pago = self::buscarPago($pdo, $pagoId, $pedidoId, $referencia, true);
+            $pago = self::buscarPago($pdo, $pagoId, $pedidoId, $referencia, false);
             if ($pago === null) {
                 throw new \RuntimeException('No se encontró el pago para este evento.', 404);
             }
 
             $pagoIdReal = (int) $pago['id'];
             $pedidoIdReal = (int) $pago['pedido_id'];
-            $estadoPagoActual = (string) $pago['estado'];
-
-            $sqlPago = 'UPDATE pagos
-                           SET estado = ?, pasarela = ?, actualizado_en = NOW()';
-            $paramsPago = [$estado, $pasarela];
-
-            if ($referencia !== '') {
-                $sqlPago .= ', referencia_externa = ?';
-                $paramsPago[] = mb_substr($referencia, 0, 120);
-            }
-            if ($metodo !== '') {
-                $sqlPago .= ', metodo = ?';
-                $paramsPago[] = mb_substr($metodo, 0, 40);
-            }
-            $sqlPago .= ' WHERE id = ?';
-            $paramsPago[] = $pagoIdReal;
-            $pdo->prepare($sqlPago)->execute($paramsPago);
-
+            // Mismo orden de bloqueo que el panel de reembolsos: pedido y pago.
             $stmtPedido = $pdo->prepare('SELECT estado FROM pedidos WHERE id = ? FOR UPDATE');
             $stmtPedido->execute([$pedidoIdReal]);
             $pedido = $stmtPedido->fetch();
@@ -189,11 +172,42 @@ final class Pasarela
             }
 
             $estadoPedido = (string) $pedido['estado'];
+            $pago = self::buscarPago($pdo, $pagoIdReal, 0, '', true);
+            if ($pago === null || (int) $pago['pedido_id'] !== $pedidoIdReal) {
+                throw new \RuntimeException('El pago del pedido ya no existe.', 404);
+            }
+            $estadoPagoActual = (string) $pago['estado'];
+
+            // Los eventos pueden llegar fuera de orden: no reabrir reembolsos
+            // ni degradar pagos confirmados a pendiente/rechazado.
+            $ignorarCambio = ($estadoPagoActual === self::REEMBOLSADO && $estado !== self::REEMBOLSADO)
+                || ($estadoPagoActual === self::PAGADO && in_array($estado, [self::PENDIENTE, self::RECHAZADO], true))
+                || ($estado === self::RECHAZADO && $estadoPedido !== Pedido::ESTADOS[0]);
+
+            if (!$ignorarCambio) {
+                $sqlPago = 'UPDATE pagos
+                               SET estado = ?, pasarela = ?, actualizado_en = NOW()';
+                $paramsPago = [$estado, $pasarela];
+
+                if ($referencia !== '') {
+                    $sqlPago .= ', referencia_externa = ?';
+                    $paramsPago[] = mb_substr($referencia, 0, 120);
+                }
+                if ($metodo !== '') {
+                    $sqlPago .= ', metodo = ?';
+                    $paramsPago[] = mb_substr($metodo, 0, 40);
+                }
+                $sqlPago .= ' WHERE id = ?';
+                $paramsPago[] = $pagoIdReal;
+                $pdo->prepare($sqlPago)->execute($paramsPago);
+            }
             $resultado = 'Pago ' . $estado . ' conciliado.';
             $confirmarCorreo = false;
             $reembolsoCorreo = false;
 
-            if ($estado === self::PAGADO) {
+            if ($ignorarCambio) {
+                $resultado = 'Evento atrasado ignorado: se conserva el estado del pago.';
+            } elseif ($estado === self::PAGADO) {
                 if ($estadoPedido === Pedido::ESTADOS[0]) { // Pendiente
                     $pdo->prepare('UPDATE pedidos SET estado = ? WHERE id = ?')
                         ->execute([self::PAGADO, $pedidoIdReal]);
@@ -273,15 +287,6 @@ final class Pasarela
                 $codigo = 500;
             }
             error_log('Webhook de pago rechazado: ' . $e->getMessage());
-
-            // El evento no se aplicó: se borra para que el proveedor pueda
-            // reintentarlo con el mismo id.
-            try {
-                $pdo->prepare('DELETE FROM pagos_webhooks WHERE pasarela = ? AND evento_id = ?')
-                    ->execute([$pasarela, $eventoId]);
-            } catch (\Throwable $limpieza) {
-                error_log('No se pudo limpiar el webhook fallido: ' . $limpieza->getMessage());
-            }
 
             return [
                 'ok' => false,

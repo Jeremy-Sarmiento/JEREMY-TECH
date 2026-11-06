@@ -29,7 +29,7 @@ if ($esVendedor && $vendedorId !== null) {
     [$pedidos, $pendientes] = $q->fetch(\PDO::FETCH_NUM) ?: [0, 0];
 
     $q = $pdo->prepare(
-        "SELECT IFNULL(SUM(c.monto_venta), 0)
+        "SELECT COALESCE(SUM(c.monto_comision + c.monto_vendedor), 0)
            FROM comisiones c
            JOIN pedidos p ON p.id = c.pedido_id
           WHERE c.vendedor_id = ? AND p.estado NOT IN ('Cancelado', 'Pendiente')"

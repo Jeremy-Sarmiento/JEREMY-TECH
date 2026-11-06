@@ -34,9 +34,15 @@ check() {
 }
 
 check "$base/" 200
+check "$base/favicon.ico" 200
+check "$base/img/favicon.svg" 200
+check "$base/img/apple-touch-icon.png" 200
 check "$base/?ruta=login" 200
 check "$base/?ruta=catalogo" 200
 check "$base/?ruta=admin" 302
+check "$base/?ruta=admin/" 302
+check "$base/?ruta=admin/login" 302
+check "$base/?ruta=admin/recuperar" 302
 check "$base/?ruta=mis-productos/reportes" 302
 
 code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$base/?ruta=carrito/agregar")

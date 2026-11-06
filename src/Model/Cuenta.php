@@ -156,6 +156,9 @@ class Cuenta
         if (mb_strlen($nombre) > 255) {
             return 'El nombre o razón social es demasiado largo';
         }
+        if ($tipo === 'B2B' && mb_strlen($nombre) > 120) {
+            return 'La razón social no puede superar los 120 caracteres';
+        }
         if ($apellidos !== '' && mb_strlen($apellidos) > 180) {
             return 'Los apellidos son demasiado largos';
         }
@@ -202,8 +205,13 @@ class Cuenta
         if (!in_array($tipo, ['B2C', 'B2B', 'C2C'], true)) {
             return 'Elige un tipo de cliente válido';
         }
-        if ($tipo === 'B2B' && $ruc !== '' && !preg_match('/^\d{11}$/', $ruc)) {
-            return 'El RUC debe tener exactamente 11 dígitos';
+        if ($tipo === 'B2B') {
+            if ($ruc === '') {
+                return 'El RUC es obligatorio para cuentas de empresa (B2B)';
+            }
+            if (!preg_match('/^\d{11}$/', $ruc)) {
+                return 'El RUC debe tener exactamente 11 dígitos';
+            }
         }
         if (mb_strlen($plataforma) > 120) {
             return 'La plataforma de reventa no puede superar los 120 caracteres';
@@ -217,8 +225,8 @@ class Cuenta
         if (($latitud === '') !== ($longitud === '')) {
             return 'Marca la ubicación completa (latitud y longitud) o deja ambas vacías';
         }
-        if (strlen($password) < 6) {
-            return 'La contraseña debe tener al menos 6 caracteres';
+        if (($errorClave = \Security\Contrasena::error($password)) !== null) {
+            return $errorClave;
         }
         if ($password !== $confirmar) {
             return 'Las contraseñas no coinciden';
@@ -254,7 +262,7 @@ class Cuenta
                 $tipo === 'C2C' ? $plataforma : '',
                 password_hash($password, PASSWORD_DEFAULT),
                 $pregunta,
-                password_hash(strtolower($respuesta), PASSWORD_DEFAULT),
+                password_hash(mb_strtolower($respuesta, 'UTF-8'), PASSWORD_DEFAULT),
                 'cliente',
             ]);
 
@@ -270,21 +278,25 @@ class Cuenta
                 return $errorDireccion;
             }
 
+            Carrito::fusionarInvitado($clienteId);
             $pdo->commit();
         } catch (\PDOException $e) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
-            if ((string) $e->getCode() === '23000') {
+            if ((int) ($e->errorInfo[1] ?? 0) === 1062) {
                 return 'Ya existe una cuenta con ese correo o usuario';
             }
+            error_log('No se pudo registrar la cuenta: ' . $e->getMessage());
             return 'No se pudo crear la cuenta. Inténtalo de nuevo.';
         }
 
         self::arrancarSesion();
+        $origenCarrito = self::idSesion() ?? $clienteId;
         session_regenerate_id(true);
         \Security\Proteccion::rotarToken();
         $_SESSION[self::SESION_CLAVE] = $clienteId;
+        unset($_SESSION['carrito'], $_SESSION['carritos_pendientes'][$origenCarrito]);
 
         return null;
     }
@@ -391,22 +403,59 @@ class Cuenta
         }
 
         self::arrancarSesion();
+        $anterior = self::idSesion();
+        try {
+            Carrito::fusionarInvitado((int) $cuenta['id']);
+        } catch (\Throwable $error) {
+            error_log('No se pudo recuperar el carrito al iniciar sesión: ' . $error->getMessage());
+            return false;
+        }
         session_regenerate_id(true);
         \Security\Proteccion::rotarToken();
         $_SESSION[self::SESION_CLAVE] = (int) $cuenta['id'];
+        unset($_SESSION['carrito'], $_SESSION['carritos_pendientes'][$anterior ?? (int) $cuenta['id']]);
+        if ($anterior !== null && $anterior !== (int) $cuenta['id']) {
+            Carrito::quitarCupon();
+        }
+
+        // Un administrador o vendedor entra también al panel con el mismo
+        // inicio de sesión; el menú de cuenta muestra el botón "Panel".
+        Administrador::vincularCuenta($cuenta);
 
         return true;
     }
 
     /**
-     * Cierra la sesión de la cuenta (sin tocar el carrito ni el cupón).
+     * Oculta el carrito y cupón de la sesión, conservando los productos guardados en BD.
      */
     public static function cerrarSesion(): void
     {
         self::arrancarSesion();
-        unset($_SESSION[self::SESION_CLAVE]);
+        $id = (int) ($_SESSION[self::SESION_CLAVE] ?? 0);
+        // Conservar primero el carrito heredado, sin impedir el logout si la BD falla.
+        if ($id > 0) {
+            foreach ($_SESSION['carrito'] ?? [] as $clave => $cantidad) {
+                $_SESSION['carritos_pendientes'][$id][$clave] = min(
+                    2147483647,
+                    (int) ($_SESSION['carritos_pendientes'][$id][$clave] ?? 0) + (int) $cantidad
+                );
+            }
+        }
+        unset($_SESSION[self::SESION_CLAVE], $_SESSION['carrito'], $_SESSION['cupon']);
+        if ($id > 0) {
+            // Si el panel se abrió con esta misma cuenta, se cierra con ella.
+            Administrador::desvincularCuenta($id);
+        }
         session_regenerate_id(true);
         \Security\Proteccion::rotarToken();
+        if ($id > 0 && !empty($_SESSION['carritos_pendientes'][$id])) {
+            try {
+                Carrito::fusionarInvitado($id);
+                unset($_SESSION['carritos_pendientes'][$id]);
+            } catch (\Throwable $error) {
+                error_log('No se pudo guardar el carrito heredado al salir: ' . $error->getMessage());
+            }
+        }
     }
 
     /**
@@ -437,8 +486,8 @@ class Cuenta
     ): ?string {
         $email = strtolower(trim($email));
 
-        if (strlen($nueva) < 6) {
-            return 'La contraseña debe tener al menos 6 caracteres';
+        if (($errorClave = \Security\Contrasena::error($nueva)) !== null) {
+            return $errorClave;
         }
         if ($nueva !== $confirma) {
             return 'Las contraseñas no coinciden';
@@ -458,7 +507,10 @@ class Cuenta
         }
 
         $hash = (string) ($cliente['respuesta_secreta_hash'] ?? '');
-        if ($hash === '' || !password_verify(strtolower(trim($respuesta)), $hash)) {
+        $respuestaNormalizada = mb_strtolower(trim($respuesta), 'UTF-8');
+        // Compatibilidad con hashes anteriores, que solo normalizaban mayúsculas ASCII.
+        if ($hash === '' || (!password_verify($respuestaNormalizada, $hash)
+            && !password_verify(strtolower(trim($respuesta)), $hash))) {
             return 'La respuesta de seguridad no es correcta';
         }
 

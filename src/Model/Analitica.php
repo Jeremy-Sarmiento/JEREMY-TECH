@@ -9,7 +9,7 @@ namespace Model;
  *
  * Escribe los eventos que reciben el endpoint público y calcula los agregados
  * que consume el dashboard del panel. Los eventos se guardan en
- * `eventos_analitica`; el payload se guarda como JSON acotado a 1000 bytes.
+ * `eventos_analitica`; el payload se guarda como JSON acotado a 1000 caracteres.
  *
  * Reglas:
  *  - No se aceptan eventos desconocidos desde el endpoint: el controlador valida
@@ -21,6 +21,8 @@ namespace Model;
  */
 final class Analitica
 {
+    private const MAX_JSON = 1000;
+
     /**
      * Registra un evento de analítica.
      *
@@ -30,6 +32,12 @@ final class Analitica
     {
         $pdo = conexion();
 
+        $datosJson = json_encode($datos, JSON_UNESCAPED_UNICODE);
+        // Nunca guardar JSON truncado: un payload ilegible se sirve vacío.
+        if ($datosJson === false || mb_strlen($datosJson) > self::MAX_JSON) {
+            $datosJson = '{}';
+        }
+
         $stmt = $pdo->prepare(
             'INSERT INTO eventos_analitica (tipo_evento, datos_json, pagina, cliente_id)
              VALUES (?, ?, ?, ?)'
@@ -37,7 +45,7 @@ final class Analitica
 
         return (bool) $stmt->execute([
             mb_substr($tipoEvento, 0, 60),
-            mb_substr(json_encode($datos, JSON_UNESCAPED_UNICODE) ?: '{}', 0, 1000),
+            $datosJson,
             mb_substr(trim($pagina), 0, 80),
             $clienteId,
         ]);
@@ -46,7 +54,7 @@ final class Analitica
     /**
      * Eventos dentro de un rango (fechas `Y-m-d`) y opcionalmente acotados a un
      * vendedor. Para un vendedor se filtran los eventos que remiten a productos
-     * de ese vendedor (payload con `producto_id`).
+     * de ese vendedor (payload con `producto_id` o `slug`).
      *
      * @return array<int, array<string, mixed>>
      */
@@ -58,7 +66,8 @@ final class Analitica
         $stmt = conexion()->prepare(
             'SELECT id, tipo_evento, datos_json, pagina, cliente_id, creado_en
                FROM eventos_analitica
-              WHERE creado_en BETWEEN ? AND ?'
+              WHERE creado_en BETWEEN ? AND ?
+              ORDER BY id'
         );
         $stmt->execute([$desdeSql, $hastaSql]);
         $filas = $stmt->fetchAll();
@@ -67,14 +76,14 @@ final class Analitica
             return $filas;
         }
 
-        $ids = self::idsDeVendedor($vendedorId);
+        [$ids, $slugs] = self::productosDeVendedor($vendedorId);
         if ($ids === []) {
             return [];
         }
 
         $resultado = [];
         foreach ($filas as $fila) {
-            if (!self::perteneceAVendedor((string) ($fila['tipo_evento'] ?? ''), (string) ($fila['datos_json'] ?? '{}'), $ids)) {
+            if (!self::perteneceAVendedor((string) ($fila['tipo_evento'] ?? ''), (string) ($fila['datos_json'] ?? '{}'), $ids, $slugs)) {
                 continue;
             }
             $resultado[] = $fila;
@@ -105,10 +114,7 @@ final class Analitica
 
         foreach ($eventos as $evento) {
             $tipo = (string) ($evento['tipo_evento'] ?? '');
-            $datos = json_decode((string) ($evento['datos_json'] ?? '{}'), true);
-            if (!is_array($datos)) {
-                $datos = [];
-            }
+            $datos = self::datos($evento['datos_json'] ?? null);
 
             switch ($tipo) {
                 case 'visita':
@@ -128,7 +134,7 @@ final class Analitica
                     break;
                 case 'compra':
                     $metricas['compras']++;
-                    $metricas['ingresos_pen'] += (float) ($datos['total_pen'] ?? 0);
+                    $metricas['ingresos_pen'] += self::numero($datos['total_pen'] ?? null);
                     break;
                 case 'clic_whatsapp':
                     $metricas['clics_whatsapp']++;
@@ -158,12 +164,10 @@ final class Analitica
             if (!in_array($tipo, ['producto_visto', 'agregar_carrito', 'compra'], true)) {
                 continue;
             }
-            $datos = json_decode((string) ($evento['datos_json'] ?? '{}'), true);
-            if (!is_array($datos)) {
-                continue;
-            }
-            $productoId = (int) ($datos['producto_id'] ?? 0);
-            $clave = $productoId > 0 ? 'id:' . $productoId : 'slug:' . mb_strtolower(trim((string) ($datos['slug'] ?? '')));
+            $datos = self::datos($evento['datos_json'] ?? null);
+            $productoId = self::entero($datos['producto_id'] ?? null);
+            $slug = mb_strtolower(trim(self::texto($datos['slug'] ?? null)));
+            $clave = $productoId > 0 ? 'id:' . $productoId : 'slug:' . $slug;
             if ($clave === 'slug:') {
                 continue;
             }
@@ -171,6 +175,8 @@ final class Analitica
         }
 
         $ordenados = array_keys($agrupados);
+        // PHP ordena de forma estable: los empates conservan el orden de la
+        // primera aparición, que es el `MIN(id)` que usa el reporte.
         usort($ordenados, static function (string $a, string $b) use ($agrupados): int {
             return $agrupados[$b] <=> $agrupados[$a];
         });
@@ -207,8 +213,8 @@ final class Analitica
                 continue;
             }
             $metricas['total_preguntas']++;
-            $datos = json_decode((string) ($evento['datos_json'] ?? '{}'), true);
-            $origen = (string) ($datos['origen'] ?? 'fallback');
+            $datos = self::datos($evento['datos_json'] ?? null);
+            $origen = self::texto($datos['origen'] ?? null);
             if ($origen === 'faq') {
                 $metricas['faq']++;
             } elseif ($origen === 'ia') {
@@ -269,11 +275,8 @@ final class Analitica
             if ((string) ($evento['tipo_evento'] ?? '') !== 'busqueda') {
                 continue;
             }
-            $datos = json_decode((string) ($evento['datos_json'] ?? '{}'), true);
-            if (!is_array($datos)) {
-                continue;
-            }
-            $consulta = mb_strtolower(trim((string) ($datos['consulta'] ?? '')));
+            $datos = self::datos($evento['datos_json'] ?? null);
+            $consulta = mb_strtolower(trim(self::texto($datos['consulta'] ?? null)));
             if ($consulta === '') {
                 continue;
             }
@@ -311,45 +314,83 @@ final class Analitica
         return $porTipo;
     }
 
-    private static function idsDeVendedor(int $vendedorId): array
+    /**
+     * @return array{0: array<int, true>, 1: array<string, true>} ids y slugs
+     */
+    private static function productosDeVendedor(int $vendedorId): array
     {
-        $stmt = conexion()->prepare('SELECT id FROM productos WHERE vendedor_id = ?');
+        $stmt = conexion()->prepare('SELECT id, slug FROM productos WHERE vendedor_id = ?');
         $stmt->execute([$vendedorId]);
         $ids = [];
+        $slugs = [];
         foreach ($stmt->fetchAll() as $fila) {
-            $ids[] = (int) $fila['id'];
+            $ids[(int) $fila['id']] = true;
+            $slugs[(string) $fila['slug']] = true;
         }
 
-        return $ids;
+        return [$ids, $slugs];
     }
 
-    private static function perteneceAVendedor(string $tipo, string $datosJson, array $ids): bool
+    /**
+     * @param array<int, true> $ids
+     * @param array<string, true> $slugs
+     */
+    private static function perteneceAVendedor(string $tipo, string $datosJson, array $ids, array $slugs): bool
     {
         if ($tipo === 'visita' || $tipo === 'busqueda' || $tipo === 'clic_whatsapp') {
             // Sin producto en el payload no se puede acotar a un vendedor.
             return false;
         }
 
-        $datos = json_decode($datosJson, true);
-        if (!is_array($datos)) {
-            return false;
-        }
-
-        $productoId = (int) ($datos['producto_id'] ?? 0);
+        $datos = self::datos($datosJson);
+        $productoId = self::entero($datos['producto_id'] ?? null);
         if ($productoId > 0) {
-            return in_array($productoId, $ids, true);
+            // El id manda: un slug viejo no debe cambiar de dueño al evento.
+            return isset($ids[$productoId]);
         }
 
-        $slug = mb_strtolower(trim((string) ($datos['slug'] ?? '')));
-        if ($slug === '') {
-            return false;
+        $slug = mb_strtolower(trim(self::texto($datos['slug'] ?? null)));
+        return $slug !== '' && isset($slugs[$slug]);
+    }
+
+    /** @return array<string, mixed> */
+    private static function datos(mixed $json): array
+    {
+        $datos = json_decode((string) $json, true);
+        return is_array($datos) ? $datos : [];
+    }
+
+    private static function texto(mixed $valor): string
+    {
+        return is_scalar($valor) ? (string) $valor : '';
+    }
+
+    /**
+     * Número al inicio del valor, con la misma tolerancia del reporte SQL:
+     * " 2.5 soles" vale 2.5 y los valores fuera de rango valen 0.
+     */
+    private static function numero(mixed $valor): float
+    {
+        if (is_int($valor) || is_float($valor)) {
+            $numero = (float) $valor;
+        } elseif (is_string($valor)
+            && preg_match('/^[[:space:]]*[+-]?(?:[0-9]+(?:[.][0-9]*)?|[.][0-9]+)(?:[eE][+-]?[0-9]+)?/', $valor, $coincidencia) === 1
+        ) {
+            $numero = (float) $coincidencia[0];
+        } else {
+            return 0.0;
         }
 
-        $stmt = conexion()->prepare('SELECT id FROM productos WHERE slug = ?');
-        $stmt->execute([$slug]);
-        $productoId = (int) ($stmt->fetchColumn() ?: 0);
+        return is_finite($numero) ? $numero : 0.0;
+    }
 
-        return in_array($productoId, $ids, true);
+    private static function entero(mixed $valor): int
+    {
+        $numero = self::numero($valor);
+        if ($numero > 9223372036854775807.0 || $numero < -9223372036854775808.0) {
+            return 0;
+        }
+        return (int) $numero;
     }
 
     private static function etiquetaProducto(string $clave): string
@@ -375,20 +416,5 @@ final class Analitica
         }
 
         return $clave;
-    }
-
-    private static function timestamp(string $fecha): int
-    {
-        $fecha = trim($fecha);
-        if ($fecha === '' || $fecha === '1970-01-01') {
-            return 0;
-        }
-
-        $fechaHora = \DateTime::createFromFormat('Y-m-d', $fecha);
-        if ($fechaHora === false) {
-            return (int) (\DateTime::createFromFormat('Y-m-d H:i:s', $fecha) ?: new \DateTime($fecha))->getTimestamp();
-        }
-
-        return (int) $fechaHora->getTimestamp();
     }
 }

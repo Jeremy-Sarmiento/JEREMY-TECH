@@ -198,7 +198,10 @@ class CarritoController
             try {
                 $pedidoId = Carrito::checkout($pago);
             } catch (\Throwable $e) {
-                return ['ok' => false, 'error' => 'Error al registrar el pedido: ' . $e->getMessage()];
+                error_log('Checkout del pedido: ' . $e->getMessage());
+                return ['ok' => false, 'error' => get_class($e) === \RuntimeException::class
+                    ? $e->getMessage()
+                    : 'No se pudo registrar el pedido. Inténtalo de nuevo.'];
             }
             if ($pedidoId === null) {
                 return ['ok' => false, 'error' => 'El carrito está vacío'];

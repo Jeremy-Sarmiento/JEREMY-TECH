@@ -243,7 +243,7 @@ final class SoporteTicket
         }
 
         $limite = max(1, min(500, $limite));
-        $sql .= " ORDER BY FIELD(t.estado, 'abierto', 'en_proceso', 'resuelto', 'cerrado'), t.id DESC
+        $sql .= " ORDER BY CASE t.estado WHEN 'abierto' THEN 0 WHEN 'en_proceso' THEN 1 WHEN 'resuelto' THEN 2 ELSE 3 END, t.id DESC
                   LIMIT " . $limite;
 
         $stmt = conexion()->prepare($sql);

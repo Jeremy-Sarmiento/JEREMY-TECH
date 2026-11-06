@@ -270,8 +270,10 @@ $h1Catalogo = $qTitulo !== ''
      if ($gruposCategoria === []) {
          continue;
      }
-     // Cuatro por fila: recortar evita la tarjeta huérfana cuando hay 5.
-     $visiblesCategoria = array_slice($gruposCategoria, 0, 4);
+     // Sin filtros, cuatro por fila (evita la tarjeta huérfana cuando hay 5).
+     // Con filtros activos se muestran todos: el enlace "Ver los N productos"
+     // debe enseñar el resto, no repetir el mismo recorte.
+     $visiblesCategoria = $hayFiltros ? $gruposCategoria : array_slice($gruposCategoria, 0, 4);
    ?>
    <section id="<?= strtolower($categoria) ?>">
     <h2><?= $categoria ?></h2>

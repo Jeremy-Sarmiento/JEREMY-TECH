@@ -1,4 +1,5 @@
 .env
+.env.production
 .ht.env
 /vendor/
 admin.md
@@ -9,5 +10,7 @@ storage/mail/
 # PHP CS Fixer cache
 /.php-cs-fixer.cache
 
-# Vista estática generada para GitHub Pages
-/_site/
+# Dependencias JS (la app es PHP; no hay build de Node)
+/node_modules/
+/package.json
+/package-lock.json

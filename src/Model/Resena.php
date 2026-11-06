@@ -245,7 +245,7 @@ final class Resena
             return 'Solo puedes opinar sobre productos que ya compraste.';
         }
 
-        // ON DUPLICATE KEY UPDATE usa la UNIQUE (producto_id, cliente_id):
+        // ON DUPLICATE KEY usa la UNIQUE (producto_id, cliente_id):
         // volver a opinar actualiza la reseña en vez de duplicarla. La fecha
         // original se conserva para que la edición no la haga parecer nueva.
         $stmt = conexion()->prepare(

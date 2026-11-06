@@ -110,7 +110,8 @@ class Direccion
             $pdo->commit();
         } catch (\Throwable $e) {
             $pdo->rollBack();
-            return 'No se pudo guardar la dirección: ' . $e->getMessage();
+            error_log('Direccion::crear — ' . $e->getMessage());
+            return 'No se pudo guardar la dirección. Inténtalo de nuevo.';
         }
 
         return null;
@@ -222,7 +223,8 @@ class Direccion
             $pdo->commit();
         } catch (\Throwable $e) {
             $pdo->rollBack();
-            return 'No se pudo actualizar la dirección: ' . $e->getMessage();
+            error_log('Direccion::actualizar — ' . $e->getMessage());
+            return 'No se pudo actualizar la dirección. Inténtalo de nuevo.';
         }
 
         return null;

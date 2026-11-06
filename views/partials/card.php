@@ -64,7 +64,7 @@ foreach ($grupo as $indice => $variante) {
     $mediaItems .= '<a class="card-media-item' . ($indice === 0 ? ' active' : '') . '"'
         . ($indice === 0 ? '' : ' inert') . ' href="' . $urlFicha . '">' .
         '<img alt="' . htmlspecialchars($variante['nombre'] . ', ' . $etiquetasVariante[$indice], ENT_QUOTES) . '" loading="lazy" src="' .
-        htmlspecialchars(Producto::imagenOptimizada((string) $variante['imagen']), ENT_QUOTES) . '"/>' .
+        htmlspecialchars(Producto::urlImagen($variante), ENT_QUOTES) . '"/>' .
         '</a>';
 }
 

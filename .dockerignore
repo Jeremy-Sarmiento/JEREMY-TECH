@@ -1,0 +1,16 @@
+.git
+.github
+.gitignore
+.env*
+!.env.example
+.env.production
+.ht.env
+vendor
+node_modules
+entregables
+_site
+tests
+tools/*
+!tools/establecer-admin.php
+storage/mail
+*.md

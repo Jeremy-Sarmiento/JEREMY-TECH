@@ -35,8 +35,8 @@ class FullFlowTest extends TestCase
             'tarifa_envio_id' => 1,
             'latitud' => '',
             'longitud' => '',
-            'password' => 'password123',
-            'confirmar' => 'password123',
+            'password' => 'Ejemplo-Pruebas-2026!',
+            'confirmar' => 'Ejemplo-Pruebas-2026!',
             'pregunta_secreta' => '¿Cuál es el nombre de tu primera mascota?',
             'respuesta_secreta' => 'firulais',
         ];
@@ -104,8 +104,8 @@ class FullFlowTest extends TestCase
             'tarifa_envio_id' => 1,
             'latitud' => '',
             'longitud' => '',
-            'password' => 'password123',
-            'confirmar' => 'password123',
+            'password' => 'Ejemplo-Pruebas-2026!',
+            'confirmar' => 'Ejemplo-Pruebas-2026!',
             'pregunta_secreta' => '¿En qué ciudad naciste?',
             'respuesta_secreta' => 'Arequipa',
         ];
@@ -149,8 +149,8 @@ class FullFlowTest extends TestCase
             'tarifa_envio_id' => 1,
             'latitud' => '',
             'longitud' => '',
-            'password' => 'password123',
-            'confirmar' => 'password123',
+            'password' => 'Ejemplo-Pruebas-2026!',
+            'confirmar' => 'Ejemplo-Pruebas-2026!',
             'pregunta_secreta' => '¿Cómo se llamaba tu colegio de primaria?',
             'respuesta_secreta' => 'Colegio 123',
         ];
@@ -174,5 +174,46 @@ class FullFlowTest extends TestCase
         $ganancias = Vendedor::resumenGanancias($vendedorId);
         $this->assertIsArray($productos);
         $this->assertArrayHasKey('neto', $ganancias);
+    }
+
+    public function testGuardaYLeeLaImagenDelProductoEnLaBase(): void
+    {
+        $pdo = testPdo();
+        $pdo->exec(
+            "INSERT INTO productos (slug, categoria, nombre, especificaciones, precio_pen, stock, activo, colores, imagen, stock_minimo)
+             VALUES ('con-imagen', 'Celulares', 'Con imagen', '', 10.00, 1, 1, '', '', 1)"
+        );
+        $productoId = (int) $pdo->lastInsertId();
+
+        $datos = (string) base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+            true
+        );
+
+        $this->assertTrue(\Model\ImagenProducto::guardar($productoId, $datos, 'image/png'));
+
+        $imagen = \Model\ImagenProducto::deSlug('con-imagen');
+        $this->assertNotNull($imagen);
+        $this->assertSame('image/png', $imagen['mime']);
+        $this->assertSame($datos, $imagen['datos']);
+
+        $producto = \Model\Producto::porSlug('con-imagen');
+        $this->assertNotNull($producto);
+        $this->assertTrue($producto['imagenDb']);
+        $this->assertSame('?ruta=producto/imagen&slug=con-imagen', \Model\Producto::urlImagen($producto));
+    }
+
+    public function testElLoginDeLaTiendaAbreElPanelSoloParaAdminOVendedor(): void
+    {
+        $this->assertTrue(Cuenta::iniciarSesion('cliente@example.com', 'cliente'));
+        $this->assertFalse(\Model\Administrador::estaAutenticado());
+        Cuenta::cerrarSesion();
+
+        $this->assertTrue(Cuenta::iniciarSesion('admin@example.com', 'admin'));
+        $this->assertTrue(\Model\Administrador::estaAutenticado());
+        $this->assertSame(1, \Model\Administrador::idSesion());
+
+        Cuenta::cerrarSesion();
+        $this->assertFalse(\Model\Administrador::estaAutenticado());
     }
 }

@@ -8,13 +8,13 @@ $esVendedor = \Model\Administrador::esVendedor();
 
 $filtro = (string) ($_GET['estado'] ?? '');
 $estados = ['Pendiente', 'Pagado', 'Enviado', 'Entregado', 'Cancelado'];
+$pagina = filter_var($_GET['pagina'] ?? 1, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 1000000]]) ?: 1;
+$porPagina = 50;
 
 $sqlPedidos = 'SELECT ' . ($joinPedidos !== '' ? 'DISTINCT ' : '')
     . 'p.*, c.name AS nombre, c.apellidos,
-       (SELECT pa.estado FROM pagos pa
-         WHERE pa.pedido_id = p.id ORDER BY pa.id DESC LIMIT 1) AS pago_estado,
-       (SELECT pa.monto_pen FROM pagos pa
-         WHERE pa.pedido_id = p.id ORDER BY pa.id DESC LIMIT 1) AS pago_monto
+       (SELECT estado FROM pagos WHERE pedido_id = p.id ORDER BY id DESC LIMIT 1) AS pago_estado,
+       (SELECT monto_pen FROM pagos WHERE pedido_id = p.id ORDER BY id DESC LIMIT 1) AS pago_monto
        FROM pedidos p
        JOIN users c ON c.id = p.cliente_id'
     . $joinPedidos
@@ -24,31 +24,38 @@ if ($filtro !== '') {
     $sqlPedidos .= ' AND p.estado = ?';
     $paramsPedidos[] = $filtro;
 }
-$sqlPedidos .= ' ORDER BY p.id DESC';
+$sqlPedidos .= ' ORDER BY p.id DESC LIMIT ' . ($porPagina + 1) . ' OFFSET ' . (($pagina - 1) * $porPagina);
 $stmt = $pdo->prepare($sqlPedidos);
 $stmt->execute($paramsPedidos);
 $pedidos = $stmt->fetchAll();
+$haySiguiente = count($pedidos) > $porPagina;
+if ($haySiguiente) {
+    array_pop($pedidos);
+}
+$ids = array_column($pedidos, 'id');
+$marcas = implode(',', array_fill(0, count($ids), '?'));
 
-$stmt = $pdo->prepare(
-    'SELECT pedido_id, cantidad, variante_nombre, producto_nombre, precio_unitario_pen
-       FROM detalle_pedido dp
-      WHERE ' . $whereDetalle
-);
-$stmt->execute($paramsDetalle);
-$det = $stmt->fetchAll();
 $mapa = [];
-foreach ($det as $d) {
-    $mapa[(int) $d['pedido_id']][] = $d;
+if ($ids !== []) {
+    $stmt = $pdo->prepare(
+        'SELECT pedido_id, cantidad, variante_nombre, producto_nombre, precio_unitario_pen
+           FROM detalle_pedido dp
+          WHERE ' . $whereDetalle . ' AND pedido_id IN (' . $marcas . ')'
+    );
+    $stmt->execute(array_merge($paramsDetalle, $ids));
+    foreach ($stmt->fetchAll() as $d) {
+        $mapa[(int) $d['pedido_id']][] = $d;
+    }
 }
 
 // (Etapa 6) El total del pedido incluye líneas de otros vendedores: para un
 // vendedor se muestra solo lo que él facturó en ese pedido.
 $miParte = [];
-if ($esVendedor) {
+if ($esVendedor && $ids !== []) {
     $vendedorId = \Model\Administrador::idSesion();
     if ($vendedorId !== null) {
-        $q = $pdo->prepare('SELECT pedido_id, monto_venta FROM comisiones WHERE vendedor_id = ?');
-        $q->execute([$vendedorId]);
+        $q = $pdo->prepare('SELECT pedido_id, (monto_comision + monto_vendedor) AS monto_venta FROM comisiones WHERE vendedor_id = ? AND pedido_id IN (' . $marcas . ')');
+        $q->execute(array_merge([$vendedorId], $ids));
         foreach ($q->fetchAll() as $c) {
             $miParte[(int) $c['pedido_id']] = (float) $c['monto_venta'];
         }
@@ -193,6 +200,16 @@ $puedeReembolsar = static function (array $p): bool {
         </table>
     </div>
 
+    <nav class="admin-encabezado-acciones" aria-label="Páginas de pedidos">
+        <?php if ($pagina > 1): ?>
+            <a class="btn btn-claro" rel="prev" href="?<?= $e(http_build_query(['ruta' => 'admin/pedidos', 'estado' => $filtro, 'pagina' => $pagina - 1])) ?>">Anterior</a>
+        <?php endif; ?>
+        <span class="admin-nota">Página <?= $pagina ?></span>
+        <?php if ($haySiguiente): ?>
+            <a class="btn btn-claro" rel="next" href="?<?= $e(http_build_query(['ruta' => 'admin/pedidos', 'estado' => $filtro, 'pagina' => $pagina + 1])) ?>">Siguiente</a>
+        <?php endif; ?>
+    </nav>
+
     <?php if (!$esVendedor): ?>
     <dialog class="admin-modal" id="modalReembolso">
         <form method="post" action="?ruta=admin/pedidos/reembolsar" class="admin-formulario">
@@ -224,7 +241,7 @@ $puedeReembolsar = static function (array $p): bool {
         </form>
     </dialog>
 
-    <script>
+    <script nonce="<?= htmlspecialchars(\Security\Proteccion::nonce(), ENT_QUOTES, 'UTF-8') ?>">
     // Un solo modal de reembolso: cada botón de fila inyecta su pedido y monto.
     (function () {
         var dlg = document.getElementById('modalReembolso');

@@ -7,10 +7,8 @@ namespace Controller;
 use Model\Administrador as Admin;
 use Model\ChatbotFaq;
 use Model\Envio;
-use Model\LimiteIntentos;
 use Model\Notificacion;
 use Model\PedidoEvento;
-use Model\Recuperacion;
 
 /**
  * Panel de administración de Jeremy Tech (vía ?ruta=admin/...).
@@ -35,21 +33,15 @@ final class AdminController
             \Security\Proteccion::exigirPost();
         }
 
-        if ($subRuta === 'login' || $subRuta === 'login/autenticar') {
-            $this->login($subRuta);
-            return;
-        }
         if ($subRuta === 'cerrar') {
             $this->cerrar();
             return;
         }
-        if ($subRuta === 'recuperar' || $subRuta === 'recuperar/restablecer') {
-            $this->recuperar($subRuta);
-            return;
-        }
 
         if (!Admin::estaAutenticado()) {
-            header('Location: ?ruta=admin/login');
+            // Un solo login: la sesión del panel se abre al entrar a la
+            // tienda con una cuenta admin o vendedor.
+            header('Location: ?ruta=login');
             exit;
         }
 
@@ -58,7 +50,7 @@ final class AdminController
         $permitidas = Admin::seccionesPermitidas();
         if ($permitidas === []) {
             Admin::cerrarSesion();
-            header('Location: ?ruta=admin/login');
+            header('Location: ?ruta=login');
             exit;
         }
 
@@ -115,65 +107,6 @@ final class AdminController
         return 'admin/dashboard';
     }
 
-    // ------------------------------------------------------------ //
-    //  Autenticación
-    // ------------------------------------------------------------ //
-
-    private function login(string $subRuta): void
-    {
-        if (Admin::estaAutenticado()) {
-            header('Location: ?ruta=admin');
-            exit;
-        }
-
-        if ($subRuta === 'login/autenticar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-            $usuario = trim((string) ($_POST['usuario'] ?? ''));
-            $clave   = (string) ($_POST['clave'] ?? '');
-            $ip      = LimiteIntentos::ipActual();
-            $llave   = $usuario !== '' ? mb_strtolower($usuario) : 'ip:' . $ip;
-            // Igual que en el login de clientes: límite por cuenta y por IP.
-            $llaveIp = 'ip:' . $ip;
-
-            $restante = max(
-                LimiteIntentos::restante('admin_login', $llave),
-                LimiteIntentos::restante('admin_login', $llaveIp)
-            );
-            if ($restante > 0) {
-                $this->flash(LimiteIntentos::mensajeBloqueo($restante), true);
-                header('Location: ?ruta=admin/login');
-                exit;
-            }
-
-            if (Admin::iniciarSesion($usuario, $clave)) {
-                LimiteIntentos::limpiar('admin_login', $llave);
-                LimiteIntentos::limpiar('admin_login', $llaveIp);
-                $admin = Admin::usuarioActual();
-                Admin::auditar(
-                    (string) ($admin['usuario'] ?? $usuario),
-                    'admin/login',
-                    (int) ($admin['id'] ?? 0),
-                    'Ingreso al panel de administración'
-                );
-                header('Location: ?ruta=admin');
-                exit;
-            }
-
-            LimiteIntentos::registrar('admin_login', $llave, $ip);
-            if ($llaveIp !== $llave) {
-                LimiteIntentos::registrar('admin_login', $llaveIp, $ip, 20);
-            }
-            $this->flash('Usuario o contraseña incorrectos (o cuenta inactiva).', true);
-            header('Location: ?ruta=admin/login');
-            exit;
-        }
-
-        $flash = $this->tomarFlash();
-        $tituloAdmin = 'Acceso';
-        require BASE_PATH . '/views/admin/header.php';
-        require BASE_PATH . '/views/admin/login.php';
-        require BASE_PATH . '/views/admin/footer.php';
-    }
-
     private function cerrar(): void
     {
         $admin = Admin::usuarioActual();
@@ -185,101 +118,11 @@ final class AdminController
                 'Cierre de sesión del panel'
             );
         }
+        // El panel comparte cuenta con la tienda: se cierran las dos sesiones.
+        \Model\Cuenta::cerrarSesion();
         Admin::cerrarSesion();
-        header('Location: ?ruta=admin/login');
+        header('Location: ?ruta=login');
         exit;
-    }
-
-    /**
-     * Recuperación de acceso al panel por token enviado al correo.
-     * Se atiende antes de exigir sesión: el usuario aún no está autenticado.
-     */
-    private function recuperar(string $subRuta): void
-    {
-        if (Admin::estaAutenticado()) {
-            header('Location: ?ruta=admin');
-            exit;
-        }
-
-        $flash = $this->tomarFlash();
-        $token = trim((string) ($_GET['token'] ?? $_POST['token'] ?? ''));
-
-        if ($subRuta === 'recuperar/restablecer') {
-            $valido = Recuperacion::tokenValido(Recuperacion::ADMIN, $token);
-            $claveReset = $token !== '' ? $token : 'ip:' . LimiteIntentos::ipActual();
-
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $restante = LimiteIntentos::restante('admin_restablecer', $claveReset);
-                if ($restante > 0) {
-                    $this->flash(LimiteIntentos::mensajeBloqueo($restante), true);
-                    header('Location: ?ruta=admin/recuperar');
-                    exit;
-                }
-
-                if (!$valido) {
-                    LimiteIntentos::registrar('admin_restablecer', $claveReset, LimiteIntentos::ipActual());
-                    $this->flash(
-                        'El enlace de recuperación no es válido o ya expiró. Solicita uno nuevo.',
-                        true
-                    );
-                    header('Location: ?ruta=admin/recuperar');
-                    exit;
-                }
-
-                $error = Recuperacion::restablecer(
-                    Recuperacion::ADMIN,
-                    $token,
-                    (string) ($_POST['password'] ?? ''),
-                    (string) ($_POST['confirmar'] ?? '')
-                );
-
-                if ($error === null) {
-                    LimiteIntentos::limpiar('admin_restablecer', $claveReset);
-                    $this->flash('Contraseña actualizada. Ya puedes ingresar al panel.', false);
-                    header('Location: ?ruta=admin/login');
-                    exit;
-                }
-
-                $flash = ['tipo' => 'error', 'mensaje' => $error];
-            }
-
-            $tituloAdmin = 'Nueva contraseña';
-            require BASE_PATH . '/views/admin/header.php';
-            require BASE_PATH . '/views/admin/restablecer.php';
-            require BASE_PATH . '/views/admin/footer.php';
-            return;
-        }
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $usuario = trim((string) ($_POST['usuario'] ?? ''));
-            $llave = $usuario !== '' ? mb_strtolower($usuario) : 'ip:' . LimiteIntentos::ipActual();
-
-            $restante = LimiteIntentos::restante('admin_recuperar', $llave);
-            if ($restante > 0) {
-                $this->flash(LimiteIntentos::mensajeBloqueo($restante), true);
-                header('Location: ?ruta=admin/recuperar');
-                exit;
-            }
-
-            // Cada solicitud cuenta, exista o no el usuario: evita enumerar
-            // cuentas del panel y limita el envío masivo de correos.
-            LimiteIntentos::registrar('admin_recuperar', $llave, LimiteIntentos::ipActual());
-            if ($usuario !== '') {
-                Recuperacion::solicitarAdmin($usuario);
-            }
-
-            $this->flash(
-                'Si el usuario existe y tiene un correo configurado, enviamos un enlace de recuperación.',
-                false
-            );
-            header('Location: ?ruta=admin/recuperar');
-            exit;
-        }
-
-        $tituloAdmin = 'Recuperar acceso';
-        require BASE_PATH . '/views/admin/header.php';
-        require BASE_PATH . '/views/admin/recuperar.php';
-        require BASE_PATH . '/views/admin/footer.php';
     }
 
     private function renderizar(string $seccion, array $datos): void
@@ -367,7 +210,7 @@ final class AdminController
             $totales['liquidado']  = \Model\Vendedor::liquidadoDe($vendedorId);
 
             $q = $pdo->prepare(
-                "SELECT IFNULL(SUM(c.monto_venta), 0) FROM comisiones c
+                "SELECT COALESCE(SUM(c.monto_comision + c.monto_vendedor), 0) FROM comisiones c
                    JOIN pedidos p ON p.id = c.pedido_id
                   WHERE c.vendedor_id = ? AND p.estado NOT IN ('Cancelado', 'Pendiente')"
             );
@@ -379,7 +222,7 @@ final class AdminController
                    FROM pedidos p
                    JOIN users c ON c.id = p.cliente_id
                    JOIN detalle_pedido dp ON dp.pedido_id = p.id AND dp.vendedor_id = ?
-                  GROUP BY p.id
+                  GROUP BY p.id, c.name, c.apellidos
                   ORDER BY p.id DESC LIMIT 8'
             );
             $q->execute([$vendedorId]);
@@ -403,7 +246,7 @@ final class AdminController
             'vendedores' => (int) $pdo->query(
                 "SELECT COUNT(*) FROM users WHERE rol = 'vendedor' AND deleted_at IS NULL"
             )->fetchColumn(),
-            'comisiones' => (float) $pdo->query('SELECT IFNULL(SUM(monto_comision), 0) FROM comisiones')->fetchColumn(),
+            'comisiones' => (float) $pdo->query('SELECT COALESCE(SUM(monto_comision), 0) FROM comisiones')->fetchColumn(),
         ];
 
         $ultimos = $pdo->query(
@@ -493,6 +336,15 @@ final class AdminController
                 exit;
             }
 
+            // La imagen subida se valida antes de tocar la base: si el archivo
+            // no es una imagen real, no se guarda nada del formulario.
+            $imagenSubida = \Model\ImagenProducto::leer($_FILES['imagen_archivo'] ?? null);
+            if ($imagenSubida['estado'] === 'error') {
+                $this->flash((string) ($imagenSubida['error'] ?? 'La imagen no es válida.'), true);
+                header('Location: ?ruta=admin/productos');
+                exit;
+            }
+
             // El formulario envía el slug de la categoría; la tabla `productos`
             // guarda el nombre visible (como las semillas y la tienda).
             $stmtCat = $pdo->prepare('SELECT nombre FROM categorias WHERE slug = ?');
@@ -520,7 +372,7 @@ final class AdminController
             }
 
             // El SKU es único (uq_productos_sku): avisar en el panel en lugar
-            // de dejar que MySQL devuelva un error 500.
+            // de dejar que MariaDB devuelva un error 500.
             if ($sku !== null) {
                 $qSku = $pdo->prepare('SELECT slug FROM productos WHERE codigo_sku = ? AND slug <> ? LIMIT 1');
                 $qSku->execute([$sku, $slugId]);
@@ -531,34 +383,66 @@ final class AdminController
                 }
             }
 
+            $pdo->beginTransaction();
+
             if ($id !== '') {
-                $pdo->prepare(
+                $stmt = $pdo->prepare(
                     'UPDATE productos SET categoria = ?, nombre = ?, modelo = ?, codigo_sku = ?, marca_id = ?, garantia_id = ?, '
                     . 'precio_pen = ?, stock = ?, stock_minimo = ?, activo = ?, '
                     // Si el admin vuelve a activar una publicación archivada,
                     // se limpia el archivo: el estado "archivado" siempre
                     // implica `activo = 0`.
-                    . 'archivado_en = IF(? = 1, NULL, archivado_en), '
+                    . 'archivado_en = CASE WHEN ? = 1 THEN NULL ELSE archivado_en END, '
                     . 'imagen = ?, especificaciones = ?, '
                     . 'peso_kg = ?, dimensiones = ?, colores = ?, vendedor_id = ? WHERE slug = ?'
-                )->execute([
+                );
+                $stmt->execute([
                     $categoria, $nombre, $modelo, $sku, $marcaId, $garantiaId,
                     $precio, $stock, $stockMinimo, $activo, $activo, $imagen, $especificaciones,
                     $pesoKg, $dimensiones, $colores, $vendedorId, $id,
                 ]);
+                $stmtId = $pdo->prepare('SELECT id FROM productos WHERE slug = ?');
+                $stmtId->execute([$id]);
+                $productoId = (int) ($stmtId->fetchColumn() ?: 0);
                 $this->auditar($admin, 'productos/editar', 0, 'Editó el producto "' . $nombre . '"');
             } else {
-                $pdo->prepare(
+                $stmt = $pdo->prepare(
                     'INSERT INTO productos (slug, categoria, nombre, modelo, codigo_sku, marca_id, garantia_id, '
                     . 'precio_pen, stock, stock_minimo, activo, imagen, especificaciones, peso_kg, dimensiones, colores, vendedor_id)
                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-                )->execute([
+                );
+                $stmt->execute([
                     $slugId, $categoria, $nombre, $modelo, $sku, $marcaId, $garantiaId,
                     $precio, $stock, $stockMinimo, $activo, $imagen, $especificaciones,
                     $pesoKg, $dimensiones, $colores, $vendedorId,
                 ]);
+                $productoId = (int) $pdo->lastInsertId();
                 $this->auditar($admin, 'productos/crear', 0, 'Creó el producto "' . $nombre . '"');
             }
+
+            if ($productoId <= 0) {
+                $pdo->rollBack();
+                $this->flash('No se pudo guardar el producto.', true);
+                header('Location: ?ruta=admin/productos');
+                exit;
+            }
+
+            if ($imagenSubida['estado'] === 'ok') {
+                $guardada = \Model\ImagenProducto::guardar(
+                    $productoId,
+                    (string) ($imagenSubida['datos'] ?? ''),
+                    (string) ($imagenSubida['mime'] ?? '')
+                );
+                if (!$guardada) {
+                    $pdo->rollBack();
+                    $this->flash('No se pudo guardar la imagen del producto.', true);
+                    header('Location: ?ruta=admin/productos');
+                    exit;
+                }
+            }
+
+            $pdo->commit();
+
             header('Location: ?ruta=admin/productos');
             exit;
         }
@@ -575,7 +459,7 @@ final class AdminController
                 // archivada no puede quedar visible en la tienda.
                 $pdo->prepare(
                     'UPDATE productos
-                        SET archivado_en = IF(activo = 1, archivado_en, NULL),
+                        SET archivado_en = CASE WHEN activo = 1 THEN archivado_en ELSE NULL END,
                             activo = 1 - activo
                       WHERE slug = ?'
                 )->execute([$slug]);
@@ -898,8 +782,18 @@ final class AdminController
 
         if ($subRuta === 'envios/eliminar') {
             $id = (int) ($_POST['id'] ?? 0);
-            $pdo->prepare('DELETE FROM tarifas_envio WHERE id = ?')->execute([$id]);
-            $this->auditar($admin, 'envios/eliminar', $id, 'Eliminó la tarifa #' . $id);
+            try {
+                $pdo->prepare('DELETE FROM tarifas_envio WHERE id = ?')->execute([$id]);
+                $this->auditar($admin, 'envios/eliminar', $id, 'Eliminó la tarifa #' . $id);
+                $this->flash('Tarifa eliminada.');
+            } catch (\PDOException $e) {
+                if (in_array((int) ($e->errorInfo[1] ?? 0), [1451, 1452], true)) {
+                    $this->flash('No se puede eliminar: la tarifa tiene direcciones asociadas.', true);
+                } else {
+                    error_log('AdminController::envios/eliminar — ' . $e->getMessage());
+                    $this->flash('No se pudo eliminar la tarifa. Inténtalo de nuevo.', true);
+                }
+            }
             header('Location: ?ruta=admin/envios');
             exit;
         }
@@ -1037,7 +931,9 @@ final class AdminController
                 if ($pdo->inTransaction()) {
                     $pdo->rollBack();
                 }
-                $this->flash('No se pudo reembolsar el pedido: ' . $e->getMessage(), true);
+                error_log('AdminController::pedidos/reembolsar — ' . $e->getMessage());
+                $this->flash(get_class($e) === \RuntimeException::class
+                    ? $e->getMessage() : 'No se pudo reembolsar el pedido. Inténtalo de nuevo.', true);
                 header('Location: ?ruta=admin/pedidos');
                 exit;
             }
@@ -1207,7 +1103,9 @@ final class AdminController
                 if ($pdo->inTransaction()) {
                     $pdo->rollBack();
                 }
-                $this->flash('No se pudo actualizar el pedido: ' . $e->getMessage(), true);
+                error_log('AdminController::pedidos/estado — ' . $e->getMessage());
+                $this->flash(get_class($e) === \RuntimeException::class
+                    ? $e->getMessage() : 'No se pudo actualizar el pedido. Inténtalo de nuevo.', true);
                 header('Location: ?ruta=admin/pedidos');
                 exit;
             }
@@ -1241,41 +1139,8 @@ final class AdminController
             exit;
         }
 
-        // (Etapa 6) Un vendedor solo ve los pedidos que llevan sus líneas y,
-        // dentro de ellos, solo sus propias líneas.
-        $alcance = \Model\Vendedor::alcancePanelPedidos();
-
-        $adminFilter = (string) ($_GET['estado'] ?? '');
-        $sql = 'SELECT ' . ($alcance[0] !== '' ? 'DISTINCT ' : '')
-             . 'p.*, c.name AS nombre, c.apellidos
-                FROM pedidos p
-                JOIN users c ON c.id = p.cliente_id'
-             . $alcance[0]
-             . ' WHERE ' . $alcance[1];
-        $params = $alcance[3];
-        if ($adminFilter !== '') {
-            $sql .= ' AND p.estado = ?';
-            $params[] = $adminFilter;
-        }
-        $sql .= ' ORDER BY p.id DESC';
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
-        $pedidos = $stmt->fetchAll();
-
-        $sqlDet = 'SELECT dp.*, pd.nombre AS producto_nombre
-                   FROM detalle_pedido dp
-                   JOIN productos pd ON pd.id = dp.producto_id
-                 WHERE ' . $alcance[2];
-        $stmtDet = $pdo->prepare($sqlDet);
-        $stmtDet->execute($alcance[3]);
-        $detalles = $stmtDet->fetchAll();
-
-        $mapa = [];
-        foreach ($detalles as $d) {
-            $mapa[(int) $d['pedido_id']][] = $d;
-        }
-
-        $this->vista('pedidos', ['pedidos' => $pedidos, 'detalles' => $mapa]);
+        // La vista ya consulta y pagina los pedidos; no duplicar todo el historial.
+        $this->vista('pedidos', []);
     }
 
     // ------------------------------------------------------------ //
@@ -1322,7 +1187,7 @@ final class AdminController
                     && $this->esUltimoAdminActivo($pdo, $id)) {
                     $this->flash('No puedes desactivar al único administrador activo.', true);
                 } else {
-                    $pdo->prepare('UPDATE users SET activo = IF(activo = 1, 0, 1) WHERE id = ?')
+                    $pdo->prepare('UPDATE users SET activo = CASE WHEN activo = 1 THEN 0 ELSE 1 END WHERE id = ?')
                         ->execute([$id]);
                     $this->auditar($admin, 'usuarios/estado', $id, 'Cambió el estado del usuario #' . $id);
                     $this->flash('Estado actualizado.');
@@ -1384,10 +1249,8 @@ final class AdminController
                 $error = 'Ingresa un correo electrónico válido.';
             } elseif ($rol !== 'cliente' && $usuario === '') {
                 $error = 'El nombre de usuario es obligatorio para administradores y vendedores.';
-            } elseif (!$esEdicion && strlen($clave) < 6) {
-                $error = 'La contraseña debe tener al menos 6 caracteres.';
-            } elseif ($esEdicion && $clave !== '' && strlen($clave) < 6) {
-                $error = 'La contraseña debe tener al menos 6 caracteres.';
+            } elseif ((!$esEdicion || $clave !== '') && ($errorClave = \Security\Contrasena::error($clave)) !== null) {
+                $error = $errorClave;
             } else {
                 $error = $this->ultimoErrorFlash($pdo, $id, $email, $usuario);
             }
@@ -1446,9 +1309,9 @@ final class AdminController
 
         $this->vista('usuarios', [
             'usuarios' => $pdo->query(
-                'SELECT id, name, apellidos, email, usuario, rol, tipo, activo, ultimo_ingreso, created_at
+                "SELECT id, name, apellidos, email, usuario, rol, tipo, activo, ultimo_ingreso, created_at
                  FROM users WHERE deleted_at IS NULL
-                 ORDER BY FIELD(rol, "admin", "vendedor", "cliente"), id'
+                 ORDER BY CASE rol WHEN 'admin' THEN 0 WHEN 'vendedor' THEN 1 ELSE 2 END, id"
             )->fetchAll(),
         ]);
     }
@@ -1648,7 +1511,8 @@ final class AdminController
                 if ($pdo->inTransaction()) {
                     $pdo->rollBack();
                 }
-                $this->flash('No se pudo registrar el ajuste: ' . $e->getMessage(), true);
+                error_log('AdminController::inventario/ajustar — ' . $e->getMessage());
+                $this->flash('No se pudo registrar el ajuste. Inténtalo de nuevo.', true);
                 header('Location: ' . $volver);
                 exit;
             }

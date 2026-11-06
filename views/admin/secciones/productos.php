@@ -65,7 +65,8 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
     </form>
 
     <dialog class="admin-modal" id="modalForm"<?= $editando ? ' data-modal-auto="1"' : '' ?>>
-        <form method="post" action="?ruta=admin/productos/guardar" class="admin-formulario">
+        <form method="post" action="?ruta=admin/productos/guardar" class="admin-formulario"
+              enctype="multipart/form-data">
             <?= \Security\Proteccion::campo() ?>
             <div class="admin-modal-cabecera">
                 <h3><?= $editando ? 'Editar producto' : 'Nuevo producto' ?></h3>
@@ -148,6 +149,10 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
                 </label>
                 <label>Imagen (ruta)
                     <input type="text" name="imagen" value="<?= $e($editando['imagen'] ?? '') ?>">
+                </label>
+                <label>Subir imagen (JPEG, PNG, WebP o GIF, máx. 3 MB)
+                    <input type="file" name="imagen_archivo" accept="image/jpeg,image/png,image/webp,image/gif">
+                    <small>Se guarda en la base de datos y tiene prioridad sobre la ruta.</small>
                 </label>
                 <label class="admin-check">
                     <input type="checkbox" name="activo" value="1" <?= !isset($editando['activo']) || $editando['activo'] ? 'checked' : '' ?>>

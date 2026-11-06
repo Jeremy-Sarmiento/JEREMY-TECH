@@ -3,7 +3,7 @@
 Tienda de tecnología en PHP puro (MVC propio) con panel de
 administración y soporte multi-vendedor. BD MariaDB `jeremy_tech`.
 
-**Stack:** PHP 8.1+ (probado en 8.5) · MariaDB 10.11+ · PDO `utf8mb4`
+**Stack:** PHP 8.2+ (probado en 8.5) · MariaDB 10.2+ · PDO `pdo_mysql`
 
 ## Entregables
 
@@ -17,19 +17,95 @@ Informes PDF de las sesiones de desarrollo:
 ## Instalación
 
 ```bash
-mysql -u root -p < database/jeremy_tech_full.sql
+mariadb -h 127.0.0.1 -u root -p < database/jeremy_tech_full.sql
 cp .env.example .env   # rellenar DB_USER / DB_PASS
 php -S 127.0.0.1:8000 -t public
 ```
 
-El volcado incluye `CREATE DATABASE` y los datos: impórtalo sobre una
-instalación vacía (no es idempotente).
+El dump completo crea la base `jeremy_tech`, sus tablas y los datos iniciales.
+Debe importarse sobre una instalación vacía y requiere la extensión `pdo_mysql`.
+No es idempotente.
 
-## Credenciales
+### Base MariaDB alojada
 
-| Rol | Usuario / email | Contraseña |
-| --- | --- | --- |
-| Admin | `jeremytech` | `jeremytech` |
+Configura `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASS` con los datos
+del proveedor. Importa `database/jeremy_tech_full.sql` desde un equipo autorizado
+antes de iniciar la aplicación. No subas `.env` al repositorio.
+
+## Despliegue en Render
+
+El repositorio incluye `Dockerfile`, `docker/apache.conf` y `docker/php.ini`.
+La imagen usa PHP 8.2 con Apache, `pdo_mysql` y el DocumentRoot en `public/`.
+La base MariaDB debe estar alojada por separado y aceptar conexiones desde el
+servicio.
+
+1. Importa `database/jeremy_tech_full.sql` en la base MariaDB de destino.
+2. En Render, crea un Web Service desde la rama `main` y selecciona Docker.
+3. Define `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS` y
+   `APP_URL=https://<servicio>.onrender.com`.
+4. Configura `TRUSTED_PROXIES` solo con las IPs exactas de proxies propios. Sin
+   proxy propio, déjalo vacío.
+
+El disco del contenedor es efímero. Las sesiones y los correos simulados se
+pierden al reiniciar; usa una ruta persistente fuera del DocumentRoot si deben
+conservarse.
+
+## Administrador inicial y seguridad
+
+El seed conserva los IDs históricos, pero las cuentas de admin y vendedor demo
+quedan desactivadas y sin contraseña utilizable. No hay una contraseña pública
+de administrador. Desde la terminal del servidor, crea o recupera únicamente
+una cuenta admin (no convierte clientes en administradores):
+
+```bash
+export ADMIN_EMAIL=tu-correo@example.com ADMIN_USUARIO=tu-usuario
+read -rs -p 'Nueva contraseña: ' ADMIN_INITIAL_PASSWORD
+export ADMIN_INITIAL_PASSWORD
+php tools/establecer-admin.php
+unset ADMIN_INITIAL_PASSWORD
+```
+
+Requiere 8+ caracteres y rechaza claves comunes. Usa la base configurada en el
+entorno; **verifica el destino antes de ejecutarlo**. No imprime la contraseña.
+Las cuentas ya desplegadas no cambian por actualizar el seed: rota sus claves
+desde el panel o con este comando. La rotación invalida tokens de recuperación,
+pero no cierra sesiones que ya estaban abiertas.
+
+**Excepción temporal de demo:** por decisión del proyecto, el enlace de
+recuperación sigue visible para quien lo solicita. Esto permite tomar cuentas
+activas conociendo su correo; no abrir la demo a usuarios reales hasta retirarlo.
+La pregunta de seguridad tampoco sustituye la verificación por correo.
+
+Los `.env*` reales no entran en Git ni en la imagen Docker. Si una imagen o
+credencial anterior se compartió, rota las claves de BD/chat en el proveedor;
+excluir el archivo ahora no revoca lo que ya se filtró.
+
+La CSP aplica restricciones de objetos, URL base y marcos. La política de
+scripts con nonce está en **Report-Only** para no romper los manejadores inline
+existentes; aún no bloquea scripts no autorizados.
+
+### Actualizar una base existente
+
+No reimportes el dump completo: recrea tablas. Con respaldo previo y las
+escrituras pausadas, aplica las migraciones necesarias con el cliente MariaDB:
+
+```bash
+mariadb -h 127.0.0.1 -u root -p jeremy_tech < database/imagenes-producto.sql
+mariadb -h 127.0.0.1 -u root -p jeremy_tech < database/carrito-persistente.sql
+mariadb -h 127.0.0.1 -u root -p jeremy_tech < database/integridad-rendimiento.sql
+```
+
+Son idempotentes y no reparan datos históricos. Los `CHECK` y las claves
+foráneas pueden detener la migración si ya existen filas inválidas. Los scripts
+documentan su rollback y no se aplican automáticamente al desplegar.
+
+Los reportes sin IGV usan la suma de comisión y neto congelados, también para
+ventas anteriores, sin reescribir pagos o liquidaciones. El panel de pedidos
+pagina de 50 en 50 y consulta solo los detalles de esa página.
+
+**Cupones:** sigue pendiente decidir quién financia el descuento y qué productos
+del vendedor participan. El reparto anterior no cambia en esta entrega; no
+activar promociones con productos de terceros sin acordar esa política.
 
 ## Registro de clientes
 
@@ -43,6 +119,49 @@ La primera dirección se guarda como `Principal` y predeterminada en
 `direcciones`; la zona de envío se elige en el mismo formulario porque el
 checkout calcula el costo con la zona de la dirección. La pregunta de
 seguridad se conserva para la recuperación de contraseña sin correo.
+
+## Carrito por cuenta
+
+Se reutilizan `carritos` y `carrito_items`: `users.id` se relaciona con
+`carritos.cliente_id`, y cada línea con su carrito, producto y variante opcional.
+No se guardan precios en el carrito; se recalculan desde el catálogo al comprar.
+
+- **Invitado:** productos temporales en la sesión del navegador, sin crear una cuenta.
+- **Iniciar sesión o registrarse:** sumar una sola vez los productos del invitado
+  al carrito de esa cuenta. Una variante distinta es otra línea.
+- **Cerrar sesión:** limpiar el carrito visible y el cupón, conservando los
+  productos en BD. Otro usuario del navegador no recibe ese carrito.
+- **Volver a entrar, incluso desde otro dispositivo:** recuperar el carrito propio.
+  Las sesiones autenticadas anteriores al cambio se incorporan al primer uso.
+- **Comprar:** pedido, stock y limpieza del carrito se confirman juntos; si algo
+  falla, el carrito permanece. Dos dispositivos no compran dos veces el mismo
+  carrito. Los productos ocultos/archivados no se compran; una variante eliminada
+  se quita del carrito y nunca se convierte en el producto base.
+
+Guardar productos **no reserva stock**. El cupón sigue siendo de la sesión;
+no se guarda entre dispositivos ni se cambia quién financia el descuento.
+Si falla guardar un carrito heredado al salir, se cierra la cuenta igualmente y
+queda un respaldo privado en la sesión, asociado a su propietario, para reintentar
+al volver a entrar. Ese respaldo excepcional se pierde si la sesión caduca antes
+de poder guardarlo en BD; nunca aparece como carrito de invitado u otra cuenta.
+
+### Migrar el carrito existente
+
+Para una base ya instalada, respaldar y pausar las escrituras del carrito.
+Antes de desplegar el código nuevo, ejecutar:
+
+```bash
+mariadb -h 127.0.0.1 -u root -p jeremy_tech < database/carrito-persistente.sql
+```
+
+El script añade `variante_id`, su FK y la unicidad por carrito/producto/variante
+sin borrar filas ni recrear tablas. Es idempotente. En instalaciones nuevas,
+el dump completo ya incluye estos cambios.
+
+Para volver al código anterior, consultar `database/carrito-persistente-down.sql`.
+El rollback se niega si existen variantes o duplicados cuya identidad se perdería;
+no los borra ni fusiona automáticamente. No reimportar la estructura sobre una BD
+con datos. Las migraciones no se ejecutan automáticamente desde las peticiones web.
 
 ## Roles: cliente y vendedor
 
@@ -85,11 +204,11 @@ y C2C (segunda mano, con stock y reputación).
   vuelve a la página 1. El filtro de vendedor (`vendedor`) y la búsqueda se
   conservan al cambiar el resto de filtros.
 
-La búsqueda usa `LIKE` sobre el texto normalizado porque necesita
-coincidencias parciales (`%son%`). Un índice `FULLTEXT` queda como mejora
-opcional para catálogos mucho más grandes: habría que cambiar la consulta a
-`MATCH ... AGAINST` y aceptar la semántica de palabras completas/prefijos.
-La paginación en servidor ya evita cargar todo el catálogo en cada visita.
+La búsqueda usa `LIKE` sobre el texto normalizado porque necesita coincidencias
+parciales (`%son%`). Un índice `FULLTEXT` queda como mejora opcional para
+catálogos mucho más grandes, pero exigiría cambiar la consulta a
+`MATCH ... AGAINST`. La paginación en servidor ya evita cargar todo el catálogo
+en cada visita.
 
 ### Búsqueda con filtros activos (Bloque 5)
 
@@ -394,27 +513,18 @@ no se define, en web se deduce del host de la petición; en CLI se usa
 `http://localhost`. Los enlaces incluyen `index.php` explícitamente porque en
 este Apache el `DirectoryIndex` global solo sirve `index.html`.
 
-## Integración continua y vista en GitHub Pages
+## Integración continua
 
 `.github/workflows/ci.yml` corre en cada push y pull request: sintaxis
 (`php -l`), estilo (`composer cs-check`), análisis estático (`composer stan`),
-PHPUnit contra un MariaDB temporal con el dump sanitizado y un smoke test HTTP
+PHPUnit contra un MariaDB temporal con el dump completo y un smoke test HTTP
 (`tools/smoke-test.sh`) que comprueba portada, login, catálogo, la redirección
 del panel y el rechazo de POST sin CSRF.
-
-`.github/workflows/pages.yml` publica en GitHub Pages una copia estática de la
-portada generada con `tools/build-preview.sh` (renderiza el catálogo con la
-base importada y copia `public/css`, `public/js` y `public/img`). El repo ya
-está configurado con **Settings → Pages → Source: GitHub Actions**; la vista
-queda en <https://jeremy-sarmiento.github.io/JEREMY-TECH/>. Pages no ejecuta
-PHP: solo se ve la maqueta de la portada, y los enlaces con `?ruta=...`
-recargan esa misma página.
 
 En local, con la base importada:
 
 ```bash
-bash tools/smoke-test.sh          # smoke test HTTP
-bash tools/build-preview.sh _site # genera la vista estática
+bash tools/smoke-test.sh # smoke test HTTP
 ```
 
 ## Entorno
@@ -447,7 +557,7 @@ src/Controller/     Controladores (Producto, Carrito, Login, Admin, ...)
 src/Model/          Modelos con SQL directo vía PDO
 views/              Vistas de tienda + views/admin/ (panel y secciones)
 config/conexion.php Carga .env, autocarga PSR-4 y singleton PDO
-database/           jeremy_tech_full.sql (esquema + datos)
+database/           jeremy_tech_full.sql (esquema y datos) y migraciones
 ```
 
 ## Rutas
@@ -471,8 +581,9 @@ como alternativa.
 envíos consulta las tarifas activas de `tarifas_envio` y la de contacto reutiliza
 los datos de `configuracion`.
 
-**Panel:** `admin/login` (autenticar, cerrar) · `admin/recuperar`
-(+ `recuperar/restablecer`) · `admin?seccion=...`. Secciones según rol vía
+**Panel:** `admin/cerrar` · `admin?seccion=...`. Se ingresa desde el login de la
+tienda con una cuenta admin o vendedor; el botón "Panel de administración"
+aparece en el menú de la cuenta. Secciones según rol vía
 `Administrador::seccionesPermitidas()`:
 
 - **Admin:** dashboard, productos, variantes, categorías, marcas, garantías, cupones,
