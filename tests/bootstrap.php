@@ -51,6 +51,7 @@ function ensureTestDb(): void
     }
     // Migraciones idempotentes que una base de pruebas ya creada no tiene.
     $pdo->exec(file_get_contents(__DIR__ . '/../database/imagenes-producto.sql'));
+    $pdo->exec(file_get_contents(__DIR__ . '/../database/carrito-persistente.sql'));
 }
 
 function resetTestDb(): void

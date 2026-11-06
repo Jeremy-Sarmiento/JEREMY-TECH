@@ -5,6 +5,7 @@
 -- Despues: psql -X -v ON_ERROR_STOP=1 -1 -d jeremy_tech -c 'SET CONSTRAINTS ALL DEFERRED' -f database/jeremy_tech_datos.sql
 -- Solo para instalaciones nuevas: este archivo elimina tablas. Para una BD
 -- existente usar integridad-rendimiento.sql (sin borrar ni corregir historial).
+-- Para habilitar variantes en carritos existentes usar carrito-persistente.sql.
 -- Los limites de numeric(10,2) en CHECK tambien excluyen el valor especial NaN.
 
 DROP TABLE IF EXISTS auditoria_admin CASCADE;
@@ -37,9 +38,10 @@ CREATE TABLE carrito_items (
   carrito_id integer NOT NULL,
   cantidad integer NOT NULL,
   producto_id bigint NOT NULL,
+  variante_id integer NULL,
   PRIMARY KEY (id),
-  CONSTRAINT uq_carrito_items_carrito_item_unico UNIQUE (carrito_id, producto_id),
-  CONSTRAINT ck_carrito_items_cantidad CHECK (cantidad > 0)
+  CONSTRAINT ck_carrito_items_cantidad CHECK (cantidad > 0),
+  CONSTRAINT ck_carrito_items_variante CHECK (variante_id IS NULL OR variante_id > 0)
 );
 
 DROP TABLE IF EXISTS carritos CASCADE;
@@ -500,6 +502,9 @@ CREATE TABLE users (
 
 CREATE INDEX idx_calificaciones_vendedor_fk_cal_cliente ON calificaciones_vendedor (cliente_id);
 CREATE INDEX idx_carrito_items_fk_caritem_producto ON carrito_items (producto_id);
+CREATE INDEX idx_carrito_items_variante ON carrito_items (variante_id);
+-- PostgreSQL 14: NULL identifica la línea base, única igual que cada variante.
+CREATE UNIQUE INDEX uq_carrito_items_linea ON carrito_items (carrito_id, producto_id, COALESCE(variante_id, 0));
 CREATE INDEX idx_chatbot_faq_idx_chatbot_faq_activo_orden ON chatbot_faq (activo, orden);
 CREATE INDEX idx_comisiones_fk_com_vendedor ON comisiones (vendedor_id);
 CREATE INDEX idx_detalle_pedido_idx_detalle_vendedor ON detalle_pedido (vendedor_id);
@@ -548,6 +553,7 @@ ALTER TABLE calificaciones_vendedor ADD CONSTRAINT fk_cal_cliente FOREIGN KEY (c
 ALTER TABLE calificaciones_vendedor ADD CONSTRAINT fk_cal_vendedor FOREIGN KEY (vendedor_id) REFERENCES users (id);
 ALTER TABLE carrito_items ADD CONSTRAINT fk_caritem_carrito FOREIGN KEY (carrito_id) REFERENCES carritos (id);
 ALTER TABLE carrito_items ADD CONSTRAINT fk_caritem_producto FOREIGN KEY (producto_id) REFERENCES productos (id);
+ALTER TABLE carrito_items ADD CONSTRAINT fk_caritem_variante FOREIGN KEY (variante_id) REFERENCES producto_variantes (id) ON DELETE CASCADE;
 ALTER TABLE carritos ADD CONSTRAINT fk_car_cliente FOREIGN KEY (cliente_id) REFERENCES users (id);
 ALTER TABLE comisiones ADD CONSTRAINT fk_com_pedido FOREIGN KEY (pedido_id) REFERENCES pedidos (id);
 ALTER TABLE comisiones ADD CONSTRAINT fk_com_vendedor FOREIGN KEY (vendedor_id) REFERENCES users (id);
