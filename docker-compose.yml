@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jeremy-tech-app
+    image: jeremy-tech:local
+    network_mode: host
+    environment:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_NAME: jeremy_tech
+      DB_USER: root
+      DB_PASS: admin
+      APP_TIMEZONE: America/Lima
+      APP_URL: http://localhost:8080/
+      MAIL_STORAGE_PATH: /tmp/jeremy-tech-mail
+      CHAT_MODE: ai
+      PAGOS_MODO: simulado
+    # ports section not needed with network_mode: host
+    # expose 8080 directly on host
+
+# No separate networks needed with network_mode: host
