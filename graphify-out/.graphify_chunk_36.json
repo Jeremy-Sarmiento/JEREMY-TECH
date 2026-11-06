@@ -1,0 +1,87 @@
+{
+  "nodes": [
+    {
+      "id": "public_img_smartwatches_xiaomi_smart_band_8_imagen_1_xiaomi_smart_band_8",
+      "label": "Xiaomi Smart Band 8",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Xiaomi_Smart_Band_8/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "The catalog path identifies Smart Band 8, while the image clearly shows a Xiaomi-style fitness band but does not expose enough distinctive hardware detail to verify the generation."
+    },
+    {
+      "id": "public_img_smartwatches_xiaomi_smart_band_8_imagen_1_black_fitness_band",
+      "label": "Black Fitness Band",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Xiaomi_Smart_Band_8/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_smartwatches_xiaomi_smart_band_8_imagen_1_activity_tracking_dashboard",
+      "label": "Activity Tracking Dashboard",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Xiaomi_Smart_Band_8/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_smartwatches_xiaomi_smart_band_8_imagen_1_battery_time_date_status",
+      "label": "Battery, Time, and Date Status",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Xiaomi_Smart_Band_8/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_img_smartwatches_xiaomi_smart_band_8_imagen_1_xiaomi_smart_band_8",
+      "target": "public_img_smartwatches_xiaomi_smart_band_8_imagen_1_black_fitness_band",
+      "relation": "references",
+      "confidence": "AMBIGUOUS",
+      "confidence_score": 0.3,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Xiaomi_Smart_Band_8/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_smartwatches_xiaomi_smart_band_8_imagen_1_black_fitness_band",
+      "target": "public_img_smartwatches_xiaomi_smart_band_8_imagen_1_activity_tracking_dashboard",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Xiaomi_Smart_Band_8/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_smartwatches_xiaomi_smart_band_8_imagen_1_black_fitness_band",
+      "target": "public_img_smartwatches_xiaomi_smart_band_8_imagen_1_battery_time_date_status",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Xiaomi_Smart_Band_8/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/public/img/Smartwatches/Xiaomi_Smart_Band_8/imagen_1.webp": 1
+  }
+}

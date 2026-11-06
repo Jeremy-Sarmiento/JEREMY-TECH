@@ -1,0 +1,87 @@
+{
+  "nodes": [
+    {
+      "id": "public_img_smartwatches_samsung_galaxy_watch_6_imagen_1_samsung_galaxy_watch_6",
+      "label": "Samsung Galaxy Watch 6",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Samsung_Galaxy_Watch_6/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "The catalog path names Galaxy Watch 6, but the visible watch has a square Apple Watch-like case rather than the round Galaxy Watch 6 design, so the product assignment appears inconsistent."
+    },
+    {
+      "id": "public_img_smartwatches_samsung_galaxy_watch_6_imagen_1_square_smartwatch",
+      "label": "Square Smartwatch",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Samsung_Galaxy_Watch_6/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_smartwatches_samsung_galaxy_watch_6_imagen_1_honeycomb_app_grid",
+      "label": "Honeycomb Smartwatch App Grid",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Samsung_Galaxy_Watch_6/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_smartwatches_samsung_galaxy_watch_6_imagen_1_shallow_focus_product_photography",
+      "label": "Shallow-Focus Product Photography",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Samsung_Galaxy_Watch_6/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_img_smartwatches_samsung_galaxy_watch_6_imagen_1_samsung_galaxy_watch_6",
+      "target": "public_img_smartwatches_samsung_galaxy_watch_6_imagen_1_square_smartwatch",
+      "relation": "references",
+      "confidence": "AMBIGUOUS",
+      "confidence_score": 0.1,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Samsung_Galaxy_Watch_6/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_smartwatches_samsung_galaxy_watch_6_imagen_1_square_smartwatch",
+      "target": "public_img_smartwatches_samsung_galaxy_watch_6_imagen_1_honeycomb_app_grid",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Samsung_Galaxy_Watch_6/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_smartwatches_samsung_galaxy_watch_6_imagen_1_square_smartwatch",
+      "target": "public_img_smartwatches_samsung_galaxy_watch_6_imagen_1_shallow_focus_product_photography",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Samsung_Galaxy_Watch_6/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/public/img/Smartwatches/Samsung_Galaxy_Watch_6/imagen_1.webp": 1
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "nodes": [
+    {
+      "id": "public_img_banners_banner_ofertas_shopping_bags",
+      "label": "Shopping bags",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Banners/banner_ofertas.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_banners_banner_ofertas_retail_offers",
+      "label": "Retail offers",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Banners/banner_ofertas.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_banners_banner_ofertas_banner_copy_space",
+      "label": "Banner copy space",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Banners/banner_ofertas.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_img_banners_banner_ofertas_shopping_bags",
+      "target": "public_img_banners_banner_ofertas_retail_offers",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Banners/banner_ofertas.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_banners_banner_ofertas_retail_offers",
+      "target": "public_img_banners_banner_ofertas_banner_copy_space",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Banners/banner_ofertas.webp",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/public/img/Banners/banner_ofertas.webp": 1
+  }
+}

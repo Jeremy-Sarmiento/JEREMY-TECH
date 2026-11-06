@@ -1,0 +1,86 @@
+{
+  "nodes": [
+    {
+      "id": "public_img_gaming_xbox_controller_imagen_1_xbox_wireless_controller",
+      "label": "Xbox Wireless Controller",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Gaming/Xbox_Controller/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_gaming_xbox_controller_imagen_1_asymmetric_dual_stick_layout",
+      "label": "Asymmetric Dual-Stick Layout",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Gaming/Xbox_Controller/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_gaming_xbox_controller_imagen_1_abxy_button_cluster",
+      "label": "Color-Coded ABXY Button Cluster",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Gaming/Xbox_Controller/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_gaming_xbox_controller_imagen_1_gaming_product_hero_composition",
+      "label": "Gaming Product Hero Composition",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Gaming/Xbox_Controller/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_img_gaming_xbox_controller_imagen_1_xbox_wireless_controller",
+      "target": "public_img_gaming_xbox_controller_imagen_1_asymmetric_dual_stick_layout",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Gaming/Xbox_Controller/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_gaming_xbox_controller_imagen_1_xbox_wireless_controller",
+      "target": "public_img_gaming_xbox_controller_imagen_1_abxy_button_cluster",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Gaming/Xbox_Controller/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_gaming_xbox_controller_imagen_1_xbox_wireless_controller",
+      "target": "public_img_gaming_xbox_controller_imagen_1_gaming_product_hero_composition",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Gaming/Xbox_Controller/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/public/img/Gaming/Xbox_Controller/imagen_1.webp": 1
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "nodes": [
+    {
+      "id": "public_img_celulares_samsung_galaxy_s24_ultra_imagen_1_samsung_galaxy_s21_ultra_5g",
+      "label": "Samsung Galaxy S21 Ultra 5G",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Celulares/Samsung_Galaxy_S24_Ultra/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_celulares_samsung_galaxy_s24_ultra_imagen_1_samsung_galaxy_s24_ultra_catalog_context",
+      "label": "Samsung Galaxy S24 Ultra catalog context",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Celulares/Samsung_Galaxy_S24_Ultra/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_celulares_samsung_galaxy_s24_ultra_imagen_1_multi_camera_smartphone",
+      "label": "Multi-camera smartphone",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Celulares/Samsung_Galaxy_S24_Ultra/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_img_celulares_samsung_galaxy_s24_ultra_imagen_1_samsung_galaxy_s21_ultra_5g",
+      "target": "public_img_celulares_samsung_galaxy_s24_ultra_imagen_1_multi_camera_smartphone",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Celulares/Samsung_Galaxy_S24_Ultra/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_celulares_samsung_galaxy_s24_ultra_imagen_1_samsung_galaxy_s21_ultra_5g",
+      "target": "public_img_celulares_samsung_galaxy_s24_ultra_imagen_1_samsung_galaxy_s24_ultra_catalog_context",
+      "relation": "references",
+      "confidence": "AMBIGUOUS",
+      "confidence_score": 0.2,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Celulares/Samsung_Galaxy_S24_Ultra/imagen_1.webp",
+      "source_location": "The visible box says S21 Ultra 5G, while the directory names the S24 Ultra.",
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/public/img/Celulares/Samsung_Galaxy_S24_Ultra/imagen_1.webp": 1
+  }
+}

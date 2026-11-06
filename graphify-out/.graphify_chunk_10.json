@@ -1,0 +1,15 @@
+{
+  "nodes": [
+    {"id":"public_img_accesorios_logitech_mx_master_3s_imagen_1_logitech_mx_master_3s","label":"Logitech MX Master 3S","file_type":"image","source_file":"/srv/http/JEREMY-TECH/public/img/Accesorios/Logitech_MX_Master_3S/imagen_1.webp","source_location":null,"source_url":null,"captured_at":null,"author":null,"contributor":null},
+    {"id":"public_img_accesorios_logitech_mx_master_3s_imagen_1_ergonomic_right_handed_mouse","label":"Ergonomic Right-Handed Mouse","file_type":"image","source_file":"/srv/http/JEREMY-TECH/public/img/Accesorios/Logitech_MX_Master_3S/imagen_1.webp","source_location":null,"source_url":null,"captured_at":null,"author":null,"contributor":null},
+    {"id":"public_img_accesorios_logitech_mx_master_3s_imagen_1_scroll_wheel_and_side_controls","label":"Scroll Wheel and Side Controls","file_type":"image","source_file":"/srv/http/JEREMY-TECH/public/img/Accesorios/Logitech_MX_Master_3S/imagen_1.webp","source_location":null,"source_url":null,"captured_at":null,"author":null,"contributor":null}
+  ],
+  "edges": [
+    {"source":"public_img_accesorios_logitech_mx_master_3s_imagen_1_logitech_mx_master_3s","target":"public_img_accesorios_logitech_mx_master_3s_imagen_1_ergonomic_right_handed_mouse","relation":"conceptually_related_to","confidence":"EXTRACTED","confidence_score":1.0,"source_file":"/srv/http/JEREMY-TECH/public/img/Accesorios/Logitech_MX_Master_3S/imagen_1.webp","source_location":null,"weight":1.0},
+    {"source":"public_img_accesorios_logitech_mx_master_3s_imagen_1_logitech_mx_master_3s","target":"public_img_accesorios_logitech_mx_master_3s_imagen_1_scroll_wheel_and_side_controls","relation":"references","confidence":"EXTRACTED","confidence_score":1.0,"source_file":"/srv/http/JEREMY-TECH/public/img/Accesorios/Logitech_MX_Master_3S/imagen_1.webp","source_location":null,"weight":1.0}
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {"/srv/http/JEREMY-TECH/public/img/Accesorios/Logitech_MX_Master_3S/imagen_1.webp":1}
+}

@@ -1,0 +1,87 @@
+{
+  "nodes": [
+    {
+      "id": "public_img_laptops_lenovo_thinkpad_x1_carbon_imagen_1_lenovo_thinkpad_x1_carbon",
+      "label": "Lenovo ThinkPad X1 Carbon",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/Lenovo_ThinkPad_X1_Carbon/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "The catalog path names a Lenovo ThinkPad X1 Carbon, while the pictured laptop has a clearly visible Dell logo, so the intended model and visible product conflict."
+    },
+    {
+      "id": "public_img_laptops_lenovo_thinkpad_x1_carbon_imagen_1_dell_branded_laptop",
+      "label": "Dell-Branded Laptop",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/Lenovo_ThinkPad_X1_Carbon/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_laptops_lenovo_thinkpad_x1_carbon_imagen_1_windows_desktop_interface",
+      "label": "Windows Desktop Interface",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/Lenovo_ThinkPad_X1_Carbon/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_laptops_lenovo_thinkpad_x1_carbon_imagen_1_three_quarter_product_view",
+      "label": "Three-Quarter Laptop Product View",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/Lenovo_ThinkPad_X1_Carbon/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_img_laptops_lenovo_thinkpad_x1_carbon_imagen_1_lenovo_thinkpad_x1_carbon",
+      "target": "public_img_laptops_lenovo_thinkpad_x1_carbon_imagen_1_dell_branded_laptop",
+      "relation": "references",
+      "confidence": "AMBIGUOUS",
+      "confidence_score": 0.1,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/Lenovo_ThinkPad_X1_Carbon/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_laptops_lenovo_thinkpad_x1_carbon_imagen_1_dell_branded_laptop",
+      "target": "public_img_laptops_lenovo_thinkpad_x1_carbon_imagen_1_windows_desktop_interface",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/Lenovo_ThinkPad_X1_Carbon/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_laptops_lenovo_thinkpad_x1_carbon_imagen_1_dell_branded_laptop",
+      "target": "public_img_laptops_lenovo_thinkpad_x1_carbon_imagen_1_three_quarter_product_view",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/Lenovo_ThinkPad_X1_Carbon/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/public/img/Laptops/Lenovo_ThinkPad_X1_Carbon/imagen_1.webp": 1
+  }
+}

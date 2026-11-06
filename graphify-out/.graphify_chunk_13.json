@@ -1,0 +1,15 @@
+{
+  "nodes": [
+    {"id":"public_img_audifonos_bose_qc_ultra_imagen_1_bose_quietcomfort_ultra_earbuds","label":"Bose QuietComfort Ultra Earbuds","file_type":"image","source_file":"/srv/http/JEREMY-TECH/public/img/Audifonos/Bose_QC_Ultra/imagen_1.webp","source_location":null,"source_url":null,"captured_at":null,"author":null,"contributor":null},
+    {"id":"public_img_audifonos_bose_qc_ultra_imagen_1_true_wireless_in_ear_earbuds","label":"True Wireless In-Ear Earbuds","file_type":"image","source_file":"/srv/http/JEREMY-TECH/public/img/Audifonos/Bose_QC_Ultra/imagen_1.webp","source_location":null,"source_url":null,"captured_at":null,"author":null,"contributor":null},
+    {"id":"public_img_audifonos_bose_qc_ultra_imagen_1_silicone_ear_tips","label":"Silicone Ear Tips","file_type":"image","source_file":"/srv/http/JEREMY-TECH/public/img/Audifonos/Bose_QC_Ultra/imagen_1.webp","source_location":null,"source_url":null,"captured_at":null,"author":null,"contributor":null}
+  ],
+  "edges": [
+    {"source":"public_img_audifonos_bose_qc_ultra_imagen_1_bose_quietcomfort_ultra_earbuds","target":"public_img_audifonos_bose_qc_ultra_imagen_1_true_wireless_in_ear_earbuds","relation":"conceptually_related_to","confidence":"EXTRACTED","confidence_score":1.0,"source_file":"/srv/http/JEREMY-TECH/public/img/Audifonos/Bose_QC_Ultra/imagen_1.webp","source_location":null,"weight":1.0},
+    {"source":"public_img_audifonos_bose_qc_ultra_imagen_1_bose_quietcomfort_ultra_earbuds","target":"public_img_audifonos_bose_qc_ultra_imagen_1_silicone_ear_tips","relation":"references","confidence":"EXTRACTED","confidence_score":1.0,"source_file":"/srv/http/JEREMY-TECH/public/img/Audifonos/Bose_QC_Ultra/imagen_1.webp","source_location":null,"weight":1.0}
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {"/srv/http/JEREMY-TECH/public/img/Audifonos/Bose_QC_Ultra/imagen_1.webp":1}
+}

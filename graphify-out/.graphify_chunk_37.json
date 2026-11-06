@@ -1,0 +1,65 @@
+{
+  "nodes": [
+    {
+      "id": "public_img_smartwatches_xiaomi_smart_band_8_imagen_2_black_wearable_bundle_product_photo",
+      "label": "Black Smartwatch and Fitness Band Product Photo (filed as Xiaomi Smart Band 8)",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Xiaomi_Smart_Band_8/imagen_2.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_smartwatches_xiaomi_smart_band_8_imagen_2_rectangular_smartwatch",
+      "label": "Rectangular Smartwatch with Activity Rings",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Xiaomi_Smart_Band_8/imagen_2.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_smartwatches_xiaomi_smart_band_8_imagen_2_black_fitness_band",
+      "label": "Black Fitness Band with Narrow Display",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Xiaomi_Smart_Band_8/imagen_2.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_img_smartwatches_xiaomi_smart_band_8_imagen_2_black_wearable_bundle_product_photo",
+      "target": "public_img_smartwatches_xiaomi_smart_band_8_imagen_2_rectangular_smartwatch",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Xiaomi_Smart_Band_8/imagen_2.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_smartwatches_xiaomi_smart_band_8_imagen_2_black_wearable_bundle_product_photo",
+      "target": "public_img_smartwatches_xiaomi_smart_band_8_imagen_2_black_fitness_band",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Xiaomi_Smart_Band_8/imagen_2.webp",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/public/img/Smartwatches/Xiaomi_Smart_Band_8/imagen_2.webp": 1
+  }
+}

@@ -1,0 +1,312 @@
+{
+  "nodes": [
+    {
+      "id": "entregables_sesion_003_a3_2_entregable_jeremy_tech",
+      "label": "Jeremy Tech",
+      "file_type": "document",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "p.1",
+      "source_url": null,
+      "captured_at": null,
+      "author": "Jeremy Sarmiento Tapia",
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_003_a3_2_entregable_modelo_operativo_hibrido",
+      "label": "Modelo operativo híbrido de Jeremy Tech",
+      "file_type": "rationale",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.1-2",
+      "source_url": null,
+      "captured_at": null,
+      "author": "Jeremy Sarmiento Tapia",
+      "contributor": null,
+      "rationale": "Jeremy Tech combina B2C como modelo principal —ventas unitarias a estudiantes y familias, boleta, pagos inmediatos y entrega express— con B2B complementario para empresas agroindustriales y colegios, mediante facturación, cotizaciones, lotes, crédito y soporte in situ."
+    },
+    {
+      "id": "entregables_sesion_003_a3_2_entregable_b2c",
+      "label": "B2C",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.1-2",
+      "source_url": null,
+      "captured_at": null,
+      "author": "Jeremy Sarmiento Tapia",
+      "contributor": null,
+      "rationale": "Es el modelo principal: vende celulares, laptops, audífonos y accesorios directamente a estudiantes, familias y particulares de La Joya; maneja boleta, Yape, Plin, tarjeta o contraentrega, pedidos de 1 a 3 unidades, checkout web 24/7, garantía de 12 meses y despacho en menos de dos horas."
+    },
+    {
+      "id": "entregables_sesion_003_a3_2_entregable_b2b",
+      "label": "B2B",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.1-2",
+      "source_url": null,
+      "captured_at": null,
+      "author": "Jeremy Sarmiento Tapia",
+      "contributor": null,
+      "rationale": "Es el modelo complementario para empresas agroindustriales y colegios: usa factura electrónica, transferencia BCP o BBVA, crédito a 30 días, lotes de 5 a más de 30 unidades, cotizaciones PDF, soporte técnico in situ y guía de remisión electrónica."
+    },
+    {
+      "id": "entregables_sesion_003_a3_2_entregable_la_joya_arequipa",
+      "label": "La Joya (Arequipa)",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.1-2",
+      "source_url": null,
+      "captured_at": null,
+      "author": "Jeremy Sarmiento Tapia",
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_003_a3_2_entregable_der_jeremy_tech",
+      "label": "DER de Jeremy Tech",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.3-5",
+      "source_url": null,
+      "captured_at": null,
+      "author": "Jeremy Sarmiento Tapia",
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_003_a3_2_entregable_cliente",
+      "label": "Cliente",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.3-5",
+      "source_url": null,
+      "captured_at": null,
+      "author": "Jeremy Sarmiento Tapia",
+      "contributor": null,
+      "rationale": "Entidad con id como clave primaria y datos de identidad, tipo B2C/B2B, empresa, RUC, DNI, contacto, dirección y fecha de registro."
+    },
+    {
+      "id": "entregables_sesion_003_a3_2_entregable_producto",
+      "label": "Producto",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.3-5",
+      "source_url": null,
+      "captured_at": null,
+      "author": "Jeremy Sarmiento Tapia",
+      "contributor": null,
+      "rationale": "Entidad con id como clave primaria, categoría, nombre, especificaciones, precio en PEN e imagen."
+    },
+    {
+      "id": "entregables_sesion_003_a3_2_entregable_pedido",
+      "label": "Pedido",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.3-5",
+      "source_url": null,
+      "captured_at": null,
+      "author": "Jeremy Sarmiento Tapia",
+      "contributor": null,
+      "rationale": "Entidad con id como clave primaria y clienteId como clave foránea, además de código de seguimiento, fecha, comprobante, entrega, estado y total."
+    },
+    {
+      "id": "entregables_sesion_003_a3_2_entregable_detalle_pedido",
+      "label": "DetallePedido",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.3-5",
+      "source_url": null,
+      "captured_at": null,
+      "author": "Jeremy Sarmiento Tapia",
+      "contributor": null,
+      "rationale": "Entidad de líneas de pedido con id como clave primaria, pedidoId y productoId como claves foráneas, cantidad, precio unitario y subtotal."
+    },
+    {
+      "id": "entregables_sesion_003_a3_2_entregable_pago",
+      "label": "Pago",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.3-5",
+      "source_url": null,
+      "captured_at": null,
+      "author": "Jeremy Sarmiento Tapia",
+      "contributor": null,
+      "rationale": "Entidad con id como clave primaria y pedidoId como clave foránea, además de método, monto, estado pendiente o pagado, código de operación y fecha."
+    }
+  ],
+  "edges": [
+    {
+      "source": "entregables_sesion_003_a3_2_entregable_jeremy_tech",
+      "target": "entregables_sesion_003_a3_2_entregable_modelo_operativo_hibrido",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "p.1",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_003_a3_2_entregable_modelo_operativo_hibrido",
+      "target": "entregables_sesion_003_a3_2_entregable_b2c",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "p.1",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_003_a3_2_entregable_modelo_operativo_hibrido",
+      "target": "entregables_sesion_003_a3_2_entregable_b2b",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "p.1",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_003_a3_2_entregable_jeremy_tech",
+      "target": "entregables_sesion_003_a3_2_entregable_la_joya_arequipa",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.1-2",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_003_a3_2_entregable_jeremy_tech",
+      "target": "entregables_sesion_003_a3_2_entregable_der_jeremy_tech",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "p.3",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_003_a3_2_entregable_der_jeremy_tech",
+      "target": "entregables_sesion_003_a3_2_entregable_cliente",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.3-5",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_003_a3_2_entregable_der_jeremy_tech",
+      "target": "entregables_sesion_003_a3_2_entregable_producto",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.3-5",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_003_a3_2_entregable_der_jeremy_tech",
+      "target": "entregables_sesion_003_a3_2_entregable_pedido",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.3-5",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_003_a3_2_entregable_der_jeremy_tech",
+      "target": "entregables_sesion_003_a3_2_entregable_detalle_pedido",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.3-5",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_003_a3_2_entregable_der_jeremy_tech",
+      "target": "entregables_sesion_003_a3_2_entregable_pago",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.3-5",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_003_a3_2_entregable_pedido",
+      "target": "entregables_sesion_003_a3_2_entregable_cliente",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.3-5",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_003_a3_2_entregable_detalle_pedido",
+      "target": "entregables_sesion_003_a3_2_entregable_pedido",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.3-5",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_003_a3_2_entregable_detalle_pedido",
+      "target": "entregables_sesion_003_a3_2_entregable_producto",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.4-5",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_003_a3_2_entregable_pago",
+      "target": "entregables_sesion_003_a3_2_entregable_pedido",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf",
+      "source_location": "pp.3-5",
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "modelo_comercial_hibrido_jeremy_tech",
+      "label": "Modelo comercial híbrido de Jeremy Tech en La Joya",
+      "nodes": [
+        "entregables_sesion_003_a3_2_entregable_jeremy_tech",
+        "entregables_sesion_003_a3_2_entregable_modelo_operativo_hibrido",
+        "entregables_sesion_003_a3_2_entregable_b2c",
+        "entregables_sesion_003_a3_2_entregable_b2b",
+        "entregables_sesion_003_a3_2_entregable_la_joya_arequipa"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf"
+    },
+    {
+      "id": "modelo_datos_pedidos_jeremy_tech",
+      "label": "Modelo de datos de pedidos de Jeremy Tech",
+      "nodes": [
+        "entregables_sesion_003_a3_2_entregable_cliente",
+        "entregables_sesion_003_a3_2_entregable_producto",
+        "entregables_sesion_003_a3_2_entregable_pedido",
+        "entregables_sesion_003_a3_2_entregable_detalle_pedido",
+        "entregables_sesion_003_a3_2_entregable_pago"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/entregables/Sesion-003-A3-2-Entregable.pdf": 5097
+  }
+}

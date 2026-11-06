@@ -1,0 +1,65 @@
+{
+  "nodes": [
+    {
+      "id": "public_img_qr_decorative_qr_style_graphic",
+      "label": "Decorative QR-Style Graphic",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/qr.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_qr_three_cyan_finder_markers",
+      "label": "Three Rounded Cyan Finder Markers",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/qr.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_qr_cyan_green_brand_matrix",
+      "label": "Cyan Matrix with Green Center Accent",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/qr.svg",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_img_qr_decorative_qr_style_graphic",
+      "target": "public_img_qr_three_cyan_finder_markers",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/qr.svg",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_qr_decorative_qr_style_graphic",
+      "target": "public_img_qr_cyan_green_brand_matrix",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/qr.svg",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/public/img/qr.svg": 34
+  }
+}

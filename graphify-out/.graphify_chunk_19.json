@@ -1,0 +1,65 @@
+{
+  "nodes": [
+    {
+      "id": "public_img_banners_banner_tecnologia_printed_circuit_board",
+      "label": "Printed circuit board",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Banners/banner_tecnologia.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_banners_banner_tecnologia_semiconductor_chips",
+      "label": "Semiconductor chips",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Banners/banner_tecnologia.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_banners_banner_tecnologia_electronic_hardware",
+      "label": "Electronic hardware",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Banners/banner_tecnologia.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_img_banners_banner_tecnologia_printed_circuit_board",
+      "target": "public_img_banners_banner_tecnologia_semiconductor_chips",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Banners/banner_tecnologia.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_banners_banner_tecnologia_printed_circuit_board",
+      "target": "public_img_banners_banner_tecnologia_electronic_hardware",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Banners/banner_tecnologia.webp",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/public/img/Banners/banner_tecnologia.webp": 1
+  }
+}

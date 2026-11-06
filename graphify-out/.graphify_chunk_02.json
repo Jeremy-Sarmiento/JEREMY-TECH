@@ -1,0 +1,272 @@
+{
+  "nodes": [
+    {
+      "id": "entregables_el_puente_digital_reporte_t_cnico_jeremy_sarmiento_tapia",
+      "label": "Jeremy Sarmiento Tapia",
+      "file_type": "document",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "p. 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_el_puente_digital_reporte_t_cnico_jeremy_tech",
+      "label": "Jeremy Tech",
+      "file_type": "document",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "p. 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_el_puente_digital_reporte_t_cnico_exchangerate_api_open_access_endpoint",
+      "label": "ExchangeRate-API Open Access Endpoint",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "p. 1, §2",
+      "source_url": "https://open.er-api.com/v6/latest/PEN",
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_el_puente_digital_reporte_t_cnico_integracion_multimoneda_en_tiempo_real",
+      "label": "Integración multimoneda en tiempo real",
+      "file_type": "rationale",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "pp. 1–3, §§1–6",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Permite mostrar precios derivados de una base en PEN a clientes corporativos, extranjeros y transfronterizos sin mantener listas manuales, reduciendo errores, costos y tiempo operativo."
+    },
+    {
+      "id": "entregables_el_puente_digital_reporte_t_cnico_cargartasas",
+      "label": "cargarTasas",
+      "file_type": "code",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "p. 2, §§3–4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_el_puente_digital_reporte_t_cnico_tasasdecambio",
+      "label": "tasasDeCambio",
+      "file_type": "code",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "p. 2, §§3–4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_el_puente_digital_reporte_t_cnico_convertirprecio",
+      "label": "convertirPrecio",
+      "file_type": "code",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "p. 2, §4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_el_puente_digital_reporte_t_cnico_actualizarpreciosentarjetas",
+      "label": "actualizarPreciosEnTarjetas",
+      "file_type": "code",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "p. 2, §§3–4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_el_puente_digital_reporte_t_cnico_catalogo_multimoneda",
+      "label": "Catálogo multimoneda de Jeremy Tech",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "pp. 1–3, §§1, 3, 5",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_el_puente_digital_reporte_t_cnico_e_business",
+      "label": "E-business",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "p. 3, §7",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "La integración externa optimiza la infraestructura informativa y comercial del negocio sin constituir por sí misma un cobro o una transacción de pago final."
+    },
+    {
+      "id": "entregables_el_puente_digital_reporte_t_cnico_e_commerce",
+      "label": "E-commerce",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "p. 3, §7",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "entregables_el_puente_digital_reporte_t_cnico_jeremy_sarmiento_tapia",
+      "target": "entregables_el_puente_digital_reporte_t_cnico_jeremy_tech",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "p. 1",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_el_puente_digital_reporte_t_cnico_jeremy_tech",
+      "target": "entregables_el_puente_digital_reporte_t_cnico_integracion_multimoneda_en_tiempo_real",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "pp. 1–3, §§1–6",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_el_puente_digital_reporte_t_cnico_integracion_multimoneda_en_tiempo_real",
+      "target": "entregables_el_puente_digital_reporte_t_cnico_exchangerate_api_open_access_endpoint",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "pp. 1–2, §§2–3",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_el_puente_digital_reporte_t_cnico_integracion_multimoneda_en_tiempo_real",
+      "target": "entregables_el_puente_digital_reporte_t_cnico_cargartasas",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "p. 2, §§3–4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_el_puente_digital_reporte_t_cnico_cargartasas",
+      "target": "entregables_el_puente_digital_reporte_t_cnico_exchangerate_api_open_access_endpoint",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "p. 2, §§3–4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_el_puente_digital_reporte_t_cnico_cargartasas",
+      "target": "entregables_el_puente_digital_reporte_t_cnico_tasasdecambio",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "p. 2, §§3–4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_el_puente_digital_reporte_t_cnico_convertirprecio",
+      "target": "entregables_el_puente_digital_reporte_t_cnico_tasasdecambio",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "p. 2, §4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_el_puente_digital_reporte_t_cnico_actualizarpreciosentarjetas",
+      "target": "entregables_el_puente_digital_reporte_t_cnico_convertirprecio",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "p. 2, §§3–4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_el_puente_digital_reporte_t_cnico_actualizarpreciosentarjetas",
+      "target": "entregables_el_puente_digital_reporte_t_cnico_catalogo_multimoneda",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "p. 2, §§3–4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_el_puente_digital_reporte_t_cnico_integracion_multimoneda_en_tiempo_real",
+      "target": "entregables_el_puente_digital_reporte_t_cnico_catalogo_multimoneda",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "pp. 1–3, §§1, 5–6",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_el_puente_digital_reporte_t_cnico_integracion_multimoneda_en_tiempo_real",
+      "target": "entregables_el_puente_digital_reporte_t_cnico_e_business",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "p. 3, §7",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_el_puente_digital_reporte_t_cnico_e_business",
+      "target": "entregables_el_puente_digital_reporte_t_cnico_e_commerce",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf",
+      "source_location": "p. 3, §7",
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "flujo_de_actualizacion_multimoneda_en_tiempo_real",
+      "label": "Flujo de actualización multimoneda en tiempo real",
+      "nodes": [
+        "entregables_el_puente_digital_reporte_t_cnico_exchangerate_api_open_access_endpoint",
+        "entregables_el_puente_digital_reporte_t_cnico_cargartasas",
+        "entregables_el_puente_digital_reporte_t_cnico_tasasdecambio",
+        "entregables_el_puente_digital_reporte_t_cnico_convertirprecio",
+        "entregables_el_puente_digital_reporte_t_cnico_actualizarpreciosentarjetas",
+        "entregables_el_puente_digital_reporte_t_cnico_catalogo_multimoneda"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/entregables/El Puente Digital — Reporte Técnico.pdf": 127
+  }
+}

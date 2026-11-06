@@ -1,0 +1,677 @@
+{
+  "nodes": [
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_jeremy_tech",
+      "label": "Jeremy Tech",
+      "file_type": "document",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_la_joya",
+      "label": "La Joya",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "pp. 1-5",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_proposito_corporativo",
+      "label": "Propósito corporativo de Jeremy Tech",
+      "file_type": "rationale",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 2",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Democratizar el acceso inmediato a tecnología original en La Joya y sus valles, evitando viajes a Arequipa y ofreciendo respaldo técnico local."
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_propuesta_valor_diferencial",
+      "label": "Propuesta de valor diferencial",
+      "file_type": "rationale",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 2",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Combinar hardware original, entrega el mismo día, asesoramiento cercano, demostración física, garantía local y atención digital continua."
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_viabilidad_mercado",
+      "label": "Viabilidad de mercado",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 2",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_viabilidad_economica",
+      "label": "Viabilidad económica",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 2",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_viabilidad_operativa",
+      "label": "Viabilidad operativa",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 2",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_operacion_as_is",
+      "label": "Operación As-Is de Jeremy Tech",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 3",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_venta_manual_whatsapp",
+      "label": "Venta manual por WhatsApp",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 3",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_limite_horario",
+      "label": "Límite de horario de atención",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 3",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_validacion_manual_pagos",
+      "label": "Validación manual de pagos",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 3",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_inventario_no_sincronizado",
+      "label": "Inventario no sincronizado",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "pp. 2-3",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_arquitectura_to_be",
+      "label": "Arquitectura E-business To-Be",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Automatizar ventas, pagos, inventario, facturación, despacho y notificaciones para operar como e-commerce autoservicio 24/7."
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_portal_ecommerce_pwa",
+      "label": "Portal E-commerce PWA",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_api_gateway_orquestador",
+      "label": "API Gateway y Orquestador",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_pasarela_pagos",
+      "label": "Pasarela de pagos",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_webhooks_pago",
+      "label": "Webhooks de pago",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_erp_cloud",
+      "label": "ERP Cloud",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_reserva_stock_tiempo_real",
+      "label": "Reserva de stock en tiempo real",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "pp. 4-5",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_api_facturacion_sunat",
+      "label": "API de Facturación Electrónica SUNAT",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "pp. 4-5",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_logistica_express",
+      "label": "Logística express local y nacional",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "pp. 4-5",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_notificaciones_automaticas",
+      "label": "Notificaciones automáticas por WhatsApp y correo",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_motor_gestion_pedidos",
+      "label": "Motor de gestión de pedidos",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_crm_base_clientes",
+      "label": "CRM y base de clientes",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_autoservicio_24_7",
+      "label": "Autoservicio comercial 24/7",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "pp. 4-5",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_matriz_brechas",
+      "label": "Matriz de brechas As-Is vs. To-Be",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 5",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_sesion_001_a3_2_entregable_transformacion_digital_regional",
+      "label": "Transformación digital regional",
+      "file_type": "rationale",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 5",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "El modelo To-Be amplía el liderazgo físico de Jeremy Tech mediante compras seguras 24/7, facturación inmediata y entrega express, aportando a la modernización digital de La Joya."
+    }
+  ],
+  "edges": [
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_jeremy_tech",
+      "target": "entregables_sesion_001_a3_2_entregable_la_joya",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 1",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_proposito_corporativo",
+      "target": "entregables_sesion_001_a3_2_entregable_jeremy_tech",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 2",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_propuesta_valor_diferencial",
+      "target": "entregables_sesion_001_a3_2_entregable_jeremy_tech",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 2",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_viabilidad_mercado",
+      "target": "entregables_sesion_001_a3_2_entregable_arquitectura_to_be",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 2",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_viabilidad_economica",
+      "target": "entregables_sesion_001_a3_2_entregable_arquitectura_to_be",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 2",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_viabilidad_operativa",
+      "target": "entregables_sesion_001_a3_2_entregable_arquitectura_to_be",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 2",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_operacion_as_is",
+      "target": "entregables_sesion_001_a3_2_entregable_venta_manual_whatsapp",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 3",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_operacion_as_is",
+      "target": "entregables_sesion_001_a3_2_entregable_limite_horario",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 3",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_operacion_as_is",
+      "target": "entregables_sesion_001_a3_2_entregable_validacion_manual_pagos",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 3",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_operacion_as_is",
+      "target": "entregables_sesion_001_a3_2_entregable_inventario_no_sincronizado",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 3",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_arquitectura_to_be",
+      "target": "entregables_sesion_001_a3_2_entregable_portal_ecommerce_pwa",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_arquitectura_to_be",
+      "target": "entregables_sesion_001_a3_2_entregable_api_gateway_orquestador",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_arquitectura_to_be",
+      "target": "entregables_sesion_001_a3_2_entregable_erp_cloud",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_portal_ecommerce_pwa",
+      "target": "entregables_sesion_001_a3_2_entregable_api_gateway_orquestador",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_api_gateway_orquestador",
+      "target": "entregables_sesion_001_a3_2_entregable_pasarela_pagos",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_pasarela_pagos",
+      "target": "entregables_sesion_001_a3_2_entregable_webhooks_pago",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_webhooks_pago",
+      "target": "entregables_sesion_001_a3_2_entregable_api_gateway_orquestador",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_api_gateway_orquestador",
+      "target": "entregables_sesion_001_a3_2_entregable_erp_cloud",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_erp_cloud",
+      "target": "entregables_sesion_001_a3_2_entregable_reserva_stock_tiempo_real",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "pp. 4-5",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_api_gateway_orquestador",
+      "target": "entregables_sesion_001_a3_2_entregable_api_facturacion_sunat",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_api_gateway_orquestador",
+      "target": "entregables_sesion_001_a3_2_entregable_logistica_express",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_api_gateway_orquestador",
+      "target": "entregables_sesion_001_a3_2_entregable_notificaciones_automaticas",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_api_gateway_orquestador",
+      "target": "entregables_sesion_001_a3_2_entregable_motor_gestion_pedidos",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_motor_gestion_pedidos",
+      "target": "entregables_sesion_001_a3_2_entregable_crm_base_clientes",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_arquitectura_to_be",
+      "target": "entregables_sesion_001_a3_2_entregable_autoservicio_24_7",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "pp. 4-5",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_autoservicio_24_7",
+      "target": "entregables_sesion_001_a3_2_entregable_limite_horario",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 5",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_pasarela_pagos",
+      "target": "entregables_sesion_001_a3_2_entregable_validacion_manual_pagos",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 5",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_reserva_stock_tiempo_real",
+      "target": "entregables_sesion_001_a3_2_entregable_inventario_no_sincronizado",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 5",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_matriz_brechas",
+      "target": "entregables_sesion_001_a3_2_entregable_operacion_as_is",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 5",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_matriz_brechas",
+      "target": "entregables_sesion_001_a3_2_entregable_arquitectura_to_be",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 5",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_transformacion_digital_regional",
+      "target": "entregables_sesion_001_a3_2_entregable_arquitectura_to_be",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 5",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_sesion_001_a3_2_entregable_transformacion_digital_regional",
+      "target": "entregables_sesion_001_a3_2_entregable_la_joya",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf",
+      "source_location": "p. 5",
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "triple_viabilidad_transformacion_digital",
+      "label": "Triple viabilidad de la transformación digital",
+      "nodes": [
+        "entregables_sesion_001_a3_2_entregable_viabilidad_mercado",
+        "entregables_sesion_001_a3_2_entregable_viabilidad_economica",
+        "entregables_sesion_001_a3_2_entregable_viabilidad_operativa"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf"
+    },
+    {
+      "id": "cuellos_botella_operacion_as_is",
+      "label": "Cuellos de botella de la operación As-Is",
+      "nodes": [
+        "entregables_sesion_001_a3_2_entregable_limite_horario",
+        "entregables_sesion_001_a3_2_entregable_validacion_manual_pagos",
+        "entregables_sesion_001_a3_2_entregable_inventario_no_sincronizado"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf"
+    },
+    {
+      "id": "flujo_transaccion_ebusiness_automatizada",
+      "label": "Flujo de transacción E-business automatizada",
+      "nodes": [
+        "entregables_sesion_001_a3_2_entregable_portal_ecommerce_pwa",
+        "entregables_sesion_001_a3_2_entregable_api_gateway_orquestador",
+        "entregables_sesion_001_a3_2_entregable_pasarela_pagos",
+        "entregables_sesion_001_a3_2_entregable_erp_cloud",
+        "entregables_sesion_001_a3_2_entregable_api_facturacion_sunat",
+        "entregables_sesion_001_a3_2_entregable_logistica_express",
+        "entregables_sesion_001_a3_2_entregable_notificaciones_automaticas"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/entregables/Sesion-001-A3-2-Entregable.pdf": 5
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "nodes": [
+    {
+      "id": "public_img_celulares_samsung_galaxy_s24_ultra_imagen_2_samsung_galaxy_s_ultra_lineup",
+      "label": "Samsung Galaxy S Ultra lineup",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Celulares/Samsung_Galaxy_S24_Ultra/imagen_2.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_celulares_samsung_galaxy_s24_ultra_imagen_2_s_pen_stylus",
+      "label": "S Pen stylus",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Celulares/Samsung_Galaxy_S24_Ultra/imagen_2.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_celulares_samsung_galaxy_s24_ultra_imagen_2_multi_color_product_lineup",
+      "label": "Multi-color product lineup",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Celulares/Samsung_Galaxy_S24_Ultra/imagen_2.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_img_celulares_samsung_galaxy_s24_ultra_imagen_2_samsung_galaxy_s_ultra_lineup",
+      "target": "public_img_celulares_samsung_galaxy_s24_ultra_imagen_2_s_pen_stylus",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Celulares/Samsung_Galaxy_S24_Ultra/imagen_2.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_celulares_samsung_galaxy_s24_ultra_imagen_2_samsung_galaxy_s_ultra_lineup",
+      "target": "public_img_celulares_samsung_galaxy_s24_ultra_imagen_2_multi_color_product_lineup",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Celulares/Samsung_Galaxy_S24_Ultra/imagen_2.webp",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/public/img/Celulares/Samsung_Galaxy_S24_Ultra/imagen_2.webp": 1
+  }
+}

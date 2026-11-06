@@ -1,0 +1,15 @@
+{
+  "nodes": [
+    {"id":"public_img_accesorios_samsung_monitor_27_imagen_1_samsung_viewfinity_s8_monitor","label":"Samsung ViewFinity S8 Monitor","file_type":"image","source_file":"/srv/http/JEREMY-TECH/public/img/Accesorios/Samsung_Monitor_27/imagen_1.webp","source_location":null,"source_url":null,"captured_at":null,"author":null,"contributor":null},
+    {"id":"public_img_accesorios_samsung_monitor_27_imagen_1_slim_bezel_display","label":"Slim-Bezel Display","file_type":"image","source_file":"/srv/http/JEREMY-TECH/public/img/Accesorios/Samsung_Monitor_27/imagen_1.webp","source_location":null,"source_url":null,"captured_at":null,"author":null,"contributor":null},
+    {"id":"public_img_accesorios_samsung_monitor_27_imagen_1_central_desktop_stand","label":"Central Desktop Stand","file_type":"image","source_file":"/srv/http/JEREMY-TECH/public/img/Accesorios/Samsung_Monitor_27/imagen_1.webp","source_location":null,"source_url":null,"captured_at":null,"author":null,"contributor":null}
+  ],
+  "edges": [
+    {"source":"public_img_accesorios_samsung_monitor_27_imagen_1_samsung_viewfinity_s8_monitor","target":"public_img_accesorios_samsung_monitor_27_imagen_1_slim_bezel_display","relation":"references","confidence":"EXTRACTED","confidence_score":1.0,"source_file":"/srv/http/JEREMY-TECH/public/img/Accesorios/Samsung_Monitor_27/imagen_1.webp","source_location":null,"weight":1.0},
+    {"source":"public_img_accesorios_samsung_monitor_27_imagen_1_samsung_viewfinity_s8_monitor","target":"public_img_accesorios_samsung_monitor_27_imagen_1_central_desktop_stand","relation":"references","confidence":"EXTRACTED","confidence_score":1.0,"source_file":"/srv/http/JEREMY-TECH/public/img/Accesorios/Samsung_Monitor_27/imagen_1.webp","source_location":null,"weight":1.0}
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {"/srv/http/JEREMY-TECH/public/img/Accesorios/Samsung_Monitor_27/imagen_1.webp":1}
+}

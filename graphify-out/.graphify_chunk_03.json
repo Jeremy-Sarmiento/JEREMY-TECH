@@ -1,0 +1,356 @@
+{
+  "nodes": [
+    {
+      "id": "entregables_la_radiograf_a_t_cnica_sesi_n_2_jeremy_sarmiento_tapia",
+      "label": "Jeremy Sarmiento Tapia",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_la_radiograf_a_t_cnica_sesi_n_2_jeremy_tech",
+      "label": "Jeremy Tech (Tienda de Tecnología)",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "El negocio combina canales de venta directa con integraciones, gestión de datos y componentes dinámicos para sostener su crecimiento."
+    },
+    {
+      "id": "entregables_la_radiograf_a_t_cnica_sesi_n_2_e_commerce",
+      "label": "E-commerce",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Se define como la transacción directa de compra o venta."
+    },
+    {
+      "id": "entregables_la_radiograf_a_t_cnica_sesi_n_2_e_business",
+      "label": "E-business",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Se define como integración, gestión o soporte que hace más inteligente al negocio sin constituir por sí mismo una venta."
+    },
+    {
+      "id": "entregables_la_radiograf_a_t_cnica_sesi_n_2_cat_logo_interactivo_categorizado",
+      "label": "Catálogo interactivo categorizado",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1, proceso 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Es una vitrina digital directa para exhibir productos, especificaciones y precios al consumidor."
+    },
+    {
+      "id": "entregables_la_radiograf_a_t_cnica_sesi_n_2_consulta_directa_por_whatsapp",
+      "label": "Consulta directa por WhatsApp",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1, proceso 2",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Es un canal comercial y transaccional directo para asesoría personalizada y cierre de ventas."
+    },
+    {
+      "id": "entregables_la_radiograf_a_t_cnica_sesi_n_2_conversi_n_multimoneda_en_tiempo_real",
+      "label": "Conversión multimoneda en tiempo real",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1, proceso 3",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Aporta interoperabilidad mediante un servicio tecnológico externo que calcula divisas automáticamente sin constituir una venta directa."
+    },
+    {
+      "id": "entregables_la_radiograf_a_t_cnica_sesi_n_2_exchangerate_api",
+      "label": "ExchangeRate-API",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1, proceso 3",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_la_radiograf_a_t_cnica_sesi_n_2_galer_a_interactiva_de_variantes",
+      "label": "Galería interactiva de variantes de productos",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1, proceso 4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "La galería y el selector dinámico de colores facilitan una selección informada del cliente."
+    },
+    {
+      "id": "entregables_la_radiograf_a_t_cnica_sesi_n_2_experiencia_de_usuario",
+      "label": "Experiencia de usuario",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_la_radiograf_a_t_cnica_sesi_n_2_base_de_datos_centralizada_de_inventario",
+      "label": "Base de datos centralizada de inventario",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1, proceso 5",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Centraliza la administración del catálogo, el stock y las referencias de precios para el soporte operativo."
+    },
+    {
+      "id": "entregables_la_radiograf_a_t_cnica_sesi_n_2_productos_data_js",
+      "label": "productos-data.js",
+      "file_type": "code",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1, proceso 5",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "entregables_la_radiograf_a_t_cnica_sesi_n_2_carrusel_principal",
+      "label": "Carrusel principal",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1, proceso 6",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "El auto-slide, la navegación manual y los indicadores optimizan la experiencia de usuario y la retención en la plataforma."
+    },
+    {
+      "id": "entregables_la_radiograf_a_t_cnica_sesi_n_2_arquitectura_tecnol_gica_gil_automatizada_y_escalable",
+      "label": "Arquitectura tecnológica ágil, automatizada y escalable",
+      "file_type": "rationale",
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 2",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "Sustenta los procesos comerciales de venta directa y permite atender a clientes locales e internacionales."
+    }
+  ],
+  "edges": [
+    {
+      "source": "entregables_la_radiograf_a_t_cnica_sesi_n_2_jeremy_sarmiento_tapia",
+      "target": "entregables_la_radiograf_a_t_cnica_sesi_n_2_jeremy_tech",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_la_radiograf_a_t_cnica_sesi_n_2_jeremy_tech",
+      "target": "entregables_la_radiograf_a_t_cnica_sesi_n_2_e_commerce",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 2",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_la_radiograf_a_t_cnica_sesi_n_2_jeremy_tech",
+      "target": "entregables_la_radiograf_a_t_cnica_sesi_n_2_e_business",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 2",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_la_radiograf_a_t_cnica_sesi_n_2_cat_logo_interactivo_categorizado",
+      "target": "entregables_la_radiograf_a_t_cnica_sesi_n_2_e_commerce",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1, proceso 1",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_la_radiograf_a_t_cnica_sesi_n_2_consulta_directa_por_whatsapp",
+      "target": "entregables_la_radiograf_a_t_cnica_sesi_n_2_e_commerce",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1, proceso 2",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_la_radiograf_a_t_cnica_sesi_n_2_conversi_n_multimoneda_en_tiempo_real",
+      "target": "entregables_la_radiograf_a_t_cnica_sesi_n_2_e_business",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1, proceso 3",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_la_radiograf_a_t_cnica_sesi_n_2_conversi_n_multimoneda_en_tiempo_real",
+      "target": "entregables_la_radiograf_a_t_cnica_sesi_n_2_exchangerate_api",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1, proceso 3",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_la_radiograf_a_t_cnica_sesi_n_2_galer_a_interactiva_de_variantes",
+      "target": "entregables_la_radiograf_a_t_cnica_sesi_n_2_e_business",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1, proceso 4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_la_radiograf_a_t_cnica_sesi_n_2_galer_a_interactiva_de_variantes",
+      "target": "entregables_la_radiograf_a_t_cnica_sesi_n_2_experiencia_de_usuario",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1, proceso 4",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_la_radiograf_a_t_cnica_sesi_n_2_base_de_datos_centralizada_de_inventario",
+      "target": "entregables_la_radiograf_a_t_cnica_sesi_n_2_e_business",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1, proceso 5",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_la_radiograf_a_t_cnica_sesi_n_2_base_de_datos_centralizada_de_inventario",
+      "target": "entregables_la_radiograf_a_t_cnica_sesi_n_2_productos_data_js",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1, proceso 5",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_la_radiograf_a_t_cnica_sesi_n_2_carrusel_principal",
+      "target": "entregables_la_radiograf_a_t_cnica_sesi_n_2_e_business",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1, proceso 6",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_la_radiograf_a_t_cnica_sesi_n_2_carrusel_principal",
+      "target": "entregables_la_radiograf_a_t_cnica_sesi_n_2_experiencia_de_usuario",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 1, proceso 6",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_la_radiograf_a_t_cnica_sesi_n_2_jeremy_tech",
+      "target": "entregables_la_radiograf_a_t_cnica_sesi_n_2_arquitectura_tecnol_gica_gil_automatizada_y_escalable",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 2",
+      "weight": 1.0
+    },
+    {
+      "source": "entregables_la_radiograf_a_t_cnica_sesi_n_2_e_business",
+      "target": "entregables_la_radiograf_a_t_cnica_sesi_n_2_arquitectura_tecnol_gica_gil_automatizada_y_escalable",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf",
+      "source_location": "p. 2",
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "canales_de_e_commerce_de_jeremy_tech",
+      "label": "Canales de E-commerce de Jeremy Tech",
+      "nodes": [
+        "entregables_la_radiograf_a_t_cnica_sesi_n_2_e_commerce",
+        "entregables_la_radiograf_a_t_cnica_sesi_n_2_cat_logo_interactivo_categorizado",
+        "entregables_la_radiograf_a_t_cnica_sesi_n_2_consulta_directa_por_whatsapp"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf"
+    },
+    {
+      "id": "procesos_de_e_business_de_jeremy_tech",
+      "label": "Procesos de E-business de Jeremy Tech",
+      "nodes": [
+        "entregables_la_radiograf_a_t_cnica_sesi_n_2_e_business",
+        "entregables_la_radiograf_a_t_cnica_sesi_n_2_conversi_n_multimoneda_en_tiempo_real",
+        "entregables_la_radiograf_a_t_cnica_sesi_n_2_galer_a_interactiva_de_variantes",
+        "entregables_la_radiograf_a_t_cnica_sesi_n_2_base_de_datos_centralizada_de_inventario",
+        "entregables_la_radiograf_a_t_cnica_sesi_n_2_carrusel_principal",
+        "entregables_la_radiograf_a_t_cnica_sesi_n_2_arquitectura_tecnol_gica_gil_automatizada_y_escalable"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/entregables/La Radiografía Técnica — Sesión 2.pdf": 4205
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "nodes": [
+    {
+      "id": "public_img_laptops_macbook_air_m3_imagen_1_macbook_air_m3",
+      "label": "MacBook Air M3",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/MacBook_Air_M3/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "The catalog path identifies MacBook Air M3 media, but the visible Apple laptop uses an older macOS wallpaper and its exact hardware generation cannot be verified visually."
+    },
+    {
+      "id": "public_img_laptops_macbook_air_m3_imagen_1_apple_macbook_laptop",
+      "label": "Apple MacBook Laptop",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/MacBook_Air_M3/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_laptops_macbook_air_m3_imagen_1_macos_desktop_interface",
+      "label": "macOS Desktop Interface",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/MacBook_Air_M3/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_laptops_macbook_air_m3_imagen_1_workspace_lifestyle_photography",
+      "label": "Workspace Lifestyle Photography",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/MacBook_Air_M3/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_img_laptops_macbook_air_m3_imagen_1_macbook_air_m3",
+      "target": "public_img_laptops_macbook_air_m3_imagen_1_apple_macbook_laptop",
+      "relation": "references",
+      "confidence": "AMBIGUOUS",
+      "confidence_score": 0.3,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/MacBook_Air_M3/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_laptops_macbook_air_m3_imagen_1_apple_macbook_laptop",
+      "target": "public_img_laptops_macbook_air_m3_imagen_1_macos_desktop_interface",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/MacBook_Air_M3/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_laptops_macbook_air_m3_imagen_1_apple_macbook_laptop",
+      "target": "public_img_laptops_macbook_air_m3_imagen_1_workspace_lifestyle_photography",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/MacBook_Air_M3/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/public/img/Laptops/MacBook_Air_M3/imagen_1.webp": 1
+  }
+}

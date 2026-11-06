@@ -1,0 +1,65 @@
+{
+  "nodes": [
+    {
+      "id": "public_img_banners_banner_celulares_smartphone",
+      "label": "Smartphone",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Banners/banner_celulares.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_banners_banner_celulares_mobile_app_ecosystem",
+      "label": "Mobile app ecosystem",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Banners/banner_celulares.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_banners_banner_celulares_iphone_interface",
+      "label": "iPhone interface",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Banners/banner_celulares.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_img_banners_banner_celulares_smartphone",
+      "target": "public_img_banners_banner_celulares_mobile_app_ecosystem",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Banners/banner_celulares.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_banners_banner_celulares_smartphone",
+      "target": "public_img_banners_banner_celulares_iphone_interface",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Banners/banner_celulares.webp",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/public/img/Banners/banner_celulares.webp": 1
+  }
+}

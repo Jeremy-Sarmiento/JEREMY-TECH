@@ -1,0 +1,86 @@
+{
+  "nodes": [
+    {
+      "id": "public_img_smartwatches_apple_watch_series_9_imagen_2_apple_watch_series_9",
+      "label": "Apple Watch Series 9",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Apple_Watch_Series_9/imagen_2.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_smartwatches_apple_watch_series_9_imagen_2_digital_crown_side_button",
+      "label": "Digital Crown and Side Button",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Apple_Watch_Series_9/imagen_2.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_smartwatches_apple_watch_series_9_imagen_2_health_activity_complications",
+      "label": "Health and Activity Complications",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Apple_Watch_Series_9/imagen_2.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_smartwatches_apple_watch_series_9_imagen_2_three_quarter_product_render",
+      "label": "Three-Quarter Smartwatch Product Render",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Apple_Watch_Series_9/imagen_2.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_img_smartwatches_apple_watch_series_9_imagen_2_apple_watch_series_9",
+      "target": "public_img_smartwatches_apple_watch_series_9_imagen_2_digital_crown_side_button",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Apple_Watch_Series_9/imagen_2.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_smartwatches_apple_watch_series_9_imagen_2_apple_watch_series_9",
+      "target": "public_img_smartwatches_apple_watch_series_9_imagen_2_health_activity_complications",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Apple_Watch_Series_9/imagen_2.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_smartwatches_apple_watch_series_9_imagen_2_apple_watch_series_9",
+      "target": "public_img_smartwatches_apple_watch_series_9_imagen_2_three_quarter_product_render",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Apple_Watch_Series_9/imagen_2.webp",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/public/img/Smartwatches/Apple_Watch_Series_9/imagen_2.webp": 1
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "nodes": [
+    {
+      "id": "public_img_smartwatches_apple_watch_series_9_imagen_1_apple_watch_series_9",
+      "label": "Apple Watch Series 9",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Apple_Watch_Series_9/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "The catalog path identifies Series 9, while the image visibly confirms an Apple Watch form factor but not the exact generation."
+    },
+    {
+      "id": "public_img_smartwatches_apple_watch_series_9_imagen_1_wrist_worn_apple_watch",
+      "label": "Wrist-Worn Apple Watch",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Apple_Watch_Series_9/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_smartwatches_apple_watch_series_9_imagen_1_touch_weather_interface",
+      "label": "Touch Weather Interface",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Apple_Watch_Series_9/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_smartwatches_apple_watch_series_9_imagen_1_wearable_interaction_lifestyle_scene",
+      "label": "Wearable Interaction Lifestyle Scene",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Apple_Watch_Series_9/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_img_smartwatches_apple_watch_series_9_imagen_1_apple_watch_series_9",
+      "target": "public_img_smartwatches_apple_watch_series_9_imagen_1_wrist_worn_apple_watch",
+      "relation": "references",
+      "confidence": "AMBIGUOUS",
+      "confidence_score": 0.3,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Apple_Watch_Series_9/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_smartwatches_apple_watch_series_9_imagen_1_wrist_worn_apple_watch",
+      "target": "public_img_smartwatches_apple_watch_series_9_imagen_1_touch_weather_interface",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Apple_Watch_Series_9/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_smartwatches_apple_watch_series_9_imagen_1_wrist_worn_apple_watch",
+      "target": "public_img_smartwatches_apple_watch_series_9_imagen_1_wearable_interaction_lifestyle_scene",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Smartwatches/Apple_Watch_Series_9/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/public/img/Smartwatches/Apple_Watch_Series_9/imagen_1.webp": 1
+  }
+}

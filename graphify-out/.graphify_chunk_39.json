@@ -1,0 +1,65 @@
+{
+  "nodes": [
+    {
+      "id": "public_img_tablets_ipad_air_m2_imagen_1_ipad_air_m2_product_render",
+      "label": "iPad Air M2 Front-and-Back Product Render",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Tablets/iPad_Air_M2/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_tablets_ipad_air_m2_imagen_1_blue_abstract_display",
+      "label": "Blue Abstract Edge-to-Edge Display",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Tablets/iPad_Air_M2/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_tablets_ipad_air_m2_imagen_1_light_blue_rear_camera_design",
+      "label": "Light Blue Rear Panel with Single Camera",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Tablets/iPad_Air_M2/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_img_tablets_ipad_air_m2_imagen_1_ipad_air_m2_product_render",
+      "target": "public_img_tablets_ipad_air_m2_imagen_1_blue_abstract_display",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Tablets/iPad_Air_M2/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_tablets_ipad_air_m2_imagen_1_ipad_air_m2_product_render",
+      "target": "public_img_tablets_ipad_air_m2_imagen_1_light_blue_rear_camera_design",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Tablets/iPad_Air_M2/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/public/img/Tablets/iPad_Air_M2/imagen_1.webp": 1
+  }
+}

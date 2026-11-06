@@ -1,0 +1,66 @@
+{
+  "nodes": [
+    {
+      "id": "public_img_laptops_hp_pavilion_15_imagen_1_hp_pavilion_15",
+      "label": "HP Pavilion 15",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/HP_Pavilion_15/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "rationale": "The catalog path identifies this as HP Pavilion 15 media, but the visible silver laptop has no readable HP branding and its exact model cannot be confirmed visually."
+    },
+    {
+      "id": "public_img_laptops_hp_pavilion_15_imagen_1_silver_laptop_workspace",
+      "label": "Silver Laptop in Minimalist Workspace",
+      "file_type": "image",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/HP_Pavilion_15/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_img_laptops_hp_pavilion_15_imagen_1_minimalist_lifestyle_product_photography",
+      "label": "Minimalist Lifestyle Product Photography",
+      "file_type": "concept",
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/HP_Pavilion_15/imagen_1.webp",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_img_laptops_hp_pavilion_15_imagen_1_hp_pavilion_15",
+      "target": "public_img_laptops_hp_pavilion_15_imagen_1_silver_laptop_workspace",
+      "relation": "references",
+      "confidence": "AMBIGUOUS",
+      "confidence_score": 0.3,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/HP_Pavilion_15/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_img_laptops_hp_pavilion_15_imagen_1_silver_laptop_workspace",
+      "target": "public_img_laptops_hp_pavilion_15_imagen_1_minimalist_lifestyle_product_photography",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/srv/http/JEREMY-TECH/public/img/Laptops/HP_Pavilion_15/imagen_1.webp",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "coverage": {
+    "/srv/http/JEREMY-TECH/public/img/Laptops/HP_Pavilion_15/imagen_1.webp": 1
+  }
+}
