@@ -16,12 +16,20 @@ require_once __DIR__ . '/../config/conexion.php';
 
 function testPdo(): \PDO
 {
-    return new \PDO(
+    $pdo = new \PDO(
         'mysql:host=127.0.0.1;dbname=jeremy_tech_test;charset=utf8mb4',
         'root',
         'admin',
         [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
     );
+
+    // Misma zona horaria de sesión que conexion(). Sin esto, en un host en UTC
+    // (como el runner de GitHub) los TIMESTAMP insertados y los rangos
+    // consultados se desplazan 5 horas y las pruebas de fechas fallan.
+    $offset = (new \DateTimeImmutable('now', new \DateTimeZone(APP_TIMEZONE)))->format('P');
+    $pdo->exec('SET time_zone = ' . $pdo->quote($offset));
+
+    return $pdo;
 }
 
 function ensureTestDb(): void
