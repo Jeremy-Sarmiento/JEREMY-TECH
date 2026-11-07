@@ -1,0 +1,54 @@
+# App Jeremy Tech (rama postgresql) + PostgreSQL 16.
+# La app se conecta al servicio `db` por la red interna de Compose.
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jeremy-tech-app
+    image: jeremy-tech:postgres
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: jeremy_tech
+      DB_USER: postgres
+      DB_PASS: admin
+      APP_TIMEZONE: America/Lima
+      APP_URL: http://localhost:8080
+      MAIL_STORAGE_PATH: /tmp/jeremy-tech-mail
+      CHAT_MODE: rules
+      PAGOS_MODO: simulado
+    ports:
+      - "8080:8080"
+
+  db:
+    image: postgres:16
+    container_name: jeremy-tech-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: jeremy_tech
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d jeremy_tech"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # Acceso desde el host en 5433 para no chocar con otros PostgreSQL.
+    ports:
+      - "127.0.0.1:5433:5432"
+
+volumes:
+  # Volumen creado al importar la base con el contenedor anterior.
+  pg-data:
+    external: true
+    name: jeremy-tech-pg-data
