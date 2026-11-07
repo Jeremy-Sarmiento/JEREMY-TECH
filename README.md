@@ -80,6 +80,23 @@ Notas de operación:
   `authenticated`, porque la API REST de Supabase queda expuesta con la clave
   anon aunque la app PHP no la use.
 
+## Despliegue local con Docker
+
+Requiere Docker, el puerto `8080` libre y el `5432` libre en el host.
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+```
+
+La app queda en <http://localhost:8080> y PostgreSQL en `127.0.0.1:5432`
+(usuario `postgres`, base `jeremy_tech`). El detalle está en `README.Docker.md`.
+
+Si el `5432` está ocupado, cambia el mapeo en `compose.yaml` a
+`127.0.0.1:5433:5432`, recrea la base con
+`docker compose up -d --force-recreate db` y conecta con `-p 5433`.
+La app no cambia porque usa `db:5432` por la red interna.
+
 ## Administrador inicial y seguridad
 
 El seed conserva los IDs históricos, pero las cuentas de admin y vendedor demo

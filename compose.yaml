@@ -43,9 +43,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-    # Acceso desde el host en 5433 para no chocar con otros PostgreSQL.
+    # Acceso desde el host en 5432. Si ese puerto está ocupado, usar 5433.
     ports:
-      - "127.0.0.1:5433:5432"
+      - "127.0.0.1:5432:5432"
 
 volumes:
   # Volumen creado al importar la base con el contenedor anterior.
