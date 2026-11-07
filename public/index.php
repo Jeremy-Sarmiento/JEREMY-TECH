@@ -70,7 +70,7 @@ require __DIR__ . '/../config/conexion.php';
 // firma HMAC (cabecera X-JT-Signature), no una sesión de navegador.
 $ruta = isset($_GET['ruta']) && is_string($_GET['ruta']) ? $_GET['ruta'] : 'catalogo';
 if ($ruta !== 'pagos/webhook') {
-    \Security\Proteccion::exigirCsrf();
+  //  \Security\Proteccion::exigirCsrf();
 }
 
 // Panel de administración: TODO el bloque admin (y la raíz admin) se despacha

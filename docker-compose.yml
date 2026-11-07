@@ -1,5 +1,6 @@
-version: '3.8'
-
+# App Jeremy Tech contra la MariaDB del host (127.0.0.1:3306).
+# Con network_mode: host comparte la red del host, así que DB_HOST=127.0.0.1
+# apunta a la MariaDB local. No se levanta una BD en Docker.
 services:
   app:
     build:
@@ -15,11 +16,7 @@ services:
       DB_USER: root
       DB_PASS: admin
       APP_TIMEZONE: America/Lima
-      APP_URL: http://localhost:8080/
+      APP_URL: http://localhost:8080
       MAIL_STORAGE_PATH: /tmp/jeremy-tech-mail
-      CHAT_MODE: ai
+      CHAT_MODE: rules
       PAGOS_MODO: simulado
-    # ports section not needed with network_mode: host
-    # expose 8080 directly on host
-
-# No separate networks needed with network_mode: host

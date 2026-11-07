@@ -13,4 +13,9 @@ tests
 tools/*
 !tools/establecer-admin.php
 storage/mail
+graphify-out
+cookies*.txt
+.php-cs-fixer.cache
+phpstan.neon
+phpunit.xml.dist
 *.md
