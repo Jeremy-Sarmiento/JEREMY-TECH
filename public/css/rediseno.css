@@ -2280,7 +2280,7 @@ section h2::after {
 }
 
 .auth-wrapper {
-  max-width: 440px;
+  max-width: 720px;
   margin: 0 auto;
   padding: 0 clamp(14px, 3vw, 40px);
 }
@@ -2294,7 +2294,7 @@ section h2::after {
   width: 100%;
   max-width: none;
   margin: 0 auto;
-  padding: clamp(24px, 4vw, 44px);
+  padding: clamp(20px, 3vw, 32px);
   background: var(--jt-superficie-1);
   border: 1px solid var(--jt-line);
   border-radius: var(--radio-lg);
