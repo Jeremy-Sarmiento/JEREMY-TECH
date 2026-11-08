@@ -9,6 +9,5 @@ parameters:
         - '#Constant .* is unused#'
         - '#Method .* is unused#'
         - '#Static method .* is unused#'
-        - '#Strict comparison using === between non-falsy-string and .* will always evaluate to false#'
     bootstrapFiles:
         - tests/bootstrap.php

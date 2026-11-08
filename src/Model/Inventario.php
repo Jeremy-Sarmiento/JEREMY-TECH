@@ -45,7 +45,29 @@ class Inventario
             $cantidad   = (int) $linea['cantidad'];
             $nombre     = self::etiqueta($linea);
 
-            $stockProducto = self::leerStock($pdo, 'productos', $productoId);
+            $producto = $pdo->prepare(
+                'SELECT stock, vendedor_id FROM productos
+                 WHERE id = ? AND activo = 1 AND archivado_en IS NULL FOR UPDATE'
+            );
+            $producto->execute([$productoId]);
+            $actual = $producto->fetch(\PDO::FETCH_ASSOC);
+            if ($actual === false) {
+                throw new \RuntimeException('El producto ya no está disponible. Recarga el carrito.');
+            }
+            $vendedorId = $actual['vendedor_id'] !== null ? (int) $actual['vendedor_id'] : null;
+            if ($vendedorId !== ($linea['producto']['vendedorId'] ?? null)) {
+                throw new \RuntimeException('El producto ha cambiado y no está disponible. Recarga el carrito.');
+            }
+            if ($vendedorId !== null) {
+                // Mantiene el permiso hasta COMMIT, incluso si se revoca durante la compra.
+                $vendedor = $pdo->prepare("SELECT id FROM users WHERE id = ? AND rol = 'vendedor'
+                    AND activo = 1 AND deleted_at IS NULL FOR SHARE");
+                $vendedor->execute([$vendedorId]);
+                if ($vendedor->fetchColumn() === false) {
+                    throw new \RuntimeException('El vendedor ya no está disponible. Recarga el carrito.');
+                }
+            }
+            $stockProducto = (int) $actual['stock'];
             $stockVariante = $varianteId !== null ? self::leerStock($pdo, 'producto_variantes', $varianteId) : null;
 
             // La disponibilidad la fija el recurso más escaso de la línea.

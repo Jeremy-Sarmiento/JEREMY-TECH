@@ -275,9 +275,9 @@ $h1Catalogo = $qTitulo !== ''
      // debe enseñar el resto, no repetir el mismo recorte.
      $visiblesCategoria = $hayFiltros ? $gruposCategoria : array_slice($gruposCategoria, 0, 4);
    ?>
-   <section id="<?= strtolower($categoria) ?>">
-    <h2><?= $categoria ?></h2>
-    <div class="grid" id="<?= $gridId ?>">
+    <section id="<?= $e($gridId . '-seccion') ?>">
+     <h2><?= $e($categoria) ?></h2>
+     <div class="grid" id="<?= $e($gridId) ?>">
      <?php foreach ($visiblesCategoria as $grupo): ?>
       <?php require BASE_PATH . '/views/partials/card.php'; ?>
      <?php endforeach; ?>

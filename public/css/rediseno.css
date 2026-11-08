@@ -1044,42 +1044,10 @@ section h2::after {
   transform: scale(1.04);
 }
 
-.card-variantes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+.card-variante-activa {
   padding: 12px 16px 0;
-}
-
-.card-variante {
-  min-height: 32px;
-  padding: 5px 11px;
-  border: 1px solid var(--jt-line);
-  border-radius: 999px;
-  background: var(--jt-superficie-1);
-  color: var(--jt-texto-2);
-  font: inherit;
   font-size: 12px;
-  line-height: 1.3;
-  cursor: pointer;
-  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease),
-    color var(--dur) var(--ease);
-}
-
-.card-variante:hover {
-  border-color: var(--jt-line-fuerte);
-  color: var(--jt-texto);
-}
-
-.card-variante.active {
-  border-color: var(--jt-acento);
-  background: var(--jt-acento-suave);
-  color: var(--jt-texto);
-}
-
-.card-variante:focus-visible {
-  outline: 2px solid var(--jt-acento);
-  outline-offset: 2px;
+  color: var(--jt-texto-2);
 }
 
 .card .info {
@@ -1130,6 +1098,15 @@ section h2::after {
 .card-desde {
   font-size: 11.5px;
   color: var(--jt-exito);
+}
+
+.card-stock {
+  font-size: 11.5px;
+  color: var(--jt-texto-3);
+}
+
+.card-stock.agotado {
+  color: var(--jt-alerta);
 }
 
 .card-rating {
@@ -1223,6 +1200,11 @@ section h2::after {
 
 .btn-cart-add:active {
   transform: translateY(1px);
+}
+
+.btn-cart-add:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .btn-ver-ficha {
@@ -1520,6 +1502,43 @@ section h2::after {
   margin-top: 22px;
   padding-top: 20px;
   border-top: 1px solid var(--jt-line);
+}
+
+.producto-otras-configs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.otra-config {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-sm);
+  background: var(--jt-superficie-1);
+  color: var(--jt-texto-2);
+  font-size: 13px;
+  text-decoration: none;
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+}
+
+.otra-config:hover {
+  border-color: var(--jt-acento);
+  background: var(--jt-acento-suave);
+  color: var(--jt-texto);
+}
+
+.otra-config-espec {
+  font-weight: 500;
+}
+
+.otra-config-precio {
+  font-family: var(--fuente-mono);
+  font-weight: 600;
+  color: var(--jt-texto);
 }
 
 .producto-subtitulo {
@@ -2277,15 +2296,8 @@ section h2::after {
   content: '';
   display: block;
   border-right: 1px solid var(--jt-line);
-  background-color: var(--jt-ink-950);
-  background-image:
-    radial-gradient(90% 70% at 20% 0%, rgba(47, 217, 240, 0.18) 0%, transparent 60%),
-    linear-gradient(rgba(47, 217, 240, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(47, 217, 240, 0.05) 1px, transparent 1px),
-    url('../img/logo.svg');
-  background-repeat: no-repeat, repeat, repeat, no-repeat;
-  background-size: 100% 100%, 48px 48px, 48px 48px, 62% auto;
-  background-position: 0 0, 0 0, 0 0, center;
+  background: linear-gradient(135deg, var(--jt-ink-950) 0%, var(--jt-ink-800) 100%),
+    url('../img/logo.svg') center / 62% auto no-repeat;
 }
 
 .auth-card {

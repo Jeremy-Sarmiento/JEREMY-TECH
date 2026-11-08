@@ -49,20 +49,24 @@ final class SolicitudVendedor
         if (mb_strlen($mensaje) > self::MENSAJE_MAX) {
             return ['ok' => false, 'error' => 'El mensaje no puede superar los ' . self::MENSAJE_MAX . ' caracteres.'];
         }
-        if (self::pendienteDe($usuarioId) !== null) {
-            return ['ok' => false, 'error' => 'Ya tienes una solicitud pendiente. El administrador la revisará pronto.'];
-        }
-
         $stmt = conexion()->prepare(
             'INSERT INTO solicitudes_vendedor (usuario_id, tipo, mensaje)
-             SELECT id, tipo, ? FROM users WHERE id = ? AND deleted_at IS NULL LIMIT 1'
+             SELECT id, tipo, ? FROM users WHERE id = ? AND deleted_at IS NULL LIMIT 1
+             ON CONFLICT (usuario_id) WHERE estado = \'pendiente\' DO NOTHING
+             RETURNING id'
         );
         $stmt->execute([$mensaje, $usuarioId]);
-        if ($stmt->rowCount() === 0) {
-            return ['ok' => false, 'error' => 'No encontramos tu cuenta. Vuelve a iniciar sesión.'];
+        $id = $stmt->fetchColumn();
+        if ($id !== false) {
+            return ['ok' => true, 'id' => (int) $id];
         }
 
-        return ['ok' => true, 'id' => (int) conexion()->lastInsertId()];
+        $cuenta = conexion()->prepare('SELECT 1 FROM users WHERE id = ? AND deleted_at IS NULL');
+        $cuenta->execute([$usuarioId]);
+
+        return ['ok' => false, 'error' => $cuenta->fetchColumn() !== false
+            ? 'Ya tienes una solicitud pendiente. El administrador la revisará pronto.'
+            : 'No encontramos tu cuenta. Vuelve a iniciar sesión.'];
     }
 
     /**

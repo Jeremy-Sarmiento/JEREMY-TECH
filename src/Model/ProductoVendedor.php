@@ -213,7 +213,6 @@ final class ProductoVendedor
         $nombre = trim((string) ($datos['nombre'] ?? ''));
         $modelo = trim((string) ($datos['modelo'] ?? ''));
         $categoriaEntrada = trim((string) ($datos['categoria'] ?? ''));
-        $sku = trim((string) ($datos['codigo_sku'] ?? ''));
         $especificaciones = trim((string) ($datos['especificaciones'] ?? ''));
         $dimensiones = trim((string) ($datos['dimensiones'] ?? ''));
         $imagen = trim((string) ($datos['imagen'] ?? ''));
@@ -236,7 +235,7 @@ final class ProductoVendedor
         }
 
         $categoria = self::categoriaCanonica($categoriaEntrada);
-        if ($categoria === null || mb_strlen($categoria) > 60) {
+        if ($categoria === null || mb_strlen($categoria) > 80) {
             return ['ok' => false, 'error' => 'Elige una categoría válida.', 'slug' => $slugEditar];
         }
 
@@ -295,10 +294,6 @@ final class ProductoVendedor
             return ['ok' => false, 'error' => 'La imagen debe ser una ruta interna (img/...) o una URL http(s) válida.', 'slug' => $slugEditar];
         }
 
-        if ($sku !== '' && mb_strlen($sku) > 60) {
-            return ['ok' => false, 'error' => 'El SKU no puede superar los 60 caracteres.', 'slug' => $slugEditar];
-        }
-
         $pdo = conexion();
         $slug = '';
         $esEdicion = $slugEditar !== '';
@@ -320,29 +315,9 @@ final class ProductoVendedor
             $slug = self::slugUnico($nombre);
         }
 
-        // Auto-generar SKU si no fue proporcionado, tomando el modelo y añadiendo
-        // un sufijo incremental para garantizar unicidad.
-        if ($sku === '') {
-            $sku = self::generarCodigoSku($modelo, $vendedorId);
-        }
-
-        // El SKU es UNIQUE global. Se comprueba antes de escribir para dar un
-        // mensaje claro en lugar de un error 500 de PostgreSQL.
-        if ($sku !== '') {
-            $q = $pdo->prepare('SELECT slug FROM productos WHERE codigo_sku = ? AND slug <> ? LIMIT 1');
-            $q->execute([$sku, $slug]);
-            if ($q->fetch()) {
-                return [
-                    'ok'    => false,
-                    'error' => 'El SKU "' . $sku . '" ya está en uso por otro producto.',
-                    'slug'  => $slugEditar,
-                ];
-            }
-        }
-
         $valores = [
             $categoria, $nombre, $modelo !== '' ? $modelo : null,
-            $sku !== '' ? $sku : null, $marcaId, $garantiaId,
+            $marcaId, $garantiaId,
             $precio, $stock, $stockMinimo, $activo, $imagen, $especificaciones,
             $pesoKg, $dimensiones !== '' ? $dimensiones : null, $colores,
         ];
@@ -358,7 +333,7 @@ final class ProductoVendedor
                 }
                 $stmt = $pdo->prepare(
                     'UPDATE productos
-                        SET categoria = ?, nombre = ?, modelo = ?, codigo_sku = ?,
+                        SET categoria = ?, nombre = ?, modelo = ?,
                             marca_id = ?, garantia_id = ?, precio_pen = ?, stock = ?,
                             stock_minimo = ?, activo = ?, imagen = ?, especificaciones = ?,
                             peso_kg = ?, dimensiones = ?, colores = ?
@@ -374,10 +349,10 @@ final class ProductoVendedor
             } else {
                 $stmt = $pdo->prepare(
                     'INSERT INTO productos
-                        (categoria, nombre, modelo, codigo_sku, marca_id, garantia_id,
+                        (categoria, nombre, modelo, marca_id, garantia_id,
                          precio_pen, stock, stock_minimo, activo, imagen, especificaciones,
                          peso_kg, dimensiones, colores, vendedor_id, slug)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                      RETURNING id'
                 );
                 $stmt->execute(array_merge($valores, [$vendedorId, $slug]));
@@ -1172,76 +1147,6 @@ final class ProductoVendedor
             $slug = $candidato;
             $sufijo++;
         }
-    }
-
-    /**
-     * Genera un código SKU único a partir del modelo del producto.
-     * Si el modelo está vacío, usa el nombre. Si el SKU generado ya existe,
-     * incrementa un sufijo numérico (ej. -2, -3) hasta encontrar uno libre.
-     * Devuelve null si no hay datos suficientes para generar uno.
-     */
-    private static function generarCodigoSku(string $modelo, int $vendedorId): ?string
-    {
-        $base = trim((string) $modelo);
-        if ($base === '') {
-            return null;
-        }
-
-        // Normalizar: minúsculas, quitar espacios, reemplazar chars raros
-        $base = mb_strtolower(trim($base));
-        $base = preg_replace('/[^a-z0-9]+/', '-', $base);
-        $base = trim($base, '-');
-
-        // Si el base está vacío después de limpiar, no hay suficiente info
-        if ($base === '') {
-            return null;
-        }
-
-        // Tomar las primeras partes para formar un código tipo "marca-modelo-storage"
-        // Ejemplo: "iphone 15 pro" -> "iphone-15-pro", "samsung galaxy s24 ultra" -> "samsung-galaxy-s24-ultra"
-        $partes = explode(' ', $base);
-        // Usar hasta 4 partes como máximo, unirlas con guión
-        $candidato = implode('-', array_slice($partes, 0, 4));
-
-        // Si tras tomar 4 partes el candidato está vacío (caso raro), usar el base completo
-        if ($candidato === '') {
-            $candidato = $base;
-        }
-
-        // Asegurar longitud máxima 60 caracteres (tamaño del campo en BD)
-        if (mb_strlen($candidato) > 55) {
-            $candidato = mb_substr($candidato, 0, 55);
-        }
-
-        // Verificar unicidad contra la base de datos
-        $pdo = conexion();
-        $stmt = $pdo->prepare('SELECT 1 FROM productos WHERE codigo_sku = ? LIMIT 1');
-        $sufijo = 2;
-        $stmt->execute([$candidato]);
-        $fila = $stmt->fetchColumn();
-        if (!$fila) {
-            return $candidato;
-        }
-
-        // Probar con sufijo incremental: candidato-2, candidato-3, etc.
-        $maxIntentos = 1000;
-        $intento = 0;
-        while ($intento < $maxIntentos) {
-            $sufijado = $candidato . '-' . $sufijo;
-            if (mb_strlen($sufijado) > 60) {
-                $baseCorto = mb_substr($candidato, 0, 55 - mb_strlen((string) $sufijo) - 1);
-                $sufijado = $baseCorto . '-' . $sufijo;
-            }
-            $stmt->execute([$sufijado]);
-            if (!$stmt->fetchColumn()) {
-                return $sufijado;
-            }
-            $sufijo++;
-            $intento++;
-        }
-        // Si agotamos los intentos, devolver el candidato original (aunque ya
-        // debería estar en uso; el controlador mostrará el error correspondiente).
-        return $candidato;
     }
 
     private static function slugify(string $texto): string

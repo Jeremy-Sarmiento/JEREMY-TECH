@@ -72,7 +72,7 @@
      $navBusqueda = trim((string) ($navFiltro['q'] ?? ''));
      $navVendedor = $navFiltro['vendedor'] ?? null;
 
-     $navCategorias = $categoriasDisponibles ?? array_keys(\Model\Producto::GRIDS);
+      $navCategorias = $categoriasDisponibles ?? array_map('strval', array_keys(\Model\Producto::grids()));
      $navMarcas = $marcasDisponibles ?? \Model\Producto::marcasDisponibles();
      $navOrdenes = $ordenesDisponibles ?? \Controller\ProductoController::ORDENES;
 

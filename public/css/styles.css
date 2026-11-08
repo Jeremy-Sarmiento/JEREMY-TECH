@@ -80,7 +80,7 @@ section[id],
   scroll-margin-top: calc(var(--nav-height) + 12px);
 }
 header {
-  background: linear-gradient(135deg, #0D1B2A 0%, #1B2838 100%);
+  background: var(--bg);
   color: #fff;
   padding: 25px 20px;
   padding: calc(25px + env(safe-area-inset-top, 0px)) calc(20px + env(safe-area-inset-right, 0px)) 25px calc(20px + env(safe-area-inset-left, 0px));
@@ -96,7 +96,7 @@ header::before {
   right: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%);
+  background: rgba(0, 212, 255, 0.08);
 }
 .logo-text {
   margin-bottom: 10px;
@@ -272,7 +272,7 @@ nav {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 153, 204, 0.25) 100%);
+  background: rgba(0, 212, 255, 0.15);
   border: 1px solid rgba(0, 212, 255, 0.4);
   color: #00D4FF;
   padding: 8px 16px;
@@ -284,7 +284,7 @@ nav {
   font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
 }
 .nav-cart-btn:hover {
-  background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%);
+  background: var(--accent);
   color: #0A0F1A;
   transform: translateY(-2px);
 }
@@ -312,8 +312,8 @@ nav {
   right: calc(30px + env(safe-area-inset-right, 0px));
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, #00D4FD 0%, #0099CC 100%);
-  color: white;
+  background: var(--accent);
+  color: var(--bg);
   border: none;
   border-radius: 50%;
   cursor: pointer;
@@ -334,7 +334,7 @@ nav {
 }
 .btn-inicio-flotante:hover {
   transform: translateY(-5px) scale(1.1);
-  background: linear-gradient(135deg, #0099CC 0%, #00D4FF 100%);
+  background: var(--accent-strong);
 }
 .btn-inicio-flotante:active {
   transform: translateY(-2px) scale(1.05);
@@ -379,7 +379,7 @@ nav {
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, rgba(10, 15, 26, 0.95) 0%, rgba(13, 27, 42, 0.8) 50%, transparent 100%);
+  background: rgba(10, 15, 26, 0.95);
   color: white;
   padding: clamp(20px, 5vh, 50px) 20px;
   text-align: center;
@@ -413,8 +413,8 @@ nav {
   pointer-events: none;
 }
 .carousel-btn {
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.8) 0%, rgba(0, 153, 204, 0.8) 100%);
-  color: white;
+  background: var(--accent);
+  color: var(--bg);
   border: 2px solid rgba(255, 255, 255, 0.2);
   width: clamp(40px, 8vw, 60px);
   height: clamp(40px, 8vw, 60px);
@@ -429,7 +429,7 @@ nav {
   justify-content: center;
 }
 .carousel-btn:hover {
-  background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%);
+  background: var(--accent-strong);
   transform: scale(1.1);
 }
 .carousel-indicators {
@@ -503,7 +503,7 @@ section h2::before {
   top: 0;
   height: 100%;
   width: 6px;
-  background: linear-gradient(to bottom, #00D4FF 0%, #0D1B2A 100%);
+  background: var(--accent);
   border-radius: 3px;
 }
 section h2::after {
@@ -555,7 +555,7 @@ section h2::after {
 }
 .card .info {
   padding: 20px;
-  background: linear-gradient(to bottom, #1A2332 0%, #152030 100%);
+  background: var(--panel-2);
   text-align: center;
 }
 .card h3 {
@@ -622,7 +622,7 @@ section h2::after {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: linear-gradient(135deg, #00D4FF 0%, #0088B3 100%);
+  background: var(--accent);
   color: #0A0F1A;
   padding: 10px 18px;
   border-radius: 25px;
@@ -636,7 +636,7 @@ section h2::after {
 }
 .btn-cart-add:hover {
   transform: translateY(-3px);
-  background: linear-gradient(135deg, #00E5FF 0%, #00A3D9 100%);
+  background: var(--accent-strong);
 }
 .btn-cart-add:active {
   transform: translateY(-1px);
@@ -645,7 +645,7 @@ section h2::after {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  background: #128C7E;
   color: white;
   padding: 10px 16px;
   border-radius: 25px;
@@ -660,7 +660,7 @@ section h2::after {
 }
 .btn-whatsapp:hover {
   transform: translateY(-3px);
-  background: linear-gradient(135deg, #128C7E 0%, #25D366 100%);
+  background: #128C7E;
 }
 .btn-whatsapp:active {
   transform: translateY(-1px);
@@ -696,7 +696,7 @@ section h2::after {
   margin-bottom: 20px;
 }
 .btn-reset-search {
-  background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%);
+  background: var(--accent);
   color: #0A0F1A;
   font-weight: 700;
   border: none;
@@ -922,7 +922,7 @@ footer p:first-child {
   line-height: 1.5;
 }
 .btn-explorar {
-  background: linear-gradient(135deg, #00D4FF 0%, #0088B3 100%);
+  background: var(--accent);
   color: #0A0F1A;
   font-weight: 700;
   border: none;
@@ -1200,7 +1200,7 @@ footer p:first-child {
 .btn-checkout-card {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%);
+  background: var(--accent);
   color: #0A0F1A;
   font-weight: 700;
   font-size: 0.95rem;
@@ -1578,7 +1578,7 @@ footer p:first-child {
   height: 205px;
   margin: 0 auto 22px auto;
   border-radius: 16px;
-  background: linear-gradient(135deg, #0A1C30 0%, #081320 60%, #102B48 100%);
+  background: var(--panel-2);
   border: 1px solid rgba(0, 212, 255, 0.35);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 212, 255, 0.08);
   padding: 20px 22px;
@@ -1595,13 +1595,13 @@ footer p:first-child {
   right: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(0, 212, 255, 0.12) 0%, transparent 60%);
+  background: rgba(0, 212, 255, 0.12);
   pointer-events: none;
 }
 .card-chip {
   width: 40px;
   height: 30px;
-  background: linear-gradient(135deg, #ECC86B 0%, #B89230 100%);
+  background: #ECC86B;
   border-radius: 6px;
   padding: 5px;
   display: flex;
@@ -1766,7 +1766,7 @@ footer p:first-child {
 .btn-pagar-ahora {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%);
+  background: var(--accent);
   color: #0A0F1A;
   font-weight: 700;
   font-size: 1rem;
@@ -2080,7 +2080,7 @@ footer p:first-child {
 .btn-whatsapp-recibo {
   width: 100%;
   padding: 13px;
-  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  background: #128C7E;
   color: white;
   font-weight: 600;
   font-size: 0.92rem;
@@ -2551,7 +2551,7 @@ footer p:first-child {
   padding: 18px 20px;
   border: 1px solid rgba(0, 212, 255, 0.18);
   border-radius: 16px;
-  background: linear-gradient(180deg, rgba(26, 35, 50, 0.94), rgba(16, 24, 36, 0.94));
+  background: var(--panel);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   color-scheme: dark;
 }
@@ -2620,7 +2620,7 @@ footer p:first-child {
   padding: 0 20px;
   border: none;
   border-radius: 10px;
-  background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+  background: var(--accent);
   color: #06121d;
   font-family: inherit;
   font-size: 13px;
@@ -2755,7 +2755,7 @@ footer p:first-child {
 
 .paginacion-num.actual {
   border-color: transparent;
-  background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+  background: var(--accent);
   color: #06121d;
   box-shadow: 0 6px 16px rgba(0, 212, 255, 0.22);
 }

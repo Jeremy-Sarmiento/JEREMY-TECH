@@ -281,35 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // =========================================================================
-  // 3. SELECTOR DE VARIANTES EN LAS TARJETAS
-  // =========================================================================
-
-  /**
-   * Cambia la variante visible de una tarjeta: imagen, datos y estado del botón.
-   * @param {HTMLElement} boton - Botón de variante presionado.
-   */
-  document.addEventListener('click', (event) => {
-    const boton = event.target.closest('.card-variante');
-    if (!boton) return;
-    const card = boton.closest('.card');
-    if (!card) return;
-    const indice = Number(boton.dataset.indice);
-
-    card.querySelectorAll('.card-variante').forEach((otro, i) => {
-      otro.classList.toggle('active', i === indice);
-      otro.setAttribute('aria-pressed', i === indice ? 'true' : 'false');
-    });
-    card.querySelectorAll('.card-media-item').forEach((item, i) => {
-      item.classList.toggle('active', i === indice);
-      item.toggleAttribute('inert', i !== indice);
-    });
-    card.querySelectorAll('.card-info-item').forEach((info, i) => {
-      info.classList.toggle('active', i === indice);
-    });
-  });
-
-  // =========================================================================
-  // 4. CONSULTAS DIRECTAS VÍA WHATSAPP
+  // 3. CONSULTAS DIRECTAS VÍA WHATSAPP
   // =========================================================================
 
   /**
@@ -330,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // =========================================================================
-  // 5. BÚSQUEDA CON SUGERENCIAS AJAX
+  // 4. BÚSQUEDA CON SUGERENCIAS AJAX
   // =========================================================================
 
   const busquedaInput = document.getElementById('busquedaInput');
@@ -604,7 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // =========================================================================
-  // 6. EXPOSICIÓN AL ÁMBITO GLOBAL PARA HANDLERS HTML
+  // 5. EXPOSICIÓN AL ÁMBITO GLOBAL PARA HANDLERS HTML
   // =========================================================================
   window.nextSlide = nextSlide;
   window.previousSlide = previousSlide;

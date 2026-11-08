@@ -110,6 +110,7 @@ if ($idTramo > 0) {
             <div class="admin-modal-cuerpo">
                 <input type="hidden" name="p" value="<?= $e($producto['slug']) ?>">
                 <input type="hidden" name="id" value="<?= (int) ($editandoVariante['id'] ?? 0) ?>">
+                <input type="hidden" name="stock_original" value="<?= (int) ($editandoVariante['stock'] ?? 0) ?>">
                 <label>Nombre
                     <input type="text" name="nombre_variante" required
                            value="<?= $e($editandoVariante['nombreVariante'] ?? '') ?>"

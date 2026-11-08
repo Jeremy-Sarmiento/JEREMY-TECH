@@ -157,6 +157,31 @@ $datosJS = [
             </div>
             <?php endif; ?>
 
+            <?php if (($otrasConfiguraciones ?? []) !== []): ?>
+            <div class="producto-bloque">
+                <h2 class="producto-subtitulo">Otras configuraciones</h2>
+                <div class="producto-otras-configs">
+                    <?php foreach ($otrasConfiguraciones as $otra): ?>
+                        <?php
+                            $otraVariante = $otra['variantes'][0] ?? null;
+                            $otraExtra = $otraVariante !== null ? (float) $otraVariante['precioExtra'] : 0.0;
+                            $otraPrecio = (float) $otra['precioPEN'] + $otraExtra;
+                            $otraEspec = (string) $otra['especificaciones'];
+                            if ($otraVariante !== null && (string) $otraVariante['nombreVariante'] !== '') {
+                                $otraEspec .= ($otraEspec !== '' ? ' · ' : '') . (string) $otraVariante['nombreVariante'];
+                            }
+                            $otraSlug = (string) $otra['slug'];
+                            $otraUrl = '?ruta=producto&slug=' . urlencode($otraSlug);
+                        ?>
+                        <a class="otra-config" href="<?= $otraUrl ?>">
+                            <span class="otra-config-espec"><?= $e($otraEspec) ?></span>
+                            <span class="otra-config-precio">PEN <?= number_format($otraPrecio, 2) ?></span>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <?php if ($tieneTramos): ?>
             <div class="producto-bloque">
                 <h2 class="producto-subtitulo">Precio por volumen</h2>

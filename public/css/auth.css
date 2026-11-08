@@ -22,7 +22,7 @@
   white-space: nowrap;
 }
 .nav-login-btn:hover {
-  background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%);
+  background: var(--accent);
   color: #0A0F1A;
   transform: translateY(-2px);
 }
@@ -34,7 +34,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 153, 204, 0.25) 100%);
+  background: rgba(0, 212, 255, 0.15);
   border: 1px solid rgba(0, 212, 255, 0.4);
   color: #00D4FF;
   padding: 8px 16px;
@@ -50,7 +50,7 @@
   text-overflow: ellipsis;
 }
 .nav-account-btn:hover {
-  background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%);
+  background: var(--accent);
   color: #0A0F1A;
 }
 .nav-account-dropdown {
@@ -125,7 +125,7 @@
   align-items: flex-start;
   justify-content: center;
   padding: 48px 20px 64px;
-  background: linear-gradient(135deg, #0D1B2A 0%, #1B2838 100%);
+  background: var(--bg);
 }
 .auth-wrapper {
   width: 100%;
@@ -196,7 +196,7 @@
   transition: all 0.25s ease;
 }
 .auth-tab.active {
-  background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%);
+  background: var(--accent);
   color: #0A0F1A;
 }
 
@@ -363,7 +363,7 @@
   padding: 14px 0;
   border: none;
   border-radius: 12px;
-  background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%);
+  background: var(--accent);
   color: #0A0F1A;
   font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-weight: 700;
@@ -422,7 +422,7 @@ a.btn-checkout-card:hover {
   display: inline-block;
   padding: 12px 30px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #00D4FF 0%, #0099CC 100%);
+  background: var(--accent);
   color: #0A0F1A;
   font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
   font-weight: 700;

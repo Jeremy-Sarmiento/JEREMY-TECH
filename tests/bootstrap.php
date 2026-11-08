@@ -52,6 +52,8 @@ function ensureTestDb(): void
     // Migraciones idempotentes que una base de pruebas ya creada no tiene.
     $pdo->exec(file_get_contents(__DIR__ . '/../database/imagenes-producto.sql'));
     $pdo->exec(file_get_contents(__DIR__ . '/../database/carrito-persistente.sql'));
+    $pdo->exec(file_get_contents(__DIR__ . '/../database/relaciones-integridad.sql'));
+    $pdo->exec(file_get_contents(__DIR__ . '/../database/sku-automatico.sql'));
 }
 
 function resetTestDb(): void
@@ -62,6 +64,8 @@ function resetTestDb(): void
         "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
     )->fetchAll(\PDO::FETCH_COLUMN);
     $pdo->exec('TRUNCATE TABLE ' . implode(', ', $tablas) . ' RESTART IDENTITY CASCADE');
+    $pdo->exec("INSERT INTO categorias (nombre, slug) VALUES
+        ('Celulares', 'celulares'), ('Prueba', 'prueba')");
     // Seed tarifas
     $pdo->exec("INSERT INTO tarifas_envio (id, zona, costo, dias_estimados, activo) VALUES
         (1, 'Lima Metropolitana', 15.00, '1-2', 1),
@@ -70,13 +74,22 @@ function resetTestDb(): void
         (4, 'Provincia Sierra', 35.00, '4-6', 1),
         (5, 'Provincia Selva', 40.00, '5-7', 1);
     ");
+    // Bcrypt con coste 12 tarda ~300 ms por hash. En pruebas alcanza coste 4 y
+    // se calcula una vez por proceso, no una vez por test.
+    static $hash = null;
+    if ($hash === null) {
+        $hash = [];
+        foreach (['admin', 'vendedor', 'cliente', 'mascota', 'ciudad', 'colegio', 'plato', 'madre'] as $clave) {
+            $hash[$clave] = password_hash($clave, PASSWORD_BCRYPT, ['cost' => 4]);
+        }
+    }
     // Seed minimal users
     $pdo->exec("INSERT INTO users (id,name,apellidos,email,usuario,password,rol,tipo,activo,verificado,telefono,direccion,dni,ruc,empresa,plataforma_reventa,pregunta_secreta,respuesta_secreta_hash,created_at)
-        VALUES (1,'Admin','Demo','admin@example.com','admin','" . password_hash('admin', PASSWORD_DEFAULT) . "','admin','B2C',1,1,'999000000','Av. Demo','','','','','¿Cuál es el nombre de tu primera mascota?','" . password_hash('mascota', PASSWORD_DEFAULT) . "',NOW()),
-        (2,'Vendedor','Demo','vendedor@example.com','vendedor','" . password_hash('vendedor', PASSWORD_DEFAULT) . "','vendedor','B2B',1,1,'999000001','Av. Demo','','20123456789','Empresa Demo','','¿En qué ciudad naciste?','" . password_hash('ciudad', PASSWORD_DEFAULT) . "',NOW()),
-        (3,'Cliente','Demo','cliente@example.com',NULL,'" . password_hash('cliente', PASSWORD_DEFAULT) . "','cliente','B2C',1,1,'999000002','Av. Demo','00000001','','','','¿Cómo se llamaba tu colegio de primaria?','" . password_hash('colegio', PASSWORD_DEFAULT) . "',NOW()),
-        (4,'Cliente','B2B','cliente_b2b@example.com',NULL,'" . password_hash('cliente', PASSWORD_DEFAULT) . "','cliente','B2B',1,1,'999000003','Av. Demo','','20123456789','Empresa B2B','','¿Cuál es tu plato favorito?','" . password_hash('plato', PASSWORD_DEFAULT) . "',NOW()),
-        (5,'Cliente','C2C','cliente_c2c@example.com',NULL,'" . password_hash('cliente', PASSWORD_DEFAULT) . "','cliente','C2C',1,1,'999000004','Av. Demo','','','','Facebook','¿Cuál es el apellido de soltera de tu madre?','" . password_hash('madre', PASSWORD_DEFAULT) . "',NOW());");
+        VALUES (1,'Admin','Demo','admin@example.com','admin','" . $hash['admin'] . "','admin','B2C',1,1,'999000000','Av. Demo','','','','','¿Cuál es el nombre de tu primera mascota?','" . $hash['mascota'] . "',NOW()),
+        (2,'Vendedor','Demo','vendedor@example.com','vendedor','" . $hash['vendedor'] . "','vendedor','B2B',1,1,'999000001','Av. Demo','','20123456789','Empresa Demo','','¿En qué ciudad naciste?','" . $hash['ciudad'] . "',NOW()),
+        (3,'Cliente','Demo','cliente@example.com',NULL,'" . $hash['cliente'] . "','cliente','B2C',1,1,'999000002','Av. Demo','00000001','','','','¿Cómo se llamaba tu colegio de primaria?','" . $hash['colegio'] . "',NOW()),
+        (4,'Cliente','B2B','cliente_b2b@example.com',NULL,'" . $hash['cliente'] . "','cliente','B2B',1,1,'999000003','Av. Demo','','20123456789','Empresa B2B','','¿Cuál es tu plato favorito?','" . $hash['plato'] . "',NOW()),
+        (5,'Cliente','C2C','cliente_c2c@example.com',NULL,'" . $hash['cliente'] . "','cliente','C2C',1,1,'999000004','Av. Demo','','','','Facebook','¿Cuál es el apellido de soltera de tu madre?','" . $hash['madre'] . "',NOW());");
     // Los ids explícitos no avanzan la secuencia identity: hay que sincronizarla.
     foreach (['users', 'tarifas_envio'] as $tabla) {
         $pdo->exec(sprintf(

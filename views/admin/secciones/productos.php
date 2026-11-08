@@ -74,6 +74,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
             </div>
             <div class="admin-modal-cuerpo">
                 <input type="hidden" name="id" value="<?= $e($editando['slug'] ?? '') ?>">
+                <input type="hidden" name="stock_original" value="<?= (int) ($editando['stock'] ?? 0) ?>">
 
                 <label>Nombre
                     <input type="text" name="nombre" required value="<?= $e($editando['nombre'] ?? '') ?>">
@@ -124,7 +125,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
                 </label>
                 <?php endif; ?>
                 <label>SKU (código único)
-                    <input type="text" name="codigo_sku" value="<?= $e($editando['codigo_sku'] ?? '') ?>" placeholder="Opcional">
+                    <input type="text" name="codigo_sku" value="<?= $e($editando['codigo_sku'] ?? '') ?>" readonly placeholder="Se asigna automáticamente (JT-...)">
                 </label>
                 <label>Precio (S/)
                     <input type="number" step="0.01" min="0" name="precio_pen" required value="<?= $e($editando['precio_pen'] ?? '0') ?>">

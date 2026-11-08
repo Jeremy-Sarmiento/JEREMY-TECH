@@ -20,7 +20,7 @@ class StockVendedorTest extends TestCase
     {
         resetTestDb();
         $pdo = testPdo();
-        $pdo->exec("INSERT INTO categorias (nombre, slug) VALUES ('Celulares', 'celulares')");
+        $pdo->exec("INSERT INTO categorias (nombre, slug) VALUES ('Celulares', 'celulares') ON CONFLICT (nombre) DO NOTHING");
         $this->productoId = (int) $pdo->query(
             "INSERT INTO productos
                 (vendedor_id, slug, categoria, nombre, especificaciones, precio_pen, stock)
@@ -226,6 +226,38 @@ class StockVendedorTest extends TestCase
         $this->assertSame(2, $this->stockVariante($id));
     }
 
+    public function testAltaGeneraSkuJTAutomaticoAunqueElPostIntenteElegirlo(): void
+    {
+        $datos = $this->datosProducto();
+        $datos['nombre'] = 'Alta vendedor';
+        $datos['codigo_sku'] = 'MANUAL';
+        $resultado = ProductoVendedor::guardar(self::VENDEDOR, $datos);
+        $this->assertTrue($resultado['ok'], $resultado['error'] ?? '');
+        $producto = ProductoVendedor::porSlug(self::VENDEDOR, $resultado['slug']);
+        $this->assertSame(sprintf('JT-%05d', $producto['id']), $producto['codigo_sku']);
+    }
+
+    public function testEdicionConSkuForjadoConservaElCodigoActual(): void
+    {
+        testPdo()->exec("UPDATE productos SET codigo_sku = 'JT-01010'");
+        $datos = $this->datosProducto();
+        $datos['codigo_sku'] = 'MANUAL';
+        $resultado = ProductoVendedor::guardar(self::VENDEDOR, $datos, self::SLUG);
+        $this->assertTrue($resultado['ok'], $resultado['error'] ?? '');
+        $this->assertSame('JT-01010', ProductoVendedor::porSlug(self::VENDEDOR, self::SLUG)['codigo_sku']);
+    }
+
+    public function testVendedorPuedeGuardarUnaCategoriaDe80Caracteres(): void
+    {
+        $categoria = str_repeat('ñ', 80);
+        testPdo()->prepare('INSERT INTO categorias (nombre, slug) VALUES (?, ?)')->execute([$categoria, 'larga']);
+        $datos = $this->datosProducto();
+        $datos['categoria'] = $categoria;
+        $resultado = ProductoVendedor::guardar(self::VENDEDOR, $datos, self::SLUG);
+        $this->assertTrue($resultado['ok'], $resultado['error'] ?? '');
+        $this->assertSame($categoria, ProductoVendedor::porSlug(self::VENDEDOR, self::SLUG)['categoria']);
+    }
+
     private function datosProducto(): array
     {
         $producto = ProductoVendedor::porSlug(self::VENDEDOR, self::SLUG);
@@ -267,7 +299,7 @@ class StockVendedorTest extends TestCase
         $pdo->beginTransaction();
         try {
             Inventario::descontar($pdo, [[
-                'producto' => ['id' => $this->productoId, 'nombre' => 'Producto stock'],
+                'producto' => ['id' => $this->productoId, 'nombre' => 'Producto stock', 'vendedorId' => self::VENDEDOR],
                 'varianteId' => $varianteId, 'varianteNombre' => 'Azul', 'cantidad' => 1,
             ]], $pedidoId);
             $pdo->commit();

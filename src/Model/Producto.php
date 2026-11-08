@@ -10,19 +10,25 @@ namespace Model;
  */
 class Producto
 {
-    /**
-     * Orden de presentación de las categorías en la tienda.
-     * @var array<string, string>
-     */
-    public const GRIDS = [
-        'Celulares'    => 'grid-celulares',
-        'Laptops'      => 'grid-laptops',
-        'Audifonos'    => 'grid-audifonos',
-        'Accesorios'   => 'grid-accesorios',
-        'Smartwatches' => 'grid-smartwatches',
-        'Tablets'      => 'grid-tablets',
-        'Gaming'       => 'grid-gaming',
-    ];
+    public const VENDEDOR_HABILITADO = "(p.vendedor_id IS NULL OR EXISTS (
+        SELECT 1 FROM users vendedor WHERE vendedor.id = p.vendedor_id
+        AND vendedor.rol = 'vendedor' AND vendedor.activo = 1 AND vendedor.deleted_at IS NULL))";
+
+    /** @return array<string, string> Categorías administrables e identificadores HTML estables. */
+    public static function grids(): array
+    {
+        $grids = [];
+        foreach (conexion()->query('SELECT id, nombre FROM categorias ORDER BY id')->fetchAll() as $categoria) {
+            $grids[(string) $categoria['nombre']] = 'grid-categoria-' . (int) $categoria['id'];
+        }
+        return $grids;
+    }
+
+    public static function disponibleParaVenta(array $producto): bool
+    {
+        return !empty($producto['activo']) && empty($producto['archivado'])
+            && !empty($producto['vendedorHabilitado']);
+    }
 
     /**
      * Columnas que consumen la tienda. Comparten una única fuente para que
@@ -32,7 +38,8 @@ class Producto
     private const COLUMNAS = 'p.id, p.slug, p.categoria, p.nombre, p.modelo, p.codigo_sku, p.especificaciones, '
         . 'p.precio_pen, p.stock, p.stock_minimo, p.activo, p.archivado_en, p.colores, p.imagen, p.peso_kg, p.dimensiones, '
         . 'p.vendedor_id, p.marca_id, '
-        . '(EXISTS (SELECT 1 FROM producto_imagenes pi WHERE pi.producto_id = p.id)) AS imagen_db';
+        . '(EXISTS (SELECT 1 FROM producto_imagenes pi WHERE pi.producto_id = p.id)) AS imagen_db, '
+        . self::VENDEDOR_HABILITADO . ' AS vendedor_habilitado';
 
     /**
      * Columnas extra que solo aporta el listado del catálogo (Etapa 6):
@@ -196,7 +203,8 @@ class Producto
 
         $sql = 'SELECT ' . self::COLUMNAS . self::COLUMNAS_VENDEDOR
              . ' FROM productos p' . self::JOIN_VENDEDOR
-             . ' WHERE p.activo = 1 AND p.archivado_en IS NULL AND (' . implode(' AND ', $condiciones) . ')'
+             . ' WHERE p.activo = 1 AND p.archivado_en IS NULL AND ' . self::VENDEDOR_HABILITADO
+             . ' AND (' . implode(' AND ', $condiciones) . ')'
              . ' ORDER BY p.nombre ASC'
              . ' LIMIT ' . $limite;
 
@@ -280,7 +288,7 @@ class Producto
 
         $stmt = $pdo->prepare(
             'SELECT COUNT(*) FROM (SELECT 1 FROM productos p WHERE ' . $whereSql
-            . ' GROUP BY p.categoria, p.nombre) grupos'
+            . ' GROUP BY p.categoria, p.nombre, p.vendedor_id) grupos'
         );
         $stmt->execute($parametros);
         $totalGrupos = (int) $stmt->fetchColumn();
@@ -308,10 +316,10 @@ class Producto
         // 1) Grupos de la página actual. El orden por precio usa el precio
         //    mínimo del grupo para que la tarjeta no salte de página.
         $stmt = $pdo->prepare(
-            'SELECT p.categoria, p.nombre
+            'SELECT p.categoria, p.nombre, p.vendedor_id
                FROM productos p
               WHERE ' . $whereSql . '
-              GROUP BY p.categoria, p.nombre
+              GROUP BY p.categoria, p.nombre, p.vendedor_id
               ORDER BY ' . self::ordenGruposCatalogo($orden) . '
               LIMIT ' . $porPagina . ' OFFSET ' . $offset
         );
@@ -326,9 +334,10 @@ class Producto
         $condiciones = [];
         $parametrosProductos = $parametros;
         foreach ($gruposPagina as $grupo) {
-            $condiciones[] = '(p.categoria = ? AND p.nombre = ?)';
+            $condiciones[] = '(p.categoria = ? AND p.nombre = ? AND p.vendedor_id IS NOT DISTINCT FROM ?)';
             $parametrosProductos[] = (string) $grupo['categoria'];
             $parametrosProductos[] = (string) $grupo['nombre'];
+            $parametrosProductos[] = $grupo['vendedor_id'] !== null ? (int) $grupo['vendedor_id'] : null;
         }
 
         $stmt = $pdo->prepare(
@@ -339,6 +348,11 @@ class Producto
         );
         $stmt->execute($parametrosProductos);
         $productos = array_map(self::hidratar(...), $stmt->fetchAll());
+        $variantes = ProductoVariante::deProductos(array_column($productos, 'id'));
+        foreach ($productos as &$producto) {
+            $producto['variantes'] = $variantes[(int) $producto['id']] ?? [];
+        }
+        unset($producto);
 
         return [
             'productos' => $productos,
@@ -368,7 +382,7 @@ class Producto
         $texto = is_scalar($texto) ? trim((string) $texto) : '';
         $terminos = self::terminosBusqueda($texto);
 
-        $where = ['p.activo = 1', 'p.archivado_en IS NULL'];
+        $where = ['p.activo = 1', 'p.archivado_en IS NULL', self::VENDEDOR_HABILITADO];
         $parametros = [];
 
         // Un texto sin términos útiles (solo conectores) no debe devolver
@@ -384,7 +398,7 @@ class Producto
 
         $categoria = $filtros['categoria'] ?? '';
         $categoria = is_scalar($categoria) ? trim((string) $categoria) : '';
-        if ($categoria !== '' && isset(self::GRIDS[$categoria])) {
+        if ($categoria !== '') {
             $where[] = 'p.categoria = ?';
             $parametros[] = $categoria;
         }
@@ -455,7 +469,7 @@ class Producto
             'SELECT m.nombre, COUNT(*) AS total
                FROM productos p
                JOIN marcas m ON m.id = p.marca_id
-              WHERE p.activo = 1 AND p.archivado_en IS NULL
+              WHERE p.activo = 1 AND p.archivado_en IS NULL AND ' . self::VENDEDOR_HABILITADO . '
               GROUP BY m.id, m.nombre
               ORDER BY m.nombre'
         );
@@ -468,7 +482,7 @@ class Producto
 
     /**
      * Agrupa un listado de productos por categoría, juntando variantes que
-     * comparten el mismo nombre comercial. Respeta el orden de GRIDS.
+     * comparten el mismo nombre comercial. Respeta el orden de categorías de BD.
      *
      * @param array<int, array<string, mixed>> $catalogo
      * @return array<string, array<int, array<int, array<string, mixed>>>>
@@ -477,17 +491,24 @@ class Producto
     {
         $grupos = [];
 
-        foreach (array_keys(self::GRIDS) as $categoria) {
-            $nombresVistos = [];
+        foreach (array_keys(self::grids()) as $categoria) {
+            // PHP convierte a entero las claves numéricas ("123"); el nombre
+            // de la categoría siempre debe compararse como texto.
+            $categoria = (string) $categoria;
+            $gruposVistos = [];
             foreach ($catalogo as $p) {
-                if (($p['categoria'] ?? '') !== $categoria || isset($nombresVistos[$p['nombre']])) {
+                $vendedor = $p['vendedorId'] ?? null;
+                $clave = ($vendedor === null ? 'plataforma' : 'v' . (int) $vendedor)
+                    . '|' . (string) ($p['nombre'] ?? '');
+                if (($p['categoria'] ?? '') !== $categoria || isset($gruposVistos[$clave])) {
                     continue;
                 }
-                $nombresVistos[$p['nombre']] = true;
+                $gruposVistos[$clave] = true;
                 $grupo = array_values(array_filter(
                     $catalogo,
                     static fn (array $item): bool => ($item['categoria'] ?? '') === $categoria
                         && ($item['nombre'] ?? '') === $p['nombre']
+                        && ($item['vendedorId'] ?? null) === $vendedor
                 ));
                 $grupos[$categoria][] = $grupo;
             }
@@ -531,7 +552,8 @@ class Producto
         $stmt = conexion()->prepare(
             'SELECT ' . self::COLUMNAS . self::COLUMNAS_VENDEDOR
             . ' FROM productos p' . self::JOIN_VENDEDOR
-            . ' WHERE p.activo = 1 AND p.archivado_en IS NULL AND p.categoria = ?'
+             . ' WHERE p.activo = 1 AND p.archivado_en IS NULL AND ' . self::VENDEDOR_HABILITADO
+             . ' AND p.categoria = ?'
             . ' ORDER BY p.nombre ASC, p.id ASC'
         );
         $stmt->execute([(string) $actual['categoria']]);
@@ -543,21 +565,27 @@ class Producto
             if ((int) $candidato['id'] === (int) $actual['id']) {
                 continue;
             }
-            if ((string) $candidato['nombre'] === (string) $actual['nombre']) {
-                continue;
-            }
             $candidatos[] = $candidato;
         }
 
         usort($candidatos, static fn (array $a, array $b): int => self::puntuacionRecomendado($b, $actual) <=> self::puntuacionRecomendado($a, $actual));
 
+        $variantes = ProductoVariante::deProductos(array_column($candidatos, 'id'));
+        foreach ($candidatos as &$candidato) {
+            $candidato['variantes'] = $variantes[(int) $candidato['id']] ?? [];
+        }
+        unset($candidato);
+
         $recomendados = [];
-        $vistosNombres = [];
+        $vistos = [];
         foreach ($candidatos as $candidato) {
-            if (isset($vistosNombres[$candidato['nombre']])) {
+            $vendedor = $candidato['vendedorId'] ?? null;
+            $clave = ($vendedor === null ? 'plataforma' : 'v' . (int) $vendedor)
+                . '|' . (string) $candidato['nombre'];
+            if (isset($vistos[$clave])) {
                 continue;
             }
-            $vistosNombres[$candidato['nombre']] = true;
+            $vistos[$clave] = true;
             $recomendados[] = [$candidato];
             if (count($recomendados) >= max(1, min(12, $limite))) {
                 break;
@@ -577,8 +605,40 @@ class Producto
     }
 
     /**
+     * Otras configuraciones del mismo producto (mismo nombre, distinta
+     * especificación/capacidad). Para mostrar en la ficha junto a la info.
+     *
+     * @return array<int, array<string, mixed>> productos hermanos, ordenados por precio
+     */
+    public static function otrasConfiguraciones(int $productoId): array
+    {
+        $actual = self::porId($productoId);
+        if ($actual === null) {
+            return [];
+        }
+
+        $stmt = conexion()->prepare(
+            'SELECT ' . self::COLUMNAS . self::COLUMNAS_VENDEDOR
+            . ' FROM productos p' . self::JOIN_VENDEDOR
+            . ' WHERE p.activo = 1 AND p.archivado_en IS NULL AND ' . self::VENDEDOR_HABILITADO
+            . ' AND p.nombre = ? AND p.id <> ?'
+            . ' ORDER BY p.precio_pen ASC'
+        );
+        $stmt->execute([(string) $actual['nombre'], $productoId]);
+
+        $hermanos = array_map(self::hidratar(...), $stmt->fetchAll());
+        $variantes = ProductoVariante::deProductos(array_column($hermanos, 'id'));
+        foreach ($hermanos as &$h) {
+            $h['variantes'] = $variantes[(int) $h['id']] ?? [];
+        }
+        unset($h);
+
+        return $hermanos;
+    }
+
+    /**
      * Agrupa las variantes bajo su nombre comercial base, por categoría,
-     * respetando el orden de GRIDS (espejo de la antigua lógica JS).
+     * respetando el orden de categorías de la base de datos.
      * @return array<string, array<int, array<int, array<string, mixed>>>> categoria => grupos de variantes
      */
     public static function gruposPorCategoria(?int $vendedorId = null): array
@@ -631,7 +691,7 @@ class Producto
     public static function precioDe(int $productoId, ?int $varianteId, int $cantidad): ?array
     {
         $producto = self::porId($productoId);
-        if ($producto === null || !empty($producto['archivado']) || empty($producto['activo'])) {
+        if ($producto === null || !self::disponibleParaVenta($producto)) {
             return null;
         }
 
@@ -807,6 +867,7 @@ class Producto
             'vendedorNombre'     => (string) ($fila['vendedor_nombre'] ?? ''),
             'vendedorUsuario'    => (string) ($fila['vendedor_usuario'] ?? ''),
             'vendedorVerificado' => (int) ($fila['vendedor_verificado'] ?? 0),
+            'vendedorHabilitado' => !empty($fila['vendedor_habilitado']),
         ];
     }
 }

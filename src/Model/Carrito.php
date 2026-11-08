@@ -60,7 +60,7 @@ class Carrito
         self::iniciarSesion();
         $clienteId = Cuenta::idSesion();
         if ($clienteId === null) {
-            return $_SESSION['carrito'] ?? [];
+            return self::filtrarDisponibles($_SESSION['carrito'] ?? []);
         }
         // Migrar también las sesiones autenticadas que existían antes del cambio.
         if (!empty($_SESSION['carrito']) || !empty($_SESSION['carritos_pendientes'][$clienteId])) {
@@ -74,6 +74,7 @@ class Carrito
                JOIN carritos c ON c.id = i.carrito_id
                JOIN users u ON u.id = c.cliente_id AND u.activo = 1 AND u.deleted_at IS NULL
                JOIN productos p ON p.id = i.producto_id AND p.activo = 1 AND p.archivado_en IS NULL
+                    AND ' . Producto::VENDEDOR_HABILITADO . '
           LEFT JOIN producto_variantes v ON v.id = i.variante_id AND v.producto_id = p.id AND v.activo = 1
               WHERE c.cliente_id = ? AND (i.variante_id IS NULL OR v.id IS NOT NULL)
               ORDER BY i.id'
@@ -156,10 +157,71 @@ class Carrito
         self::fusionarGuardado($propietario, $items);
     }
 
+    /**
+     * Oculta las líneas que ya no se pueden comprar sin borrarlas: si el
+     * vendedor recupera el permiso, vuelven a aparecer.
+     *
+     * @param array<string|int, int> $items
+     * @return array<string|int, int>
+     */
+    private static function filtrarDisponibles(array $items): array
+    {
+        if ($items === []) {
+            return [];
+        }
+
+        $productos = [];
+        $variantes = [];
+        foreach (array_keys($items) as $clave) {
+            [$productoId, $varianteId] = self::parsearClave((string) $clave);
+            $productos[$productoId] = true;
+            if ($varianteId !== null) {
+                $variantes[$varianteId] = true;
+            }
+        }
+
+        $pdo = conexion();
+        $marcas = implode(',', array_fill(0, count($productos), '?'));
+        $stmt = $pdo->prepare(
+            'SELECT p.id FROM productos p
+              WHERE p.id IN (' . $marcas . ')
+                AND p.activo = 1 AND p.archivado_en IS NULL
+                AND ' . Producto::VENDEDOR_HABILITADO
+        );
+        $stmt->execute(array_keys($productos));
+        $comprables = array_fill_keys(array_map('intval', $stmt->fetchAll(\PDO::FETCH_COLUMN)), true);
+
+        $variantesValidas = [];
+        if ($variantes !== []) {
+            $marcas = implode(',', array_fill(0, count($variantes), '?'));
+            $stmt = $pdo->prepare(
+                'SELECT id, producto_id FROM producto_variantes
+                  WHERE id IN (' . $marcas . ') AND activo = 1'
+            );
+            $stmt->execute(array_keys($variantes));
+            foreach ($stmt->fetchAll() as $fila) {
+                $variantesValidas[(int) $fila['id']] = (int) $fila['producto_id'];
+            }
+        }
+
+        $disponibles = [];
+        foreach ($items as $clave => $cantidad) {
+            [$productoId, $varianteId] = self::parsearClave((string) $clave);
+            if (!isset($comprables[$productoId])) {
+                continue;
+            }
+            if ($varianteId !== null && ($variantesValidas[$varianteId] ?? null) !== $productoId) {
+                continue;
+            }
+            $disponibles[$clave] = (int) $cantidad;
+        }
+        return $disponibles;
+    }
+
     private static function lineaDisponible(int $productoId, ?int $varianteId): bool
     {
         $producto = Producto::porId($productoId);
-        if ($producto === null || !empty($producto['archivado']) || empty($producto['activo'])) {
+        if ($producto === null || !Producto::disponibleParaVenta($producto)) {
             return false;
         }
         if ($varianteId === null) {

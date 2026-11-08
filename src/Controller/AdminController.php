@@ -18,6 +18,8 @@ use Model\PedidoEvento;
  */
 final class AdminController
 {
+    private const ERROR_STOCK_CAMBIADO = 'El stock cambió desde que abriste el formulario. Recarga la página y revisa las existencias antes de guardar.';
+
     public function atender(string $subRuta): void
     {
         $subRuta = trim($subRuta, '/');
@@ -163,6 +165,61 @@ final class AdminController
         return trim($texto, '-');
     }
 
+    private function stockFormulario(mixed $valor): ?int
+    {
+        if (!is_scalar($valor)) {
+            return null;
+        }
+        $texto = trim((string) $valor);
+        return preg_match('/^\d+$/', $texto) === 1 && (int) $texto <= 9999999 ? (int) $texto : null;
+    }
+
+    private function idOpcional(mixed $valor): int|null|false
+    {
+        if (!is_scalar($valor)) {
+            return false;
+        }
+        $texto = trim((string) $valor);
+        return $texto === '' ? null : filter_var($texto, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+    }
+
+    /** Bloquea el producto dentro de la transacción y vuelve a comprobar su dueño. */
+    private function bloquearProducto(\PDO $pdo, string $slug): array
+    {
+        [$alcance, $params] = \Model\Producto::alcancePanel();
+        $stmt = $pdo->prepare('SELECT p.id, p.stock FROM productos p WHERE p.slug = ?' . $alcance . ' FOR UPDATE');
+        $stmt->execute(array_merge([$slug], $params));
+        $producto = $stmt->fetch();
+        if ($producto === false) {
+            throw new \RuntimeException('El producto ya no existe o no tienes permiso para editarlo.');
+        }
+        return $producto;
+    }
+
+    private function ajustarStockProducto(\PDO $pdo, string $slug, int $stock, int $stockOriginal): int
+    {
+        $producto = $this->bloquearProducto($pdo, $slug);
+        if ((int) $producto['stock'] !== $stockOriginal) {
+            throw new \RuntimeException(self::ERROR_STOCK_CAMBIADO);
+        }
+        $productoId = (int) $producto['id'];
+        $delta = $stock - $stockOriginal;
+        if ($delta !== 0) {
+            $error = \Model\Inventario::ajustar(
+                $pdo,
+                $productoId,
+                null,
+                $delta > 0 ? 'entrada' : 'salida',
+                abs($delta),
+                'Stock desde el panel'
+            );
+            if ($error !== null) {
+                throw new \RuntimeException($error);
+            }
+        }
+        return $productoId;
+    }
+
     private function auditar(array $admin, string $accion, int $referencia, string $detalle): void
     {
         Admin::auditar((string) ($admin['usuario'] ?? ''), $accion, $referencia, $detalle);
@@ -283,14 +340,25 @@ final class AdminController
         }
 
         if ($subRuta === 'productos/guardar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-            $id      = trim((string) ($_POST['id'] ?? ''));
+            $id = is_scalar($_POST['id'] ?? '') ? trim((string) ($_POST['id'] ?? '')) : '';
+            $stockOriginal = $this->stockFormulario($_POST['stock_original'] ?? null);
+            if ($id !== '' && $stockOriginal === null) {
+                $this->flash('Falta un stock original válido. Recarga la página antes de guardar.', true);
+                header('Location: ?ruta=admin/productos');
+                exit;
+            }
+            if (array_filter($_POST, static fn ($valor) => !is_scalar($valor)) !== []) {
+                $this->flash('Los datos del producto no son válidos.', true);
+                header('Location: ?ruta=admin/productos');
+                exit;
+            }
             $nombre  = trim((string) ($_POST['nombre'] ?? ''));
             $categoria = trim((string) ($_POST['categoria'] ?? ''));
-            $marcaId = ($_POST['marca_id'] ?? '') !== '' ? (int) $_POST['marca_id'] : null;
-            $garantiaId = ($_POST['garantia_id'] ?? '') !== '' ? (int) $_POST['garantia_id'] : null;
+            $marcaId = $this->idOpcional($_POST['marca_id'] ?? '');
+            $garantiaId = $this->idOpcional($_POST['garantia_id'] ?? '');
             $precio  = is_numeric($_POST['precio_pen'] ?? null) ? (float) $_POST['precio_pen'] : -1;
-            $stock   = (int) ($_POST['stock'] ?? 0);
-            $stockMinimo = (int) ($_POST['stock_minimo'] ?? 0);
+            $stock = $this->stockFormulario($_POST['stock'] ?? 0);
+            $stockMinimo = $this->stockFormulario($_POST['stock_minimo'] ?? 0);
             $activo  = isset($_POST['activo']) ? 1 : 0;
             $imagen  = trim((string) ($_POST['imagen'] ?? ''));
             $especificaciones = trim((string) ($_POST['especificaciones'] ?? ''));
@@ -298,7 +366,6 @@ final class AdminController
 
             // Ficha técnica (Etapa 3). Cadena vacía -> NULL.
             $modelo      = trim((string) ($_POST['modelo'] ?? '')) ?: null;
-            $sku         = trim((string) ($_POST['codigo_sku'] ?? '')) ?: null;
             $pesoRaw     = trim((string) ($_POST['peso_kg'] ?? ''));
             $pesoKg      = $pesoRaw !== '' ? (float) $pesoRaw : null;
             $dimensiones = trim((string) ($_POST['dimensiones'] ?? '')) ?: null;
@@ -324,14 +391,20 @@ final class AdminController
                 exit;
             }
 
-            if ($precio < 0) {
-                $this->flash('El precio debe ser un número mayor o igual a 0.', true);
+            if (!is_finite($precio) || $precio < 0 || $precio > 99999999.99) {
+                $this->flash('El precio debe ser un número entre 0 y 99 999 999.99.', true);
                 header('Location: ?ruta=admin/productos');
                 exit;
             }
 
-            if ($stock < 0 || $stockMinimo < 0) {
-                $this->flash('El stock y el stock mínimo no pueden ser negativos.', true);
+            if ($stock === null || $stockMinimo === null) {
+                $this->flash('El stock y el stock mínimo deben ser enteros entre 0 y 9 999 999.', true);
+                header('Location: ?ruta=admin/productos');
+                exit;
+            }
+
+            if ($marcaId === false || $garantiaId === false) {
+                $this->flash('La marca o la garantía elegida no es válida.', true);
                 header('Location: ?ruta=admin/productos');
                 exit;
             }
@@ -345,17 +418,16 @@ final class AdminController
                 exit;
             }
 
-            // El formulario envía el slug de la categoría; la tabla `productos`
-            // guarda el nombre visible (como las semillas y la tienda).
-            $stmtCat = $pdo->prepare('SELECT nombre FROM categorias WHERE slug = ?');
-            $stmtCat->execute([$categoria]);
-            $categoria = (string) ($stmtCat->fetchColumn() ?: $categoria);
-
             // (Etapa 6) Quién es dueño de la publicación. Un vendedor del
             // panel solo puede publicar a su propio nombre; un admin elige.
             $vendedorId = Admin::esVendedor()
                 ? Admin::idSesion()
-                : (($_POST['vendedor_id'] ?? '') !== '' ? (int) $_POST['vendedor_id'] : null);
+                : $this->idOpcional($_POST['vendedor_id'] ?? '');
+            if ($vendedorId === false) {
+                $this->flash('Elige un vendedor activo o la plataforma.', true);
+                header('Location: ?ruta=admin/productos');
+                exit;
+            }
 
             $slugId = $id !== '' ? $id : $this->slugify($nombre);
             if ($id !== '' && !\Model\Producto::puedeGestionar($slugId)) {
@@ -371,76 +443,111 @@ final class AdminController
                 }
             }
 
-            // El SKU es único (uq_productos_sku): avisar en el panel en lugar
-            // de dejar que PostgreSQL devuelva un error 500.
-            if ($sku !== null) {
-                $qSku = $pdo->prepare('SELECT slug FROM productos WHERE codigo_sku = ? AND slug <> ? LIMIT 1');
-                $qSku->execute([$sku, $slugId]);
-                if ($qSku->fetch()) {
-                    $this->flash('El SKU "' . $sku . '" ya está en uso por otro producto.', true);
-                    header('Location: ?ruta=admin/productos');
-                    exit;
+            try {
+                $pdo->beginTransaction();
+
+                // La ficha guarda el nombre canónico; nunca un slug o texto libre sin referencia.
+                $stmtCat = $pdo->prepare('SELECT nombre FROM categorias WHERE slug = ? OR nombre = ? LIMIT 1');
+                $stmtCat->execute([$categoria, $categoria]);
+                $categoria = $stmtCat->fetchColumn();
+                if ($categoria === false || trim((string) $categoria) === '' || mb_strlen((string) $categoria) > 80) {
+                    throw new \RuntimeException('Elige una categoría válida de hasta 80 caracteres.');
                 }
-            }
 
-            $pdo->beginTransaction();
+                foreach (['marcas' => $marcaId, 'garantias' => $garantiaId] as $tabla => $referenciaId) {
+                    if ($referenciaId !== null) {
+                        $qReferencia = $pdo->prepare('SELECT id FROM ' . $tabla . ' WHERE id = ? AND activo = 1');
+                        $qReferencia->execute([$referenciaId]);
+                        if (!$qReferencia->fetchColumn()) {
+                            throw new \RuntimeException('La marca o la garantía elegida no está disponible.');
+                        }
+                    }
+                }
+                if ($id !== '') {
+                    $productoId = $this->ajustarStockProducto($pdo, $id, $stock, $stockOriginal);
+                }
+                if ($vendedorId !== null) {
+                    $qVendedor = $pdo->prepare(
+                        "SELECT id FROM users WHERE id = ? AND rol = 'vendedor' AND activo = 1 AND deleted_at IS NULL FOR SHARE"
+                    );
+                    $qVendedor->execute([$vendedorId]);
+                    if (!$qVendedor->fetchColumn()) {
+                        throw new \RuntimeException('Elige un vendedor activo o la plataforma.');
+                    }
+                }
 
-            if ($id !== '') {
-                $stmt = $pdo->prepare(
-                    'UPDATE productos SET categoria = ?, nombre = ?, modelo = ?, codigo_sku = ?, marca_id = ?, garantia_id = ?, '
-                    . 'precio_pen = ?, stock = ?, stock_minimo = ?, activo = ?, '
-                    // Si el admin vuelve a activar una publicación archivada,
-                    // se limpia el archivo: el estado "archivado" siempre
-                    // implica `activo = 0`.
-                    . 'archivado_en = CASE WHEN ? = 1 THEN NULL ELSE archivado_en END, '
-                    . 'imagen = ?, especificaciones = ?, '
-                    . 'peso_kg = ?, dimensiones = ?, colores = ?, vendedor_id = ? WHERE slug = ? '
-                    . 'RETURNING id'
-                );
-                $stmt->execute([
-                    $categoria, $nombre, $modelo, $sku, $marcaId, $garantiaId,
-                    $precio, $stock, $stockMinimo, $activo, $activo, $imagen, $especificaciones,
-                    $pesoKg, $dimensiones, $colores, $vendedorId, $id,
-                ]);
-                $productoId = (int) $stmt->fetchColumn();
-                $this->auditar($admin, 'productos/editar', 0, 'Editó el producto "' . $nombre . '"');
-            } else {
-                $stmt = $pdo->prepare(
-                    'INSERT INTO productos (slug, categoria, nombre, modelo, codigo_sku, marca_id, garantia_id, '
-                    . 'precio_pen, stock, stock_minimo, activo, imagen, especificaciones, peso_kg, dimensiones, colores, vendedor_id)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id'
-                );
-                $stmt->execute([
-                    $slugId, $categoria, $nombre, $modelo, $sku, $marcaId, $garantiaId,
-                    $precio, $stock, $stockMinimo, $activo, $imagen, $especificaciones,
-                    $pesoKg, $dimensiones, $colores, $vendedorId,
-                ]);
-                $productoId = (int) $stmt->fetchColumn();
-                $this->auditar($admin, 'productos/crear', 0, 'Creó el producto "' . $nombre . '"');
-            }
+                if ($id !== '') {
+                    $stmt = $pdo->prepare(
+                        'UPDATE productos SET categoria = ?, nombre = ?, modelo = ?, marca_id = ?, garantia_id = ?, '
+                        . 'precio_pen = ?, stock_minimo = ?, activo = ?, '
+                        // Al reactivar una publicación se conserva la limpieza del archivo.
+                        . 'archivado_en = CASE WHEN ? = 1 THEN NULL ELSE archivado_en END, '
+                        . 'imagen = ?, especificaciones = ?, '
+                        . 'peso_kg = ?, dimensiones = ?, colores = ?, vendedor_id = ? WHERE id = ?'
+                    );
+                    $stmt->execute([
+                        $categoria, $nombre, $modelo, $marcaId, $garantiaId,
+                        $precio, $stockMinimo, $activo, $activo, $imagen, $especificaciones,
+                        $pesoKg, $dimensiones, $colores, $vendedorId, $productoId,
+                    ]);
+                } else {
+                    $stmt = $pdo->prepare(
+                        'INSERT INTO productos (slug, categoria, nombre, modelo, marca_id, garantia_id, '
+                        . 'precio_pen, stock, stock_minimo, activo, imagen, especificaciones, peso_kg, dimensiones, colores, vendedor_id)
+                         VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id'
+                    );
+                    $stmt->execute([
+                        $slugId, $categoria, $nombre, $modelo, $marcaId, $garantiaId,
+                        $precio, $stockMinimo, $activo, $imagen, $especificaciones,
+                        $pesoKg, $dimensiones, $colores, $vendedorId,
+                    ]);
+                    $productoId = (int) $stmt->fetchColumn();
+                    if ($stock > 0) {
+                        $errorStock = \Model\Inventario::ajustar($pdo, $productoId, null, 'entrada', $stock, 'Stock inicial desde el panel');
+                        if ($errorStock !== null) {
+                            throw new \RuntimeException($errorStock);
+                        }
+                    }
+                }
 
-            if ($productoId <= 0) {
-                $pdo->rollBack();
-                $this->flash('No se pudo guardar el producto.', true);
-                header('Location: ?ruta=admin/productos');
-                exit;
-            }
+                if ($productoId <= 0) {
+                    throw new \RuntimeException('No se pudo guardar el producto.');
+                }
 
-            if ($imagenSubida['estado'] === 'ok') {
-                $guardada = \Model\ImagenProducto::guardar(
+                if ($imagenSubida['estado'] === 'ok') {
+                    $guardada = \Model\ImagenProducto::guardar(
+                        $productoId,
+                        (string) ($imagenSubida['datos'] ?? ''),
+                        (string) ($imagenSubida['mime'] ?? '')
+                    );
+                    if (!$guardada) {
+                        throw new \RuntimeException('No se pudo guardar la imagen del producto.');
+                    }
+                }
+
+                $this->auditar(
+                    $admin,
+                    $id !== '' ? 'productos/editar' : 'productos/crear',
                     $productoId,
-                    (string) ($imagenSubida['datos'] ?? ''),
-                    (string) ($imagenSubida['mime'] ?? '')
+                    ($id !== '' ? 'Editó' : 'Creó') . ' el producto "' . $nombre . '"'
                 );
-                if (!$guardada) {
+                $pdo->commit();
+            } catch (\Throwable $e) {
+                if ($pdo->inTransaction()) {
                     $pdo->rollBack();
-                    $this->flash('No se pudo guardar la imagen del producto.', true);
-                    header('Location: ?ruta=admin/productos');
-                    exit;
                 }
+                $mensaje = 'No se pudo guardar el producto. Revisa los datos e inténtalo de nuevo.';
+                if (get_class($e) === \RuntimeException::class) {
+                    $mensaje = $e->getMessage();
+                } elseif ($e instanceof \PDOException && $e->getCode() === '23505') {
+                    $mensaje = 'Ya existe un producto con ese SKU o identificador.';
+                } elseif ($e instanceof \PDOException && $e->getCode() === '23503') {
+                    $mensaje = 'La categoría, marca, garantía o vendedor ya no está disponible. Recarga la página.';
+                } else {
+                    error_log('AdminController::productos/guardar — ' . $e->getMessage());
+                }
+                $this->flash($mensaje, true);
             }
-
-            $pdo->commit();
 
             header('Location: ?ruta=admin/productos');
             exit;
@@ -524,29 +631,71 @@ final class AdminController
         $admin = Admin::usuarioActual();
 
         if ($subRuta === 'categorias/guardar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (array_filter($_POST, static fn ($valor) => !is_scalar($valor)) !== []) {
+                $this->flash('Los datos de la categoría no son válidos.', true);
+                header('Location: ?ruta=admin/categorias');
+                exit;
+            }
             $id     = (int) ($_POST['id'] ?? 0);
             $nombre = trim((string) ($_POST['nombre'] ?? ''));
             $desc   = trim((string) ($_POST['descripcion'] ?? ''));
 
-            if ($id > 0) {
-                $pdo->prepare('UPDATE categorias SET nombre = ?, descripcion = ? WHERE id = ?')->execute([$nombre, $desc, $id]);
-                $this->auditar($admin, 'categorias/editar', $id, 'Editó la categoría "' . $nombre . '"');
-            } else {
-                $pdo->prepare('INSERT INTO categorias (nombre, slug, descripcion) VALUES (?, ?, ?)')
-                    ->execute([$nombre, $this->slugify($nombre), $desc]);
-                $this->auditar($admin, 'categorias/crear', (int) $pdo->lastInsertId(), 'Creó la categoría "' . $nombre . '"');
+            if ($nombre === '' || mb_strlen($nombre) > 80 || mb_strlen($desc) > 255) {
+                $this->flash('Indica un nombre de 1 a 80 caracteres y una descripción de hasta 255.', true);
+                header('Location: ?ruta=admin/categorias');
+                exit;
+            }
+
+            try {
+                $pdo->beginTransaction();
+                if ($id > 0) {
+                    $pdo->prepare('UPDATE categorias SET nombre = ?, descripcion = ? WHERE id = ?')->execute([$nombre, $desc, $id]);
+                    $this->auditar($admin, 'categorias/editar', $id, 'Editó la categoría "' . $nombre . '"');
+                } else {
+                    $nueva = $pdo->prepare('INSERT INTO categorias (nombre, slug, descripcion) VALUES (?, ?, ?) RETURNING id');
+                    $nueva->execute([$nombre, $this->slugify($nombre), $desc]);
+                    $this->auditar($admin, 'categorias/crear', (int) $nueva->fetchColumn(), 'Creó la categoría "' . $nombre . '"');
+                }
+                $pdo->commit();
+            } catch (\Throwable $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                if ($e instanceof \PDOException && $e->getCode() === '23505') {
+                    $this->flash('Ya existe una categoría con ese nombre o identificador.', true);
+                } elseif ($e instanceof \PDOException && $e->getCode() === '23503') {
+                    $this->flash('No se pudo guardar la categoría por sus productos asociados.', true);
+                } else {
+                    error_log('AdminController::categorias/guardar — ' . $e->getMessage());
+                    $this->flash('No se pudo guardar la categoría. Revisa los datos e inténtalo de nuevo.', true);
+                }
             }
             header('Location: ?ruta=admin/categorias');
             exit;
         }
 
         if ($subRuta === 'categorias/eliminar') {
-            $id = (int) ($_POST['id'] ?? 0);
+            $id = $this->idOpcional($_POST['id'] ?? '');
+            if ($id === null || $id === false) {
+                $this->flash('La categoría no es válida.', true);
+                header('Location: ?ruta=admin/categorias');
+                exit;
+            }
             try {
+                $pdo->beginTransaction();
                 $pdo->prepare('DELETE FROM categorias WHERE id = ?')->execute([$id]);
                 $this->auditar($admin, 'categorias/eliminar', $id, 'Eliminó la categoría #' . $id);
-            } catch (\PDOException) {
-                $this->flash('No se pudo eliminar: tiene productos asociados.', true);
+                $pdo->commit();
+            } catch (\Throwable $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                if ($e instanceof \PDOException && $e->getCode() === '23503') {
+                    $this->flash('No se pudo eliminar: tiene productos asociados.', true);
+                } else {
+                    error_log('AdminController::categorias/eliminar — ' . $e->getMessage());
+                    $this->flash('No se pudo eliminar la categoría. Inténtalo de nuevo.', true);
+                }
             }
             header('Location: ?ruta=admin/categorias');
             exit;
@@ -1799,7 +1948,8 @@ final class AdminController
 
         // El producto activo de la sección viene por URL (?p=SLUG) y se
         // reutiliza para volver al listado tras cada mutación.
-        $slug = trim((string) ($_GET['p'] ?? $_POST['p'] ?? ''));
+        $slugRaw = $_GET['p'] ?? $_POST['p'] ?? '';
+        $slug = is_scalar($slugRaw) ? trim((string) $slugRaw) : '';
         $volver = '?ruta=admin/variantes' . ($slug !== '' ? '&p=' . urlencode($slug) : '');
 
         /** @return array<string, mixed>|null producto si el rol puede gestionarlo */
@@ -1820,20 +1970,34 @@ final class AdminController
                 exit;
             }
 
-            $id     = (int) ($_POST['id'] ?? 0);
-            $nombre = trim((string) ($_POST['nombre_variante'] ?? ''));
-            $extra  = (float) ($_POST['precio_extra'] ?? 0);
-            $stock  = (int) ($_POST['stock'] ?? 0);
-            $color  = trim((string) ($_POST['color'] ?? ''));
-            $activo = isset($_POST['activo']) ? 1 : 0;
-
-            if ($nombre === '') {
-                $this->flash('El nombre de la variante es obligatorio.', true);
+            $id = is_scalar($_POST['id'] ?? 0) ? (int) ($_POST['id'] ?? 0) : 0;
+            $stockOriginal = $this->stockFormulario($_POST['stock_original'] ?? null);
+            if ($id > 0 && $stockOriginal === null) {
+                $this->flash('Falta un stock original válido. Recarga la página antes de guardar.', true);
                 header('Location: ' . $volver);
                 exit;
             }
-            // Una variante que no se puede comprar no debe aparecer en la ficha.
-            $stock = max(0, $stock);
+            if (array_filter($_POST, static fn ($valor) => !is_scalar($valor)) !== []) {
+                $this->flash('Los datos de la variante no son válidos.', true);
+                header('Location: ' . $volver);
+                exit;
+            }
+            $nombre = trim((string) ($_POST['nombre_variante'] ?? ''));
+            $extra = is_numeric($_POST['precio_extra'] ?? 0) ? (float) ($_POST['precio_extra'] ?? 0) : -1;
+            $stock = $this->stockFormulario($_POST['stock'] ?? 0);
+            $color  = trim((string) ($_POST['color'] ?? ''));
+            $activo = isset($_POST['activo']) ? 1 : 0;
+
+            if ($nombre === '' || mb_strlen($nombre) > 120) {
+                $this->flash('El nombre de la variante es obligatorio y no puede superar los 120 caracteres.', true);
+                header('Location: ' . $volver);
+                exit;
+            }
+            if ($stock === null || !is_finite($extra) || $extra < 0 || $extra > 99999999.99) {
+                $this->flash('Revisa el precio extra y el stock entero entre 0 y 9 999 999.', true);
+                header('Location: ' . $volver);
+                exit;
+            }
             if ($color !== '' && !preg_match('/^#[0-9A-Fa-f]{3}(?:[0-9A-Fa-f]{3})?$/', $color)) {
                 $this->flash('El color debe ser hexadecimal, por ejemplo #00D4FF.', true);
                 header('Location: ' . $volver);
@@ -1841,39 +2005,70 @@ final class AdminController
             }
 
             try {
-                if ($id > 0) {
-                    $actual = \Model\ProductoVariante::porId($id);
-                    if ($actual === null || (int) $actual['productoId'] !== (int) $producto['id']) {
-                        $this->flash('Esa variante no pertenece a este producto.', true);
-                        header('Location: ' . $volver);
-                        exit;
+                $pdo->beginTransaction();
+                // Mismo orden que las ventas y los ajustes: producto, luego variante.
+                $producto = $this->bloquearProducto($pdo, $slug);
+                $productoId = (int) $producto['id'];
+                $esEdicion = $id > 0;
+                if ($esEdicion) {
+                    $qActual = $pdo->prepare('SELECT stock FROM producto_variantes WHERE id = ? AND producto_id = ? FOR UPDATE');
+                    $qActual->execute([$id, $productoId]);
+                    $stockActual = $qActual->fetchColumn();
+                    if ($stockActual === false) {
+                        throw new \RuntimeException('Esa variante no pertenece a este producto.');
                     }
-                    $pdo->prepare(
-                        'UPDATE producto_variantes
-                            SET nombre_variante = ?, precio_extra = ?, stock = ?, color = ?, activo = ?
-                          WHERE id = ?'
-                    )->execute([$nombre, $extra, $stock, $color, $activo, $id]);
-                    $this->auditar($admin, 'variantes/editar', $id, 'Editó la variante "' . $nombre . '"');
-                } else {
-                    if (\Model\ProductoVariante::existe((int) $producto['id'], $nombre)) {
-                        $this->flash('Ya existe una variante con ese nombre en este producto.', true);
-                        header('Location: ' . $volver);
-                        exit;
+                    if ((int) $stockActual !== $stockOriginal) {
+                        throw new \RuntimeException(self::ERROR_STOCK_CAMBIADO);
                     }
-                    $pdo->prepare(
+                }
+                if (\Model\ProductoVariante::existe($productoId, $nombre, $id)) {
+                    throw new \RuntimeException('Ya existe una variante con ese nombre en este producto.');
+                }
+                if (!$esEdicion) {
+                    $stockOriginal = 0;
+                    $nueva = $pdo->prepare(
                         'INSERT INTO producto_variantes
                             (producto_id, nombre_variante, precio_extra, stock, color, activo)
-                         VALUES (?, ?, ?, ?, ?, ?)'
-                    )->execute([(int) $producto['id'], $nombre, $extra, $stock, $color, $activo]);
-                    $this->auditar(
-                        $admin,
-                        'variantes/crear',
-                        (int) $pdo->lastInsertId(),
-                        'Creó la variante "' . $nombre . '"'
+                         VALUES (?, ?, ?, 0, ?, ?) RETURNING id'
                     );
+                    $nueva->execute([$productoId, $nombre, $extra, $color, $activo]);
+                    $id = (int) $nueva->fetchColumn();
                 }
-            } catch (\PDOException) {
-                $this->flash('No se pudo guardar la variante (¿nombre duplicado?).', true);
+
+                $delta = $stock - $stockOriginal;
+                if ($delta !== 0) {
+                    $errorStock = \Model\Inventario::ajustar(
+                        $pdo,
+                        $productoId,
+                        $id,
+                        $delta > 0 ? 'entrada' : 'salida',
+                        abs($delta),
+                        'Stock de variante desde el panel'
+                    );
+                    if ($errorStock !== null) {
+                        throw new \RuntimeException($errorStock);
+                    }
+                }
+                $pdo->prepare(
+                    'UPDATE producto_variantes SET nombre_variante = ?, precio_extra = ?, color = ?, activo = ?
+                      WHERE id = ? AND producto_id = ?'
+                )->execute([$nombre, $extra, $color, $activo, $id, $productoId]);
+                $this->auditar(
+                    $admin,
+                    $esEdicion ? 'variantes/editar' : 'variantes/crear',
+                    $id,
+                    ($esEdicion ? 'Editó' : 'Creó') . ' la variante "' . $nombre . '"'
+                );
+                $pdo->commit();
+            } catch (\Throwable $e) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                if (get_class($e) !== \RuntimeException::class) {
+                    error_log('AdminController::variantes/guardar — ' . $e->getMessage());
+                }
+                $this->flash(get_class($e) === \RuntimeException::class
+                    ? $e->getMessage() : 'No se pudo guardar la variante. Revisa los datos e inténtalo de nuevo.', true);
             }
             header('Location: ' . $volver);
             exit;

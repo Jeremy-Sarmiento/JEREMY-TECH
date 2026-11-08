@@ -66,9 +66,9 @@ $imagenActual = !empty($formulario['imagen_db']) && $slugEditar !== ''
              value="<?= $e($valor('modelo')) ?>" placeholder="Ej. Life Q30"/>
      </div>
      <div class="form-group">
-      <label for="productoSku">SKU (código único)</label>
-      <input id="productoSku" type="text" name="codigo_sku" maxlength="60"
-             value="<?= $e($valor('codigo_sku')) ?>" placeholder="Ej. SND-Q30-BLK"/>
+       <label for="productoSku">SKU automático</label>
+       <input id="productoSku" type="text" readonly
+              value="<?= $e($producto['codigo_sku'] ?? '') ?>" placeholder="Se asigna al guardar (JT-...)"/>
      </div>
     </div>
 

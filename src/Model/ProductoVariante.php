@@ -38,6 +38,39 @@ class ProductoVariante
     }
 
     /**
+     * Variantes activas de varios productos en una sola consulta.
+     *
+     * @param array<int, int> $productoIds
+     * @return array<int, array<int, array<string, mixed>>> productoId => variantes
+     */
+    public static function deProductos(array $productoIds): array
+    {
+        $ids = array_values(array_unique(array_filter(
+            array_map('intval', $productoIds),
+            static fn (int $id): bool => $id > 0
+        )));
+        if ($ids === []) {
+            return [];
+        }
+
+        $marcas = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = conexion()->prepare(
+            'SELECT id, producto_id, nombre_variante, precio_extra, stock, color
+               FROM producto_variantes
+              WHERE producto_id IN (' . $marcas . ') AND activo = 1
+              ORDER BY nombre_variante'
+        );
+        $stmt->execute($ids);
+
+        $mapa = [];
+        foreach ($stmt->fetchAll() as $fila) {
+            $variante = self::hidratar($fila);
+            $mapa[$variante['productoId']][] = $variante;
+        }
+        return $mapa;
+    }
+
+    /**
      * Todas las variantes de un producto (para el panel: incluye inactivas).
      *
      * @return array<int, array<string, mixed>>

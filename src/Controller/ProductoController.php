@@ -52,6 +52,10 @@ class ProductoController
         // al vendedor indicado en la URL.
         $q = isset($_GET['q']) && is_scalar($_GET['q']) ? trim((string) $_GET['q']) : '';
         $q = mb_substr($q, 0, 100);
+        $grids = Producto::grids();
+        // Las claves numéricas de PHP se vuelven enteros; los filtros y la
+        // cabecera comparan los nombres como texto.
+        $categoriasDisponibles = array_map('strval', array_keys($grids));
 
         // Filtros del catálogo (Bloque 4). Se validan aquí para que una URL
         // manipulada no llegue al modelo con valores fuera de rango.
@@ -59,7 +63,7 @@ class ProductoController
             ? trim((string) $_GET['categoria']) : '';
         if ($categoria !== '') {
             $categoriaCanonica = null;
-            foreach (array_keys(Producto::GRIDS) as $categoriaValida) {
+            foreach ($categoriasDisponibles as $categoriaValida) {
                 if (mb_strtolower($categoriaValida) === mb_strtolower($categoria)) {
                     $categoriaCanonica = $categoriaValida;
                     break;
@@ -131,8 +135,6 @@ class ProductoController
             JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
             | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
         ) ?: '[]';
-        $grids = Producto::GRIDS;
-        $categoriasDisponibles = array_keys(Producto::GRIDS);
         $ordenesDisponibles = self::ORDENES;
 
         // (Etapa 7) "desde S/ x" en la tarjeta: un único mapa para todo el
@@ -230,7 +232,7 @@ class ProductoController
 
         // Un slug inexistente o un producto dado de baja no tiene ficha:
         // se vuelve al catálogo en lugar de servir una página rota.
-        if ($producto === null || (int) $producto['activo'] !== 1 || !empty($producto['archivado'])) {
+        if ($producto === null || !Producto::disponibleParaVenta($producto)) {
             header('Location: ?ruta=catalogo');
             exit;
         }
@@ -291,6 +293,10 @@ class ProductoController
         // de marca y cercanía de precio. Grupos de una sola variante para el
         // partial de tarjeta.
         $recomendados = Producto::recomendados((int) $producto['id'], 4);
+
+        // Otras configuraciones del mismo producto (mismo nombre, distinta capacidad)
+        // para mostrar en la columna de información.
+        $otrasConfiguraciones = Producto::otrasConfiguraciones((int) $producto['id']);
 
         // (Fase 2) Mapa de valoraciones de cada producto recomendado (mismo
         // lookup que el catálogo): la tarjeta busca la nota por id de variante.
