@@ -63,6 +63,17 @@ docker/         Dockerfile, Apache, PHP y entrypoint
 - Panel de administración (usuarios, pedidos, cupones, configuración, auditoría)
 - Tickets de soporte, reseñas y notificaciones simuladas
 
+## Despliegue en Render (resumen)
+
+1. Crear proyecto en Supabase y copiar la cadena **Session pooler**.
+2. En Render: **New > Web Service**, elegir este repositorio y la rama `postgresql`.
+3. En **Runtime** selecciona **Docker**.
+4. Define las variables de entorno:
+   - `DATABASE_URL` con la cadena de Supabase.
+   - `APP_URL=https://<tu-servicio>.onrender.com`
+
+La base de datos vive en Supabase; el disco del contenedor es efímero.
+
 ## Seguridad
 
 - El archivo `.env` no se sube al repositorio.
