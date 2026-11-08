@@ -2280,39 +2280,29 @@ section h2::after {
 }
 
 .auth-wrapper {
-  display: grid;
-  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
-  align-items: stretch;
-  max-width: 1060px;
+  max-width: 440px;
   margin: 0 auto;
-  background: var(--jt-ink-850);
-  border: 1px solid var(--jt-line);
-  border-radius: var(--radio-lg);
-  box-shadow: var(--sombra-2);
-  overflow: hidden;
+  padding: 0 clamp(14px, 3vw, 40px);
 }
 
 .auth-wrapper::before {
-  content: '';
-  display: block;
-  border-right: 1px solid var(--jt-line);
-  background: linear-gradient(135deg, var(--jt-ink-950) 0%, var(--jt-ink-800) 100%),
-    url('../img/logo.svg') center / 62% auto no-repeat;
+  display: none;
 }
 
 .auth-card {
+  text-align: center;
   width: 100%;
   max-width: none;
-  margin: 0;
+  margin: 0 auto;
   padding: clamp(24px, 4vw, 44px);
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
+  background: var(--jt-superficie-1);
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-lg);
+  box-shadow: var(--sombra-2);
 }
 
 .auth-head {
-  text-align: left;
+  text-align: center;
 }
 
 .auth-head h1 {
@@ -4011,8 +4001,8 @@ section h2::after {
   }
 
   .auth-wrapper {
-    grid-template-columns: minmax(0, 1fr);
-    max-width: 620px;
+    max-width: 100%;
+    padding: 0 14px;
   }
 
   .auth-wrapper::before {
