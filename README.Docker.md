@@ -68,32 +68,55 @@ PGPASSWORD=admin psql -h 127.0.0.1 -p 5433 -U postgres -d jeremy_tech
 
 La app no cambia: sigue usando `DB_HOST=db` y `DB_PORT=5432`.
 
-## Base de datos: volumen e importación
+## Base de datos (PostgreSQL)
 
-El compose declara el volumen `jeremy-tech-pg-data` como **externo**, por lo que debe crearse **antes** de levantar los servicios.
+El servicio `db` usa un volumen externo llamado `jeremy-tech-pg-data`. Debes crearlo **antes** de levantar la base de datos.
 
-### Paso 1 — Crear el volumen y levantar la base de datos
+### 1. Crear el volumen de la base de datos
 
 ```bash
 docker volume create jeremy-tech-pg-data
+```
+
+### 2. Levantar solo el servicio de base de datos
+
+```bash
 docker compose up -d db
 ```
 
-### Paso 2 — Importar estructura y datos
+Espera a que esté sano:
+
+```bash
+docker compose ps db
+```
+
+### 3. Importar la estructura de la base
+
+Copia el archivo SQL al contenedor y ejecútalo:
 
 ```bash
 docker cp database/jeremy_tech_estructura.sql jeremy-tech-db:/tmp/estructura.sql
-docker cp database/jeremy_tech_datos.sql jeremy-tech-db:/tmp/datos.sql
-
 docker exec jeremy-tech-db psql -X -v ON_ERROR_STOP=1 -U postgres -d jeremy_tech -f /tmp/estructura.sql
+```
+
+### 4. Importar los datos
+
+```bash
+docker cp database/jeremy_tech_datos.sql jeremy-tech-db:/tmp/datos.sql
 docker exec jeremy-tech-db psql -X -v ON_ERROR_STOP=1 -U postgres -d jeremy_tech -f /tmp/datos.sql
 ```
 
-> Si la importación de datos falla con `value too long for type character varying(500)` en la tabla `notificaciones`, ejecuta:
+### 5. Verificar que todo se importó
+
+```bash
+docker exec jeremy-tech-db psql -U postgres -d jeremy_tech -c "\dt"
+```
+
+> **Nota:** si al importar los datos aparece el error `value too long for type character varying(500)` en la tabla `notificaciones`, ejecuta:
 > ```bash
 > docker exec jeremy-tech-db psql -U postgres -d jeremy_tech -c "ALTER TABLE notificaciones ALTER COLUMN cuerpo TYPE text;"
 > ```
-> y vuelve a lanzar el import de `jeremy_tech_datos.sql`.
+> y vuelve a lanzar el comando del paso 4.
 
 ## Parar y limpiar
 
