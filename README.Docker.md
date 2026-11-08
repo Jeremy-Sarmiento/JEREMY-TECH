@@ -10,28 +10,7 @@ App Jeremy Tech + PostgreSQL 16 con Docker Compose.
 
 ## Despliegue
 
-1. Preparar el entorno:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-2. Construir y levantar:
-
-   ```bash
-   docker compose up -d --build
-   ```
-
-3. Verificar:
-
-   ```bash
-   docker compose ps
-   curl -I http://localhost:8080/
-   ```
-
-## Base de datos (PostgreSQL)
-
-El servicio `db` usa un volumen externo llamado `jeremy-tech-pg-data`. Debes crearlo **antes** de levantar la base de datos.
+El servicio de base de datos usa un volumen externo llamado `jeremy-tech-pg-data`. Debes crearlo **antes** de levantar los contenedores.
 
 ### 1. Crear el volumen de la base de datos
 
@@ -39,45 +18,40 @@ El servicio `db` usa un volumen externo llamado `jeremy-tech-pg-data`. Debes cre
 docker volume create jeremy-tech-pg-data
 ```
 
-### 2. Levantar solo el servicio de base de datos
+### 2. Preparar el entorno
 
 ```bash
-docker compose up -d db
+cp .env.example .env
 ```
 
-Espera a que esté sano:
+### 3. Construir y levantar los servicios
 
 ```bash
-docker compose ps db
+docker compose up -d --build
 ```
 
-### 3. Importar la estructura de la base
-
-Copia el archivo SQL al contenedor y ejecútalo:
+### 4. Importar estructura y datos de la base de datos
 
 ```bash
 docker cp database/jeremy_tech_estructura.sql jeremy-tech-db:/tmp/estructura.sql
-docker exec jeremy-tech-db psql -X -v ON_ERROR_STOP=1 -U postgres -d jeremy_tech -f /tmp/estructura.sql
-```
-
-### 4. Importar los datos
-
-```bash
 docker cp database/jeremy_tech_datos.sql jeremy-tech-db:/tmp/datos.sql
+
+docker exec jeremy-tech-db psql -X -v ON_ERROR_STOP=1 -U postgres -d jeremy_tech -f /tmp/estructura.sql
 docker exec jeremy-tech-db psql -X -v ON_ERROR_STOP=1 -U postgres -d jeremy_tech -f /tmp/datos.sql
 ```
 
-### 5. Verificar que todo se importó
+### 5. Verificar
 
 ```bash
-docker exec jeremy-tech-db psql -U postgres -d jeremy_tech -c "\dt"
+docker compose ps
+curl -I http://localhost:8080/
 ```
 
 > **Nota:** si al importar los datos aparece el error `value too long for type character varying(500)` en la tabla `notificaciones`, ejecuta:
 > ```bash
 > docker exec jeremy-tech-db psql -U postgres -d jeremy_tech -c "ALTER TABLE notificaciones ALTER COLUMN cuerpo TYPE text;"
 > ```
-> y vuelve a lanzar el comando del paso 4.
+> y vuelve a lanzar el comando de importación de datos.
 
 ## Parar y limpiar
 
