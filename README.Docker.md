@@ -68,6 +68,31 @@ PGPASSWORD=admin psql -h 127.0.0.1 -p 5433 -U postgres -d jeremy_tech
 
 La app no cambia: sigue usando `DB_HOST=db` y `DB_PORT=5432`.
 
+## Volumen de base de datos e importación de datos
+
+El compose declara el volumen `jeremy-tech-pg-data` como **externo**, por lo que debe crearse antes de levantar los servicios.
+
+```bash
+docker volume create jeremy-tech-pg-data
+docker compose up -d db
+```
+
+Para importar la estructura y los datos desde la carpeta `database/`:
+
+```bash
+docker cp database/jeremy_tech_estructura.sql jeremy-tech-db:/tmp/estructura.sql
+docker cp database/jeremy_tech_datos.sql jeremy-tech-db:/tmp/datos.sql
+
+docker exec jeremy-tech-db psql -X -v ON_ERROR_STOP=1 -U postgres -d jeremy_tech -f /tmp/estructura.sql
+docker exec jeremy-tech-db psql -X -v ON_ERROR_STOP=1 -U postgres -d jeremy_tech -f /tmp/datos.sql
+```
+
+> Si la importación de datos falla con `value too long for type character varying(500)` en la tabla `notificaciones`, ejecuta:
+> ```bash
+> docker exec jeremy-tech-db psql -U postgres -d jeremy_tech -c "ALTER TABLE notificaciones ALTER COLUMN cuerpo TYPE text;"
+> ```
+> y vuelve a lanzar el import de `jeremy_tech_datos.sql`.
+
 ## Parar y limpiar
 
 ```bash
