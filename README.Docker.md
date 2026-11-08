@@ -68,16 +68,18 @@ PGPASSWORD=admin psql -h 127.0.0.1 -p 5433 -U postgres -d jeremy_tech
 
 La app no cambia: sigue usando `DB_HOST=db` y `DB_PORT=5432`.
 
-## Volumen de base de datos e importación de datos
+## Base de datos: volumen e importación
 
-El compose declara el volumen `jeremy-tech-pg-data` como **externo**, por lo que debe crearse antes de levantar los servicios.
+El compose declara el volumen `jeremy-tech-pg-data` como **externo**, por lo que debe crearse **antes** de levantar los servicios.
+
+### Paso 1 — Crear el volumen y levantar la base de datos
 
 ```bash
 docker volume create jeremy-tech-pg-data
 docker compose up -d db
 ```
 
-Para importar la estructura y los datos desde la carpeta `database/`:
+### Paso 2 — Importar estructura y datos
 
 ```bash
 docker cp database/jeremy_tech_estructura.sql jeremy-tech-db:/tmp/estructura.sql
