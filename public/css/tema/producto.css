@@ -1,0 +1,421 @@
+/* ---------------------------------------------------------------------------
+   9. Ficha de producto
+   ------------------------------------------------------------------------ */
+.producto-detalle {
+  max-width: 1240px;
+  padding: clamp(22px, 4vw, 44px) clamp(16px, 3vw, 32px) clamp(48px, 6vw, 80px);
+}
+
+/* El chrome de barra pertenece solo a la navegacion principal. Estas subnavs
+   heredaban de la hoja base el sticky, el fondo y el space-between. */
+.migas,
+.cuenta-nav,
+.catalogo-paginacion,
+.pedidos-filtros,
+.pv-filtros {
+  position: static;
+  z-index: auto;
+  top: auto;
+  min-height: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  justify-content: flex-start;
+}
+
+.catalogo-paginacion {
+  justify-content: center;
+  gap: 6px;
+}
+
+.migas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 20px;
+  padding: 0;
+  background: none;
+  border: 0;
+  font-size: 12.5px;
+  color: var(--jt-texto-3);
+}
+
+.migas a {
+  color: var(--jt-texto-3);
+}
+
+.migas a:hover {
+  color: var(--jt-acento);
+}
+
+.migas strong {
+  color: var(--jt-texto-2);
+  font-weight: 600;
+}
+
+.producto-cuerpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(22px, 3.5vw, 48px);
+  align-items: start;
+}
+
+.producto-galeria {
+  position: sticky;
+  top: calc(var(--nav-height) + 20px);
+  background: radial-gradient(120% 80% at 50% 0%, var(--jt-superficie-3) 0%, var(--jt-superficie-1) 72%);
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-lg);
+  padding: 22px;
+  overflow: hidden;
+}
+
+.producto-galeria img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  border-radius: var(--radio-sm);
+}
+
+.producto-nombre {
+  margin: 0 0 10px;
+  font-size: clamp(1.6rem, 3vw, 2.35rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+  color: var(--jt-texto);
+}
+
+.producto-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0 0 14px;
+  font-size: 12.5px;
+  color: var(--jt-texto-3);
+}
+
+.producto-vendedor a {
+  color: var(--jt-texto-2);
+  text-decoration: none;
+}
+
+.producto-vendedor a:hover {
+  color: var(--jt-acento);
+}
+
+.producto-vendedor-rating strong {
+  color: var(--jt-alerta);
+}
+
+.producto-precio {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 8px;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--jt-line);
+}
+
+.producto-precio .price {
+  font-family: var(--fuente-mono);
+  font-size: clamp(1.6rem, 3vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--jt-texto);
+}
+
+.producto-stock {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 18px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--jt-exito);
+}
+
+.producto-stock::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.producto-stock.agotado {
+  color: var(--jt-error);
+}
+
+.producto-bloque {
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--jt-line);
+}
+
+.producto-otras-configs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.otra-config {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-sm);
+  background: var(--jt-superficie-1);
+  color: var(--jt-texto-2);
+  font-size: 13px;
+  text-decoration: none;
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+}
+
+.otra-config:hover {
+  border-color: var(--jt-acento);
+  background: var(--jt-acento-suave);
+  color: var(--jt-texto);
+}
+
+.otra-config-espec {
+  font-weight: 500;
+}
+
+.otra-config-precio {
+  font-family: var(--fuente-mono);
+  font-weight: 600;
+  color: var(--jt-texto);
+}
+
+.producto-subtitulo {
+  margin: 0 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--jt-texto-3);
+}
+
+.producto-descripcion {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--jt-texto-2);
+}
+
+.producto-variantes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.variante-opcion {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-sm);
+  background: var(--jt-superficie-1);
+  color: var(--jt-texto-2);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+}
+
+.variante-opcion:hover {
+  border-color: var(--jt-line-fuerte);
+  color: var(--jt-texto);
+}
+
+.variante-opcion.activa {
+  border-color: var(--jt-acento);
+  background: var(--jt-acento-suave);
+  color: var(--jt-texto);
+  box-shadow: inset 0 0 0 1px var(--jt-acento);
+}
+
+.variante-opcion small {
+  color: var(--jt-texto-3);
+  font-weight: 500;
+}
+
+.variante-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+.tabla-volumen,
+.tabla-ficha {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: var(--jt-superficie-1);
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-sm);
+  overflow: hidden;
+}
+
+.tabla-volumen th,
+.tabla-volumen td,
+.tabla-ficha th,
+.tabla-ficha td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--jt-line);
+  text-align: left;
+}
+
+.tabla-volumen th,
+.tabla-ficha th {
+  color: var(--jt-texto-3);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.tabla-volumen td,
+.tabla-ficha td {
+  color: var(--jt-texto-2);
+}
+
+.tabla-volumen tr:last-child td,
+.tabla-ficha tr:last-child td,
+.tabla-ficha tr:last-child th {
+  border-bottom: 0;
+}
+
+.tabla-volumen tr.activa {
+  background: var(--jt-acento-suave);
+}
+
+.tabla-volumen tr.activa td {
+  color: var(--jt-texto);
+  font-weight: 600;
+}
+
+.producto-colores {
+  color: var(--jt-texto-3);
+  font-size: 12.5px;
+}
+
+.producto-cantidad {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-sm);
+  overflow: hidden;
+  background: var(--jt-superficie-1);
+}
+
+.qty-btn {
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: 0;
+  color: var(--jt-texto-2);
+  font-size: 16px;
+  cursor: pointer;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.qty-btn:hover {
+  background: var(--jt-superficie-3);
+  color: var(--jt-texto);
+}
+
+.qty-val {
+  width: 46px;
+  height: 40px;
+  border: 0;
+  border-left: 1px solid var(--jt-line);
+  border-right: 1px solid var(--jt-line);
+  background: transparent;
+  color: var(--jt-texto);
+  font-family: var(--fuente-mono);
+  font-size: 14px;
+  text-align: center;
+}
+
+.producto-acciones {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.producto-agregar,
+.btn-pagar-ahora {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 22px;
+  border: 1px solid var(--jt-acento);
+  border-radius: var(--radio-sm);
+  background: var(--jt-acento);
+  color: var(--jt-acento-tinta);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease),
+    opacity var(--dur) var(--ease);
+}
+
+.producto-agregar {
+  flex: 1;
+  min-width: 210px;
+}
+
+.producto-agregar:hover,
+.btn-pagar-ahora:hover {
+  background: #55e4f6;
+  border-color: #55e4f6;
+  box-shadow: none;
+}
+
+.producto-agregar:disabled,
+.btn-pagar-ahora:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.favorito-detalle-btn {
+  min-height: 46px;
+  padding: 0 18px;
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-sm);
+  background: transparent;
+  color: var(--jt-texto-2);
+  font-family: var(--fuente);
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+}
+
+.favorito-detalle-btn:hover {
+  background: var(--jt-superficie-2);
+  border-color: var(--jt-line-fuerte);
+  color: var(--jt-texto);
+}
+
+.favorito-detalle-btn.activo {
+  background: var(--jt-error-suave);
+  border-color: rgba(255, 122, 122, 0.5);
+  color: var(--jt-error);
+}
+

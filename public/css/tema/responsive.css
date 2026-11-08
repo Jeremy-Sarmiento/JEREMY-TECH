@@ -1,0 +1,409 @@
+/* ---------------------------------------------------------------------------
+   18. Botones flotantes y avisos
+   ------------------------------------------------------------------------ */
+.btn-inicio-flotante {
+  width: 44px;
+  height: 44px;
+  background: var(--jt-superficie-2);
+  border: 1px solid var(--jt-line-fuerte);
+  color: var(--jt-texto);
+  box-shadow: var(--sombra-2);
+  font-size: 1rem;
+}
+
+.btn-inicio-flotante::before {
+  font-size: 1.15rem;
+}
+
+.btn-inicio-flotante:hover {
+  background: var(--jt-acento);
+  border-color: var(--jt-acento);
+  color: var(--jt-acento-tinta);
+  transform: translateY(-2px);
+}
+
+.cuenta-toast {
+  background: var(--jt-superficie-2);
+  border: 1px solid var(--jt-line-fuerte);
+  border-radius: var(--radio-sm);
+  color: var(--jt-texto);
+  box-shadow: var(--sombra-3);
+}
+
+.cuenta-toast-ok {
+  border-color: rgba(67, 217, 160, 0.4);
+}
+
+.cuenta-toast-error {
+  border-color: rgba(255, 122, 122, 0.4);
+}
+
+.coupon-tag-msg {
+  border-radius: var(--radio-xs);
+  font-size: 11.5px;
+}
+
+/* ---------------------------------------------------------------------------
+   19. Responsive
+   Móvil primero ya está cubierto por la base; aquí solo se ajusta lo nuevo.
+   ------------------------------------------------------------------------ */
+@media (max-width: 1280px) {
+  nav[aria-label="Navegación principal"] {
+    padding-left: calc(14px + env(safe-area-inset-left, 0px));
+    padding-right: calc(14px + env(safe-area-inset-right, 0px));
+    gap: 12px;
+  }
+
+  .nav-main-links {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 6px;
+    background: var(--jt-ink-950);
+    border-top: 1px solid var(--jt-line);
+    border-bottom: 1px solid var(--jt-line);
+    box-shadow: var(--sombra-3);
+    max-height: 0;
+    overflow: hidden;
+  }
+
+  .nav-main-links.open {
+    display: flex;
+    max-height: min(560px, calc(100dvh - var(--nav-height) - 16px));
+    overflow-y: auto;
+  }
+
+  .nav-main-links > a {
+    padding: 12px 14px;
+    border-radius: var(--radio-xs);
+    font-size: 12px;
+  }
+
+  .nav-main-links > a::before {
+    display: none;
+  }
+
+  .nav-main-links > a:hover {
+    background: var(--jt-superficie-2);
+  }
+
+  /* Dentro del menú desplegable el formulario se apila a ancho completo. */
+  .filtros-nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px 8px 12px;
+  }
+
+  .filtros-nav .filtro-grupo,
+  .filtros-nav .filtro-grupo-orden {
+    flex: 1 1 auto;
+    width: auto;
+    max-width: none;
+  }
+
+  .filtros-nav .filtro-grupo select,
+  .filtros-nav .nav-search-field {
+    height: 40px;
+    font-size: 13.5px;
+  }
+
+  .filtros-nav .nav-search-field {
+    flex: 1 1 auto;
+    max-width: none;
+  }
+
+  .filtros-nav .btn-aplicar-filtros {
+    flex: 1 1 auto;
+    height: 42px;
+  }
+
+  .nav-actions {
+    flex: 1 1 auto;
+    justify-content: flex-end;
+    min-width: 0;
+  }
+
+  .nav-search-field {
+    flex: 1 1 auto;
+    max-width: none;
+  }
+
+  .nav-search-field input,
+  .nav-search-field input:focus {
+    width: 100%;
+  }
+}
+
+@media (max-width: 1080px) {
+  .catalogo-filtros {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filtro-acciones {
+    grid-column: 1 / -1;
+  }
+
+  .filtro-acciones > * {
+    flex: 1;
+  }
+
+  .producto-cuerpo {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .producto-galeria {
+    position: static;
+  }
+
+  .producto-galeria img {
+    aspect-ratio: 16 / 11;
+  }
+
+  .site-footer .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .auth-wrapper {
+    max-width: 100%;
+    padding: 0 14px;
+  }
+
+  .auth-wrapper::before {
+    display: none;
+  }
+
+  .perfil-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  header {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  /* La capa nueva fija altura y relleno de los botones; en tactil vuelven a
+     ser cuadrados de icono para que la barra no desborde. */
+  .nav-login-btn,
+  .nav-account-btn,
+  .nav-orders-btn,
+  .nav-cart-btn,
+  .nav-admin-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    gap: 0;
+    flex: 0 0 40px;
+    justify-content: center;
+  }
+
+  .nav-cart-btn {
+    position: relative;
+  }
+
+  header p {
+    display: none;
+  }
+
+  .logo-svg {
+    height: 28px;
+  }
+
+  .producto-precio .price {
+    font-size: 1.55rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr));
+    gap: 12px;
+  }
+
+  .card-media {
+    height: 168px;
+  }
+
+  .card .info {
+    padding: 13px 13px 15px;
+  }
+
+  .card h3 {
+    font-size: 14px;
+  }
+
+  .carousel {
+    height: clamp(280px, 44svh, 400px);
+  }
+
+  .carousel-overlay {
+    padding: 20px 18px 40px;
+  }
+
+  .carousel-overlay h2 {
+    max-width: 16ch;
+    font-size: clamp(1.5rem, 7vw, 2.1rem);
+  }
+
+  .carousel-overlay p {
+    font-size: 12.5px;
+  }
+
+  .carousel-controls {
+    display: none;
+  }
+
+  .carousel-indicators {
+    left: 18px;
+    bottom: 18px;
+  }
+
+  .catalogo-filtros {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 14px;
+  }
+
+  .site-footer .footer-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+  }
+
+  .pv-resumen,
+  .pv-ganancias {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cart-page-header h1 {
+    font-size: 1.35rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .nav-moneda,
+  .nav-orders-btn {
+    display: none;
+  }
+
+  .nav-search-field {
+    padding: 6px 11px;
+  }
+
+  nav[aria-label="Navegación principal"] {
+    gap: 8px;
+  }
+
+  .pv-resumen,
+  .pv-ganancias {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pv-panel-cabecera {
+    flex-direction: column;
+  }
+
+  .cuenta-nav {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+  }
+
+  .cuenta-nav-link {
+    flex: 0 0 auto;
+  }
+
+  .card-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-cart-add {
+    grid-column: auto;
+  }
+
+  .btn-ver-ficha,
+  .btn-whatsapp {
+    width: 100%;
+  }
+
+  .auth-page {
+    padding: 0;
+  }
+
+  .auth-wrapper {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .auth-card {
+    padding: 22px 16px 32px;
+  }
+
+  .auth-wrapper::before {
+    display: none;
+  }
+
+  .cart-page,
+  .producto-detalle,
+  .page-shell {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .success-actions > *,
+  .producto-acciones > * {
+    width: 100%;
+  }
+
+  .producto-agregar {
+    min-width: 0;
+  }
+}
+
+/* Áreas táctiles de 44px cuando el puntero es grueso. */
+@media (pointer: coarse) {
+  .nav-cart-btn,
+  .nav-orders-btn,
+  .nav-login-btn,
+  .nav-account-btn,
+  .nav-moneda-btn,
+  .btn-mini,
+  .paginacion-btn,
+  .paginacion-num,
+  .filtro-chip {
+    min-height: 44px;
+  }
+
+  .favorito-btn,
+  .cart-item-remove {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   20. Movimiento
+   Todo lo anterior se apaga si el sistema pide menos movimiento.
+   ------------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .card:hover,
+  .card:focus-within {
+    transform: none;
+  }
+}

@@ -1,0 +1,202 @@
+/* ============================================================
+   BÚSQUEDA Y SUGERENCIAS
+   ============================================================ */
+.nav-search-box {
+  position: relative;
+}
+
+.search-suggest {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: auto;
+  width: min(420px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  max-height: 360px;
+  overflow-y: auto;
+  background: #0F1923;
+  border: 1px solid rgba(0, 212, 255, 0.32);
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+  z-index: 250;
+  text-align: left;
+}
+.search-suggest[hidden] {
+  display: none;
+}
+.search-suggest a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: #E0E0E0;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+.search-suggest a:last-child {
+  border-bottom: none;
+}
+.search-suggest a:hover,
+.search-suggest a:focus {
+  background: rgba(0, 212, 255, 0.12);
+  text-decoration: none;
+}
+.suggest-info {
+  min-width: 0;
+  flex: 1;
+}
+.suggest-name {
+  display: block;
+  color: #FFFFFF;
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.suggest-meta {
+  display: block;
+  margin-top: 2px;
+  color: #8899AA;
+  font-size: 0.72rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.suggest-price {
+  flex-shrink: 0;
+  color: #00D4FF;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.search-suggest .search-suggest-all {
+  justify-content: center;
+  background: rgba(0, 212, 255, 0.07);
+  color: #00D4FF;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.search-suggest-empty {
+  padding: 14px;
+  color: #8899AA;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+a.btn-reset-search {
+  display: inline-block;
+  text-decoration: none;
+}
+.no-search-results .btn-reset-search {
+  display: inline-block;
+  text-decoration: none;
+}
+.search-suggest {
+  max-height: min(360px, calc(100dvh - var(--nav-height, 64px) - 24px));
+}
+
+@media (min-width: 1281px) and (max-width: 1440px) {
+  .nav-main-links a {
+    padding: 12px 10px;
+    font-size: 0.82rem;
+  }
+  .nav-actions {
+    gap: 8px;
+  }
+  .nav-search-box input {
+    width: 140px;
+  }
+  .nav-search-box input:focus {
+    width: 170px;
+  }
+}
+@media (max-width: 900px) {
+  .nav-admin-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    gap: 0;
+    justify-content: center;
+  }
+}
+@media (pointer: coarse) {
+  .nav-search-box input,
+  .form-group input,
+  .form-group select,
+  .cart-coupon-input-wrap input,
+  .qty-val {
+    font-size: 16px;
+  }
+  .cart-item-controls .qty-btn {
+    width: 40px;
+    height: 40px;
+  }
+  .cart-item-controls .qty-val {
+    width: 38px;
+    height: 40px;
+    font-size: 16px;
+  }
+  .cart-item-remove {
+    width: 32px;
+    height: 32px;
+  }
+  .producto-cantidad .qty-btn {
+    width: 44px;
+    height: 44px;
+  }
+  .producto-cantidad .qty-val {
+    height: 44px;
+  }
+  .indicator::before {
+    width: 18px;
+    height: 18px;
+  }
+  .btn-mini,
+  .btn-order-whatsapp,
+  .addr-btn {
+    min-height: 44px;
+  }
+}
+@media (hover: none) {
+  .card:hover {
+    transform: none;
+  }
+  .nav-login-btn:hover,
+  .nav-account-btn:hover,
+  .nav-orders-btn:hover,
+  .nav-cart-btn:hover,
+  .btn-cart-add:hover,
+  .btn-whatsapp:hover,
+  .btn-ver-ficha:hover,
+  .btn-reset-search:hover,
+  .btn-inicio-flotante:hover {
+    transform: none;
+  }
+  .card-carousel-btn {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+.btn-cart-add:active,
+.btn-whatsapp:active,
+.btn-ver-ficha:active,
+.nav-cart-btn:active,
+.nav-orders-btn:active {
+  transform: scale(0.98);
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+

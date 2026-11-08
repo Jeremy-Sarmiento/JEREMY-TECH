@@ -630,6 +630,14 @@ config/conexion.php Carga .env, autocarga PSR-4 y singleton PDO
 database/           jeremy_tech_estructura.sql (esquema) y jeremy_tech_datos.sql (datos)
 ```
 
+### CSS
+
+`public/css/` se divide en `base/`, `componentes/`, `paginas/` y `tema/`.
+El orden de carga está en `config/estilos.php` y lo comparten las cabeceras de
+tienda y administración mediante `views/partials/estilos.php`. Se conservan la
+cascada, los colores y las dependencias anteriores, sin compilador ni imports.
+Consulta el [mapa de estilos](public/css/README.md) antes de mover o eliminar reglas.
+
 ## Rutas
 
 Todas pasan por `?ruta=...` (`public/index.php`).

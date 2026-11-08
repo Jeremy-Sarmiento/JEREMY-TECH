@@ -1,0 +1,143 @@
+/* =============================================================================
+   JEREMY TECH · tema compartido
+   La carpeta tema/ se carga al final, en el orden de config/estilos.php.
+   Conserva los selectores y la precedencia de la antigua capa rediseno.css.
+   Primero variables y base; después los módulos; al final responsive y movimiento.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   1. Tokens
+   Primitivas (jt-*) y semánticas (rol). Ninguna vista debe usar un hex directo:
+   todo sale de aquí.
+   ------------------------------------------------------------------------ */
+:root {
+  /* Superficies, de más profunda a más elevada. */
+  --jt-ink-950: #070a0e;
+  --jt-ink-900: #0a0e14;
+  --jt-ink-850: #0e131a;
+  --jt-ink-800: #121821;
+  --jt-ink-750: #171f29;
+  --jt-ink-700: #1d2733;
+  --jt-line: #232d3a;
+  --jt-line-fuerte: #34414f;
+
+  /* Texto: 12.4:1, 9.4:1 y 5.5:1 sobre la superficie base. */
+  --jt-texto: #e9eff6;
+  --jt-texto-2: #a9b6c6;
+  --jt-texto-3: #7e8b9b;
+
+  /* Marca: un primario, un apoyo, un tono de tinta para texto sobre acento. */
+  --jt-acento: #2fd9f0;
+  --jt-acento-fuerte: #12a6c4;
+  --jt-acento-suave: rgba(47, 217, 240, 0.12);
+  --jt-acento-tinta: #04161c;
+
+  /* Estados. Siempre acompañados de texto o icono, nunca solo color. */
+  --jt-exito: #43d9a0;
+  --jt-exito-suave: rgba(67, 217, 160, 0.12);
+  --jt-alerta: #f2b544;
+  --jt-alerta-suave: rgba(242, 181, 68, 0.12);
+  --jt-error: #ff7a7a;
+  --jt-error-suave: rgba(255, 122, 122, 0.12);
+
+  --jt-superficie-1: var(--jt-ink-850);
+  --jt-superficie-2: var(--jt-ink-800);
+  --jt-superficie-3: var(--jt-ink-750);
+
+  /* Compatibilidad: el resto de hojas lee estas variables. */
+  --accent: var(--jt-acento);
+  --accent-strong: var(--jt-acento-fuerte);
+  --bg: var(--jt-ink-900);
+  --panel: var(--jt-superficie-1);
+  --panel-2: var(--jt-superficie-2);
+  --border: var(--jt-line);
+  --text: var(--jt-texto);
+  --text-soft: var(--jt-texto-2);
+  --text-muted: var(--jt-texto-3);
+
+  --nav-height: 56px;
+  --radio-xs: 6px;
+  --radio-sm: 9px;
+  --radio-md: 13px;
+  --radio-lg: 18px;
+  --radius-sm: var(--radio-sm);
+  --radius-md: var(--radio-md);
+  --radius-lg: var(--radio-lg);
+
+  --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sombra-2: 0 12px 32px -12px rgba(0, 0, 0, 0.7);
+  --sombra-3: 0 24px 60px -24px rgba(0, 0, 0, 0.85);
+
+  --fuente: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fuente-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  --dur: 160ms;
+  --ease: cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+/* ---------------------------------------------------------------------------
+   2. Base
+   ------------------------------------------------------------------------ */
+body {
+  font-family: var(--fuente);
+  background: var(--jt-ink-900);
+  color: var(--jt-texto);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--jt-acento);
+  color: var(--jt-acento-tinta);
+}
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--jt-acento);
+  outline-offset: 2px;
+  border-radius: var(--radio-xs);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--jt-line-fuerte) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--jt-line-fuerte);
+  border: 3px solid var(--jt-ink-900);
+  border-radius: 999px;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--fuente);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--jt-texto);
+}
+
+p, li {
+  line-height: 1.65;
+}
+
+input, select, textarea, button {
+  font-family: inherit;
+}
+
+/* Cifras alineadas en columnas: precios, stock, reportes. */
+.price,
+.pv-precio,
+.pv-stat-valor,
+.pv-ganancia-valor,
+.catalogo-total strong,
+.producto-precio .price,
+.cart-summary-row span,
+.order-card-total,
+.tabla-admin td,
+.pv-tabla td {
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,244 @@
+/* ---------------------------------------------------------------------------
+   17. Panel de administración
+   Un solo tema: el admin hereda la paleta de la tienda y su acento.
+   ------------------------------------------------------------------------ */
+:root {
+  --jt-bg: var(--jt-ink-950);
+  --jt-fondo-sidebar: var(--jt-ink-950);
+  --jt-surface: var(--jt-superficie-1);
+  --jt-surface-2: var(--jt-superficie-2);
+  --jt-surface-3: var(--jt-superficie-3);
+  --jt-border: var(--jt-line);
+  --jt-border-fuerte: var(--jt-line-fuerte);
+  --jt-texto: #e9eff6;
+  --jt-texto-2: #a9b6c6;
+  --jt-texto-3: #7e8b9b;
+  --jt-texto-4: #7e8b9b;
+  --jt-primario: var(--jt-acento);
+  --jt-primario-hover: #55e4f6;
+  --jt-primario-suave: var(--jt-acento-suave);
+  --jt-primario-anillo: var(--jt-acento-suave);
+  --jt-peligro: var(--jt-error);
+  --jt-ok: var(--jt-exito);
+  --jt-info: var(--jt-acento);
+  --jt-radio: var(--radio-md);
+  --jt-radio-sm: var(--radio-sm);
+  --jt-sombra: var(--sombra-1);
+}
+
+.body-admin-page {
+  background: var(--jt-ink-950);
+  color: var(--jt-texto);
+  font-family: var(--fuente);
+}
+
+.admin-shell {
+  background: var(--jt-ink-950);
+}
+
+.admin-sidebar {
+  background: var(--jt-ink-950);
+  border-right: 1px solid var(--jt-line);
+}
+
+.admin-logo-caja {
+  background: var(--jt-acento);
+  color: var(--jt-acento-tinta);
+  border-radius: var(--radio-sm);
+  font-weight: 800;
+}
+
+.admin-logo small {
+  color: var(--jt-texto-3);
+  letter-spacing: 0.12em;
+}
+
+/* Subnavegacion del panel: no es la barra del storefront. */
+.admin-nav {
+  position: static;
+  z-index: auto;
+  min-height: 0;
+  box-shadow: none;
+  background: none;
+  border: 0;
+}
+
+.admin-nav-grupo {
+  color: var(--jt-texto-3);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.admin-enlace {
+  border-radius: var(--radio-sm);
+  color: var(--jt-texto-2);
+  font-size: 13px;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.admin-enlace:hover {
+  background: var(--jt-superficie-2);
+  color: var(--jt-texto);
+}
+
+.admin-enlace-activo,
+.admin-enlace-activo:hover {
+  background: var(--jt-acento-suave);
+  color: var(--jt-acento);
+}
+
+.admin-enlace-salir {
+  color: var(--jt-error);
+}
+
+.admin-topbar {
+  background: var(--jt-ink-900);
+  border-bottom: 1px solid var(--jt-line);
+}
+
+.admin-migas {
+  font-size: 12.5px;
+  color: var(--jt-texto-3);
+}
+
+.admin-migas strong {
+  color: var(--jt-texto);
+}
+
+.admin-topbar-btn {
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-sm);
+  background: transparent;
+  color: var(--jt-texto-2);
+  font-size: 12.5px;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.admin-topbar-btn:hover {
+  background: var(--jt-superficie-2);
+  border-color: var(--jt-line-fuerte);
+  color: var(--jt-texto);
+}
+
+.admin-avatar {
+  background: var(--jt-superficie-2);
+  border: 1px solid var(--jt-line-fuerte);
+  color: var(--jt-texto);
+}
+
+.admin-titulo {
+  font-size: clamp(1.35rem, 2.2vw, 1.7rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--jt-texto);
+}
+
+.admin-nota {
+  color: var(--jt-texto-3);
+  font-size: 12.5px;
+}
+
+/* Métricas: sin la barra de color de un solo lado; la cifra manda. */
+.tarjeta {
+  background: var(--jt-superficie-1);
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-md);
+  box-shadow: none;
+  padding: 16px 18px;
+}
+
+.tarjeta::before {
+  display: none;
+}
+
+.tarjeta-numero {
+  font-family: var(--fuente-mono);
+  font-size: 25px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.tarjeta-etiqueta {
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: var(--jt-texto-3);
+}
+
+.tabla-admin {
+  background: var(--jt-superficie-1);
+  border-radius: var(--radio-sm);
+  overflow: hidden;
+}
+
+.tabla-admin th {
+  background: var(--jt-superficie-2);
+}
+
+.admin-vacio {
+  color: var(--jt-texto-3);
+}
+
+/* Selects del admin: mismo control nativo estilizado que en la tienda. */
+.admin-filtro select,
+.admin-inline-form select,
+.admin-formulario select,
+.admin-form-inline select,
+.tabla-admin select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 7px 34px 7px 11px;
+  background-color: var(--jt-superficie-2);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237e8b9b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-sm);
+  color: var(--jt-texto);
+  font-family: var(--fuente);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.admin-filtro select:focus,
+.admin-inline-form select:focus,
+.admin-formulario select:focus,
+.admin-form-inline select:focus,
+.tabla-admin select:focus {
+  outline: none;
+  border-color: var(--jt-acento);
+  box-shadow: 0 0 0 3px var(--jt-acento-suave);
+}
+
+/* Botones del admin: conservan sus clases, comparten forma. */
+.btn-admin,
+.btn-primario,
+.btn-secundario {
+  border-radius: var(--radio-sm);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.btn-primario {
+  background: var(--jt-acento);
+  border: 1px solid var(--jt-acento);
+  color: var(--jt-acento-tinta);
+}
+
+.btn-primario:hover {
+  background: #55e4f6;
+  border-color: #55e4f6;
+}
+
+.btn-secundario {
+  background: transparent;
+  border: 1px solid var(--jt-line-fuerte);
+  color: var(--jt-texto-2);
+}
+
+.btn-secundario:hover {
+  background: var(--jt-superficie-2);
+  color: var(--jt-texto);
+}
+

@@ -7,21 +7,15 @@ use PHPUnit\Framework\TestCase;
 
 final class EstilosPlanosTest extends TestCase
 {
-    /**
-     * Degradados permitidos en rediseno.css (intencionales, con propósito UX/marca):
-     * - .carousel-overlay: fade para legibilidad del texto sobre imagen hero
-     * - .card-media / .pv-card-media: profundidad sutil tras imagen de producto
-     * - .producto-galeria: profundidad sutil en ficha de producto
-     * - .virtual-card: identidad visual de tarjeta virtual
-     * - .auth-wrapper::before: panel de marca en login/registro
-     */
-    private static array $degradadosPermitidosRediseno = [
-        '.carousel-overlay'       => 'linear-gradient',
-        '.card-media'             => 'radial-gradient',
-        '.producto-galeria'       => 'radial-gradient',
-        '.virtual-card'           => 'linear-gradient',
-        '.auth-wrapper::before'   => 'linear-gradient',
-        '.pv-card-media'          => 'radial-gradient',
+    // Solo se permiten los degradados conservados en la capa de tema.
+    private const DEGRADADOS_PERMITIDOS = [
+        'tema/catalogo.css' => [
+            '.carousel-overlay' => 'linear-gradient',
+            '.card-media' => 'radial-gradient',
+        ],
+        'tema/producto.css' => ['.producto-galeria' => 'radial-gradient'],
+        'tema/compra.css' => ['.virtual-card' => 'linear-gradient'],
+        'tema/cuenta.css' => ['.pv-card-media' => 'radial-gradient'],
     ];
 
     #[DataProvider('hojasDeEstilo')]
@@ -30,8 +24,8 @@ final class EstilosPlanosTest extends TestCase
         $css = file_get_contents(__DIR__ . '/../../public/css/' . $archivo);
         $this->assertNotFalse($css);
 
-        if ($archivo === 'rediseno.css') {
-            $this->assertSoloDegradadosPermitidos($css);
+        if (isset(self::DEGRADADOS_PERMITIDOS[$archivo])) {
+            $this->assertSoloDegradadosPermitidos($css, $archivo);
         } else {
             $this->assertDoesNotMatchRegularExpression(
                 '/(?:repeating-)?(?:linear|radial|conic)-gradient\s*\(/i',
@@ -41,51 +35,62 @@ final class EstilosPlanosTest extends TestCase
         }
     }
 
-    private function assertSoloDegradadosPermitidos(string $css): void
+    private function assertSoloDegradadosPermitidos(string $css, string $archivo): void
     {
         $lineas = explode("\n", $css);
-        $selectoresPorLinea = [];
         $enRegla = '';
+        $inesperados = [];
 
-        // Primera pasada: para cada linea, guardar el selector de regla CSS activa
         foreach ($lineas as $num => $linea) {
             if (preg_match('/^\s*([.#][\w:.-]+[^{]*)\s*\{/', $linea, $m)) {
                 $enRegla = trim($m[1]);
             }
+            if (preg_match_all('/(?:repeating-)?(?:linear|radial|conic)-gradient\s*\(/i', $linea, $coincidencias)) {
+                foreach ($coincidencias[0] as $degradado) {
+                    $selector = $enRegla ?: '(linea ' . ($num + 1) . ')';
+                    $tipo = strtolower(trim(str_replace('(', '', $degradado)));
+                    if ((self::DEGRADADOS_PERMITIDOS[$archivo][$selector] ?? null) !== $tipo) {
+                        $inesperados[] = $selector . ': ' . $tipo;
+                    }
+                }
+            }
             if ($enRegla !== '' && trim($linea) === '}') {
                 $enRegla = '';
-            }
-            $selectoresPorLinea[$num] = $enRegla;
-        }
-
-        // Segunda pasada: verificar cada degradado
-        $inesperados = [];
-        foreach ($lineas as $num => $linea) {
-            if (!preg_match('/(?:repeating-)?(?:linear|radial|conic)-gradient\s*\(/i', $linea)) {
-                continue;
-            }
-            $selector = $selectoresPorLinea[$num] ?: '(linea ' . ($num + 1) . ')';
-            $permitido = self::$degradadosPermitidosRediseno[$selector] ?? null;
-            if ($permitido === null || !str_contains(strtolower($linea), strtolower($permitido))) {
-                $inesperados[$selector][] = trim($linea);
             }
         }
 
         $this->assertEmpty(
             $inesperados,
-            'Degradados no permitidos en rediseno.css: ' . json_encode($inesperados, JSON_UNESCAPED_UNICODE)
+            'Degradados no permitidos en ' . $archivo . ': ' . json_encode($inesperados, JSON_UNESCAPED_UNICODE)
         );
+    }
+
+    #[DataProvider('degradadosNoPermitidos')]
+    public function testComprobacionRechazaDegradadosFueraDelContrato(string $css): void
+    {
+        $this->expectException(\PHPUnit\Framework\AssertionFailedError::class);
+        $this->assertSoloDegradadosPermitidos($css, 'tema/catalogo.css');
+    }
+
+    public static function degradadosNoPermitidos(): array
+    {
+        return [
+            ['.otro { background: linear-gradient(red, blue); }'],
+            ['.card-media { background: repeating-radial-gradient(red, blue); }'],
+            ['.card-media { background: radial-gradient(red, blue), conic-gradient(red, blue); }'],
+        ];
     }
 
     public static function hojasDeEstilo(): array
     {
-        return [
-            ['styles.css'],
-            ['auth.css'],
-            ['cuenta.css'],
-            ['chat.css'],
-            ['admin.css'],
-            ['rediseno.css'],
-        ];
+        $directorio = __DIR__ . '/../../public/css/';
+        $hojas = [];
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directorio)) as $archivo) {
+            if ($archivo->isFile() && $archivo->getExtension() === 'css') {
+                $hojas[] = [substr($archivo->getPathname(), strlen($directorio))];
+            }
+        }
+        sort($hojas);
+        return $hojas;
     }
 }

@@ -1,0 +1,410 @@
+/* ---------------------------------------------------------------------------
+   3. Cabecera y navegación
+   Barra compacta en lugar del bloque centrado de 190 px.
+   ------------------------------------------------------------------------ */
+header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 14px clamp(16px, 3vw, 40px);
+  background: var(--jt-ink-950);
+  color: var(--jt-texto);
+  text-align: left;
+  border-bottom: 1px solid var(--jt-line);
+  box-shadow: none;
+  overflow: visible;
+}
+
+header::before {
+  display: none;
+}
+
+.logo-text {
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.logo-svg {
+  width: auto;
+  height: 34px;
+  margin: 0;
+  display: block;
+}
+
+.logo-link {
+  display: flex;
+  border-radius: 6px;
+}
+
+.logo-link:focus-visible {
+  outline: 2px solid var(--accent, #2fd9f0);
+  outline-offset: 4px;
+}
+
+header p {
+  position: static;
+  margin: 0;
+  max-width: 62ch;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--jt-texto-3);
+  opacity: 1;
+}
+
+header p a {
+  color: var(--jt-texto-2);
+  border-bottom: 1px solid var(--jt-line-fuerte);
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+header p a:hover {
+  color: var(--jt-acento);
+  border-bottom-color: var(--jt-acento);
+}
+
+nav[aria-label="Navegación principal"] {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 18px;
+  padding: 0 clamp(16px, 3vw, 40px);
+  min-height: var(--nav-height);
+  background: rgba(7, 10, 14, 0.92);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--jt-line);
+  box-shadow: none;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-main-links {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  gap: 2px;
+}
+
+.nav-main-links::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-main-links > a {
+  position: relative;
+  flex: 0 0 auto;
+  padding: 19px 9px;
+  color: var(--jt-texto-2);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: none;
+  transform: none;
+  transition: color var(--dur) var(--ease);
+}
+
+.nav-main-links > a::before {
+  content: '';
+  position: absolute;
+  left: 9px;
+  right: 9px;
+  bottom: 0;
+  width: auto;
+  height: 2px;
+  background: var(--jt-acento);
+  border-radius: 2px 2px 0 0;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur) var(--ease);
+}
+
+.nav-main-links > a:hover,
+.nav-main-links > a:focus-visible {
+  background: none;
+  color: var(--jt-texto);
+  transform: none;
+}
+
+.nav-main-links > a:hover::before,
+.nav-main-links > a:focus-visible::before {
+  width: auto;
+  transform: scaleX(1);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+.nav-hamburger {
+  border-radius: var(--radio-sm);
+}
+
+.nav-hamburger span {
+  background: var(--jt-texto);
+  height: 2px;
+}
+
+.nav-hamburger:hover {
+  background: var(--jt-superficie-2);
+}
+
+.nav-search-field {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 300px;
+  height: 34px;
+  padding: 0 12px;
+  background: var(--jt-superficie-1);
+  border: 1px solid var(--jt-line);
+  border-radius: 999px;
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+.nav-search-field:focus-within {
+  background: var(--jt-superficie-2);
+  border-color: var(--jt-acento);
+  box-shadow: 0 0 0 3px var(--jt-acento-suave);
+}
+
+.nav-search-field .search-icon {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  stroke: var(--jt-texto-3);
+}
+
+.nav-search-field:focus-within .search-icon {
+  stroke: var(--jt-acento);
+}
+
+.nav-search-field input {
+  appearance: none;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-family: var(--fuente);
+  font-size: 13px;
+  color: var(--jt-texto);
+}
+
+.nav-search-field input::placeholder {
+  color: var(--jt-texto-3);
+}
+
+.btn-clear-search {
+  color: var(--jt-texto-3);
+  font-size: 1.1rem;
+}
+
+.btn-clear-search:hover {
+  color: var(--jt-texto);
+}
+
+/* Botones de acción de la barra: misma altura y misma forma. */
+.nav-moneda-btn,
+.nav-orders-btn,
+.nav-login-btn,
+.nav-admin-btn,
+.nav-account-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--jt-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--jt-texto-2);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+}
+
+.nav-moneda-btn:hover,
+.nav-orders-btn:hover,
+.nav-login-btn:hover,
+.nav-account-btn:hover,
+.nav-admin-btn:hover {
+  background: var(--jt-superficie-2);
+  border-color: var(--jt-line-fuerte);
+  color: var(--jt-texto);
+  filter: none;
+}
+
+.nav-account-label {
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-icon {
+  width: 15px;
+  height: 15px;
+  stroke: currentColor;
+  fill: none;
+  flex: 0 0 auto;
+}
+
+.nav-cart-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 16px;
+  background: var(--jt-acento);
+  border: 1px solid var(--jt-acento);
+  border-radius: 999px;
+  color: var(--jt-acento-tinta);
+  font-family: var(--fuente);
+  font-size: 12.5px;
+  font-weight: 700;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.nav-cart-btn:hover {
+  background: #55e4f6;
+  border-color: #55e4f6;
+  color: var(--jt-acento-tinta);
+  transform: none;
+  box-shadow: none;
+}
+
+.nav-cart-btn svg {
+  stroke: currentColor;
+}
+
+.cart-badge {
+  background: var(--jt-acento-tinta);
+  color: var(--jt-acento);
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-family: var(--fuente-mono);
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 20px;
+  text-align: center;
+}
+
+.nav-cart-btn:hover .cart-badge {
+  background: var(--jt-acento-tinta);
+  color: var(--jt-acento);
+}
+
+.nav-admin-btn {
+  background: var(--jt-superficie-2);
+  border-color: var(--jt-line-fuerte);
+  color: var(--jt-texto);
+}
+
+/* Desplegables */
+.nav-moneda-dropdown,
+.nav-account-dropdown {
+  background: var(--jt-superficie-2);
+  border: 1px solid var(--jt-line-fuerte);
+  border-radius: var(--radio-md);
+  box-shadow: var(--sombra-3);
+  padding: 6px;
+  overflow: hidden;
+}
+
+.moneda-option {
+  border-radius: var(--radio-xs);
+  color: var(--jt-texto-2);
+  font-size: 13px;
+  padding: 9px 12px;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.moneda-option:hover {
+  background: var(--jt-superficie-3);
+  color: var(--jt-texto);
+}
+
+.moneda-option.active {
+  background: var(--jt-acento-suave);
+  color: var(--jt-acento);
+  font-weight: 600;
+}
+
+.nav-account-dropdown a,
+.nav-account-dropdown button {
+  border-radius: var(--radio-xs);
+  color: var(--jt-texto-2);
+  font-size: 13px;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.nav-account-dropdown a:hover,
+.nav-account-dropdown button:hover {
+  background: var(--jt-superficie-3);
+  color: var(--jt-texto);
+}
+
+.nav-account-name {
+  color: var(--jt-texto);
+  font-weight: 700;
+  border-bottom-color: var(--jt-line);
+}
+
+.nav-account-rol {
+  color: var(--jt-acento);
+  background: var(--jt-acento-suave);
+}
+
+/* Sugerencias de búsqueda */
+.search-suggest {
+  background: var(--jt-superficie-2);
+  border: 1px solid var(--jt-line-fuerte);
+  border-radius: var(--radio-md);
+  box-shadow: var(--sombra-3);
+  overflow: hidden;
+}
+
+.search-suggest a {
+  border-bottom: 1px solid var(--jt-line);
+  transition: background var(--dur) var(--ease);
+}
+
+.search-suggest a:hover,
+.search-suggest a:focus {
+  background: var(--jt-superficie-3);
+}
+
+.suggest-name {
+  color: var(--jt-texto);
+}
+
+.suggest-meta {
+  color: var(--jt-texto-3);
+}
+
+.suggest-price {
+  color: var(--jt-acento);
+  font-family: var(--fuente-mono);
+  font-size: 12.5px;
+}
+

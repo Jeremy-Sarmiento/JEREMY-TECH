@@ -1,0 +1,983 @@
+/* ====== CARRITO DRAWER ====== */
+.cart-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 15, 26, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 1100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.cart-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.cart-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(440px, 94vw);
+  height: 100vh;
+  background: #121C2A;
+  border-left: 1px solid rgba(0, 212, 255, 0.2);
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.7);
+  z-index: 1200;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+.cart-drawer.open {
+  transform: translateX(0);
+}
+.cart-header {
+  padding: 20px;
+  background: #0D1622;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cart-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cart-title svg {
+  stroke: #00D4FF;
+}
+.cart-title h3 {
+  color: #FFFFFF;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+}
+.cart-count-pill {
+  background: rgba(0, 212, 255, 0.18);
+  color: #00D4FF;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.btn-close-drawer {
+  background: transparent;
+  border: none;
+  color: #8899AA;
+  font-size: 1.8rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.2s;
+  padding: 0 4px;
+}
+.btn-close-drawer:hover {
+  color: #00D4FF;
+}
+.cart-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+.cart-empty-state {
+  text-align: center;
+  padding: 40px 10px;
+}
+.cart-empty-state .empty-icon {
+  font-size: 3.5rem;
+  margin-bottom: 15px;
+  opacity: 0.7;
+}
+.cart-empty-state h4 {
+  color: #FFFFFF;
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+.cart-empty-state p {
+  color: #8899AA;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.btn-explorar {
+  background: var(--accent);
+  color: #0A0F1A;
+  font-weight: 700;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
+  transition: all 0.3s ease;
+}
+.btn-explorar:hover {
+  transform: translateY(-2px);
+}
+.cart-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cart-item {
+  display: flex;
+  gap: 14px;
+  padding: 14px;
+  background: #1A273C;
+  border: 1px solid rgba(0, 212, 255, 0.12);
+  border-radius: 14px;
+  position: relative;
+  min-width: 0;
+  transition: border-color 0.2s;
+}
+.cart-item:hover {
+  border-color: rgba(0, 212, 255, 0.3);
+}
+.cart-item img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: #0A0F1A;
+  flex-shrink: 0;
+}
+.cart-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  padding-right: 40px;
+}
+.cart-item-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #E0E0E0;
+  margin-bottom: 3px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.cart-item-spec {
+  font-size: 0.78rem;
+  color: #8899AA;
+  margin-bottom: 6px;
+  overflow-wrap: anywhere;
+}
+.cart-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cart-item-price {
+  color: #00D4FF;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.cart-item-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cart-item-controls .qty-val {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.qty-btn {
+  width: 26px;
+  height: 26px;
+  background: rgba(0, 212, 255, 0.15);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  color: #00D4FF;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.qty-btn:hover {
+  background: #00D4FF;
+  color: #0A0F1A;
+}
+.qty-val {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  min-width: 18px;
+  text-align: center;
+}
+.btn-remove-item {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: #FF5577;
+  cursor: pointer;
+  font-size: 1rem;
+  opacity: 0.7;
+  transition: opacity 0.2s, transform 0.2s;
+  padding: 4px;
+}
+.btn-remove-item:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+.cart-item-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #FF5577;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  opacity: 0.75;
+  transition: opacity 0.2s, background 0.2s, transform 0.2s;
+}
+.cart-item-remove:hover {
+  opacity: 1;
+  background: rgba(255, 85, 119, 0.12);
+  transform: scale(1.05);
+}
+.cart-footer {
+  padding: 20px;
+  background: #0D1622;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+/* Cupón de descuento en carrito */
+.cart-coupon-area {
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+.cart-coupon-input-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.cart-coupon-input-wrap input {
+  flex: 1 1 120px;
+  min-width: 0;
+  padding: 8px 12px;
+  background: #1A273C;
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  border-radius: 8px;
+  color: #FFFFFF;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  outline: none;
+}
+.cart-coupon-input-wrap input:focus {
+  border-color: #00D4FF;
+}
+.btn-apply-coupon {
+  padding: 8px 14px;
+  background: rgba(0, 212, 255, 0.2);
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  color: #00D4FF;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
+}
+.btn-apply-coupon:hover {
+  background: #00D4FF;
+  color: #0A0F1A;
+}
+.coupon-tag-msg {
+  margin-top: 6px;
+  font-size: 0.78rem;
+  color: #25D366;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.coupon-tag-msg.error {
+  color: #FF5577;
+}
+
+/* Modalidad de entrega */
+.cart-delivery-selector {
+  margin-bottom: 12px;
+}
+.delivery-opt-label {
+  font-size: 0.78rem;
+  color: #8899AA;
+  margin-bottom: 6px;
+}
+.delivery-opts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.delivery-opt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #1A273C;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: #B0B8C4;
+  transition: all 0.2s;
+}
+.delivery-opt input {
+  display: none;
+}
+.delivery-opt.active {
+  border-color: #00D4FF;
+  background: rgba(0, 212, 255, 0.12);
+  color: #00D4FF;
+  font-weight: 600;
+}
+
+.cart-summary-row {
+  display: flex;
+  justify-content: space-between;
+  color: #8899AA;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+.cart-summary-row.discount-row {
+  color: #25D366;
+  font-weight: 600;
+}
+.cart-summary-row.total-row {
+  color: #FFFFFF;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.cart-summary-row.total-row span:last-child {
+  color: #00D4FF;
+}
+.cart-footer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+.btn-checkout-card {
+  width: 100%;
+  padding: 14px;
+  background: var(--accent);
+  color: #0A0F1A;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.35);
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
+  transition: all 0.3s ease;
+}
+.btn-checkout-card:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+.btn-vaciar-cart {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #8899AA;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 6px;
+  transition: color 0.2s;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
+}
+.btn-vaciar-cart:hover {
+  color: #FF5577;
+}
+
+/* ====== MODAL DE CHECKOUT MULTIMÉTODO ====== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 10, 18, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 1300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  animation: fadeIn 0.3s ease;
+}
+.modal-card {
+  background: #121C2A;
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  border-radius: 20px;
+  width: min(560px, 100%);
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 30px 25px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 18px;
+  background: transparent;
+  border: none;
+  color: #8899AA;
+  font-size: 1.8rem;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.modal-close:hover {
+  color: #00D4FF;
+}
+.checkout-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.checkout-header h2 {
+  color: #00D4FF;
+  font-size: 1.4rem;
+  margin-bottom: 6px;
+}
+.checkout-header p {
+  color: #8899AA;
+  font-size: 0.85rem;
+}
+
+/* Facturación selector */
+.invoice-type-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.invoice-opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #1A273C;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: #B0B8C4;
+  transition: all 0.2s;
+}
+.invoice-opt input {
+  display: none;
+}
+.invoice-opt.active {
+  border-color: #00D4FF;
+  background: rgba(0, 212, 255, 0.12);
+  color: #00D4FF;
+  font-weight: 600;
+}
+
+/* Pestañas de Métodos de Pago */
+.checkout-method-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.pay-tab-btn {
+  background: #1A273C;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px 6px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.2s ease;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
+}
+.pay-tab-btn .tab-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+}
+
+/* Icono del sprite dentro de un texto o boton. El tamano lo pone el atributo
+   width/height de cada SVG; aqui solo se alinea con el texto. */
+.inline-icon {
+  vertical-align: -3px;
+  margin-right: 4px;
+}
+/* Red de seguridad: un SVG sin atributos mediria 300x150. */
+.inline-icon:not([width]) {
+  width: 16px;
+  height: 16px;
+}
+.pay-tab-btn .tab-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #E0E0E0;
+}
+.pay-tab-btn .tab-sub {
+  font-size: 0.65rem;
+  color: #94A3B3;
+}
+.pay-tab-btn:hover {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.3);
+}
+.pay-tab-btn.active {
+  background: rgba(0, 212, 255, 0.15);
+  border-color: #00D4FF;
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.3);
+}
+.pay-tab-btn.active .tab-title {
+  color: #00D4FF;
+}
+
+.payment-method-panel {
+  animation: fadeIn 0.3s ease;
+}
+
+/* Aviso de pago simulado: visible y honesto para el usuario */
+.sim-note {
+  background: rgba(236, 200, 107, 0.10);
+  border: 1px solid rgba(236, 200, 107, 0.35);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 0 0 16px 0;
+  color: #E8D7A6;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+.sim-note strong {
+  color: #ECC86B;
+}
+.sim-note code {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  padding: 1px 5px;
+  color: #00D4FF;
+  font-family: var(--fuente-mono, ui-monospace, monospace);
+  font-size: 0.78rem;
+}
+
+/* Panel QR Yape / Plin */
+.qr-payment-box {
+  background: #0D1622;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.qr-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.qr-code-frame {
+  width: 105px;
+  height: 105px;
+  background: #08101A;
+  border: 2px solid #00D4FF;
+  border-radius: 10px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.25);
+}
+.qr-svg {
+  width: 100%;
+  height: 100%;
+}
+.qr-brand-badges {
+  display: flex;
+  gap: 4px;
+}
+.yape-tag {
+  background: #7300A8;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+.plin-tag {
+  background: #00B4D8;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+.qr-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.qr-info-row {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.8rem;
+  color: #8899AA;
+}
+.qr-info-row strong {
+  color: #E0E0E0;
+  font-size: 0.95rem;
+}
+.qr-info-row strong.highlight-pen {
+  color: #00D4FF;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.copy-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-copy-mini {
+  background: rgba(0, 212, 255, 0.15);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  color: #00D4FF;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
+  transition: all 0.2s;
+}
+.btn-copy-mini:hover {
+  background: #00D4FF;
+  color: #0A0F1A;
+}
+
+/* Panel Transferencias */
+.bank-accounts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.bank-card {
+  background: #0D1622;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.bank-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  color: #FFFFFF;
+}
+.bank-card-body {
+  font-size: 0.8rem;
+  color: #8899AA;
+  line-height: 1.5;
+}
+.bank-card-body code {
+  color: #00D4FF;
+  font-family: var(--fuente-mono, ui-monospace, monospace);
+  font-size: 0.85rem;
+}
+
+/* Panel Recojo en tienda */
+.store-pickup-box {
+  background: #0D1622;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+}
+.pickup-icon {
+  font-size: 2.2rem;
+  margin-bottom: 6px;
+}
+.store-pickup-box h4 {
+  color: #00D4FF;
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+.store-pickup-box p {
+  color: #8899AA;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.pickup-location-card {
+  background: #152030;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 12px;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.pickup-location-card strong {
+  color: #FFFFFF;
+  font-size: 0.85rem;
+  display: block;
+  margin-bottom: 4px;
+}
+.pickup-hours {
+  color: #ECC86B !important;
+  font-size: 0.8rem !important;
+  margin-top: 4px;
+}
+
+/* Tarjeta virtual animada */
+.virtual-card {
+  width: 100%;
+  max-width: 360px;
+  height: 205px;
+  margin: 0 auto 22px auto;
+  border-radius: 16px;
+  background: var(--panel-2);
+  border: 1px solid rgba(0, 212, 255, 0.35);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 212, 255, 0.08);
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+.virtual-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: rgba(0, 212, 255, 0.12);
+  pointer-events: none;
+}
+.card-chip {
+  width: 40px;
+  height: 30px;
+  background: #ECC86B;
+  border-radius: 6px;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+.chip-line {
+  height: 1px;
+  background: rgba(0,0,0,0.3);
+}
+.card-brand-badge {
+  position: absolute;
+  top: 20px;
+  right: 22px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+  color: #00D4FF;
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+.card-number-display {
+  font-family: var(--fuente-mono, ui-monospace, monospace);
+  font-size: 1.25rem;
+  letter-spacing: 3px;
+  color: #FFFFFF;
+  margin: 10px 0 5px 0;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+}
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.card-info-group {
+  display: flex;
+  flex-direction: column;
+}
+.card-label {
+  font-size: 0.62rem;
+  color: #708090;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+.card-val {
+  font-family: var(--fuente-mono, ui-monospace, monospace);
+  font-size: 0.85rem;
+  color: #E0E0E0;
+  text-transform: uppercase;
+}
+
+/* Formulario */
+.form-section-title {
+  color: #00D4FF;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 16px 0 10px 0;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+  padding-bottom: 4px;
+}
+.form-row {
+  display: grid;
+  /* minmax(0, ...) y no 1fr: un <select> con opciones largas imponia su
+     min-content y desbordaba la pagina en pantallas estrechas. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.form-group {
+  margin-bottom: 12px;
+}
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  color: #B0B8C4;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+.form-group input {
+  width: 100%;
+  padding: 10px 14px;
+  background: #1A273C;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 10px;
+  color: #FFFFFF;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
+  font-size: 0.88rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+.form-group input:focus {
+  border-color: #00D4FF;
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.3);
+  background: #20314A;
+}
+/* Los <select> no heredaban el estilo del input: se veian nativos (blancos)
+   y su ancho intrinseco desbordaba el formulario. */
+.form-group select {
+  width: 100%;
+  max-width: 100%;
+  padding: 10px 14px;
+  background: #1A273C;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: 10px;
+  color: #FFFFFF;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
+  font-size: 0.88rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+.form-group select:focus {
+  border-color: #00D4FF;
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.3);
+  background: #20314A;
+}
+.input-with-badge {
+  position: relative;
+}
+.input-card-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+}
+.checkout-total-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  padding: 14px 18px;
+  border-radius: 12px;
+  margin: 18px 0;
+}
+.checkout-total-banner span {
+  color: #B0B8C4;
+  font-size: 0.95rem;
+}
+.checkout-discount-note {
+  font-size: 0.75rem;
+  color: #25D366;
+  font-weight: 600;
+}
+.checkout-total-banner strong {
+  color: #00D4FF;
+  font-size: 1.3rem;
+}
+.security-badges span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.security-badges {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: #8B9AA8;
+  font-size: 0.75rem;
+  margin-bottom: 18px;
+}
+.btn-pagar-ahora {
+  width: 100%;
+  padding: 14px;
+  background: var(--accent);
+  color: #0A0F1A;
+  font-weight: 700;
+  font-size: 1rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+  transition: all 0.3s ease;
+}
+.btn-pagar-ahora:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+.btn-pagar-ahora:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+.btn-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #0A0F1A;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+

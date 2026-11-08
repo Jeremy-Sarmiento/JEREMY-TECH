@@ -1,0 +1,255 @@
+/* ============================================================
+   Estilos de la CUENTA del cliente (Jeremy Tech - MVC)
+   Perfil, favoritos y bandeja de notificaciones.
+   Complementa carrito.css (cart-page / cart-page-section) y
+   styles.css (variables, tarjetas del catálogo).
+   ============================================================ */
+
+/* ----- Navegación compartida de la cuenta ----- */
+.cuenta-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 22px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border, #262c36);
+}
+
+.cuenta-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-soft, #b0b8c4);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.cuenta-nav-link:hover {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.35);
+  color: #fff;
+}
+
+.cuenta-nav-link.activo {
+  background: rgba(0, 212, 255, 0.14);
+  border-color: rgba(0, 212, 255, 0.55);
+  color: var(--accent, #00d4ff);
+}
+
+/* ----- Perfil ----- */
+.perfil-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.perfil-grid .cart-page-section {
+  margin-top: 0;
+}
+
+.perfil-card {
+  min-width: 0;
+}
+
+.perfil-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.perfil-form .form-row {
+  min-width: 0;
+}
+
+.perfil-form .form-group {
+  min-width: 0;
+}
+
+.perfil-etiqueta {
+  display: block;
+  margin-bottom: 5px;
+  color: #b0b8c4;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.perfil-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.perfil-head > div {
+  min-width: 0;
+}
+
+/* El botón Editar solo aparece en modo lectura; sin JS el formulario ya es
+   editable, así que el botón sobra. El modo se marca en la tarjeta porque el
+   botón vive en la cabecera, fuera del formulario. */
+.perfil-card .perfil-editar-btn {
+  display: none;
+  flex-shrink: 0;
+}
+
+.perfil-card[data-modo='lectura'] .perfil-editar-btn {
+  display: inline-flex;
+}
+
+.perfil-card[data-modo='lectura'] [data-perfil-editar] {
+  display: none;
+}
+
+/* En lectura los datos se ven como texto: sin caja ni borde de campo. */
+.perfil-card[data-modo='lectura'] .form-group input {
+  background: transparent;
+  border-color: transparent;
+  padding-left: 0;
+  color: #fff;
+  cursor: default;
+  transition: none;
+}
+
+.perfil-card[data-modo='lectura'] .form-group input:disabled {
+  opacity: 1;
+  -webkit-text-fill-color: #fff;
+}
+
+/* El tipo de cuenta solo lo cambia el administrador: se muestra, no se edita. */
+.perfil-tipo-fijo {
+  margin: 0;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(0, 212, 255, 0.25);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.88rem;
+}
+
+/* Los datos de empresa solo aplican a B2B y la plataforma de reventa a C2C.
+   El tipo no se puede cambiar en el perfil, así que basta con el data-tipo
+   que renderiza el servidor. */
+.perfil-form[data-tipo='B2C'] [data-b2b],
+.perfil-form[data-tipo='B2C'] [data-c2c],
+.perfil-form[data-tipo='B2B'] [data-c2c],
+.perfil-form[data-tipo='C2C'] [data-b2b] {
+  display: none;
+}
+
+.perfil-opcional {
+  color: #8899aa;
+  font-weight: 400;
+  font-size: 0.76rem;
+}
+
+.perfil-ayuda {
+  margin: 6px 0 0;
+  color: #8899aa;
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.perfil-ayuda a {
+  color: #00d4ff;
+}
+
+.perfil-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.perfil-btn {
+  width: auto !important;
+  padding: 11px 26px !important;
+  border: none;
+  cursor: pointer;
+  font-family: var(--fuente, 'Manrope', system-ui, sans-serif);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.perfil-aside {
+  min-width: 0;
+  position: sticky;
+  top: calc(var(--nav-height, 64px) + 20px);
+}
+
+.perfil-resumen {
+  margin-top: 0;
+}
+
+.perfil-resumen h2 {
+  color: var(--accent, #00d4ff);
+  font-size: 1.05rem;
+  margin-bottom: 14px;
+}
+
+.perfil-resumen-nombre {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.perfil-resumen-email {
+  color: var(--text-soft, #b0b8c4);
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+  overflow-wrap: anywhere;
+}
+
+.perfil-datos {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 18px;
+}
+
+.perfil-datos > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.07);
+}
+
+.perfil-datos dt {
+  color: var(--text-soft, #b0b8c4);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.perfil-datos dd {
+  color: #fff;
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.perfil-resumen-acciones {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.perfil-resumen-acciones .btn-mini {
+  justify-content: center;
+  padding: 8px 12px;
+}
+

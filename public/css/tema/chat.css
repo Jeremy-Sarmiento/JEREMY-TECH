@@ -1,0 +1,95 @@
+/* ---------------------------------------------------------------------------
+   16. Chat
+   ------------------------------------------------------------------------ */
+.chatbot-toggle {
+  width: 52px;
+  height: 52px;
+  background: var(--jt-acento);
+  border: 1px solid var(--jt-acento);
+  color: var(--jt-acento-tinta);
+  box-shadow: var(--sombra-2);
+}
+
+.chatbot-toggle:hover {
+  background: #55e4f6;
+}
+
+.chatbot-pulse {
+  background: rgba(47, 217, 240, 0.35);
+}
+
+.chatbot-panel {
+  background: var(--jt-ink-850);
+  border: 1px solid var(--jt-line-fuerte);
+  border-radius: var(--radio-lg);
+  box-shadow: var(--sombra-3);
+}
+
+.chatbot-header {
+  background: var(--jt-ink-900);
+  border-bottom: 1px solid var(--jt-line);
+  color: var(--jt-texto);
+}
+
+.chatbot-avatar {
+  background: var(--jt-acento-suave);
+  border: 1px solid rgba(47, 217, 240, 0.35);
+  color: var(--jt-acento);
+}
+
+.chatbot-close {
+  color: var(--jt-texto-3);
+  background: transparent;
+  border: 0;
+}
+
+.chatbot-close:hover {
+  color: var(--jt-texto);
+}
+
+.chatbot-messages {
+  background: var(--jt-ink-900);
+}
+
+.chatbot-bubble {
+  font-size: 13px;
+  line-height: 1.55;
+  border-radius: var(--radio-md);
+}
+
+.chatbot-bubble.bot {
+  background: var(--jt-superficie-2);
+  border: 1px solid var(--jt-line);
+  color: var(--jt-texto);
+}
+
+.chatbot-bubble.user {
+  background: var(--jt-acento);
+  color: var(--jt-acento-tinta);
+}
+
+.chatbot-quick button {
+  border: 1px solid var(--jt-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--jt-texto-2);
+  font-size: 12px;
+}
+
+.chatbot-quick button:hover {
+  border-color: var(--jt-acento);
+  color: var(--jt-texto);
+}
+
+.chatbot-footer {
+  border-top: 1px solid var(--jt-line);
+  background: var(--jt-ink-850);
+}
+
+.chatbot-input {
+  background: var(--jt-superficie-2);
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-sm);
+  color: var(--jt-texto);
+}
+

@@ -10,20 +10,14 @@
   <link href="img/apple-touch-icon.png" rel="apple-touch-icon"/>
   <title><?= htmlspecialchars($tituloPagina ?? 'Jeremy Tech - Tienda de Tecnologia', ENT_QUOTES, 'UTF-8') ?></title>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="css/styles.css?v=<?= (int) @filemtime(BASE_PATH . '/public/css/styles.css') ?>" rel="stylesheet"/>
-   <link href="css/carrito.css?v=<?= (int) @filemtime(BASE_PATH . '/public/css/carrito.css') ?>" rel="stylesheet"/>
-   <link href="css/auth.css?v=<?= (int) @filemtime(BASE_PATH . '/public/css/auth.css') ?>" rel="stylesheet"/>
-   <?php if (($rutaVista ?? '') === 'login'): ?>
-    <!-- Mapa opcional del registro (Leaflet + OpenStreetMap). -->
-    <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" rel="stylesheet"/>
-   <?php endif; ?>
-   <link href="css/cuenta.css?v=<?= (int) @filemtime(BASE_PATH . '/public/css/cuenta.css') ?>" rel="stylesheet"/>
-   <link href="css/chat.css?v=<?= (int) @filemtime(BASE_PATH . '/public/css/chat.css') ?>" rel="stylesheet"/>
-   <?php if (!empty($paginaAdmin)): ?>
-    <link href="css/admin.css" rel="stylesheet"/>
-   <?php endif; ?>
-   <!-- Capa de rediseño: se carga al final para tomar precedencia. -->
-   <link href="css/rediseno.css?v=<?= (int) @filemtime(BASE_PATH . '/public/css/rediseno.css') ?>" rel="stylesheet"/>
+   <?php
+    $gruposEstilos = ['base', 'carrito', 'auth', 'cuenta', 'chat'];
+    if (!empty($paginaAdmin)) {
+        $gruposEstilos[] = 'admin';
+    }
+    $gruposEstilos[] = 'tema';
+    require BASE_PATH . '/views/partials/estilos.php';
+   ?>
   <script nonce="<?= htmlspecialchars(\Security\Proteccion::nonce(), ENT_QUOTES, 'UTF-8') ?>">
    const JT_SESSION = {
     rutaVista: '<?= htmlspecialchars($rutaVista ?? 'catalogo', ENT_QUOTES) ?>',

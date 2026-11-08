@@ -1,0 +1,432 @@
+/* ---------------------------------------------------------------------------
+   14. Pie de página
+   ------------------------------------------------------------------------ */
+.site-footer {
+  margin-top: clamp(32px, 5vw, 64px);
+  padding: clamp(32px, 4vw, 52px) clamp(16px, 3vw, 40px) 24px;
+  background: var(--jt-ink-950);
+  border-top: 1px solid var(--jt-line);
+  color: var(--jt-texto-2);
+}
+
+.site-footer .footer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: clamp(24px, 4vw, 56px);
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.site-footer .footer-logo img {
+  height: 30px;
+  width: auto;
+}
+
+.site-footer .footer-desc {
+  margin: 14px 0 18px;
+  max-width: 42ch;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--jt-texto-3);
+}
+
+.site-footer .footer-payments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.site-footer .pay-badge {
+  padding: 4px 9px;
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-xs);
+  background: var(--jt-superficie-1);
+  color: var(--jt-texto-3);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.site-footer .footer-col h2 {
+  margin: 0 0 12px;
+  padding: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--jt-texto-3);
+}
+
+.site-footer .footer-col ul {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+}
+
+.site-footer .footer-col a {
+  color: var(--jt-texto-2);
+  font-size: 13px;
+  text-decoration: none;
+  transition: color var(--dur) var(--ease);
+}
+
+.site-footer .footer-col a:hover {
+  color: var(--jt-acento);
+}
+
+.site-footer .footer-contact li {
+  color: var(--jt-texto-3);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.site-footer .footer-bottom {
+  max-width: 1240px;
+  margin: 32px auto 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--jt-line);
+}
+
+.site-footer .footer-bottom-inner {
+  font-size: 11.5px;
+  color: var(--jt-texto-3);
+}
+
+.site-footer .footer-bottom-links a {
+  color: var(--jt-texto-2);
+  font-size: 11.5px;
+}
+
+.site-footer .footer-bottom-links a:hover {
+  color: var(--jt-acento);
+}
+
+.site-footer .footer-bottom-links strong {
+  color: var(--jt-texto-2);
+}
+
+/* ---------------------------------------------------------------------------
+   15. Páginas de contenido (envíos, garantía, contacto, legales)
+   ------------------------------------------------------------------------ */
+.page-shell {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: clamp(28px, 4vw, 56px) clamp(16px, 3vw, 32px) 64px;
+}
+
+.page-hero {
+  padding: 0 0 24px;
+  border-bottom: 1px solid var(--jt-line);
+  margin-bottom: 28px;
+}
+
+.page-eyebrow {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--jt-acento);
+}
+
+.page-hero h1 {
+  margin: 0;
+  font-size: clamp(1.7rem, 3.4vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: var(--jt-texto);
+}
+
+.page-lead {
+  margin: 10px 0 0;
+  max-width: 68ch;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--jt-texto-2);
+}
+
+.page-content p,
+.legal-page p,
+.legal-page li {
+  color: var(--jt-texto-2);
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.legal-page h2 {
+  margin: 32px 0 10px;
+  padding: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--jt-texto);
+}
+
+.legal-page h3 {
+  margin: 22px 0 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--jt-texto);
+}
+
+.legal-page a {
+  color: var(--jt-acento);
+}
+
+.legal-meta,
+.legal-note {
+  color: var(--jt-texto-3);
+  font-size: 12px;
+}
+
+.legal-note {
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-sm);
+  background: var(--jt-superficie-1);
+  padding: 14px 16px;
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--jt-line);
+}
+
+.faq-item summary {
+  padding: 14px 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--jt-texto);
+  cursor: pointer;
+}
+
+.faq-item summary::after {
+  color: var(--jt-texto-3);
+}
+
+.faq-item p {
+  color: var(--jt-texto-2);
+  font-size: 13px;
+  padding-bottom: 14px;
+}
+
+.contact-card {
+  background: var(--jt-superficie-1);
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-md);
+  padding: 20px;
+}
+
+.contact-card .contact-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-bottom: 10px;
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-xs);
+  background: var(--jt-superficie-2);
+  color: var(--jt-acento);
+}
+
+.contact-card h2 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--jt-texto);
+}
+
+.contact-card a,
+.contact-card p {
+  color: var(--jt-texto-2);
+  font-size: 13px;
+}
+
+.contact-card a:hover {
+  color: var(--jt-acento);
+}
+
+.page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-sm);
+  background: transparent;
+  color: var(--jt-texto);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.page-btn:hover {
+  background: var(--jt-superficie-2);
+  border-color: var(--jt-line-fuerte);
+}
+
+.page-btn-primary {
+  background: var(--jt-acento);
+  border-color: var(--jt-acento);
+  color: var(--jt-acento-tinta);
+}
+
+.page-btn-primary:hover {
+  background: #55e4f6;
+  border-color: #55e4f6;
+}
+
+/* Estados vacíos compartidos */
+.orders-empty,
+.empty-orders-state,
+.cart-empty-state {
+  background: var(--jt-superficie-1);
+  border: 1px dashed var(--jt-line-fuerte);
+  border-radius: var(--radio-md);
+  color: var(--jt-texto-3);
+  text-align: center;
+}
+
+/* Un solo bloque de estado ocupa todo el ancho, no una celda de la grilla. */
+.orders-list-container > .auth-gate,
+.orders-list-container > .orders-empty {
+  grid-column: 1 / -1;
+}
+
+.auth-gate {
+  background: var(--jt-superficie-1);
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-md);
+  padding: clamp(24px, 4vw, 40px);
+}
+
+.auth-gate h4 {
+  margin: 0 0 8px;
+  color: var(--jt-texto);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.auth-gate p {
+  margin: 0 0 18px;
+  color: var(--jt-texto-2);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.auth-gate .gate-icon {
+  margin-bottom: 10px;
+  font-size: 0;
+}
+
+.estrella {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 2px;
+  color: var(--jt-aviso);
+  flex-shrink: 0;
+}
+
+.btn-auth-gate {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 20px;
+  background: var(--jt-acento);
+  border: 1px solid var(--jt-acento);
+  border-radius: var(--radio-sm);
+  color: var(--jt-acento-tinta);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.btn-auth-gate:hover {
+  background: #55e4f6;
+  border-color: #55e4f6;
+  transform: none;
+  box-shadow: none;
+}
+
+.empty-orders-state .empty-icon,
+.cart-empty-state .empty-icon,
+.auth-gate .gate-icon,
+.orders-empty .empty-icon {
+  color: var(--jt-texto-3);
+}
+
+.orders-empty h4,
+.cart-empty-state h4,
+.empty-orders-state h4 {
+  color: var(--jt-texto);
+  font-size: 15px;
+}
+
+/* Soporte y pedidos: métricas repetidas */
+.pedidos-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  background: var(--jt-superficie-2);
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-md);
+}
+
+.pedidos-stat-valor {
+  font-family: var(--fuente-mono);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--jt-texto);
+}
+
+.pedidos-stat-etiqueta {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--jt-texto-3);
+}
+
+.pedidos-stat-icon {
+  color: var(--jt-acento);
+}
+
+.soporte-card {
+  background: var(--jt-superficie-1);
+  border: 1px solid var(--jt-line);
+  border-radius: var(--radio-md);
+  padding: 16px;
+}
+
+.soporte-card-cabecera {
+  border-bottom: 1px solid var(--jt-line);
+  padding-bottom: 10px;
+}
+
+.soporte-codigo {
+  font-family: var(--fuente-mono);
+  font-size: 11.5px;
+  color: var(--jt-texto-3);
+}
+
+.soporte-categoria,
+.soporte-fecha,
+.soporte-pedido,
+.soporte-espera {
+  font-size: 11.5px;
+  color: var(--jt-texto-3);
+}
+
+.perfil-form .form-group input,
+.perfil-form .form-group textarea,
+.soporte-form .form-group input,
+.soporte-form .form-group textarea {
+  background: var(--jt-superficie-2);
+}
+
