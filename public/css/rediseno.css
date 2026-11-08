@@ -2290,7 +2290,7 @@ section h2::after {
 }
 
 .auth-card {
-  text-align: center;
+  text-align: left;
   width: 100%;
   max-width: none;
   margin: 0 auto;
@@ -2302,7 +2302,7 @@ section h2::after {
 }
 
 .auth-head {
-  text-align: center;
+  text-align: left;
 }
 
 .auth-head h1 {
