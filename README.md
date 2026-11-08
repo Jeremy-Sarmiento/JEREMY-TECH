@@ -4,6 +4,15 @@ Tienda de tecnología en PHP puro (MVC propio) con panel de administración y so
 
 **Stack:** PHP 8.2+ · PostgreSQL 14+ · PDO `pdo_pgsql`
 
+## Entregables
+
+Informes PDF de las sesiones de desarrollo:
+
+- [Sesión 1](entregables/Sesion-001-A3-2-Entregable.pdf)
+- [Sesión 2 - El Puente Digital — Reporte Técnico](entregables/El%20Puente%20Digital%20—%20Reporte%20Técnico.pdf)
+- [Sesión 2 - La Radiografía Técnica](entregables/La%20Radiografía%20Técnica%20—%20Sesión%202.pdf)
+- [Sesión 3](entregables/Sesion-003-A3-2-Entregable.pdf)
+
 ## Instalación local
 
 ```bash
