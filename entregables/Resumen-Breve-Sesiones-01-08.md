@@ -1,18 +1,14 @@
 # Jeremy Tech: resumen breve de las sesiones 1 a 8
 
-**Estudiante:** Jeremy Sarmiento Tapia. **DNI:** por completar.
-
-Versión de estudio de la rama `postgresql`, siguiendo el orden de `sesion-08/recorrido.js`. Cada sesión incluye un resumen y diez preguntas con respuestas cortas: **80 preguntas en total**.
-
-El [documento completo](Resumen-Sesiones-01-08.md) conserva las fuentes, el código numerado y las explicaciones ampliadas. Repositorio: <https://github.com/Jeremy-Sarmiento/JEREMY-TECH>.
-
 ## Sesión 1: catálogo base e identidad del negocio
 
-### Resumen
+### Resumen de lo destacable
 
-Jeremy Tech es un proyecto de tienda de tecnología dirigido a consumidores y negocios de La Joya, Arequipa. La sesión define su identidad y compara el escenario inicial, catálogo con atención manual, con el objetivo de gestionar compras, inventario y pedidos desde la web. Tener una vitrina digital no significa automatizar toda la venta.
+La primera sesión estudia cómo un negocio define su identidad antes de transformarse digitalmente. En Jeremy Tech, el punto de partida es una tienda que presenta celulares, laptops, audífonos y otros productos tecnológicos mediante un catálogo y facilita la consulta por WhatsApp. Esta vitrina permite mostrar la oferta, pero no equivale por sí sola a automatizar una compra.
 
-**Entregables:** El ADN Corporativo y Los Planos de Transformación.
+- **Identidad del negocio:** definir a quién se vende, qué necesidad se resuelve y qué diferencia a la tienda.
+- **As-Is y To-Be:** comparar la atención manual inicial con el objetivo de gestionar pedidos, inventario y pagos digitalmente.
+- **Transformación digital:** conectar procesos del negocio, no limitarse a publicar una página web.
 
 ### Diez preguntas y respuestas
 
@@ -21,7 +17,7 @@ Jeremy Tech es un proyecto de tienda de tecnología dirigido a consumidores y ne
 3. **¿Qué productos presenta?** Celulares, laptops, audífonos, accesorios y otros dispositivos tecnológicos.
 4. **¿Qué define el ADN corporativo?** La identidad, el propósito, el público y la propuesta de valor del negocio.
 5. **¿Cuál es la propuesta de valor planteada?** Facilitar la consulta, comparación y compra de tecnología con atención al cliente.
-6. **¿Qué significa As-Is?** El estado inicial del negocio, descrito en el entregable como catálogo y coordinación manual.
+6. **¿Qué significa As-Is?** El estado inicial del negocio, descrito aquí como catálogo y coordinación manual.
 7. **¿Qué significa To-Be?** El funcionamiento objetivo: carrito, pedidos, pagos y seguimiento digital.
 8. **¿Para qué sirve WhatsApp en el catálogo?** Para consultar por un producto mediante un mensaje preparado.
 9. **¿Un catálogo permite completar una compra por sí solo?** No; también hacen falta procesos de pedido, pago y entrega.
@@ -29,11 +25,23 @@ Jeremy Tech es un proyecto de tienda de tecnología dirigido a consumidores y ne
 
 ## Sesión 2: Puente Digital y servicios externos
 
-### Resumen
+### Resumen de lo destacable
 
-La sesión diferencia e-commerce y e-business. Jeremy Tech consulta una API de tipos de cambio para mostrar precios referenciales en otras monedas, manteniendo PEN como moneda base del pedido. La integración facilita comparar precios, pero no realiza cobros. Las respuestas externas deben validarse y sus fallos deben comunicarse sin presentar conversiones incorrectas.
+La sesión diferencia la venta electrónica de los procesos digitales que la sostienen. El Puente Digital de Jeremy Tech obtiene tasas de una API y convierte precios de referencia, sin ejecutar cobros. Lo importante es comprender cómo se conectan sistemas y cómo se valida la información recibida.
 
-**Entregables:** La Radiografía Técnica y El Puente Digital.
+- **E-commerce y e-business:** comprar y vender forma parte de una operación más amplia de información, gestión y servicios.
+- **API, JSON y asincronía:** `fetch` solicita datos sin recargar la página; la respuesta JSON contiene las tasas.
+- **Validación:** comprobar errores y recordar que el pedido se registra en PEN, aunque la interfaz muestre otra moneda.
+
+Extracto de [`cargarTasas()`](../public/js/puente-digital.js#L47-L51); los números corresponden a las líneas del archivo:
+
+```text
+47 |     var respuesta = await fetch("https://open.er-api.com/v6/latest/PEN");
+48 |     if (!respuesta.ok) throw new Error("API error: " + respuesta.status);
+49 |     var datos = await respuesta.json();
+50 |     if (datos.result !== "success") throw new Error("Invalid rates");
+51 |     tasasDeCambio = datos.rates;
+```
 
 ### Diez preguntas y respuestas
 
@@ -50,11 +58,24 @@ La sesión diferencia e-commerce y e-business. Jeremy Tech consulta una API de t
 
 ## Sesión 3: Mi Pedido y modelo relacional
 
-### Resumen
+### Resumen de lo destacable
 
-Jeremy Tech plantea B2C como enfoque principal y contempla B2B y marketplace. PostgreSQL organiza usuarios, productos, carritos, pedidos, detalles y pagos. Las claves relacionan la información y las transacciones permiten registrar operaciones de forma consistente. El tipo comercial de una cuenta no reemplaza los permisos necesarios para vender.
+La sesión relaciona el modelo comercial con la organización de los datos. Jeremy Tech contempla B2C, B2B y marketplace, y separa usuarios, productos, carritos, pedidos y pagos en PostgreSQL. Una compra debe conservar cantidades e importes sin perder la relación con el cliente y los productos.
 
-**Entregables:** La Radiografía Comercial y El Plano Maestro de la Memoria (DER).
+- **Modelos comerciales:** B2C vende al consumidor; B2B atiende empresas; C2C conecta particulares mediante una plataforma.
+- **Modelo relacional:** las claves primarias identifican registros y las foráneas relacionan tablas.
+- **Consistencia:** el carrito es provisional; el pedido guarda el historial y una transacción confirma o deshace la operación completa.
+
+Consulta preparada del [detalle del pedido](../src/Model/Carrito.php#L655-L660). Los signos `?` reciben valores por separado:
+
+```text
+655 |             $stmtDetalle = $pdo->prepare(
+656 |                 'INSERT INTO detalle_pedido
+657 |                     (pedido_id, producto_id, producto_nombre, cantidad, precio_unitario_pen,
+658 |                      variante_id, variante_nombre, vendedor_id)
+659 |                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+660 |             );
+```
 
 ### Diez preguntas y respuestas
 
@@ -71,11 +92,13 @@ Jeremy Tech plantea B2C como enfoque principal y contempla B2B y marketplace. Po
 
 ## Sesión 4: buscador y organización del catálogo
 
-### Resumen
+### Resumen de lo destacable
 
-La sesión relaciona el Canvas del negocio con una arquitectura capaz de organizar el catálogo. Jeremy Tech utiliza filtros, búsqueda y consultas paginadas desde PHP y PostgreSQL. MVC separa la consulta, el procesamiento y la presentación. El modelo dispone de límites de resultados, pero la navegación actual necesita revisión para catálogos grandes.
+La sesión estudia cómo organizar un negocio digital y un catálogo que pueda crecer. El Canvas explica cómo se crea valor y se sostienen los costos; la arquitectura organiza el trabajo técnico. En Jeremy Tech, búsqueda y filtros se resuelven desde PHP y PostgreSQL, separando responsabilidades con MVC.
 
-**Entregables:** El Mapa Maestro (Canvas Real) y La Arquitectura del Gigante.
+- **Búsqueda y filtros:** ayudan a encontrar productos por texto, categoría, marca, precio o vendedor.
+- **Paginación e índices:** limitan el trabajo por consulta y pueden mejorar su rendimiento; deben medirse con datos reales.
+- **MVC:** el modelo consulta datos, la vista los presenta y el controlador coordina la solicitud. La navegación actual del catálogo aún necesita revisión para volúmenes grandes.
 
 ### Diez preguntas y respuestas
 
@@ -92,11 +115,13 @@ La sesión relaciona el Canvas del negocio con una arquitectura capaz de organiz
 
 ## Sesión 5: analítica y captación de visitas
 
-### Resumen
+### Resumen de lo destacable
 
-La analítica permite estudiar las acciones del visitante y orientar la promoción de la tienda. Jeremy Tech registra eventos propios y ofrece consultas desde el panel. SEO y anuncios forman parte del plan de tráfico, no de una campaña demostrada. Los eventos registrados no deben confundirse con compradores únicos ni con ingresos cobrados.
+La sesión enseña a atraer visitantes y medir sus acciones para mejorar la tienda. Jeremy Tech utiliza eventos propios y un panel de consulta. La medición sirve para entender el interés y el abandono, pero sus resultados deben interpretarse según lo que realmente registra el sistema.
 
-**Entregables:** El Lanzamiento Invisible y La Tienda que Observa.
+- **Captación:** SEO y contenido buscan visibilidad orgánica; los anuncios utilizan presupuesto y segmentación.
+- **Embudo de conversión:** permite estudiar etapas como visita, producto, carrito, checkout y compra.
+- **Lectura de indicadores:** una visita no es un comprador único y el evento `compra` actual también puede corresponder a un pago pendiente. El plan de tráfico no demuestra campañas ejecutadas.
 
 ### Diez preguntas y respuestas
 
@@ -113,11 +138,13 @@ La analítica permite estudiar las acciones del visitante y orientar la promoci�
 
 ## Sesión 6: Asistente Virtual
 
-### Resumen
+### Resumen de lo destacable
 
-El asistente orienta al visitante mediante FAQ, reglas y datos del catálogo. Puede intentar una respuesta de IA si existe configuración, pero no debe afirmarse que siempre utiliza un modelo externo. El benchmark compara herramientas complementarias; evaluar una herramienta no demuestra que esté instalada o funcionando.
+La sesión aborda la automatización de la atención y la comparación de herramientas tecnológicas. El asistente de Jeremy Tech usa FAQ, reglas y datos del catálogo antes de intentar IA externa cuando está configurada. La utilidad del sistema depende de responder con información válida, no de aparentar inteligencia.
 
-**Entregables:** El Benchmark Tecnológico y El Asistente Virtual en Acción.
+- **FAQ y reglas:** resuelven preguntas repetidas con respuestas administrables y datos conocidos.
+- **IA y atención humana:** una IA generativa no equivale a una FAQ; si no hay respuesta suficiente debe ofrecerse contacto, sin inventar condiciones comerciales.
+- **Benchmark:** comparar herramientas por utilidad, requisitos y costos, sin confundir evaluación con instalación o funcionamiento comprobado.
 
 ### Diez preguntas y respuestas
 
@@ -130,15 +157,26 @@ El asistente orienta al visitante mediante FAQ, reglas y datos del catálogo. Pu
 7. **¿La IA externa funciona siempre?** No; depende de la configuración y de la disponibilidad del servicio.
 8. **¿Qué ocurre si no se obtiene una respuesta?** Se utiliza una respuesta de respaldo que ofrece contacto, como WhatsApp.
 9. **¿Para qué sirve un benchmark tecnológico?** Para comparar herramientas según su utilidad, requisitos y adecuación al proyecto.
-10. **¿Qué herramientas se evalúan en el entregable?** Tidio, ExchangeRate-API, Leaflet/OSM, UptimeRobot, Stripe Sandbox/Mock y Lighthouse.
+10. **¿Qué herramientas incluye el benchmark?** Tidio, ExchangeRate-API, Leaflet/OSM, UptimeRobot, Stripe Sandbox/Mock y Lighthouse.
 
 ## Sesión 7: pago y confirmación mediante webhook
 
-### Resumen
+### Resumen de lo destacable
 
-El checkout actual valida un pago simulado antes de registrar el pedido. También existe un receptor de webhooks con firma HMAC e idempotencia para procesar notificaciones. No es una integración acreditada con una pasarela comercial. Antes de cobrar dinero real hacen falta el adaptador del proveedor y validaciones adicionales, como importe y moneda.
+La sesión explica cómo confirmar una compra y procesar notificaciones de pago de forma confiable. En Jeremy Tech, el checkout valida una simulación antes de registrar el pedido. El webhook tiene un contrato HMAC propio y no demuestra, por sí solo, una conexión real con una pasarela comercial.
 
-**Entregables:** La Transacción Perfecta y El Panel de Control Inteligente.
+- **Validación en servidor:** el navegador no decide precios, stock ni confirmaciones de pago.
+- **Firma HMAC:** comprueba la autenticidad e integridad del mensaje con un secreto compartido.
+- **Idempotencia:** un evento repetido no debe duplicar sus efectos. Para cobrar realmente faltan el adaptador del proveedor y la validación de importe y moneda.
+
+Función de [firma del webhook](../src/Model/Pasarela.php#L69-L72); combina el instante y el cuerpo del mensaje:
+
+```text
+69 |     public static function firmar(string $cuerpo, int $timestamp): string
+70 |     {
+71 |         return hash_hmac('sha256', $timestamp . '.' . $cuerpo, self::secreto());
+72 |     }
+```
 
 ### Diez preguntas y respuestas
 
@@ -155,11 +193,13 @@ El checkout actual valida un pago simulado antes de registrar el pedido. Tambié
 
 ## Sesión 8: ética, seguridad y publicación
 
-### Resumen
+### Resumen de lo destacable
 
-La publicación responsable requiere políticas claras, protección de cuentas, HTTPS y respaldo de datos. Jeremy Tech incluye páginas informativas, controles de acceso y configuración de ejecución. Estos elementos no certifican por sí solos un despliegue seguro ni el cumplimiento legal. El repositorio y los datos deben mantenerse sin exponer credenciales ni borrar volúmenes accidentalmente.
+La última sesión reúne ética, protección de datos y publicación responsable. Una tienda debe explicar sus condiciones, proteger las cuentas y conservar la información de forma segura. Jeremy Tech dispone de páginas informativas y controles técnicos, pero esto no certifica por sí solo el cumplimiento legal ni un despliegue seguro.
 
-**Entregables:** La Tienda Virtual Creada y Publicada e Informe de Ética y Ciberseguridad.
+- **Privacidad y transparencia:** solicitar solo los datos necesarios y explicar sus finalidades y las condiciones del servicio.
+- **Seguridad:** contraseñas con hash, consultas preparadas, tokens CSRF, permisos y HTTPS; las credenciales reales no deben publicarse.
+- **Operación y versiones:** respaldar y probar la restauración de datos. `down` conserva volúmenes y `down -v` los elimina; un commit local no equivale a publicar con push.
 
 ### Diez preguntas y respuestas
 
