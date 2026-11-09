@@ -67,11 +67,7 @@ docker compose exec -T db psql -U postgres -d jeremy_tech \
 Para crear el administrador o cambiar su contraseña:
 
 ```bash
-read -rs -p 'Nueva contraseña: ' ADMIN_INITIAL_PASSWORD
-export ADMIN_INITIAL_PASSWORD
-docker compose exec -e ADMIN_EMAIL=tu@correo.com -e ADMIN_USUARIO=tu-usuario \
-  -e ADMIN_INITIAL_PASSWORD app php tools/establecer-admin.php
-unset ADMIN_INITIAL_PASSWORD
+docker compose exec -e ADMIN_EMAIL="tu@correo.com" -e ADMIN_USUARIO="tu-usuario" -e ADMIN_INITIAL_PASSWORD="tu_contrasena" app php tools/establecer-admin.php
 ```
 
 `tools/establecer-admin.php` solo modifica cuentas que ya tienen rol `admin`. Si
