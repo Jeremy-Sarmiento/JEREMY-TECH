@@ -39,6 +39,10 @@ class Inventario
      */
     public static function descontar(\PDO $pdo, array $lineas, int $pedidoId): void
     {
+        // Todas las compras y devoluciones toman los bloqueos en el mismo orden.
+        usort($lineas, static fn (array $a, array $b): int =>
+            [(int) $a['producto']['id'], (int) ($a['varianteId'] ?? 0)]
+            <=> [(int) $b['producto']['id'], (int) ($b['varianteId'] ?? 0)]);
         foreach ($lineas as $linea) {
             $productoId = (int) $linea['producto']['id'];
             $varianteId = $linea['varianteId'];
@@ -125,7 +129,7 @@ class Inventario
 
         $det = $pdo->prepare(
             'SELECT producto_id, variante_id, cantidad, producto_nombre
-               FROM detalle_pedido WHERE pedido_id = ?'
+               FROM detalle_pedido WHERE pedido_id = ? ORDER BY producto_id, variante_id NULLS FIRST'
         );
         $det->execute([$pedidoId]);
         $lineas = $det->fetchAll();
