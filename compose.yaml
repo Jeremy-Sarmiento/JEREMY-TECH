@@ -28,7 +28,7 @@ services:
 
   app:
     build: .
-    image: jeremy-tech:local
+    image: jeremy-tech:tienda
     restart: unless-stopped
     ports:
       - "8080:8080"
