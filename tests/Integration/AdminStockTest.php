@@ -394,7 +394,9 @@ class AdminStockTest extends TestCase
     {
         // El controlador redirige con exit: cada petición usa un proceso real sin servidor ni mocks.
         $codigo = 'require ' . var_export(__DIR__ . '/../bootstrap.php', true) . ';'
-            . '\Security\Proteccion::iniciarSesion(); $_SESSION = ["admin_id" => ' . $adminId . '];'
+            . '\Security\Proteccion::iniciarSesion(); $_SESSION = [];'
+            . '\Model\Administrador::iniciarSesion(' . var_export($adminId === 1 ? 'admin' : 'vendedor', true)
+            . ', ' . var_export($adminId === 1 ? 'admin' : 'vendedor', true) . ');'
             . '$_SERVER["REQUEST_METHOD"] = ' . var_export($post === [] ? 'GET' : 'POST', true) . ';'
             . '$_GET = ' . var_export($get, true) . '; $_POST = ' . var_export($post, true) . ';'
             . '$_FILES = ' . var_export($files, true) . '; ob_start();'

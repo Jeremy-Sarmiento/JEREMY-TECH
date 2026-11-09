@@ -12,7 +12,8 @@ final class AvisosCheckoutTest extends TestCase
     {
         resetTestDb();
         \Security\Proteccion::iniciarSesion();
-        $_SESSION = ['cliente_id' => 3];
+        $_SESSION = [];
+        $this->assertTrue(\Model\Cuenta::iniciarSesion('cliente@example.com', 'cliente'));
     }
 
     protected function tearDown(): void

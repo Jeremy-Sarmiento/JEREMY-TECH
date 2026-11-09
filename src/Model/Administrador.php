@@ -24,6 +24,7 @@ class Administrador
 {
     /** Clave de sesión que guarda el id del administrador autenticado. */
     private const SESION_CLAVE = 'admin_id';
+    private const SESION_HUELLA = 'admin_huella';
 
     /** Duración de validez de un intento de sesión activado. */
     private const OPCION_ACTIVO = 1;
@@ -42,9 +43,8 @@ class Administrador
      */
     public static function idSesion(): ?int
     {
-        self::arrancarSesion();
-        $id = $_SESSION[self::SESION_CLAVE] ?? null;
-        return $id !== null ? (int) $id : null;
+        $usuario = self::usuarioActual();
+        return $usuario !== null ? (int) $usuario['id'] : null;
     }
 
     /**
@@ -54,7 +54,7 @@ class Administrador
     {
         $stmt = conexion()->prepare(
             "SELECT * FROM users
-              WHERE id = ? AND rol IN ('admin', 'vendedor') AND deleted_at IS NULL LIMIT 1"
+              WHERE id = ? AND activo = 1 AND rol IN ('admin', 'vendedor') AND deleted_at IS NULL LIMIT 1"
         );
         $stmt->execute([$id]);
         $fila = $stmt->fetch();
@@ -134,11 +134,18 @@ class Administrador
      */
     public static function usuarioActual(): ?array
     {
-        $id = self::idSesion();
+        self::arrancarSesion();
+        $id = $_SESSION[self::SESION_CLAVE] ?? null;
         if ($id === null) {
             return null;
         }
-        return self::porId($id);
+        $usuario = self::porId((int) $id);
+        $huella = $_SESSION[self::SESION_HUELLA] ?? null;
+        if (!$usuario || !is_string($huella) || !hash_equals(hash('sha256', (string) $usuario['password']), $huella)) {
+            unset($_SESSION[self::SESION_CLAVE], $_SESSION[self::SESION_HUELLA]);
+            return null;
+        }
+        return $usuario;
     }
 
     /**
@@ -158,6 +165,7 @@ class Administrador
         session_regenerate_id(true);
         \Security\Proteccion::rotarToken();
         $_SESSION[self::SESION_CLAVE] = (int) $admin['id'];
+        $_SESSION[self::SESION_HUELLA] = hash('sha256', (string) $admin['password']);
 
         // Registro del último ingreso.
         conexion()->prepare('UPDATE users SET ultimo_ingreso = NOW() WHERE id = ?')
@@ -169,7 +177,7 @@ class Administrador
     public static function cerrarSesion(): void
     {
         self::arrancarSesion();
-        unset($_SESSION[self::SESION_CLAVE]);
+        unset($_SESSION[self::SESION_CLAVE], $_SESSION[self::SESION_HUELLA]);
         session_regenerate_id(true);
         \Security\Proteccion::rotarToken();
     }
@@ -192,6 +200,7 @@ class Administrador
 
         self::arrancarSesion();
         $_SESSION[self::SESION_CLAVE] = (int) ($cuenta['id'] ?? 0);
+        $_SESSION[self::SESION_HUELLA] = hash('sha256', (string) ($cuenta['password'] ?? ''));
     }
 
     /**
@@ -202,7 +211,7 @@ class Administrador
     {
         self::arrancarSesion();
         if ((int) ($_SESSION[self::SESION_CLAVE] ?? 0) === $id) {
-            unset($_SESSION[self::SESION_CLAVE]);
+            unset($_SESSION[self::SESION_CLAVE], $_SESSION[self::SESION_HUELLA]);
         }
     }
 

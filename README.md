@@ -58,6 +58,9 @@ Requiere 8+ caracteres y rechaza claves comunes. Verifica la base de destino
 antes de ejecutarlo. Los `.env*` reales no se versionan; si una credencial se
 filtró, rótala en el proveedor.
 
+La tienda y el panel revocan sus sesiones al desactivar la cuenta o cambiar su
+contraseña. Las sesiones anteriores a esta validación requieren volver a iniciar
+sesión; el carrito guardado se conserva.
 
 ## Estructura
 

@@ -16,6 +16,7 @@ class Cuenta
 {
     /** Clave de sesión que guarda el id del cliente autenticado. */
     private const SESION_CLAVE = 'cliente_id';
+    private const SESION_HUELLA = 'cliente_huella';
 
     /** Preguntas de seguridad permitidas (se guarda el texto exacto). */
     public const PREGUNTAS_PERMITIDAS = [
@@ -39,9 +40,8 @@ class Cuenta
      */
     public static function idSesion(): ?int
     {
-        self::arrancarSesion();
-        $id = $_SESSION[self::SESION_CLAVE] ?? null;
-        return $id !== null ? (int) $id : null;
+        $usuario = self::usuarioActual();
+        return $usuario !== null ? (int) $usuario['id'] : null;
     }
 
     public static function estaRegistrado(): bool
@@ -85,20 +85,35 @@ class Cuenta
      */
     public static function usuarioActual(): ?array
     {
-        $id = self::idSesion();
+        self::arrancarSesion();
+        $id = $_SESSION[self::SESION_CLAVE] ?? null;
         if ($id === null) {
             return null;
         }
 
         $stmt = conexion()->prepare(
             'SELECT id, name AS nombre, apellidos, email, usuario, telefono, direccion, dni, ruc, empresa,
-                    plataforma_reventa, tipo, rol, verificado
+                    plataforma_reventa, tipo, rol, verificado, password
              FROM users WHERE id = ? AND activo = 1 AND deleted_at IS NULL LIMIT 1'
         );
         $stmt->execute([$id]);
         $fila = $stmt->fetch();
 
-        return $fila ?: null;
+        $huella = $_SESSION[self::SESION_HUELLA] ?? null;
+        if (!$fila || !is_string($huella) || !hash_equals(hash('sha256', (string) $fila['password']), $huella)) {
+            // El carrito heredado queda reservado a esta cuenta hasta que vuelva a autenticarse.
+            foreach ($_SESSION['carrito'] ?? [] as $clave => $cantidad) {
+                $_SESSION['carritos_pendientes'][(int) $id][$clave] = min(
+                    2147483647,
+                    (int) ($_SESSION['carritos_pendientes'][(int) $id][$clave] ?? 0) + (int) $cantidad
+                );
+            }
+            unset($_SESSION[self::SESION_CLAVE], $_SESSION[self::SESION_HUELLA], $_SESSION['carrito'], $_SESSION['cupon']);
+            return null;
+        }
+
+        unset($fila['password']);
+        return $fila;
     }
 
     /**
@@ -238,6 +253,7 @@ class Cuenta
             return 'La respuesta de seguridad debe tener al menos 3 caracteres';
         }
 
+        $hash = password_hash($password, PASSWORD_DEFAULT);
         $pdo = conexion();
         $pdo->beginTransaction();
         try {
@@ -260,7 +276,7 @@ class Cuenta
                 $tipo === 'B2B' ? $nombre : '',
                 $tipo === 'B2B' ? $ruc : '',
                 $tipo === 'C2C' ? $plataforma : '',
-                password_hash($password, PASSWORD_DEFAULT),
+                $hash,
                 $pregunta,
                 password_hash(mb_strtolower($respuesta, 'UTF-8'), PASSWORD_DEFAULT),
                 'cliente',
@@ -296,6 +312,7 @@ class Cuenta
         session_regenerate_id(true);
         \Security\Proteccion::rotarToken();
         $_SESSION[self::SESION_CLAVE] = $clienteId;
+        $_SESSION[self::SESION_HUELLA] = hash('sha256', $hash);
         unset($_SESSION['carrito'], $_SESSION['carritos_pendientes'][$origenCarrito]);
 
         return null;
@@ -413,6 +430,7 @@ class Cuenta
         session_regenerate_id(true);
         \Security\Proteccion::rotarToken();
         $_SESSION[self::SESION_CLAVE] = (int) $cuenta['id'];
+        $_SESSION[self::SESION_HUELLA] = hash('sha256', $hash);
         unset($_SESSION['carrito'], $_SESSION['carritos_pendientes'][$anterior ?? (int) $cuenta['id']]);
         if ($anterior !== null && $anterior !== (int) $cuenta['id']) {
             Carrito::quitarCupon();
@@ -441,7 +459,7 @@ class Cuenta
                 );
             }
         }
-        unset($_SESSION[self::SESION_CLAVE], $_SESSION['carrito'], $_SESSION['cupon']);
+        unset($_SESSION[self::SESION_CLAVE], $_SESSION[self::SESION_HUELLA], $_SESSION['carrito'], $_SESSION['cupon']);
         if ($id > 0) {
             // Si el panel se abrió con esta misma cuenta, se cierra con ella.
             Administrador::desvincularCuenta($id);

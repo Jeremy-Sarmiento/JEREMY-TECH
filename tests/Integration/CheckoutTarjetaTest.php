@@ -15,7 +15,8 @@ final class CheckoutTarjetaTest extends TestCase
     {
         resetTestDb();
         \Security\Proteccion::iniciarSesion();
-        $_SESSION = ['cliente_id' => 3];
+        $_SESSION = [];
+        $this->assertTrue(\Model\Cuenta::iniciarSesion('cliente@example.com', 'cliente'));
         testPdo()->exec("INSERT INTO productos (id, slug, categoria, nombre, especificaciones, precio_pen, stock)
             VALUES (1, 'tarjeta-demo', 'Celulares', 'Teléfono de prueba', '', 100, 10)");
     }

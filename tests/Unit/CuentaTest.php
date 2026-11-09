@@ -44,6 +44,7 @@ class CuentaTest extends TestCase
         $this->assertNotNull($usuario);
         $this->assertEquals('cliente', $usuario['rol'], 'Toda cuenta nueva debe tener rol=cliente');
         $this->assertEquals('B2C', $usuario['tipo'], 'El tipo elegido debe respetarse');
+        $this->assertSame((int) $usuario['id'], Cuenta::idSesion());
     }
 
     public function testRegistrarRespetaTipoB2B(): void
