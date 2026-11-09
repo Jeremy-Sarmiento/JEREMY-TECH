@@ -51,11 +51,7 @@ El seed deja las cuentas de admin y vendedor demo desactivadas. Crea o recupera
 una cuenta admin desde el servidor:
 
 ```bash
-export ADMIN_EMAIL=tu-correo@example.com ADMIN_USUARIO=tu-usuario
-read -rs -p 'Nueva contraseña: ' ADMIN_INITIAL_PASSWORD
-export ADMIN_INITIAL_PASSWORD
-php tools/establecer-admin.php
-unset ADMIN_INITIAL_PASSWORD
+env ADMIN_EMAIL="tu@correo.com" ADMIN_USUARIO="tu-usuario" ADMIN_INITIAL_PASSWORD="tu_contrasena" php tools/establecer-admin.php
 ```
 
 Requiere 8+ caracteres y rechaza claves comunes. Verifica la base de destino
