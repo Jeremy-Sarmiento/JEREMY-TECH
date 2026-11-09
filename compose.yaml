@@ -14,7 +14,7 @@ services:
       MARIADB_PASSWORD: admin
       MARIADB_ROOT_PASSWORD: admin
     ports:
-      - "3304:3306"
+      - "3306:3306"
     volumes:
       - db-data:/var/lib/mysql
       # Se importan solo la primera vez que se crea el volumen.
