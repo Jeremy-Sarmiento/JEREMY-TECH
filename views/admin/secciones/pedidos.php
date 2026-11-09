@@ -11,9 +11,13 @@ $estados = ['Pendiente', 'Pagado', 'Enviado', 'Entregado', 'Cancelado'];
 $pagina = filter_var($_GET['pagina'] ?? 1, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 1000000]]) ?: 1;
 $porPagina = 50;
 
+$gestionable = $esVendedor
+    ? 'NOT EXISTS (SELECT 1 FROM detalle_pedido otro WHERE otro.pedido_id = p.id
+                  AND otro.vendedor_id IS DISTINCT FROM dp.vendedor_id)'
+    : 'TRUE';
 $sqlPedidos = 'SELECT ' . ($joinPedidos !== '' ? 'DISTINCT ' : '')
     . 'p.*, c.name AS nombre, c.apellidos,
-       pa.estado AS pago_estado, pa.monto_pen AS pago_monto
+       pa.estado AS pago_estado, pa.monto_pen AS pago_monto, ' . $gestionable . ' AS gestionable
        FROM pedidos p
        JOIN users c ON c.id = p.cliente_id
        LEFT JOIN LATERAL (
@@ -155,7 +159,9 @@ $puedeReembolsar = static function (array $p): bool {
                         $destinos = \Model\Pedido::destinos((string) $p['estado']);
                         $esRecojo = (string) ($p['envio_zona'] ?? '') === \Model\Envio::ZONA_RECOJO;
                         ?>
-                        <?php if ($destinos === []): ?>
+                        <?php if (!$p['gestionable']): ?>
+                            <span class="admin-nota">Pedido mixto: lo gestiona administración.</span>
+                        <?php elseif ($destinos === []): ?>
                             <span class="admin-nota">Estado final</span>
                         <?php else: ?>
                         <form method="post" action="?ruta=admin/pedidos/estado" class="admin-inline-form">

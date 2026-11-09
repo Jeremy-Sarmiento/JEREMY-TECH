@@ -1124,11 +1124,11 @@ final class AdminController
             $courier = trim((string) ($_POST['courier'] ?? ''));
             $guia    = trim((string) ($_POST['guia_numero'] ?? ''));
 
-            // Un vendedor solo puede mover pedidos que llevan sus líneas: el
-            // listado ya viene acotado, pero el POST no.
+            // El estado es global: un vendedor no puede mover líneas ajenas ni de plataforma.
             if ($id > 0 && Admin::esVendedor()) {
                 $qPermiso = $pdo->prepare(
-                    'SELECT 1 FROM detalle_pedido WHERE pedido_id = ? AND vendedor_id = ? LIMIT 1'
+                    'SELECT 1 FROM detalle_pedido WHERE pedido_id = ?
+                     GROUP BY pedido_id HAVING bool_and(vendedor_id IS NOT DISTINCT FROM ?)'
                 );
                 $qPermiso->execute([$id, (int) Admin::idSesion()]);
                 if (!$qPermiso->fetchColumn()) {
