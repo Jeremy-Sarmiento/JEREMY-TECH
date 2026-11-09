@@ -2,98 +2,27 @@
 /** Vista: Resumen del panel (admin o vendedor — Etapa 6). */
 $e = static fn ($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 
-$tarjetas = [];
-$titulo   = 'Resumen general';
-$nota     = 'Estado de la tienda en un vistazo.';
-$ultimos  = [];
-$error    = null;
-$esVendedor = false;
-
-try {
-    $pdo = conexion();
-    $esVendedor = \Model\Administrador::esVendedor();
-    $vendedorId = $esVendedor ? \Model\Administrador::idSesion() : null;
-
-    if ($esVendedor && $vendedorId !== null) {
-        $titulo = 'Resumen del vendedor';
-        $nota   = 'Tu actividad en el marketplace: productos publicados y ventas canalizadas.';
-
-        $q = $pdo->prepare('SELECT COUNT(*) FROM productos WHERE vendedor_id = ?');
-        $q->execute([$vendedorId]);
-        $productos = (int) $q->fetchColumn();
-
-        $q = $pdo->prepare(
-            "SELECT COUNT(DISTINCT p.id),
-                    COALESCE(SUM(CASE WHEN p.estado = 'Pendiente' THEN 1 ELSE 0 END), 0)
-               FROM (SELECT DISTINCT p2.id, p2.estado
-                       FROM pedidos p2
-                       JOIN detalle_pedido dp2 ON dp2.pedido_id = p2.id
-                      WHERE dp2.vendedor_id = ?) p"
-        );
-        $q->execute([$vendedorId]);
-        [$pedidos, $pendientes] = $q->fetch(\PDO::FETCH_NUM) ?: [0, 0];
-
-        $q = $pdo->prepare(
-            "SELECT COALESCE(SUM(c.monto_comision + c.monto_vendedor), 0)
-               FROM comisiones c
-               JOIN pedidos p ON p.id = c.pedido_id
-              WHERE c.vendedor_id = ? AND p.estado NOT IN ('Cancelado', 'Pendiente')"
-        );
-        $q->execute([$vendedorId]);
-        $ventas = (float) $q->fetchColumn();
-
-        $ganancias = \Model\Vendedor::gananciasDe((int) $vendedorId);
-        $saldo     = \Model\Vendedor::saldoPendiente((int) $vendedorId);
-
-        $tarjetas = [
-            ['tarjeta-cyan', $productos, 'Productos'],
-            ['tarjeta-azul', (int) $pedidos, 'Pedidos'],
-            ['tarjeta-ambar', (int) $pendientes, 'Pendientes'],
-            ['tarjeta-verde', number_format($ventas, 2), 'Ventas (S/)'],
-            ['tarjeta-verde', number_format($ganancias, 2), 'Ganancias (S/)'],
-            ['tarjeta-rojo', number_format($saldo, 2), 'Por liquidar (S/)'],
-        ];
-
-        $q = $pdo->prepare(
-            'SELECT p.id, p.estado, p.total_pen, p.creado_en,
-                    c.name AS nombre, c.apellidos
-               FROM pedidos p
-               JOIN users c ON c.id = p.cliente_id
-               JOIN detalle_pedido dp ON dp.pedido_id = p.id AND dp.vendedor_id = ?
-              GROUP BY p.id
-              ORDER BY p.id DESC LIMIT 8'
-        );
-        $q->execute([$vendedorId]);
-        $ultimos = $q->fetchAll();
-    } else {
-        $totales = [
-            'productos'  => (int) $pdo->query('SELECT COUNT(*) FROM productos')->fetchColumn(),
-            'pedidos'    => (int) $pdo->query('SELECT COUNT(*) FROM pedidos')->fetchColumn(),
-            'pendientes' => (int) $pdo->query("SELECT COUNT(*) FROM pedidos WHERE estado = 'Pendiente'")->fetchColumn(),
-            'usuarios'   => (int) $pdo->query('SELECT COUNT(*) FROM users WHERE deleted_at IS NULL')->fetchColumn(),
-            'cupones'    => (int) $pdo->query('SELECT COUNT(*) FROM cupones')->fetchColumn(),
-            'vendedores' => (int) $pdo->query(
-                "SELECT COUNT(*) FROM users WHERE rol = 'vendedor' AND deleted_at IS NULL"
-            )->fetchColumn(),
-        ];
-        $tarjetas = [
-            ['tarjeta-cyan', $totales['productos'], 'Productos'],
-            ['tarjeta-azul', $totales['pedidos'], 'Pedidos'],
-            ['tarjeta-ambar', $totales['pendientes'], 'Pendientes'],
-            ['tarjeta-verde', $totales['usuarios'], 'Usuarios'],
-            ['tarjeta-rojo', $totales['cupones'], 'Cupones'],
-            ['tarjeta-azul', $totales['vendedores'], 'Vendedores'],
-        ];
-
-        $ultimos = $pdo->query(
-            'SELECT p.id, p.estado, p.total_pen, p.creado_en, c.name AS nombre, c.apellidos
-             FROM pedidos p JOIN users c ON c.id = p.cliente_id
-             ORDER BY p.id DESC LIMIT 8'
-        )->fetchAll();
-    }
-} catch (\Throwable $error) {
-    $error = $error->getMessage();
-    error_log('Dashboard resumen: ' . $error);
+// Los datos ya se consultaron en AdminController::dashboard().
+$totales = $datos['totales'];
+$ultimos = $datos['ultimos'];
+$esVendedor = $datos['vendedor'];
+$titulo = $esVendedor ? 'Resumen del vendedor' : 'Resumen general';
+$nota = $esVendedor
+    ? 'Tu actividad en el marketplace: productos publicados y ventas canalizadas.'
+    : 'Estado de la tienda en un vistazo.';
+$tarjetas = [
+    ['tarjeta-cyan', $totales['productos'], 'Productos'],
+    ['tarjeta-azul', $totales['pedidos'], 'Pedidos'],
+    ['tarjeta-ambar', $totales['pendientes'], 'Pendientes'],
+];
+if ($esVendedor) {
+    $tarjetas[] = ['tarjeta-verde', number_format($totales['ventas'], 2), 'Ventas (S/)'];
+    $tarjetas[] = ['tarjeta-verde', number_format($totales['ganancias'], 2), 'Ganancias (S/)'];
+    $tarjetas[] = ['tarjeta-rojo', number_format($totales['saldo'], 2), 'Por liquidar (S/)'];
+} else {
+    $tarjetas[] = ['tarjeta-verde', $totales['usuarios'], 'Usuarios'];
+    $tarjetas[] = ['tarjeta-rojo', $totales['cupones'], 'Cupones'];
+    $tarjetas[] = ['tarjeta-azul', $totales['vendedores'], 'Vendedores'];
 }
 ?>
 <section class="admin-seccion">
@@ -103,12 +32,6 @@ try {
             <p class="admin-nota"><?= $e($nota) ?></p>
         </div>
     </div>
-
-    <?php if ($error !== null): ?>
-    <div class="auth-flash auth-flash-error">
-        No se pudo cargar el resumen: <?= $e($error) ?>
-    </div>
-    <?php endif; ?>
 
     <div class="tarjetas">
         <?php foreach ($tarjetas as [$clase, $numero, $etiqueta]): ?>
@@ -126,9 +49,7 @@ try {
                 <tr><th>#</th><th>Cliente</th><th>Total (S/)</th><th>Estado</th><th>Fecha</th></tr>
             </thead>
             <tbody>
-            <?php if ($error !== null): ?>
-                <tr><td colspan="5">Error cargando pedidos: <?= $e($error) ?></td></tr>
-            <?php elseif (!$ultimos): ?>
+            <?php if (!$ultimos): ?>
                 <tr><td colspan="5">Todavía no hay pedidos que mostrar.</td></tr>
             <?php endif; ?>
             <?php foreach ($ultimos as $p): ?>

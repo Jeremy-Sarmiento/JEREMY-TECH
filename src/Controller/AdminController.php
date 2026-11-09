@@ -252,7 +252,7 @@ final class AdminController
             $totales['productos'] = (int) $q->fetchColumn();
 
             $q = $pdo->prepare(
-                "SELECT COUNT(DISTINCT p.id), SUM(CASE WHEN p.estado = 'Pendiente' THEN 1 ELSE 0 END)
+                "SELECT COUNT(DISTINCT p.id), COUNT(DISTINCT CASE WHEN p.estado = 'Pendiente' THEN p.id END)
                    FROM pedidos p
                    JOIN detalle_pedido dp ON dp.pedido_id = p.id
                   WHERE dp.vendedor_id = ?"
