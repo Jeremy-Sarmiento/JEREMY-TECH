@@ -2,6 +2,8 @@
 #   docker compose up -d db                       solo la base, con PHP en tu PC
 #   docker compose up -d --build app --no-deps    solo la app, con Supabase
 #   docker compose up -d --build                  app y base en Docker
+name: proyecto-postgresql
+
 services:
   db:
     build:
