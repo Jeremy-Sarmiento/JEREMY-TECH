@@ -12,5 +12,25 @@ _site
 tests
 tools/*
 !tools/establecer-admin.php
-storage/mail
+storage
 *.md
+compose*.yaml
+Dockerfile
+.dockerignore
+
+# Solo se usan en desarrollo
+.php-cs-fixer.cache
+.php-cs-fixer.dist.php
+phpstan.neon
+phpunit.xml.dist
+composer.json
+composer.lock
+tasks
+
+# Respaldos, parches y archivos de editor
+*.dump
+*.sql.gz
+*.log
+.idea
+.vscode
+.DS_Store
