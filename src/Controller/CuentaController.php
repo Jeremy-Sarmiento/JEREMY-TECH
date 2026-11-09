@@ -341,7 +341,7 @@ class CuentaController
                 self::guardarFlash(
                     'Enlace de recuperación generado (modo demo):<br>'
                     . '<a href="' . htmlspecialchars($enlace) . '" target="_blank" rel="noopener">'
-                    . htmlspecialchars($enlace) . '</a><br>'
+                    . 'Restablecer contraseña</a><br>'
                     . 'El enlace vence en ' . 30 . ' minutos y solo puede usarse una vez.',
                     false,
                     true
@@ -431,7 +431,7 @@ class CuentaController
     }
 
     /**
-     * @return array{tipo: string, mensaje: string}
+     * @return array{tipo: string, mensaje: string, html?: bool}
      */
     private static function tomarFlash(): array
     {
@@ -443,6 +443,7 @@ class CuentaController
             return [
                 'tipo'    => ($flash['tipo'] ?? '') === 'ok' ? 'ok' : 'error',
                 'mensaje' => (string) ($flash['mensaje'] ?? ''),
+                'html'    => ($flash['html'] ?? false) === true,
             ];
         }
         return ['tipo' => '', 'mensaje' => ''];

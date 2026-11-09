@@ -141,6 +141,11 @@
   font-size: 13px;
 }
 
+.auth-flash a {
+  color: var(--jt-acento);
+  text-decoration: underline;
+}
+
 .auth-flash-error {
   border-color: rgba(255, 122, 122, 0.42);
   background: var(--jt-error-suave);
