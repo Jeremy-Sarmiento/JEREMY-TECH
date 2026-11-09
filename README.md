@@ -14,17 +14,47 @@ Informes PDF de las sesiones de desarrollo:
 - [Sesion 2 - La Radiografía Técnica](entregables/La%20Radiografía%20Técnica%20—%20Sesión%202.pdf)
 - [Sesión 3](entregables/Sesion-003-A3-2-Entregable.pdf)
 
-## Instalación
+## Instalación local
+
+Requiere PHP 8.2+ con `pdo_mysql`, MariaDB 10.2+ y Apache con `mod_rewrite`.
+
+1. Importa el dump completo:
+
+   ```bash
+   mariadb -h 127.0.0.1 -u root -p < database/jeremy_tech_full.sql
+   ```
+
+   Crea la base `jeremy_tech`, sus tablas y los datos iniciales. Debe importarse
+   sobre una instalación vacía y no es idempotente.
+
+2. Copia el entorno y rellena las credenciales:
+
+   ```bash
+   cp .env.example .env   # DB_USER y DB_PASS
+   ```
+
+   `DB_HOST=127.0.0.1` y `DB_PORT=3306` apuntan a tu MariaDB local. Deja `.env`
+   fuera de `public/` y con permisos `600`: no debe ser accesible por HTTP.
+
+3. Configura Apache con el DocumentRoot en `public/` y `mod_rewrite` activo:
+
+   ```apache
+   <VirtualHost *:80>
+       DocumentRoot /ruta/al/proyecto/public
+       <Directory /ruta/al/proyecto/public>
+           AllowOverride All
+           Require all granted
+       </Directory>
+   </VirtualHost>
+   ```
+
+   Abre `http://localhost/` o la ruta que corresponda al sitio.
+
+Para desarrollo rápido también sirve:
 
 ```bash
-mariadb -h 127.0.0.1 -u root -p < database/jeremy_tech_full.sql
-cp .env.example .env   # rellenar DB_USER / DB_PASS
 php -S 127.0.0.1:8000 -t public
 ```
-
-El dump completo crea la base `jeremy_tech`, sus tablas y los datos iniciales.
-Debe importarse sobre una instalación vacía y requiere la extensión `pdo_mysql`.
-No es idempotente.
 
 ### Base MariaDB alojada
 
@@ -32,23 +62,11 @@ Configura `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASS` con los datos
 del proveedor. Importa `database/jeremy_tech_full.sql` desde un equipo autorizado
 antes de iniciar la aplicación. No subas `.env` al repositorio.
 
-## Despliegue en Render
+## Docker
 
-El repositorio incluye `Dockerfile`, `docker/apache.conf` y `docker/php.ini`.
-La imagen usa PHP 8.2 con Apache, `pdo_mysql` y el DocumentRoot en `public/`.
-La base MariaDB debe estar alojada por separado y aceptar conexiones desde el
-servicio.
-
-1. Importa `database/jeremy_tech_full.sql` en la base MariaDB de destino.
-2. En Render, crea un Web Service desde la rama `main` y selecciona Docker.
-3. Define `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS` y
-   `APP_URL=https://<servicio>.onrender.com`.
-4. Configura `TRUSTED_PROXIES` solo con las IPs exactas de proxies propios. Sin
-   proxy propio, déjalo vacío.
-
-El disco del contenedor es efímero. Las sesiones y los correos simulados se
-pierden al reiniciar; usa una ruta persistente fuera del DocumentRoot si deben
-conservarse.
+App y MariaDB en contenedores, sin Apache ni MariaDB en el host. Los modos de
+arranque, la primera vez, el administrador y Render están en
+**[README.Docker.md](README.Docker.md).**
 
 ## Administrador inicial y seguridad
 

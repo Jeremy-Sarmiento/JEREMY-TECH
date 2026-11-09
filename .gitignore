@@ -1,11 +1,26 @@
 .env
 .env.production
+.env.*
+!.env.example
 .ht.env
+
 /vendor/
-admin.md
 # Correos simulados: no se versionan (pueden contener datos del cliente).
 storage/mail/
 
+# Respaldos y volcados de base
+*.dump
+*.sql.gz
+/respaldo.dump
+
+# Caché de PHPUnit
+/.phpunit.result.cache
+/.phpunit.cache/
+
+# Editores y sistema
+.idea/
+.vscode/
+.DS_Store
 
 # PHP CS Fixer cache
 /.php-cs-fixer.cache
