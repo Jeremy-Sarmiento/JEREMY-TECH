@@ -145,8 +145,8 @@ final class PagoSimulado
             'estado_pedido'  => 'Pendiente',
             'estado_pago'    => 'En verificación',
             'transaccion_id' => self::referencia('TRANSF'),
-            'mensaje'        => 'Pedido registrado. La transferencia quedó en verificación (simulación); '
-                . 'un administrador confirmará el pago.',
+            'mensaje'        => 'Pedido de prueba registrado. La transferencia simulada quedó en verificación. '
+                . 'No se realizó ningún cobro real. No transfieras dinero.',
         ];
     }
 
@@ -161,7 +161,8 @@ final class PagoSimulado
             'estado_pedido'  => 'Pendiente',
             'estado_pago'    => 'Pendiente',
             'transaccion_id' => self::referencia('CONTRA'),
-            'mensaje'        => 'Pedido registrado. El pago queda pendiente hasta la entrega (simulación).',
+            'mensaje'        => 'Pedido de prueba registrado con pago simulado pendiente. '
+                . 'No se realizó ningún cobro real. No habrá entrega de productos.',
         ];
     }
 

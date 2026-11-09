@@ -207,5 +207,9 @@
     </button>
    </div>
   </nav>
+  <aside class="sim-note demo-banner" aria-label="Aviso de demostración">
+   <svg class="inline-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><use href="img/icons.svg#icon-flask"/></svg>
+   <span><strong>Tienda de demostración.</strong> Las compras y los pagos son simulados; no se realizan cobros reales.</span>
+  </aside>
   <button class="btn-inicio-flotante" id="btnInicio" type="button" onclick="irAlInicio()" aria-label="Volver arriba">
   </button>

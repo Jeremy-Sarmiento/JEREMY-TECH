@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const email = (document.getElementById('clienteEmail').value || '').trim();
       const direccion = direccionResumida();
 
-      const comprobanteTexto = tipoBoleta ? 'Boleta de Venta Electrónica' : 'Factura Electrónica';
+      const comprobanteTexto = tipoBoleta ? 'Boleta de prueba (sin validez fiscal)' : 'Factura de prueba (sin validez fiscal)';
       const docTexto = tipoBoleta
         ? 'DNI: ' + ((document.getElementById('clienteDni').value || '').trim() || 'No especificado')
         : 'RUC: ' + ((document.getElementById('clienteRuc').value || '').trim() || 'No especificado');
@@ -279,12 +279,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const tituloExito = document.getElementById('successTitle');
       const subtituloExito = document.getElementById('successSubtitle');
       if (tituloExito) {
-        tituloExito.textContent = pagado ? '¡Pago simulado aprobado!' : '¡Pedido registrado!';
+        tituloExito.textContent = pagado ? 'Pedido de prueba aprobado' : 'Pedido de prueba registrado';
       }
       if (subtituloExito) {
         subtituloExito.textContent = r.mensaje || (pagado
-          ? 'Pago simulado aprobado. Tu orden está en preparación.'
-          : 'Tu orden quedó registrada. El pago se confirmará según el método elegido.');
+          ? 'Pago simulado aprobado. No se realizó ningún cobro real.'
+          : 'Pedido de prueba con pago simulado pendiente. No se realizó ningún cobro real.');
       }
 
       // Despliega el ticket
@@ -310,10 +310,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (tEnt) tEnt.textContent = entregaTexto;
       if (tFec) tFec.textContent = ultimoPedido.fecha;
       if (tTot) tTot.textContent = ultimoPedido.total;
-      if (tTotLabel) tTotLabel.textContent = pagado ? 'Total Pagado:' : 'Total del Pedido:';
+      if (tTotLabel) tTotLabel.textContent = 'Total simulado:';
       if (tItems) {
         const nItems = (window.JT_CARRO && JT_CARRO.totalItems) ? JT_CARRO.totalItems : 0;
-        tItems.textContent = nItems + (nItems === 1 ? ' producto comprado' : ' productos comprados');
+        tItems.textContent = nItems + (nItems === 1 ? ' producto en el pedido de prueba' : ' productos en el pedido de prueba');
       }
 
       if (window.JeremyTechAnalitica) {
@@ -340,12 +340,13 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   /**
-   * Envía un comprobante de compra digital vía enlace directo a WhatsApp.
+   * Comparte un pedido de prueba vía enlace directo a WhatsApp.
    */
   window.enviarReciboWhatsApp = function () {
     if (!ultimoPedido) return;
     const numeroWhatsApp = '51997833866';
-    let mensaje = '*COMPROBANTE DE COMPRA - JEREMY TECH*\n';
+    let mensaje = '*PEDIDO DE PRUEBA - JEREMY TECH*\n';
+    mensaje += 'Compra simulada. No se realizó ningún cobro real. No se enviarán productos.\n';
     mensaje += '━━━━━━━━━━━━━━━━━━━━━━━\n';
     mensaje += '*Orden:* ' + ultimoPedido.id + '\n';
     mensaje += '*Fecha:* ' + ultimoPedido.fecha + '\n';
@@ -356,8 +357,8 @@ document.addEventListener('DOMContentLoaded', () => {
     mensaje += '*Estado del Pago:* ' + ultimoPedido.estadoPago + '\n';
     mensaje += '*Referencia:* ' + ultimoPedido.transaccion + '\n';
     mensaje += '━━━━━━━━━━━━━━━━━━━━━━━\n';
-    mensaje += '*TOTAL DEL PEDIDO:* ' + ultimoPedido.total + '\n\n';
-    mensaje += '¡Gracias por confiar en *Jeremy Tech*!';
+    mensaje += '*TOTAL SIMULADO:* ' + ultimoPedido.total + '\n\n';
+    mensaje += 'Comprobante de demostración, sin validez fiscal.';
 
     window.open('https://wa.me/' + numeroWhatsApp + '?text=' + encodeURIComponent(mensaje), '_blank');
   };
@@ -688,7 +689,7 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   window.contactarOrdenWhatsApp = function (pedidoId) {
     const numeroWhatsApp = '51997833866';
-    const msg = 'Hola Jeremy Tech, quisiera consultar sobre el estado de mi orden *#' + pedidoId + '*.';
+    const msg = 'Hola Jeremy Tech, quisiera consultar sobre mi pedido de prueba *#' + pedidoId + '* (compra simulada, sin cobro real).';
     window.open('https://wa.me/' + numeroWhatsApp + '?text=' + encodeURIComponent(msg), '_blank');
   };
 
@@ -704,9 +705,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.JT_CARRO) {
     const hash = window.location.hash;
     if (hash === '#checkout' && !JT_CARRO.estaVacio) {
-      // Scroll suave al formulario de pago si se navegó con ese hash.
-      const ref = document.getElementById('btnPagarAhora');
-      if (ref) setTimeout(() => ref.scrollIntoView({ behavior: 'smooth', block: 'center' }), 200);
+      // Mostrar el aviso antes de los campos, no saltar directamente al botón.
+      const ref = document.getElementById('checkout');
+      if (ref) setTimeout(() => ref.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
     } else if (hash === '#historial') {
       const hist = document.getElementById('historial');
       if (hist) {

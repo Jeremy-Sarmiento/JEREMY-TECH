@@ -277,7 +277,8 @@
   background: var(--jt-alerta-suave);
   border: 1px solid rgba(242, 181, 68, 0.32);
   border-radius: var(--radio-sm);
-  color: var(--jt-texto-2);
+  color: var(--jt-texto);
+  font-size: 0.875rem;
 }
 
 .sim-note strong {
@@ -288,6 +289,21 @@
   background: var(--jt-ink-950);
   border: 1px solid var(--jt-line);
   color: var(--jt-texto);
+}
+
+.demo-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0.875rem clamp(16px, 3vw, 40px);
+  border-radius: 0;
+}
+
+.demo-banner svg {
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+  color: var(--jt-alerta);
 }
 
 .bank-card,
@@ -499,4 +515,3 @@
   font-family: var(--fuente-mono);
   color: var(--jt-acento);
 }
-

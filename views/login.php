@@ -42,8 +42,10 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
   <div class="auth-card">
    <div class="auth-head">
     <h1>Mi Cuenta</h1>
-    <p>Accede para realizar tu compra y seguir tus pedidos.</p>
+    <p>Accede para simular compras y consultar tus pedidos de prueba.</p>
    </div>
+
+   <p class="sim-note"><strong>Cuenta de demostración.</strong> Usa datos ficticios y una contraseña que no utilices en otros servicios.</p>
 
    <?php if ($flash['mensaje']): ?>
    <div class="auth-flash auth-flash-<?= $flash['tipo'] === 'ok' ? 'ok' : 'error' ?>"><?= htmlspecialchars($flash['mensaje']) ?></div>
@@ -108,7 +110,7 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
      <input type="text" id="regDireccion" name="direccion" maxlength="255" autocomplete="street-address"
             placeholder="Ej. Calle Los Álamos 123, Cercado, Arequipa"
             value="<?= $v('direccion') ?>" required/>
-     <p class="auth-hint">Es donde llegará tu pedido. Podrás guardar más direcciones desde tu cuenta.</p>
+     <p class="auth-hint">Usa una dirección ficticia para probar el envío. No se enviarán productos.</p>
     </div>
 
     <?php if ($zonas !== []): ?>

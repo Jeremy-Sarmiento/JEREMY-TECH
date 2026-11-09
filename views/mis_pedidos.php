@@ -37,7 +37,7 @@ $claseEstado = static function (string $estado): string {
 <main class="cart-page cuenta-page mis-pedidos-page">
  <div class="cart-page-header">
   <h1><svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-pedidos"/></svg>Mis Pedidos</h1>
-  <p>Historial, seguimiento y opiniones de tus compras en Jeremy Tech.</p>
+  <p>Historial y seguimiento simulado de tus pedidos de prueba en Jeremy Tech.</p>
  </div>
 
  <?php require BASE_PATH . '/views/partials/cuenta_nav.php'; ?>
@@ -74,7 +74,7 @@ $claseEstado = static function (string $estado): string {
   <div class="pedidos-stat">
    <span class="pedidos-stat-icon" aria-hidden="true"><svg class="inline-icon" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-card"/></svg></span>
    <span class="pedidos-stat-valor"><?= $fmt((float) ($resumen['gastado'] ?? 0)) ?></span>
-   <span class="pedidos-stat-etiqueta">Gastado (sin cancelados)</span>
+   <span class="pedidos-stat-etiqueta">Importe simulado (sin cancelados)</span>
   </div>
  </div>
 
@@ -102,7 +102,7 @@ $claseEstado = static function (string $estado): string {
   <div class="empty-icon"><?= $estadoActual === '' ? '<svg class="inline-icon" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-pedidos"/></svg>' : '<svg class="inline-icon" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-search"/></svg>' ?></div>
   <?php if ($estadoActual === ''): ?>
   <h4>Aún no tienes pedidos</h4>
-  <p>Cuando realices tu primera compra, aparecerá aquí el detalle y el seguimiento.</p>
+  <p>Cuando simules tu primera compra, aparecerá aquí el detalle y el seguimiento de prueba.</p>
   <a class="btn-auth-gate" href="?ruta=catalogo">Explorar catálogo</a>
   <?php else: ?>
   <h4>No hay pedidos en estado «<?= $e($estadoActual) ?>»</h4>
@@ -130,17 +130,19 @@ $claseEstado = static function (string $estado): string {
    <article class="order-card pedido-card" id="pedido-<?= $pedidoId ?>">
     <header class="pedido-card-header">
      <div>
-      <span class="order-id">#JT-<?= str_pad((string) $pedidoId, 5, '0', STR_PAD_LEFT) ?></span>
+      <span class="order-id">Pedido de prueba #JT-<?= str_pad((string) $pedidoId, 5, '0', STR_PAD_LEFT) ?></span>
       <span class="pedido-card-fecha"><?= $e($fechaFmt((string) ($pedido['creado_en'] ?? ''))) ?></span>
      </div>
      <span class="<?= $e($claseEstado($estadoPedido)) ?>"><?= $e($estadoPedido) ?></span>
     </header>
 
+    <p class="sim-note">No se realizó ningún cobro real. El seguimiento es simulado; no se enviarán productos.</p>
+
     <div class="pedido-card-meta">
-     <span><strong>Total</strong> <?= $fmt((float) ($pedido['total_pen'] ?? 0)) ?></span>
+     <span><strong>Total simulado</strong> <?= $fmt((float) ($pedido['total_pen'] ?? 0)) ?></span>
      <span><strong>Envío</strong> <?= $envioZona !== '' ? $e($envioZona) : 'Recojo en tienda' ?> · <?= $envioCosto > 0 ? $fmt($envioCosto) : 'Gratis' ?></span>
      <?php if ($pago !== null): ?>
-     <span><strong>Pago</strong> <?= $e(ucfirst((string) ($pago['metodo'] ?? ''))) ?> · <?= $e((string) ($pago['estado'] ?? '')) ?></span>
+     <span><strong>Pago simulado</strong> <?= $e(ucfirst((string) ($pago['metodo'] ?? ''))) ?> · <?= $e((string) ($pago['estado'] ?? '')) ?></span>
      <?php if ((string) ($pago['transaccion_id'] ?? '') !== ''): ?>
      <span><strong>Ref.</strong> <?= $e((string) $pago['transaccion_id']) ?></span>
      <?php endif; ?>
@@ -279,7 +281,7 @@ $claseEstado = static function (string $estado): string {
     </div>
     <?php endif; ?>
     <div class="pedido-desglose pedido-desglose-total">
-     <span>Total</span>
+     <span>Total simulado</span>
      <span><?= $fmt((float) ($pedido['total_pen'] ?? 0)) ?></span>
     </div>
 

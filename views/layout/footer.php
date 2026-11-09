@@ -48,7 +48,7 @@ $e = static fn (mixed $valor): string => htmlspecialchars((string) $valor, ENT_Q
       <a class="footer-logo" href="?ruta=catalogo" aria-label="<?= $e($nombreTienda) ?> — Ir al catálogo">
         <img src="img/logo.svg" alt="<?= $e($nombreTienda) ?>" loading="lazy"/>
       </a>
-      <p class="footer-desc">Tu tienda de tecnología de confianza. Productos originales, garantía oficial y envíos a todo el Perú.</p>
+      <p class="footer-desc">Tienda de demostración de tecnología. Compras y pagos simulados, sin cobros ni envíos reales.</p>
       <div class="footer-payments" aria-label="Métodos de pago aceptados (modo demostración)">
         <span class="pay-badge">VISA</span>
         <span class="pay-badge">Mastercard</span>
