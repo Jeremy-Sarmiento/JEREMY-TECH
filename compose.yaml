@@ -1,6 +1,8 @@
 # Local: app + MariaDB.
 #   docker compose up -d db                       solo la base, con PHP en tu PC
 #   docker compose up -d --build                  app y base en Docker
+name: proyecto-mariadb
+
 services:
   db:
     build:
