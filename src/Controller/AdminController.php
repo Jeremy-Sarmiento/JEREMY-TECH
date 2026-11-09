@@ -418,6 +418,15 @@ final class AdminController
                 exit;
             }
 
+            // Convertir a WebP para reducir el tamaño (máx. 3 MB -> ~1 MB WebP)
+            if ($imagenSubida['estado'] === 'ok') {
+                $webp = \Model\ImagenProducto::aWebp($imagenSubida['datos'], $imagenSubida['mime']);
+                if ($webp !== null) {
+                    $imagenSubida['datos'] = $webp;
+                    $imagenSubida['mime'] = 'image/webp';
+                }
+            }
+
             // (Etapa 6) Quién es dueño de la publicación. Un vendedor del
             // panel solo puede publicar a su propio nombre; un admin elige.
             $vendedorId = Admin::esVendedor()

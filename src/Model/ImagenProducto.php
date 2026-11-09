@@ -27,6 +27,9 @@ final class ImagenProducto
         'image/gif'  => 'gif',
     ];
 
+    /** Directorio temporal para conversiones. */
+    private const TMP_DIR = '/tmp/imagen-conversion';
+
     /**
      * Lee `$_FILES['imagen_archivo']`.
      *
@@ -86,6 +89,80 @@ final class ImagenProducto
         }
 
         return ['estado' => 'ok', 'datos' => $datos, 'mime' => $mime];
+    }
+
+    /**
+     * Convierte los datos de imagen a formato WebP usando ImageMagick.
+     *
+     * Escribe el archivo original en un directorio temporal, ejecuta `magick`
+     * para producir WebP y devuelve los datos binarios resultantes. Si la
+     * conversión falla devuelve null.
+     *
+     * @return string|null datos binarios WebP o null en error
+     */
+    public static function aWebp(string $datos, string $mime): ?string
+    {
+        if (!in_array($mime, ['image/jpeg', 'image/png', 'image/gif'], true)) {
+            return null;
+        }
+
+        // Asegurar directorio temporal
+        if (!is_dir(self::TMP_DIR)) {
+            @mkdir(self::TMP_DIR, 0755, true);
+        }
+
+        // Nombre base sin extensión
+        $base = 'img_' . uniqid('', true);
+        $tmpOriginal = self::TMP_DIR . '/' . $base . '.' . self::extensionDesdeMime($mime);
+        $tmpWebp     = self::TMP_DIR . '/' . $base . '.webp';
+
+        // Escribir original
+        if (file_put_contents($tmpOriginal, $datos) === false) {
+            self::limpiarTmp($tmpOriginal, $tmpWebp);
+            return null;
+        }
+
+        // Convertir con ImageMagick: magick <entrada> -quality 80 <salida>
+        $salida = @shell_exec(sprintf(
+            'magick "%s" -quality 80 "%s" 2>&1',
+            escapeshellarg($tmpOriginal),
+            escapeshellarg($tmpWebp)
+        ));
+
+        if (!file_exists($tmpWebp)) {
+            self::limpiarTmp($tmpOriginal, $tmpWebp);
+            return null;
+        }
+
+        $webp = file_get_contents($tmpWebp);
+        self::limpiarTmp($tmpOriginal, $tmpWebp);
+
+        return $webp !== false && $webp !== '' ? $webp : null;
+    }
+
+    /**
+     * Devuelve la extensión de archivo para un MIME dado.
+     */
+    private static function extensionDesdeMime(string $mime): string
+    {
+        return match ($mime) {
+            'image/jpeg' => 'jpg',
+            'image/png'  => 'png',
+            'image/gif'  => 'gif',
+            default      => 'jpg',
+        };
+    }
+
+    /**
+     * Limpia archivos temporales de conversión.
+     */
+    private static function limpiarTmp(?string ...$paths): void
+    {
+        foreach ($paths as $path) {
+            if ($path && file_exists($path)) {
+                @unlink($path);
+            }
+        }
     }
 
     /**
