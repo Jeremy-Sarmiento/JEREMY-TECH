@@ -9,8 +9,8 @@ namespace Model;
  *
  * No se conecta a ninguna pasarela y NUNCA cobra dinero real. Su objetivo es
  * que el checkout tenga un comportamiento realista: valida los datos mínimos,
- * aprueba o rechaza tarjetas de prueba, confirma Yape y deja en estado
- * pendiente los métodos que requieren verificación humana o pago al recibir.
+ * aprueba o rechaza tarjetas de prueba y simula su entrega al aprobarlas;
+ * confirma Yape y deja pendientes los métodos que requieren verificación.
  *
  * Los datos sensibles de la tarjeta se usan solo en memoria para validar y
  * jamás se guardan en la base de datos ni se devuelven al navegador.
@@ -94,7 +94,7 @@ final class PagoSimulado
         return self::aprobado(
             'tarjeta',
             self::referencia('CARD'),
-            'Pago con tarjeta aprobado en modo demostración. No se realizó ningún cobro real.'
+            'Pedido entregado en la simulación. Pago con tarjeta aprobado. No se realizó ningún cobro real.'
         );
     }
 
@@ -174,7 +174,7 @@ final class PagoSimulado
         return [
             'ok'             => true,
             'metodo'         => $metodo,
-            'estado_pedido'  => 'Pagado',
+            'estado_pedido'  => $metodo === 'tarjeta' ? 'Entregado' : 'Pagado',
             'estado_pago'    => 'Pagado',
             'transaccion_id' => $referencia,
             'mensaje'        => $mensaje,

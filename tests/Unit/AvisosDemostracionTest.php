@@ -36,11 +36,12 @@ final class AvisosDemostracionTest extends TestCase
     }
 
     #[DataProvider('metodos')]
-    public function testTodosLosMetodosAclaranQueNoHuboCobro(string $metodo, array $datos): void
+    public function testTodosLosMetodosAclaranQueNoHuboCobro(string $metodo, array $datos, string $estadoPedido): void
     {
         $resultado = PagoSimulado::procesar($metodo, $datos);
 
         $this->assertTrue($resultado['ok']);
+        $this->assertSame($estadoPedido, $resultado['estado_pedido']);
         $this->assertStringContainsString('No se realizó ningún cobro real.', $resultado['mensaje']);
         $this->assertStringNotContainsString('hasta la entrega', $resultado['mensaje']);
         $this->assertStringNotContainsString('confirmará el pago', $resultado['mensaje']);
@@ -54,10 +55,23 @@ final class AvisosDemostracionTest extends TestCase
                 'tarjeta_titular' => 'Cliente Demo',
                 'tarjeta_expiracion' => '12/40',
                 'tarjeta_cvv' => '123',
-            ]],
-            'yape' => ['yape', ['yape_telefono' => '999000002', 'yape_codigo' => '849201']],
-            'transferencia' => ['transferencia', ['transf_codigo' => 'DEMO1234']],
-            'contraentrega' => ['contraentrega', []],
+            ], 'Entregado'],
+            'yape' => ['yape', ['yape_telefono' => '999000002', 'yape_codigo' => '849201'], 'Pagado'],
+            'transferencia' => ['transferencia', ['transf_codigo' => 'DEMO1234'], 'Pendiente'],
+            'contraentrega' => ['contraentrega', [], 'Pendiente'],
         ];
+    }
+
+    public function testLaTarjetaRechazadaNoGeneraUnEstadoDePedido(): void
+    {
+        $resultado = PagoSimulado::procesar('tarjeta', [
+            'tarjeta_numero' => PagoSimulado::TARJETA_RECHAZADA,
+            'tarjeta_titular' => 'Cliente Demo',
+            'tarjeta_expiracion' => '12/40',
+            'tarjeta_cvv' => '123',
+        ]);
+
+        $this->assertFalse($resultado['ok']);
+        $this->assertArrayNotHasKey('estado_pedido', $resultado);
     }
 }

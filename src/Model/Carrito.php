@@ -572,7 +572,7 @@ class Carrito
 
             // Solo estados conocidos del pago simulado.
             $estadoPedido = (string) ($pago['estado_pedido'] ?? 'Pagado');
-            if (!in_array($estadoPedido, ['Pendiente', 'Pagado'], true)) {
+            if (!in_array($estadoPedido, ['Pendiente', 'Pagado', 'Entregado'], true)) {
                 $estadoPedido = 'Pendiente';
             }
             $estadoPago = (string) ($pago['estado_pago'] ?? 'Pagado');
@@ -736,6 +736,15 @@ class Carrito
                     PedidoEvento::PAGO_CONFIRMADO,
                     'Pagado',
                     'Pago aprobado en el checkout simulado.'
+                );
+            }
+            if ($estadoPedido === 'Entregado') {
+                PedidoEvento::registrar(
+                    $pdo,
+                    $pedidoId,
+                    PedidoEvento::ENTREGADO,
+                    'Entregado',
+                    'Entrega completada automáticamente en la simulación. No se enviaron productos.'
                 );
             }
 
