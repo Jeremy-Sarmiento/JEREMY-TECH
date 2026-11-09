@@ -27,11 +27,11 @@ final class ImagenProducto
         'image/gif'  => 'gif',
     ];
 
-    /** Directorio temporal para conversiones. */
-    private const TMP_DIR = '/tmp/imagen-conversion';
-
     /**
      * Lee `$_FILES['imagen_archivo']`.
+     *
+     * Valida el archivo subido y lo convierte automáticamente a WebP para
+     * reducir el consumo de almacenamiento y mejorar la velocidad de carga.
      *
      * @param array<string, mixed>|null $archivo
      * @return array{estado: 'vacio'|'error'|'ok', error?: string, datos?: string, mime?: string}
@@ -63,7 +63,18 @@ final class ImagenProducto
             $tamano = (int) ($archivo['size'] ?? 0);
         }
 
-        return self::validarArchivo($tmp, $tamano);
+        $resultado = self::validarArchivo($tmp, $tamano);
+        if ($resultado['estado'] !== 'ok') {
+            return $resultado;
+        }
+
+        $webp = self::aWebp((string) $resultado['datos'], (string) $resultado['mime']);
+        if ($webp !== null) {
+            $resultado['datos'] = $webp;
+            $resultado['mime']  = 'image/webp';
+        }
+
+        return $resultado;
     }
 
     /**
@@ -92,77 +103,71 @@ final class ImagenProducto
     }
 
     /**
-     * Convierte los datos de imagen a formato WebP usando ImageMagick.
+     * Convierte los datos binarios de una imagen a formato WebP.
      *
-     * Escribe el archivo original en un directorio temporal, ejecuta `magick`
-     * para producir WebP y devuelve los datos binarios resultantes. Si la
-     * conversión falla devuelve null.
+     * Si la imagen ya es WebP se devuelve tal cual. Primero intenta con la
+     * extensión GD si está disponible; si no, ejecuta ImageMagick (magick/convert)
+     * a través de pipes estándar en memoria sin escribir archivos temporales en disco.
+     * Si la conversión falla, devuelve null.
      *
      * @return string|null datos binarios WebP o null en error
      */
     public static function aWebp(string $datos, string $mime): ?string
     {
-        if (!in_array($mime, ['image/jpeg', 'image/png', 'image/gif'], true)) {
+        if ($mime === 'image/webp') {
+            return $datos;
+        }
+
+        if (!in_array($mime, ['image/jpeg', 'image/png', 'image/gif'], true) || $datos === '') {
             return null;
         }
 
-        // Asegurar directorio temporal
-        if (!is_dir(self::TMP_DIR)) {
-            @mkdir(self::TMP_DIR, 0755, true);
-        }
-
-        // Nombre base sin extensión
-        $base = 'img_' . uniqid('', true);
-        $tmpOriginal = self::TMP_DIR . '/' . $base . '.' . self::extensionDesdeMime($mime);
-        $tmpWebp     = self::TMP_DIR . '/' . $base . '.webp';
-
-        // Escribir original
-        if (file_put_contents($tmpOriginal, $datos) === false) {
-            self::limpiarTmp($tmpOriginal, $tmpWebp);
-            return null;
-        }
-
-        // Convertir con ImageMagick: magick <entrada> -quality 80 <salida>
-        $salida = @shell_exec(sprintf(
-            'magick "%s" -quality 80 "%s" 2>&1',
-            escapeshellarg($tmpOriginal),
-            escapeshellarg($tmpWebp)
-        ));
-
-        if (!file_exists($tmpWebp)) {
-            self::limpiarTmp($tmpOriginal, $tmpWebp);
-            return null;
-        }
-
-        $webp = file_get_contents($tmpWebp);
-        self::limpiarTmp($tmpOriginal, $tmpWebp);
-
-        return $webp !== false && $webp !== '' ? $webp : null;
-    }
-
-    /**
-     * Devuelve la extensión de archivo para un MIME dado.
-     */
-    private static function extensionDesdeMime(string $mime): string
-    {
-        return match ($mime) {
-            'image/jpeg' => 'jpg',
-            'image/png'  => 'png',
-            'image/gif'  => 'gif',
-            default      => 'jpg',
-        };
-    }
-
-    /**
-     * Limpia archivos temporales de conversión.
-     */
-    private static function limpiarTmp(?string ...$paths): void
-    {
-        foreach ($paths as $path) {
-            if ($path && file_exists($path)) {
-                @unlink($path);
+        // Intento 1: extensión GD nativa si tiene soporte WebP
+        if (function_exists('imagecreatefromstring') && function_exists('imagewebp')) {
+            $im = @imagecreatefromstring($datos);
+            if ($im !== false) {
+                imagepalettetotruecolor($im);
+                imagealphablending($im, true);
+                imagesavealpha($im, true);
+                ob_start();
+                $ok = @imagewebp($im, null, 80);
+                $salida = ob_get_clean();
+                imagedestroy($im);
+                if ($ok && is_string($salida) && $salida !== '') {
+                    return $salida;
+                }
             }
         }
+
+        // Intento 2: ImageMagick por pipe (magick / convert) sin escribir en disco
+        $binarios = ['magick', '/usr/bin/magick', 'convert', '/usr/bin/convert'];
+        foreach ($binarios as $bin) {
+            $proc = @proc_open(
+                escapeshellcmd($bin) . ' - -quality 80 webp:-',
+                [
+                    0 => ['pipe', 'r'],
+                    1 => ['pipe', 'w'],
+                    2 => ['pipe', 'w'],
+                ],
+                $pipes
+            );
+            if (!is_resource($proc)) {
+                continue;
+            }
+
+            fwrite($pipes[0], $datos);
+            fclose($pipes[0]);
+            $salida = stream_get_contents($pipes[1]);
+            fclose($pipes[1]);
+            fclose($pipes[2]);
+            $codigo = proc_close($proc);
+
+            if ($codigo === 0 && is_string($salida) && str_starts_with($salida, 'RIFF') && substr($salida, 8, 4) === 'WEBP') {
+                return $salida;
+            }
+        }
+
+        return null;
     }
 
     /**

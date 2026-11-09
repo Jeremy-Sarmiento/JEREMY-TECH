@@ -70,4 +70,21 @@ class ImagenProductoTest extends TestCase
             Producto::urlImagen(['slug' => 'x', 'imagen' => 'img/x.png', 'imagenDb' => false])
         );
     }
+
+    public function testConviertePngAWebp(): void
+    {
+        $png = (string) base64_decode(self::PNG, true);
+        $webp = ImagenProducto::aWebp($png, 'image/png');
+
+        $this->assertNotNull($webp);
+        $this->assertStringStartsWith('RIFF', $webp);
+        $this->assertSame('WEBP', substr($webp, 8, 4));
+    }
+
+    public function testConservaWebp(): void
+    {
+        $webpOriginal = "RIFF\x20\x00\x00\x00WEBPVP8 ";
+        $resultado = ImagenProducto::aWebp($webpOriginal, 'image/webp');
+        $this->assertSame($webpOriginal, $resultado);
+    }
 }
