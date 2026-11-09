@@ -291,7 +291,7 @@ final class ProductoVendedor
 
         $imagen = self::normalizarImagen($imagen);
         if ($imagen === null) {
-            return ['ok' => false, 'error' => 'La imagen debe ser una ruta interna (img/...) o una URL http(s) válida.', 'slug' => $slugEditar];
+            return ['ok' => false, 'error' => 'La imagen debe ser una ruta de imagen de la BD, una ruta interna (img/...) o una URL http(s) válida.', 'slug' => $slugEditar];
         }
 
         $pdo = conexion();
@@ -1099,7 +1099,7 @@ final class ProductoVendedor
     }
 
     /**
-     * Valida y normaliza la imagen: ruta interna bajo `img/` o URL http(s).
+     * Valida la imagen: endpoint de BD, ruta bajo `img/` o URL http(s).
      */
     private static function normalizarImagen(string $imagen): ?string
     {
@@ -1110,6 +1110,9 @@ final class ProductoVendedor
             return null;
         }
         if (preg_match('#^img/[A-Za-z0-9._/-]+$#', $imagen)) {
+            return $imagen;
+        }
+        if (preg_match('#^\?ruta=producto/imagen&slug=(?:[A-Za-z0-9._~-]|%[0-9A-Fa-f]{2})+$#D', $imagen)) {
             return $imagen;
         }
         if (preg_match('#^https?://[^\s<>"\']+$#i', $imagen)) {

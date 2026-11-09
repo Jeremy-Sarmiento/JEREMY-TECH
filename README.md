@@ -25,11 +25,13 @@ Requiere PHP 8.2+ con `pdo_pgsql`, PostgreSQL 14+
    ```bash
    createdb jeremy_tech
    psql -d jeremy_tech -f database/jeremy_tech_estructura.sql
-   psql -d jeremy_tech -f database/jeremy_tech_datos.sql
+    psql -d jeremy_tech -f database/jeremy_tech_datos.sql
+    psql -d jeremy_tech -f database/seed-producto-imagenes.sql
    ```
 
    Se importan en ese orden sobre una base vacía. La estructura crea tablas,
-   índices, claves y disparadores; los datos cargan las filas.
+    índices, claves y disparadores; los datos cargan las filas y el último archivo
+    carga las imágenes WebP en `producto_imagenes`, sin depender de `public/img/`.
 
 2. Copia el entorno y rellena las credenciales:
 
