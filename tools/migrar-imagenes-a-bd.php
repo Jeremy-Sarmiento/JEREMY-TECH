@@ -56,9 +56,21 @@ foreach ($productos as $p) {
         continue;
     }
 
-    $archivo = __DIR__ . '/../public/' . $rutaDisco;
+    // Resolver ruta en disco: la ruta original o su versión .webp
+    $candidatos = [
+        preg_replace('/\.(png|jpe?g)$/i', '.webp', $rutaDisco),
+        $rutaDisco,
+    ];
+    $archivo = null;
+    foreach ($candidatos as $c) {
+        $rutaCompleta = __DIR__ . '/../public/' . ltrim((string) $c, '/');
+        if (is_file($rutaCompleta)) {
+            $archivo = $rutaCompleta;
+            break;
+        }
+    }
 
-    if (!is_file($archivo)) {
+    if ($archivo === null) {
         echo "  [SKIP] $slug — archivo no existe: $rutaDisco\n";
         $skip++;
         continue;
@@ -67,8 +79,11 @@ foreach ($productos as $p) {
     // Detectar MIME real (no confiar en la extensión)
     $info = @getimagesize($archivo);
     $mime = is_array($info) ? (string) ($info['mime'] ?? '') : '';
+    if ($mime === '' && str_ends_with($archivo, '.webp')) {
+        $mime = 'image/webp';
+    }
 
-    if (!in_array($mime, ['image/jpeg', 'image/png', 'image/gif'], true)) {
+    if (!in_array($mime, ['image/jpeg', 'image/png', 'image/gif', 'image/webp'], true)) {
         echo "  [SKIP] $slug — no es imagen válida o es SVG: $rutaDisco ($mime)\n";
         $skip++;
         continue;
@@ -81,11 +96,13 @@ foreach ($productos as $p) {
         continue;
     }
 
-    // Opcional: convertir a WebP para ahorrar espacio (comentar si no se quiere)
-    $webp = ImagenProducto::aWebp($datos, $mime);
-    if ($webp !== null) {
-        $datos = $webp;
-        $mime = 'image/webp';
+    // Convertir a WebP si aún no lo está
+    if ($mime !== 'image/webp') {
+        $webp = ImagenProducto::aWebp($datos, $mime);
+        if ($webp !== null) {
+            $datos = $webp;
+            $mime = 'image/webp';
+        }
     }
 
     $guardada = ImagenProducto::guardar($productoId, $datos, $mime);

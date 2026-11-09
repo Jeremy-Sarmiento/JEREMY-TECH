@@ -197,7 +197,7 @@ final class ImagenProducto
     /**
      * Metadatos de la imagen para servirla; null si el producto no tiene una.
      *
-     * @return array{mime: string, datos: string}|null
+     * @return array{mime: string, datos: string, productoId: int}|null
      */
     public static function deSlug(string $slug): ?array
     {
