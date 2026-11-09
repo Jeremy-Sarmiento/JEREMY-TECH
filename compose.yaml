@@ -16,7 +16,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:5435:5432"
     volumes:
       - pg-data:/var/lib/postgresql/data
       # Se importan solos la primera vez que se crea el volumen.
