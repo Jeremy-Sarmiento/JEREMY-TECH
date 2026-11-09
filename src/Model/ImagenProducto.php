@@ -202,7 +202,7 @@ final class ImagenProducto
     public static function deSlug(string $slug): ?array
     {
         $stmt = conexion()->prepare(
-            'SELECT i.mime, i.datos
+            'SELECT i.producto_id, i.mime, i.datos
                FROM producto_imagenes i
                JOIN productos p ON p.id = i.producto_id
               WHERE p.slug = ?
@@ -221,6 +221,6 @@ final class ImagenProducto
             $datos = stream_get_contents($datos);
         }
 
-        return ['mime' => (string) $fila['mime'], 'datos' => (string) $datos];
+        return ['mime' => (string) $fila['mime'], 'datos' => (string) $datos, 'productoId' => (int) $fila['producto_id']];
     }
 }

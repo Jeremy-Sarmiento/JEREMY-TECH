@@ -334,6 +334,26 @@ class ProductoController
             return;
         }
 
+        // Lazy conversion: la primera vez que se pide la imagen y no es WebP,
+        // se convierte y se actualiza en la BD. Las siguientes peticiones sirven
+        // el WebP directamente. El upload queda instantáneo.
+        if ($imagen['mime'] !== 'image/webp') {
+            $webp = \Model\ImagenProducto::aWebp($imagen['datos'], $imagen['mime']);
+            if ($webp !== null) {
+                \Model\ImagenProducto::guardar(
+                    $imagen['productoId'],
+                    $webp,
+                    'image/webp'
+                );
+                header('Content-Type: image/webp');
+                header('Content-Length: ' . strlen($webp));
+                header('X-Content-Type-Options: nosniff');
+                header('Cache-Control: public, max-age=86400');
+                echo $webp;
+                return;
+            }
+        }
+
         header('Content-Type: ' . $imagen['mime']);
         header('Content-Length: ' . strlen($imagen['datos']));
         header('X-Content-Type-Options: nosniff');

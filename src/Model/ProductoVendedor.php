@@ -200,15 +200,6 @@ final class ProductoVendedor
             ];
         }
 
-        // Convertir a WebP para reducir el tamaño (máx. 3 MB -> ~1 MB WebP)
-        if ($imagenSubida['estado'] === 'ok') {
-            $webp = ImagenProducto::aWebp($imagenSubida['datos'], $imagenSubida['mime']);
-            if ($webp !== null) {
-                $imagenSubida['datos'] = $webp;
-                $imagenSubida['mime'] = 'image/webp';
-            }
-        }
-
         // Un POST manipulado puede enviar arrays donde se espera texto.
         // Se normaliza a string una sola vez para no provocar avisos de PHP.
         $entrada = [];
