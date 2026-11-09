@@ -32,7 +32,7 @@ $claseEstado = static function (string $estado): string {
     return 'soporte-estado soporte-estado-' . $clave;
 };
 ?>
-<main class="cart-page cuenta-page soporte-page">
+<main id="contenido" tabindex="-1" class="cart-page cuenta-page soporte-page">
  <div class="cart-page-header">
   <h1><svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-chat"/></svg>Soporte postventa</h1>
   <p>Cuéntanos qué pasó con tu pedido, pago, envío o producto. Te respondemos aquí y en tus notificaciones.</p>

@@ -64,6 +64,14 @@ require __DIR__ . '/../config/conexion.php';
 \Security\Proteccion::iniciarSesion();
 \Security\Proteccion::cabeceras();
 
+// Solo la raíz pública y su index.php admiten rutas por query string.
+$basePublica = rtrim(dirname((string) ($_SERVER['SCRIPT_NAME'] ?? '/index.php')), '/');
+$path = explode('?', (string) ($_SERVER['REQUEST_URI'] ?? '/'), 2)[0];
+if (!in_array($path, [$basePublica . '/', $basePublica . '/index.php'], true)) {
+    require BASE_PATH . '/views/error404.php';
+    exit;
+}
+
 // Todos los POST de la app (tienda, login y panel) exigen token CSRF.
 // Se valida aquí para no depender de que cada controlador lo recuerde.
 // El webhook de la pasarela es la única excepción: lo autentica su propia
@@ -298,6 +306,6 @@ switch ($ruta) {
         break;
 
     default:
-        (new Controller\ProductoController())->catalogo();
+        require BASE_PATH . '/views/error404.php';
         break;
 }

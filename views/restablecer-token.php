@@ -10,7 +10,7 @@ $flash  = $flash ?? ['tipo' => '', 'mensaje' => ''];
 $token  = $token ?? '';
 $valido = $valido ?? false;
 ?>
-<main class="auth-page">
+<main id="contenido" tabindex="-1" class="auth-page">
  <div class="auth-wrapper">
   <div class="auth-card">
    <div class="auth-head">

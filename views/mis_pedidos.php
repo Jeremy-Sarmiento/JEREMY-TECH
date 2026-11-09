@@ -34,7 +34,7 @@ $claseEstado = static function (string $estado): string {
     return 'order-status status-' . preg_replace('/[^a-z0-9_-]/', '', $clave);
 };
 ?>
-<main class="cart-page cuenta-page mis-pedidos-page">
+<main id="contenido" tabindex="-1" class="cart-page cuenta-page mis-pedidos-page">
  <div class="cart-page-header">
   <h1><svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-pedidos"/></svg>Mis Pedidos</h1>
   <p>Historial y seguimiento simulado de tus pedidos de prueba en Jeremy Tech.</p>

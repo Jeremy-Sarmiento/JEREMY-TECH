@@ -7,7 +7,7 @@
  */
 require __DIR__ . '/_comun.php';
 ?>
-<main class="cart-page cuenta-page mis-productos-page">
+<main id="contenido" tabindex="-1" class="cart-page cuenta-page mis-productos-page">
  <div class="cart-page-header">
   <h1><svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-bag"/></svg>Panel de vendedor · Persona (B2C)</h1>
   <p>Vendes al consumidor final. Publica, controla el stock y revisa tus ganancias.</p>

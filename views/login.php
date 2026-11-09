@@ -36,7 +36,7 @@ if ($zonaSeleccionada === 0 && $zonas !== []) {
     $zonaSeleccionada = (int) $zonas[0]['id'];
 }
 ?>
-<main class="auth-page">
+<main id="contenido" tabindex="-1" class="auth-page">
  <div class="auth-wrapper">
 
   <div class="auth-card">

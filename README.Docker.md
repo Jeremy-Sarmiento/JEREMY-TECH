@@ -11,7 +11,8 @@ App y PostgreSQL en contenedores. Para Local y PostgreSQL en tu PC, sigue
 | Solo la app, con Supabase | `docker compose up -d --build app --no-deps` |
 | App y base en Docker | `docker compose up -d --build` |
 
-La app queda en <http://localhost:8080> y la base en el puerto `5432`.
+La app queda en <http://localhost:8080> y la base en `127.0.0.1:5432`, solo
+accesible desde el host. La app en Docker sigue conectando por `db:5432`.
 
 Si ya tienes PostgreSQL en tu PC, no levantes `db`: ocuparía el `5432`. Ejecuta
 la app desde el host, como explica README.md.

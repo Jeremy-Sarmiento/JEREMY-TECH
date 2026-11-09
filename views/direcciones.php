@@ -12,7 +12,7 @@ $zonaIdEditando = $editando !== null && $editando['tarifa_envio_id'] !== null
     ? (int) $editando['tarifa_envio_id']
     : 0;
 ?>
-<main class="cart-page">
+<main id="contenido" tabindex="-1" class="cart-page">
 
  <div class="cart-page-header">
   <h1><svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-pin"/></svg>Mis Direcciones de Envío</h1>

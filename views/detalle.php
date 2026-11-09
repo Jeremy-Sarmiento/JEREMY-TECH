@@ -61,7 +61,7 @@ $datosJS = [
     'precioUnitario' => (float) $precioInicial['precio'],
 ];
 ?>
-<section class="producto-detalle">
+<main id="contenido" tabindex="-1" class="producto-detalle">
     <nav class="migas" aria-label="Ruta de navegación">
         <a href="?ruta=catalogo">Catálogo</a>
         <span>/</span>
@@ -228,7 +228,7 @@ $datosJS = [
                     </button>
                 </form>
                 <a class="btn-whatsapp" href="#"
-                   onclick="enviarWhatsApp(event, <?= json_encode($nombre . ' - ' . $especifica, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) ?>)">
+                   onclick="enviarWhatsApp(event, <?= $e(json_encode($nombre . ' - ' . $especifica, JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE)) ?>)">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><use href="img/icons.svg#icon-whatsapp"/></svg>
                     Consultar
                 </a>
@@ -335,7 +335,7 @@ $datosJS = [
               $fechaResena = trim((string) ($resena['creado_en'] ?? ''));
               $fechaResenaTs = $fechaResena !== '' ? strtotime($fechaResena) : false;
               $fechaResena = $fechaResenaTs !== false ? date('d/m/Y', $fechaResenaTs) : '';
-              $esPropia = \Model\Cuenta::idSesion() === (int) ($resena['cliente_id'] ?? 0);
+              $esPropia = $clienteId === (int) ($resena['cliente_id'] ?? 0);
             ?>
             <li class="resena-item"<?= $esPropia ? ' data-autor-propio="1"' : '' ?>>
                 <div class="resena-item-cabecera">
@@ -355,7 +355,7 @@ $datosJS = [
         <p class="resenas-vacio">Aún no hay opiniones. ¡Tu experiencia puede ayudar a otros clientes!</p>
         <?php endif; ?>
     </section>
-</section>
+</main>
 
 <script nonce="<?= htmlspecialchars(\Security\Proteccion::nonce(), ENT_QUOTES, 'UTF-8') ?>">
 window.JT_PRODUCTO = <?= json_encode($datosJS, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;

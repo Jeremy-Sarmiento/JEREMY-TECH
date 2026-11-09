@@ -17,7 +17,7 @@ $etiquetaTipo = static fn (string $valor): string => match ($valor) {
 };
 $nombreCompleto = trim((string) ($perfil['nombre'] ?? '') . ' ' . (string) ($perfil['apellidos'] ?? ''));
 ?>
-<main class="cart-page cuenta-page">
+<main id="contenido" tabindex="-1" class="cart-page cuenta-page">
  <div class="cart-page-header">
   <h1><svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-user"/></svg>Mi Perfil</h1>
   <p>Mantén al día tus datos de contacto y facturación para agilizar tus compras.</p>

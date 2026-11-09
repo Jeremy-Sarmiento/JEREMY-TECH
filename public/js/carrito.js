@@ -197,6 +197,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /** Última orden confirmada por el servidor (para el ticket y WhatsApp). */
   let ultimoPedido = null;
+  let focoAntesDelExito = null;
+  const modalExito = document.getElementById('successModal');
+  if (modalExito) {
+    modalExito.addEventListener('close', () => {
+      if (focoAntesDelExito) focoAntesDelExito.focus();
+      focoAntesDelExito = null;
+    });
+  }
 
   /**
    * Procesa el formulario de compra contra el servidor y muestra el ticket.
@@ -210,6 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('btnPagarAhora');
     const btnText = btn ? btn.querySelector('.btn-text') : null;
     const spinner = btn ? btn.querySelector('.btn-spinner') : null;
+    const focoAntesDelPago = document.activeElement;
     if (btn) btn.disabled = true;
     if (btnText) btnText.style.display = 'none';
     if (spinner) spinner.style.display = 'inline-block';
@@ -220,9 +229,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!r.ok) {
         mostrarToast(r.error || 'No se pudo procesar el pago');
-        if (btn) btn.disabled = false;
-        if (btnText) btnText.style.display = 'inline-block';
-        if (spinner) spinner.style.display = 'none';
         return;
       }
 
@@ -321,12 +327,19 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       form.reset();
+      const envioSeleccionado = document.querySelector('input[name="tipoEnvio"]:checked');
+      cambiarOpcionEnvio(envioSeleccionado ? envioSeleccionado.value : 'domicilio');
+      cambiarTipoComprobante('boleta');
+      cambiarDireccionEntrega();
       cambiarMetodoPago('tarjeta');
       actualizarBadge(0);
-      const succModal = document.getElementById('successModal');
-      if (succModal) succModal.style.display = 'flex';
+      if (modalExito) {
+        focoAntesDelExito = focoAntesDelPago === document.body ? btn : focoAntesDelPago;
+        modalExito.showModal();
+      }
     } catch (e) {
       mostrarToast(e.message || 'Error de conexión al procesar el pago');
+    } finally {
       if (btn) btn.disabled = false;
       if (btnText) btnText.style.display = 'inline-block';
       if (spinner) spinner.style.display = 'none';
@@ -335,8 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /** Cierra la modal de éxito tras la compra */
   window.cerrarModalExito = function () {
-    const modal = document.getElementById('successModal');
-    if (modal) modal.style.display = 'none';
+    if (modalExito) modalExito.close();
   };
 
   /**
@@ -455,6 +467,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (optDom) optDom.classList.toggle('active', tipo === 'domicilio');
     if (optTie) optTie.classList.toggle('active', tipo === 'tienda');
+    document.querySelectorAll('input[name="tipoEnvio"]').forEach(input => {
+      input.checked = input.value === tipo;
+    });
 
     void dirInput; // la dirección ya no es un campo libre: la decide la zona
 
@@ -476,6 +491,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (optBol) optBol.classList.toggle('active', tipo === 'boleta');
     if (optFac) optFac.classList.toggle('active', tipo === 'factura');
+    document.querySelectorAll('input[name="tipoComprobante"]').forEach(input => {
+      input.checked = input.value === tipo;
+    });
 
     if (tipo === 'boleta') {
       if (campoBol) campoBol.style.display = 'block';
@@ -497,7 +515,12 @@ document.addEventListener('DOMContentLoaded', () => {
    * @param {'tarjeta'|'yape'|'transferencia'|'contraentrega'} metodo
    */
   window.cambiarMetodoPago = function (metodo) {
-    const ids = ['tabTarjeta', 'tabYape', 'tabTransf', 'tabContra'];
+    const botones = {
+      tarjeta: 'tabTarjeta',
+      yape: 'tabYape',
+      transferencia: 'tabTransf',
+      contraentrega: 'tabContra'
+    };
     const paneles = {
       'tarjeta': 'panelMetodoTarjeta',
       'yape': 'panelMetodoYape',
@@ -505,9 +528,12 @@ document.addEventListener('DOMContentLoaded', () => {
       'contraentrega': 'panelMetodoContra'
     };
 
-    ids.forEach(id => {
-      const b = document.getElementById(id);
-      if (b) b.classList.toggle('active', id === ('tab' + metodo.charAt(0).toUpperCase() + metodo.slice(1)));
+    Object.keys(botones).forEach(key => {
+      const b = document.getElementById(botones[key]);
+      if (b) {
+        b.classList.toggle('active', key === metodo);
+        b.setAttribute('aria-pressed', String(key === metodo));
+      }
     });
 
     for (const key in paneles) {

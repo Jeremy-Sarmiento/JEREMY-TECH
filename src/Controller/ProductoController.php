@@ -306,6 +306,7 @@ class ProductoController
         $precioDesde = Producto::preciosDesde();
 
         $rutaVista = 'producto';
+        $tituloPagina = (string) $producto['nombre'] . ' - Jeremy Tech';
 
         require BASE_PATH . '/views/layout/header.php';
         require BASE_PATH . '/views/detalle.php';

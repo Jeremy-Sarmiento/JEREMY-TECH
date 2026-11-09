@@ -5,7 +5,7 @@
  */
 $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
 ?>
-<main class="cart-page cuenta-page">
+<main id="contenido" tabindex="-1" class="cart-page cuenta-page">
  <div class="cart-page-header">
   <h1><svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-heart"/></svg>Mis Favoritos</h1>
   <p>Guarda los productos que te interesan y vuelve a ellos cuando quieras.</p>

@@ -262,6 +262,9 @@
 .pay-tab-btn .tab-sub {
   color: var(--jt-texto-3);
 }
+.pay-tab-btn.active .tab-sub {
+  color: var(--jt-texto-2);
+}
 
 .payment-method-panel {
   border-top: 1px solid var(--jt-line);
@@ -488,6 +491,11 @@
 }
 
 /* Recibo de compra */
+.btn-whatsapp-recibo {
+  background: var(--jt-exito);
+  color: var(--jt-acento-tinta);
+}
+
 .success-card {
   background: var(--jt-superficie-1);
   border: 1px solid var(--jt-line);

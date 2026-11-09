@@ -45,7 +45,7 @@ if ($tema === 'envios') {
     }
 }
 ?>
-<main class="page-shell">
+<main id="contenido" tabindex="-1" class="page-shell">
   <div class="page-hero">
     <p class="page-eyebrow">JEREMY TECH · INFORMACIÓN</p>
     <h1>

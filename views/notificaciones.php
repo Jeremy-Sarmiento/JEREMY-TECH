@@ -19,7 +19,7 @@ $iconos = [
     'soporte_respuesta' => '<svg class="inline-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-chat"/></svg>',
 ];
 ?>
-<main class="cart-page cuenta-page">
+<main id="contenido" tabindex="-1" class="cart-page cuenta-page">
  <div class="cart-page-header">
   <h1><svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-bell"/></svg>Mis Notificaciones</h1>
   <p>Avisos sobre tus pagos, envíos y pedidos. Los correos se registran en modo demostración.</p>

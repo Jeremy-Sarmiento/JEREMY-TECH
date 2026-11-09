@@ -9,7 +9,7 @@ require __DIR__ . '/_comun.php';
 $empresa = trim((string) ($vendedor['empresa'] ?? ''));
 $ruc = trim((string) ($vendedor['ruc'] ?? ''));
 ?>
-<main class="cart-page cuenta-page mis-productos-page">
+<main id="contenido" tabindex="-1" class="cart-page cuenta-page mis-productos-page">
  <div class="cart-page-header">
   <h1><svg class="inline-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-briefcase"/></svg>Panel de vendedor · Empresa (B2B)</h1>
   <p>Vendes a otras empresas. Tu catálogo sale con los datos fiscales de la cuenta.</p>

@@ -80,7 +80,7 @@ $zonasJson = array_map(static fn (array $z): array => [
  window.JT_CARRO = JT_CARRO;
 </script>
 
-<main class="cart-page">
+<main id="contenido" tabindex="-1" class="cart-page">
 
   <!-- ================= RESUMEN DEL CARRITO ================= -->
   <div class="cart-page-header">
@@ -152,13 +152,13 @@ $zonasJson = array_map(static fn (array $z): array => [
 
      <div class="cart-delivery-selector">
       <div class="delivery-opt-label">Modalidad de entrega:</div>
-      <div class="delivery-opts-grid">
-       <label class="delivery-opt active" id="delivOptDomicilio" onclick="cambiarOpcionEnvio('domicilio')">
-        <input type="radio" name="tipoEnvio" value="domicilio" checked/>
+      <div class="delivery-opts-grid" role="group" aria-label="Modalidad de entrega">
+       <label class="delivery-opt active" id="delivOptDomicilio">
+        <input type="radio" name="tipoEnvio" value="domicilio" onchange="cambiarOpcionEnvio(this.value)" checked/>
         <span>Domicilio</span>
        </label>
-       <label class="delivery-opt" id="delivOptTienda" onclick="cambiarOpcionEnvio('tienda')">
-        <input type="radio" name="tipoEnvio" value="tienda"/>
+       <label class="delivery-opt" id="delivOptTienda">
+        <input type="radio" name="tipoEnvio" value="tienda" onchange="cambiarOpcionEnvio(this.value)"/>
         <span>En Tienda (Gratis)</span>
        </label>
       </div>
@@ -310,13 +310,13 @@ $zonasJson = array_map(static fn (array $z): array => [
 
     <!-- PASO 2: Facturación Electrónica (SUNAT) -->
     <div class="form-section-title">2. Comprobante de prueba (sin validez fiscal)</div>
-    <div class="invoice-type-selector">
-     <label class="invoice-opt active" id="optBoleta" onclick="cambiarTipoComprobante('boleta')">
-      <input type="radio" name="tipoComprobante" value="boleta" checked/>
+    <div class="invoice-type-selector" role="group" aria-label="Comprobante de prueba">
+     <label class="invoice-opt active" id="optBoleta">
+      <input type="radio" name="tipoComprobante" value="boleta" onchange="cambiarTipoComprobante(this.value)" checked/>
       <span>Boleta de Venta (DNI)</span>
      </label>
-     <label class="invoice-opt" id="optFactura" onclick="cambiarTipoComprobante('factura')">
-      <input type="radio" name="tipoComprobante" value="factura"/>
+     <label class="invoice-opt" id="optFactura">
+      <input type="radio" name="tipoComprobante" value="factura" onchange="cambiarTipoComprobante(this.value)"/>
       <span>Factura Electrónica (RUC)</span>
      </label>
     </div>
@@ -342,23 +342,23 @@ $zonasJson = array_map(static fn (array $z): array => [
 
     <!-- PASO 3: Método de Pago -->
     <div class="form-section-title">3. Selecciona tu Método de Pago</div>
-    <div class="checkout-method-tabs">
-     <button type="button" class="pay-tab-btn active" id="tabTarjeta" onclick="cambiarMetodoPago('tarjeta')">
+    <div class="checkout-method-tabs" role="group" aria-label="Método de pago">
+     <button type="button" class="pay-tab-btn active" id="tabTarjeta" aria-pressed="true" aria-controls="panelMetodoTarjeta" onclick="cambiarMetodoPago('tarjeta')">
       <span class="tab-icon"><svg class="inline-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-card"/></svg></span>
       <span class="tab-title">Tarjeta</span>
       <span class="tab-sub">Débito / Crédito</span>
      </button>
-     <button type="button" class="pay-tab-btn" id="tabYape" onclick="cambiarMetodoPago('yape')">
+     <button type="button" class="pay-tab-btn" id="tabYape" aria-pressed="false" aria-controls="panelMetodoYape" onclick="cambiarMetodoPago('yape')">
       <span class="tab-icon"><svg class="inline-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-phone"/></svg></span>
       <span class="tab-title">Yape / Plin</span>
       <span class="tab-sub">Código de prueba</span>
      </button>
-     <button type="button" class="pay-tab-btn" id="tabTransf" onclick="cambiarMetodoPago('transferencia')">
+     <button type="button" class="pay-tab-btn" id="tabTransf" aria-pressed="false" aria-controls="panelMetodoTransf" onclick="cambiarMetodoPago('transferencia')">
       <span class="tab-icon"><svg class="inline-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-bank"/></svg></span>
       <span class="tab-title">Transferencia</span>
       <span class="tab-sub">Sin envío de dinero</span>
      </button>
-     <button type="button" class="pay-tab-btn" id="tabContra" onclick="cambiarMetodoPago('contraentrega')">
+     <button type="button" class="pay-tab-btn" id="tabContra" aria-pressed="false" aria-controls="panelMetodoContra" onclick="cambiarMetodoPago('contraentrega')">
       <span class="tab-icon"><svg class="inline-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="img/icons.svg#icon-cash"/></svg></span>
       <span class="tab-title">En Tienda</span>
       <span class="tab-sub">Sin retiro real</span>
@@ -594,12 +594,12 @@ $zonasJson = array_map(static fn (array $z): array => [
 </main>
 
 <!-- ================= MODAL DE ÉXITO / TICKET DIGITAL ================= -->
-<div id="successModal" class="modal-overlay" style="display:none;">
+<dialog id="successModal" class="modal-overlay" aria-modal="true" aria-labelledby="successTitle" aria-describedby="successSubtitle">
  <div class="modal-card success-card">
   <div class="success-icon-wrap">
    <img class="checkmark" src="img/checkmark.svg" alt="Pedido confirmado"/>
   </div>
-  <h2 id="successTitle">Pedido de prueba registrado</h2>
+  <h2 id="successTitle" tabindex="-1" autofocus>Pedido de prueba registrado</h2>
   <p class="success-subtitle" id="successSubtitle">No se realizó ningún cobro real. No se enviarán productos.</p>
 
   <div class="ticket-recibo" id="ticketRecibo">
@@ -636,4 +636,4 @@ $zonasJson = array_map(static fn (array $z): array => [
    <button class="btn-seguir-comprando" onclick="cerrarModalExito()">Seguir Comprando</button>
   </div>
  </div>
-</div>
+</dialog>

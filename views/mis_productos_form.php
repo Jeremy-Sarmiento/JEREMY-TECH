@@ -19,7 +19,7 @@ $imagenActual = !empty($formulario['imagen_db']) && $slugEditar !== ''
     ? '?ruta=producto/imagen&slug=' . rawurlencode($slugEditar)
     : (trim($valor('imagen')) !== '' ? $valor('imagen') : $imagenPredeterminada);
 ?>
-<main class="cart-page cuenta-page mis-productos-page mis-productos-form-page">
+<main id="contenido" tabindex="-1" class="cart-page cuenta-page mis-productos-page mis-productos-form-page">
  <div class="cart-page-header pv-form-header">
   <div>
    <h1><?= $esEdicion ? 'Editar publicación' : '＋ Publicar producto' ?></h1>

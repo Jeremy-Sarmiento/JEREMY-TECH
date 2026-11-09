@@ -11,7 +11,7 @@ $flash    = $flash    ?? ['tipo' => '', 'mensaje' => ''];
 $email    = $email    ?? '';
 $pregunta = $pregunta ?? null;
 ?>
-<main class="auth-page">
+<main id="contenido" tabindex="-1" class="auth-page">
  <div class="auth-wrapper">
   <div class="auth-card">
    <div class="auth-head">

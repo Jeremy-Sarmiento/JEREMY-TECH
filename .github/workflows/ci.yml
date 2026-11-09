@@ -78,8 +78,8 @@ jobs:
         env:
           PGPASSWORD: admin
         run: |
-          psql -h 127.0.0.1 -U postgres -d jeremy_tech -f database/jeremy_tech_estructura.sql
-          psql -h 127.0.0.1 -U postgres -d jeremy_tech -f database/jeremy_tech_datos.sql
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d jeremy_tech -f database/jeremy_tech_estructura.sql
+          psql -X -v ON_ERROR_STOP=1 -h 127.0.0.1 -U postgres -d jeremy_tech -f database/jeremy_tech_datos.sql
 
       - name: PHPUnit
         run: php vendor/bin/phpunit

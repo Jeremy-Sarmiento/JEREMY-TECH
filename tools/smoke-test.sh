@@ -34,11 +34,19 @@ check() {
 }
 
 check "$base/" 200
+check "$base/index.php" 200
 check "$base/favicon.ico" 200
 check "$base/img/favicon.svg" 200
 check "$base/img/apple-touch-icon.png" 200
 check "$base/?ruta=login" 200
 check "$base/?ruta=catalogo" 200
+check "$base/?ruta=inexistente" 404
+check "$base/?ruta=producto&slug=producto-inexistente-smoke" 404
+check "$base/inexistente" 404
+check "$base/inexistente?ruta=catalogo" 404
+check "$base/index.php/inexistente" 404
+check "$base/inexistente.php" 404
+check "$base/inexistente.html" 404
 check "$base/?ruta=admin" 302
 check "$base/?ruta=admin/" 302
 check "$base/?ruta=admin/login" 302

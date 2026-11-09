@@ -1,4 +1,4 @@
-<main id="contenido">
+<main id="contenido" tabindex="-1">
 <?php
 // Título de la página para lectores de pantalla: el catálogo y la búsqueda
 // compartían vista y se quedaban sin <h1>.
