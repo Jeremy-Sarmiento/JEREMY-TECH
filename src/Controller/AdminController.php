@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Controller;
 
 use Model\Administrador as Admin;
+use Model\Banner;
 use Model\ChatbotFaq;
 use Model\Envio;
 use Model\Notificacion;
@@ -99,7 +100,7 @@ final class AdminController
             'inventario' => 'admin/inventario', 'notificaciones' => 'admin/notificaciones',
             'chatbot' => 'admin/chatbot', 'analitica' => 'admin/analitica',
             'soporte' => 'admin/soporte', 'resenas' => 'admin/resenas',
-            'pagos' => 'admin/pagos',
+            'pagos' => 'admin/pagos', 'banners' => 'admin/banners',
         ];
         foreach ($permitidas as $seccion) {
             if (isset($mapa[$seccion])) {
@@ -313,6 +314,48 @@ final class AdminController
         )->fetchAll();
 
         $this->vista('dashboard', ['totales' => $totales, 'ultimos' => $ultimos, 'vendedor' => false]);
+    }
+
+    private function banners(string $subRuta): void
+    {
+        if (!Admin::esAdmin()) {
+            http_response_code(403);
+            return;
+        }
+        if (in_array($subRuta, ['banners/guardar', 'banners/estado', 'banners/eliminar'], true)) {
+            $pdo = conexion();
+            try {
+                $pdo->beginTransaction();
+                if ($subRuta === 'banners/guardar') {
+                    $resultado = Banner::guardar($_POST, $_FILES['imagen_archivo'] ?? null);
+                } else {
+                    $id = $this->idOpcional($_POST['id'] ?? null);
+                    $ok = is_int($id) && ($subRuta === 'banners/eliminar' ? Banner::eliminar($id) : Banner::cambiarEstado($id));
+                    $resultado = ['ok' => $ok, 'id' => $id, 'error' => 'El banner no existe o los datos no son válidos.'];
+                }
+                if ($resultado['ok']) {
+                    $this->auditar(Admin::usuarioActual(), $subRuta, (int) $resultado['id'], 'Actualizó el banner #' . $resultado['id']);
+                    $pdo->commit();
+                    $this->flash('Banner actualizado correctamente.');
+                } else {
+                    $pdo->rollBack();
+                    $this->flash($resultado['error'] ?? 'No se pudo guardar el banner.', true);
+                }
+            } catch (\Throwable $error) {
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                error_log('Banners: ' . $error->getMessage());
+                $this->flash('No se pudo actualizar el banner. Inténtalo de nuevo.', true);
+            }
+            header('Location: ?ruta=admin/banners');
+            exit;
+        }
+        $idEditar = $this->idOpcional($_GET['editar'] ?? null);
+        $this->vista('banners', [
+            'banners' => Banner::todos(),
+            'editando' => is_int($idEditar) ? Banner::obtener($idEditar) : null,
+        ]);
     }
 
     // ------------------------------------------------------------ //

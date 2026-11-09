@@ -9,42 +9,66 @@ $h1Catalogo = $qTitulo !== ''
     : ($catTitulo !== '' ? 'Catálogo de ' . $catTitulo : 'Catálogo de tecnología');
 ?>
 <h1 class="sr-only"><?= htmlspecialchars($h1Catalogo, ENT_QUOTES, 'UTF-8') ?></h1>
+<?php
+$banners = \Model\Banner::activos();
+?>
 <section id="inicio">
    <div class="carousel" role="region" aria-label="Promociones destacadas" aria-roledescription="carrusel">
     <div class="carousel-inner">
-     <div class="carousel-item">
-      <img alt="Tecnologia" src="img/Banners/banner_tecnologia.webp" width="1920" height="720"/>
-      <div class="carousel-overlay">
-       <h2>
-        Bienvenidos a Jeremy Tech
-       </h2>
-       <p>
-        Tu tienda de tecnologia de confianza. Los mejores dispositivos al mejor precio con garantia y soporte.
-       </p>
+     <?php if ($banners !== []): ?>
+      <?php foreach ($banners as $idx => $b): ?>
+      <div class="carousel-item">
+       <img alt="<?= htmlspecialchars($b['titulo'], ENT_QUOTES, 'UTF-8') ?>" <?= $idx > 0 ? 'loading="lazy"' : '' ?> src="?ruta=banner/imagen&id=<?= (int) $b['id'] ?>" width="1920" height="720"/>
+       <div class="carousel-overlay">
+        <h2>
+         <?= htmlspecialchars($b['titulo'], ENT_QUOTES, 'UTF-8') ?>
+        </h2>
+        <?php if ($b['subtitulo'] !== ''): ?>
+        <p>
+         <?= htmlspecialchars($b['subtitulo'], ENT_QUOTES, 'UTF-8') ?>
+        </p>
+        <?php endif; ?>
+        <?php if ($b['enlace'] !== '' && \Model\Banner::enlaceValido($b['enlace'])): ?>
+        <p><a href="<?= htmlspecialchars($b['enlace'], ENT_QUOTES, 'UTF-8') ?>">Ver promoción</a></p>
+        <?php endif; ?>
+       </div>
       </div>
-     </div>
-     <div class="carousel-item">
-      <img alt="Celulares" loading="lazy" src="img/Banners/banner_celulares.webp" width="1920" height="720"/>
-      <div class="carousel-overlay">
-       <h2>
-        Los Mejores Dispositivos
-       </h2>
-       <p>
-        Celulares, laptops, audifonos y mas. Encuentra la tecnologia que necesitas en un solo lugar.
-       </p>
+      <?php endforeach; ?>
+     <?php else: ?>
+      <div class="carousel-item">
+       <img alt="Tecnologia" src="img/Banners/banner_tecnologia.webp" width="1920" height="720"/>
+       <div class="carousel-overlay">
+        <h2>
+         Bienvenidos a Jeremy Tech
+        </h2>
+        <p>
+         Tu tienda de tecnologia de confianza. Los mejores dispositivos al mejor precio con garantia y soporte.
+        </p>
+       </div>
       </div>
-     </div>
-     <div class="carousel-item">
-      <img alt="Ofertas" loading="lazy" src="img/Banners/banner_ofertas.webp" width="1920" height="720"/>
-      <div class="carousel-overlay">
-       <h2>
-        Ofertas Especiales
-       </h2>
-       <p>
-        Tecnologia de ultima generacion a precios imbatibles. No te pierdas nuestras promociones.
-       </p>
+      <div class="carousel-item">
+       <img alt="Celulares" loading="lazy" src="img/Banners/banner_celulares.webp" width="1920" height="720"/>
+       <div class="carousel-overlay">
+        <h2>
+         Los Mejores Dispositivos
+        </h2>
+        <p>
+         Celulares, laptops, audifonos y mas. Encuentra la tecnologia que necesitas en un solo lugar.
+        </p>
+       </div>
       </div>
-     </div>
+      <div class="carousel-item">
+       <img alt="Ofertas" loading="lazy" src="img/Banners/banner_ofertas.webp" width="1920" height="720"/>
+       <div class="carousel-overlay">
+        <h2>
+         Ofertas Especiales
+        </h2>
+        <p>
+         Tecnologia de ultima generacion a precios imbatibles. No te pierdas nuestras promociones.
+        </p>
+       </div>
+      </div>
+     <?php endif; ?>
     </div>
     <div class="carousel-controls">
      <button class="carousel-btn" type="button" onclick="previousSlide()" aria-label="Promoción anterior">
@@ -55,12 +79,10 @@ $h1Catalogo = $qTitulo !== ''
      </button>
     </div>
     <div class="carousel-indicators" role="group" aria-label="Seleccionar promoción">
-     <button class="indicator active" type="button" onclick="goToSlide(0)" aria-label="Promoción 1" aria-current="true">
+     <?php for ($i = 0, $cantidadBanners = $banners === [] ? 3 : count($banners); $i < $cantidadBanners; $i++): ?>
+     <button class="indicator<?= $i === 0 ? ' active' : '' ?>" type="button" onclick="goToSlide(<?= $i ?>)" aria-label="Promoción <?= $i + 1 ?>" aria-current="<?= $i === 0 ? 'true' : 'false' ?>">
      </button>
-     <button class="indicator" type="button" onclick="goToSlide(1)" aria-label="Promoción 2" aria-current="false">
-     </button>
-     <button class="indicator" type="button" onclick="goToSlide(2)" aria-label="Promoción 3" aria-current="false">
-     </button>
+     <?php endfor; ?>
     </div>
    </div>
   </section>

@@ -121,7 +121,7 @@ class Administrador
                 'dashboard', 'productos', 'variantes', 'categorias', 'marcas', 'garantias',
                 'cupones', 'envios', 'pedidos', 'usuarios', 'solicitudes', 'configuracion',
                 'auditoria', 'vendedores', 'comisiones', 'inventario', 'notificaciones',
-                'chatbot', 'analitica', 'soporte', 'resenas', 'pagos',
+                'chatbot', 'analitica', 'soporte', 'resenas', 'pagos', 'banners',
             ];
         }
         return [];

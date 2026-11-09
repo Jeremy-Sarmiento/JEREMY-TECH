@@ -360,4 +360,30 @@ class ProductoController
         header('Cache-Control: public, max-age=86400');
         echo $imagen['datos'];
     }
+
+    /**
+     * Sirve la imagen de un banner desde la base de datos.
+     * Ruta: ?ruta=banner/imagen&id=<id>
+     */
+    public function bannerImagen(): void
+    {
+        $id = filter_var($_GET['id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 2147483647]]);
+        $banner = is_int($id) ? \Model\Banner::obtener($id) : null;
+        $vistaPrevia = $banner !== null && $banner['activo'] !== 1 && \Model\Administrador::esAdmin();
+        if ($banner === null || $banner['datos'] === ''
+            || ($banner['activo'] !== 1 && !$vistaPrevia)
+            || !in_array($banner['mime'], ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], true)
+        ) {
+            http_response_code(404);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'Banner no encontrado';
+            return;
+        }
+
+        header('Content-Type: ' . $banner['mime']);
+        header('Content-Length: ' . strlen($banner['datos']));
+        header('X-Content-Type-Options: nosniff');
+        header('Cache-Control: ' . ($vistaPrevia ? 'private, no-store' : 'public, no-cache'));
+        echo $banner['datos'];
+    }
 }

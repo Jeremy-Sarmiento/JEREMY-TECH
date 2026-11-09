@@ -4,6 +4,7 @@
 // Sidebar estilo Filament: secciones agrupadas + icono por enlace.
 $secciones = [
     'dashboard'     => ['Resumen',      'admin/dashboard'],
+    'banners'       => ['Banners',      'admin/banners'],
     'productos'     => ['Productos',    'admin/productos'],
     'variantes'     => ['Variantes',    'admin/variantes'],
     'categorias'    => ['Categorías',   'admin/categorias'],
@@ -29,7 +30,7 @@ $secciones = [
 ];
 
 $grupos = [
-    ['General', ['dashboard']],
+    ['General', ['dashboard', 'banners']],
     ['Catálogo', ['productos', 'variantes', 'categorias', 'marcas', 'garantias']],
     ['Ventas', ['pedidos', 'ventas', 'cupones', 'envios', 'vendedores', 'comisiones', 'pagos', 'analitica']],
     ['Operaciones', ['inventario', 'notificaciones', 'soporte', 'resenas']],
@@ -56,6 +57,7 @@ foreach ($grupos as $i => $grupo) {
 
 // Iconos SVG (trazo estilo Lucide, se pintan con currentColor).
 $iconos = [
+    'banners'       => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1"/><path d="m21 15-5-5L5 21"/></svg>',
     'dashboard'     => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
     'productos'     => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Z"/><path d="M3 7l9 5 9-5"/><path d="M12 12v10"/></svg>',
     'variantes'     => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',

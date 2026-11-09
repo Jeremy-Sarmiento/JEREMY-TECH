@@ -133,6 +133,10 @@ switch ($ruta) {
         (new Controller\ProductoController())->imagen();
         break;
 
+    case 'banner/imagen':
+        (new Controller\ProductoController())->bannerImagen();
+        break;
+
     case 'login':
         (new Controller\CuentaController())->ver();
         break;

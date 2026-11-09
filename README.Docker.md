@@ -108,6 +108,17 @@ Apache, `pdo_pgsql` y el DocumentRoot en `public/`. La base sigue en Supabase.
    `TRUSTED_PROXIES` con sus IPs exactas, separadas por comas y sin CIDR ni
    comodines; sin proxy, déjalo vacío.
 
+### Banners de la tienda
+
+Antes de desplegar estos cambios sobre una base existente, ejecuta en Supabase
+el contenido de `database/banners.sql` (o `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f database/banners.sql`).
+Es idempotente: crea la tabla sin borrar datos y bloquea su acceso por la API pública.
+
+Una cuenta con rol `admin` puede entrar a **Panel > Banners** para crear, editar,
+ordenar, ocultar o eliminar promociones. Vendedores y clientes no tienen acceso
+a esa gestión. Las imágenes se guardan en la base, no en el disco de Render.
+Sin banners activos, el catálogo conserva las promociones predeterminadas.
+
 El plan free suspende el servicio por inactividad, así que la primera visita
 tarda en responder. El disco es efímero: sesiones y correos se pierden al
 reiniciar; la base vive en Supabase. Comprueba cookies Secure y HTTPS en la URL
