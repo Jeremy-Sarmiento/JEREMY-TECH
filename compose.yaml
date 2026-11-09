@@ -1,6 +1,5 @@
 # Local: app + MariaDB.
 #   docker compose up -d db                       solo la base, con PHP en tu PC
-#   docker compose up -d --build app --no-deps    solo la app, con una base externa
 #   docker compose up -d --build                  app y base en Docker
 services:
   db:
@@ -15,11 +14,12 @@ services:
       MARIADB_PASSWORD: admin
       MARIADB_ROOT_PASSWORD: admin
     ports:
-      - "3306:3306"
+      - "3304:3306"
     volumes:
       - db-data:/var/lib/mysql
-      # Se importa solo la primera vez que se crea el volumen.
-      - ./database/jeremy_tech_full.sql:/docker-entrypoint-initdb.d/01-datos.sql:ro
+      # Se importan solo la primera vez que se crea el volumen.
+      - ./database/jeremy_tech_estructura.sql:/docker-entrypoint-initdb.d/01-estructura.sql:ro
+      - ./database/jeremy_tech_datos.sql:/docker-entrypoint-initdb.d/02-datos.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -u root -p$$MARIADB_ROOT_PASSWORD --silent"]
       interval: 5s

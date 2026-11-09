@@ -17,14 +17,16 @@ soporte multi-vendedor. Base MariaDB `jeremy_tech`.
 Requiere PHP 8.2+ con `pdo_mysql`, MariaDB 10.2+ y Apache con `mod_rewrite`, con
 el DocumentRoot en `public/`.
 
-1. Importa el dump completo:
+1. Importa la estructura y los datos:
 
    ```bash
-   mariadb -h 127.0.0.1 -u root -p < database/jeremy_tech_full.sql
+   mariadb -h 127.0.0.1 -u root -p < database/jeremy_tech_estructura.sql
+   mariadb -h 127.0.0.1 -u root -p < database/jeremy_tech_datos.sql
    ```
 
-   Crea la base `jeremy_tech`, sus tablas y los datos iniciales. Debe importarse
-   sobre una instalación vacía y no es idempotente.
+   El primer archivo crea la base y las tablas. El segundo carga catálogo,
+   cuentas y configuración. Solo para una instalación vacía: la estructura borra
+   las tablas existentes.
 
 2. Copia el entorno y rellena las credenciales:
 
@@ -46,8 +48,9 @@ php -S 127.0.0.1:8000 -t public
 ### Base MariaDB alojada
 
 Configura `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASS` con los datos
-del proveedor. Importa `database/jeremy_tech_full.sql` desde un equipo autorizado
-antes de iniciar la aplicación. No subas `.env` al repositorio.
+del proveedor. Importa `database/jeremy_tech_estructura.sql` y después
+`database/jeremy_tech_datos.sql` desde un equipo autorizado. No subas `.env` al
+repositorio.
 
 ## Docker
 
@@ -60,11 +63,7 @@ El seed deja las cuentas de admin y vendedor demo desactivadas. Crea o recupera
 una cuenta admin desde el servidor:
 
 ```bash
-export ADMIN_EMAIL=tu-correo@example.com ADMIN_USUARIO=tu-usuario
-read -rs -p 'Nueva contraseña: ' ADMIN_INITIAL_PASSWORD
-export ADMIN_INITIAL_PASSWORD
-php tools/establecer-admin.php
-unset ADMIN_INITIAL_PASSWORD
+env ADMIN_EMAIL="tu@correo.com" ADMIN_USUARIO="tu-usuario" ADMIN_INITIAL_PASSWORD="tu_contrasena" php tools/establecer-admin.php
 ```
 
 Requiere 8+ caracteres y rechaza claves comunes. Solo actúa sobre cuentas con rol
@@ -73,20 +72,6 @@ Requiere 8+ caracteres y rechaza claves comunes. Solo actúa sobre cuentas con r
 La demo no debe abrirse a usuarios reales: el enlace de recuperación sigue
 visible para quien lo solicita y la pregunta de seguridad no sustituye la
 verificación por correo.
-
-## Actualizar una base existente
-
-No reimportes el dump completo: recrea tablas. Con respaldo previo y las
-escrituras pausadas, aplica las migraciones en orden:
-
-```bash
-mariadb -h 127.0.0.1 -u root -p jeremy_tech < database/imagenes-producto.sql
-mariadb -h 127.0.0.1 -u root -p jeremy_tech < database/carrito-persistente.sql
-mariadb -h 127.0.0.1 -u root -p jeremy_tech < database/integridad-rendimiento.sql
-```
-
-Son idempotentes y no reparan datos históricos. Los scripts documentan su
-rollback y no se aplican solos al desplegar.
 
 ## Funcionalidad
 
@@ -110,7 +95,7 @@ src/Controller/     Controladores
 src/Model/          Modelos con SQL directo vía PDO
 views/              Vistas de tienda y views/admin/
 config/conexion.php Carga .env, autocarga PSR-4 y PDO
-database/           Dump completo y migraciones
+database/           Estructura y datos iniciales
 ```
 
 ## Rutas

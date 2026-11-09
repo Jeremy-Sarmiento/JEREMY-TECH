@@ -77,8 +77,10 @@ jobs:
       - name: Instalar cliente MariaDB
         run: sudo apt-get update && sudo apt-get install -y mariadb-client
 
-      - name: Importar el dump completo
-        run: mariadb -h 127.0.0.1 -u root -padmin < database/jeremy_tech_full.sql
+      - name: Importar estructura y datos
+        run: |
+          mariadb -h 127.0.0.1 -u root -padmin < database/jeremy_tech_estructura.sql
+          mariadb -h 127.0.0.1 -u root -padmin < database/jeremy_tech_datos.sql
 
       - name: PHPUnit
         run: php vendor/bin/phpunit

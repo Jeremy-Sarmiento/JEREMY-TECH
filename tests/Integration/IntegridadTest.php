@@ -15,7 +15,6 @@ class IntegridadTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         ensureTestDb();
-        self::migrar();
     }
 
     protected function setUp(): void
@@ -90,6 +89,38 @@ class IntegridadTest extends TestCase
         $this->pdo->exec("UPDATE cupones SET tipo = 'fijo', valor = 101, usos_maximos = NULL");
         $this->pdo->exec('UPDATE precios_volumen SET cantidad_maxima = NULL');
         $this->assertSame('101.00', $this->pdo->query('SELECT valor FROM cupones')->fetchColumn());
+    }
+
+    public function testBootstrapReconstruyeBaseAnteriorSinSecuencia(): void
+    {
+        $this->pdo->exec('DROP TABLE productos_id_seq');
+        ensureTestDb();
+        $this->assertSame(42, (int) $this->pdo->query('SELECT id FROM productos_id_seq')->fetchColumn());
+        $this->assertSame(32, (int) $this->pdo->query('SELECT COUNT(*) FROM productos')->fetchColumn());
+    }
+
+    public function testSkuAutomaticoConservaCodigosManualesYNoTruncaIdsGrandes(): void
+    {
+        $this->pdo->exec("INSERT INTO productos (slug, categoria, nombre, especificaciones, codigo_sku) VALUES
+            ('sku-vacio', 'Prueba', 'Vacío', '', '   '),
+            ('sku-manual', 'Prueba', 'Manual', '', 'MANUAL')");
+        $this->assertSame(['JT-00001', 'JT-00002', 'MANUAL'], $this->pdo->query(
+            'SELECT codigo_sku FROM productos ORDER BY id'
+        )->fetchAll(PDO::FETCH_COLUMN));
+
+        $this->pdo->exec("UPDATE productos SET codigo_sku = '' WHERE id = 1");
+        $this->assertSame('JT-00001', $this->pdo->query('SELECT codigo_sku FROM productos WHERE id = 1')->fetchColumn());
+        $this->pdo->exec('UPDATE productos SET codigo_sku = NULL WHERE id = 2');
+        $this->assertSame('JT-00002', $this->pdo->query('SELECT codigo_sku FROM productos WHERE id = 2')->fetchColumn());
+
+        $this->pdo->exec("INSERT INTO productos (id, slug, categoria, nombre, especificaciones)
+            VALUES (2147483648, 'sku-grande', 'Prueba', 'Grande', '')");
+        $this->pdo->exec("INSERT INTO productos (slug, categoria, nombre, especificaciones)
+            VALUES ('sku-siguiente', 'Prueba', 'Siguiente', '')");
+        $this->assertSame('2147483649', $this->pdo->lastInsertId());
+        $this->assertSame(['JT-2147483648', 'JT-2147483649'], $this->pdo->query(
+            'SELECT codigo_sku FROM productos WHERE id >= 2147483648 ORDER BY id'
+        )->fetchAll(PDO::FETCH_COLUMN));
     }
 
     public function testIndicesCubrenListadosYReferencias(): void
@@ -190,33 +221,6 @@ class IntegridadTest extends TestCase
         $this->assertSame('20.00', $this->pdo->query('SELECT monto_pen FROM pagos WHERE pedido_id = 1')->fetchColumn());
     }
 
-    public function testMigracionEsIdempotenteYNoReparaHistorialInvalido(): void
-    {
-        $this->pdo->exec('ALTER TABLE productos DROP CONSTRAINT ck_productos_stock');
-        $this->pdo->exec('ALTER TABLE pagos DROP FOREIGN KEY fk_pagos_pedido');
-        $this->pdo->exec('UPDATE productos SET stock = -1 WHERE id = 1');
-        $this->pdo->exec('INSERT INTO pagos (pedido_id, monto_pen) VALUES (999999, 12)');
-
-        try {
-            // MariaDB valida las filas existentes: la migración se detiene y no repara nada.
-            $this->rechaza(file_get_contents(__DIR__ . '/../../database/integridad-rendimiento.sql'), 4025);
-            $this->assertSame(-1, (int) $this->pdo->query('SELECT stock FROM productos WHERE id = 1')->fetchColumn());
-            $this->assertSame('12.00', $this->pdo->query('SELECT monto_pen FROM pagos WHERE pedido_id = 999999')->fetchColumn());
-        } finally {
-            // Solo la prueba fabrica estos datos; la migración nunca los corrige.
-            $this->pdo->exec('UPDATE productos SET stock = 0 WHERE id = 1');
-            $this->pdo->exec('DELETE FROM pagos WHERE pedido_id = 999999');
-            self::migrar();
-        }
-
-        $antes = $this->pdo->query('SELECT index_name, column_name, seq_in_index FROM information_schema.statistics
-            WHERE table_schema = DATABASE() ORDER BY table_name, index_name, seq_in_index')->fetchAll(PDO::FETCH_ASSOC);
-        self::migrar();
-        $this->assertSame($antes, $this->pdo->query('SELECT index_name, column_name, seq_in_index
-            FROM information_schema.statistics WHERE table_schema = DATABASE()
-            ORDER BY table_name, index_name, seq_in_index')->fetchAll(PDO::FETCH_ASSOC));
-    }
-
     private function rechaza(string $sql, int $codigo): void
     {
         try {
@@ -226,10 +230,5 @@ class IntegridadTest extends TestCase
             return;
         }
         $this->fail('La base aceptó una operación inválida: ' . $sql);
-    }
-
-    private static function migrar(): void
-    {
-        testPdo()->exec(file_get_contents(__DIR__ . '/../../database/integridad-rendimiento.sql'));
     }
 }

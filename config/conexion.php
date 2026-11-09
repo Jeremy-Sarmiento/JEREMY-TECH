@@ -10,14 +10,12 @@ declare(strict_types=1);
  *  2. Autocarga PSR-4 mínima (Model\ -> src/Model, Controller\ -> src/Controller).
  *  3. Conexión PDO única con atributos seguros.
  *
- * NOTA: el esquema y las semillas ya NO se crean desde PHP. Ahora viven en el
- * volcado `database/jeremy_tech_full.sql`. Antes de servir la app por primera
- * vez (o tras clonar), ejecuta:
+ * El esquema y los datos iniciales se importan antes de servir la app:
  *
- *   mysql -u root -p < database/jeremy_tech_full.sql
+ *   mariadb -u root -p < database/jeremy_tech_estructura.sql
+ *   mariadb -u root -p < database/jeremy_tech_datos.sql
  *
- * El volcado incluye CREATE DATABASE + los datos completos, así que debe
- * importarse sobre una instalación vacía (no es idempotente).
+ * Solo para una instalación vacía: la estructura borra las tablas existentes.
  *
  * Las credenciales ya NO se escriben aquí: se leen desde el archivo `.env`
  * (no versionado), que es la fuente principal. Copia `.env.example` a `.env`

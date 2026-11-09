@@ -17,7 +17,7 @@ require_once __DIR__ . '/../config/conexion.php';
 function testPdo(): \PDO
 {
     $pdo = new \PDO(
-        'mysql:host=127.0.0.1;dbname=jeremy_tech_test;charset=utf8mb4',
+        'mysql:host=127.0.0.1;port=' . DB_PORT . ';dbname=jeremy_tech_test;charset=utf8mb4',
         'root',
         'admin',
         [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
@@ -35,7 +35,7 @@ function testPdo(): \PDO
 function ensureTestDb(): void
 {
     $server = new \PDO(
-        'mysql:host=127.0.0.1;charset=utf8mb4',
+        'mysql:host=127.0.0.1;port=' . DB_PORT . ';charset=utf8mb4',
         'root',
         'admin',
         [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
@@ -43,16 +43,28 @@ function ensureTestDb(): void
     $server->exec('CREATE DATABASE IF NOT EXISTS `jeremy_tech_test` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
     $pdo = testPdo();
     $tables = $pdo->query('SHOW TABLES')->fetchAll(\PDO::FETCH_COLUMN);
-    if (count($tables) < 30) {
-        $sql = file_get_contents(__DIR__ . '/../database/jeremy_tech_full.sql');
-        $sql = str_replace('`jeremy_tech`', '`jeremy_tech_test`', $sql);
-        $sql = str_replace('USE `jeremy_tech`', 'USE `jeremy_tech_test`', $sql);
-        $pdo->exec($sql);
+    if (count($tables) < 30 || !in_array('productos_id_seq', $tables, true)) {
+        // PDO no entiende DELIMITER: se ejecuta el DDL y luego cada trigger.
+        $sql = str_replace(
+            '`jeremy_tech`',
+            '`jeremy_tech_test`',
+            file_get_contents(__DIR__ . '/../database/jeremy_tech_estructura.sql')
+        );
+        [$ddl, $resto] = preg_split('/^DELIMITER ;;\r?$/m', $sql, 2);
+        $pdo->exec($ddl);
+        [$triggers] = preg_split('/^DELIMITER ;\r?$/m', $resto, 2);
+        foreach (preg_split('/;;\s*/', $triggers) as $trigger) {
+            if (trim($trigger) !== '') {
+                $pdo->exec($trigger);
+            }
+        }
+        $datos = str_replace(
+            '`jeremy_tech`',
+            '`jeremy_tech_test`',
+            file_get_contents(__DIR__ . '/../database/jeremy_tech_datos.sql')
+        );
+        $pdo->exec($datos);
     }
-    // Actualiza bases creadas antes de las migraciones de imágenes y carrito.
-    $pdo->exec(file_get_contents(__DIR__ . '/../database/imagenes-producto.sql'));
-    $pdo->exec(file_get_contents(__DIR__ . '/../database/carrito-persistente.sql'));
-    $pdo->exec(file_get_contents(__DIR__ . '/../database/integridad-rendimiento.sql'));
 }
 
 function resetTestDb(): void
@@ -64,6 +76,8 @@ function resetTestDb(): void
         $pdo->exec("TRUNCATE TABLE `$table`;");
     }
     $pdo->exec('SET FOREIGN_KEY_CHECKS=1;');
+    // El TRUNCATE vacia la secuencia del SKU; sin la fila el trigger no asigna id.
+    $pdo->exec('INSERT INTO productos_id_seq (id) VALUES (0)');
     // Seed tarifas
     $pdo->exec("INSERT INTO tarifas_envio (id, zona, costo, dias_estimados, activo) VALUES
         (1, 'Lima Metropolitana', 15.00, '1-2', 1),
