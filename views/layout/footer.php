@@ -123,7 +123,25 @@ $e = static fn (mixed $valor): string => htmlspecialchars((string) $valor, ENT_Q
 <script nonce="<?= htmlspecialchars(\Security\Proteccion::nonce(), ENT_QUOTES) ?>">
  if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
-   navigator.serviceWorker.register('sw.js').catch(function () {});
+   navigator.serviceWorker.register('sw.js').then(function (reg) {
+    // Service worker registrado: mostramos el botón de instalación
+    if (!window.navigator.standalone) {
+     var btn = document.createElement('button');
+     btn.id = 'installBtn';
+     btn.style.cssText = 'position:fixed;bottom:20px;right:20px;padding:10px 15px;background:#070a0e;color:#e9eff6;border:none;border-radius:5px;z-index:9999;font-family:Manrope,system-ui,Arial;';
+     btn.textContent = 'Instalar Jeremy Tech';
+     btn.onclick = function() {
+      window.location.href = '/?display=standalone';
+     };
+     document.body.appendChild(btn);
+    }
+   }).catch(function (e) {
+    // Navegador que no soporta SW o sin HTTPS (ej. Brave): mostramos un aviso
+    var aviso = document.createElement('div');
+    aviso.style.cssText = 'position:fixed;bottom:20px;right:20px;padding:10px 15px;background:#070a0e;color:#e9eff6;border:none;border-radius:5px;z-index:9999;font-family:Manrope,system-ui,Arial;font-size:12px;';
+    aviso.textContent = 'Sitra no se detecta instalación automática (requiere HTTPS). Install from Chrome o usa el menú del navegador.';
+    document.body.appendChild(aviso);
+   });
   });
  }
 </script>
