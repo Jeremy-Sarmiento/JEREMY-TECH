@@ -79,6 +79,8 @@
   .der-estatico { break-inside: avoid; page-break-inside: avoid; }
   @media print { .der-estatico { display: block !important; } }
 </style>
+<link rel="stylesheet" href="diagramas.css">
+<script src="diagramas.js" defer></script>
 </head>
 <body>
 
@@ -194,162 +196,145 @@
 
 <!-- ── DER Estático para impresión (se oculta en pantalla con JS activo) ── -->
 <div class="diagrama-embebido der-estatico" style="margin:12px 0;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;background:#fff;">
-<p style="margin:8px 12px;font-size:0.75rem;color:#6b7280;font-weight:600;">🗄️ DIAGRAMA ENTIDAD-RELACIÓN — Jeremy Tech (erDiagram Mermaid)</p>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" width="100%" style="display:block;font-family:Arial,sans-serif;">
+<p>DIAGRAMA ENTIDAD-RELACIÓN — Jeremy Tech (erDiagram Mermaid)</p>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="100%" role="img" aria-label="Modelo entidad-relación con ocho tablas y sus claves foráneas" style="display:block;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:14px;">
   <defs>
-    <marker id="fk-arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
-      <path d="M0,0 L0,6 L8,3 z" fill="#4b5563"/>
-    </marker>
-    <marker id="fk-end" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
-      <circle cx="5" cy="5" r="3" fill="none" stroke="#4b5563" stroke-width="1.5"/>
+    <marker id="fk-arr" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L0,8 L9,4 z" fill="#475569"/>
     </marker>
   </defs>
-  <rect width="900" height="560" fill="#f8fafc"/>
-  <!-- ─────── ENTIDADES ─────── -->
-  <!-- users (centro-izq) -->
-  <rect x="20" y="20" width="180" height="200" rx="6" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
-  <rect x="20" y="20" width="180" height="26" rx="6" fill="#1d4ed8"/>
-  <rect x="20" y="40" width="180" height="6" fill="#1d4ed8"/>
-  <text x="110" y="38" text-anchor="middle" font-size="10" font-weight="bold" fill="white">users</text>
-  <text x="30" y="62" font-size="8" fill="#1e3a8a">🔑 id BIGINT PK</text>
-  <text x="30" y="75" font-size="8" fill="#374151">name VARCHAR</text>
-  <text x="30" y="88" font-size="8" fill="#374151">email VARCHAR UNIQUE</text>
-  <text x="30" y="101" font-size="8" fill="#374151">password VARCHAR (hash)</text>
-  <text x="30" y="114" font-size="8" fill="#374151">rol: admin|vendedor|cliente</text>
-  <text x="30" y="127" font-size="8" fill="#374151">tipo: B2C|B2B|C2C</text>
-  <text x="30" y="140" font-size="8" fill="#374151">ruc, dni, telefono</text>
-  <text x="30" y="153" font-size="8" fill="#374151">empresa, direccion</text>
-  <text x="30" y="166" font-size="8" fill="#374151">activo TINYINT</text>
-  <text x="30" y="179" font-size="8" fill="#374151">deleted_at (soft-delete)</text>
-  <text x="30" y="192" font-size="8" fill="#6b7280">created_at, updated_at</text>
-  <!-- productos (centro) -->
-  <rect x="360" y="20" width="180" height="175" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
-  <rect x="360" y="20" width="180" height="26" rx="6" fill="#16a34a"/>
-  <rect x="360" y="40" width="180" height="6" fill="#16a34a"/>
-  <text x="450" y="38" text-anchor="middle" font-size="10" font-weight="bold" fill="white">productos</text>
-  <text x="370" y="62" font-size="8" fill="#14532d">🔑 id VARCHAR PK (slug)</text>
-  <text x="370" y="75" font-size="8" fill="#374151">nombre VARCHAR</text>
-  <text x="370" y="88" font-size="8" fill="#374151">precio_pen DECIMAL</text>
-  <text x="370" y="101" font-size="8" fill="#374151">stock INT</text>
-  <text x="370" y="114" font-size="8" fill="#374151">activo TINYINT</text>
-  <text x="370" y="127" font-size="8" fill="#374151">archivado_en TIMESTAMP</text>
-  <text x="370" y="140" font-size="8" fill="#b45309">🔗 marca_id → marcas</text>
-  <text x="370" y="153" font-size="8" fill="#b45309">🔗 vendedor_id → users</text>
-  <text x="370" y="166" font-size="8" fill="#374151">especificaciones, colores</text>
-  <text x="370" y="179" font-size="8" fill="#6b7280">created_at</text>
-  <!-- pedidos (abajo centro) -->
-  <rect x="360" y="230" width="180" height="190" rx="6" fill="#fef9c3" stroke="#ca8a04" stroke-width="2"/>
-  <rect x="360" y="230" width="180" height="26" rx="6" fill="#ca8a04"/>
-  <rect x="360" y="250" width="180" height="6" fill="#ca8a04"/>
-  <text x="450" y="248" text-anchor="middle" font-size="10" font-weight="bold" fill="white">pedidos</text>
-  <text x="370" y="272" font-size="8" fill="#713f12">🔑 id INT PK</text>
-  <text x="370" y="285" font-size="8" fill="#374151">codigo_seguimiento</text>
-  <text x="370" y="298" font-size="8" fill="#b45309">🔗 cliente_id → users</text>
-  <text x="370" y="311" font-size="8" fill="#374151">total_pen, subtotal</text>
-  <text x="370" y="324" font-size="8" fill="#374151">igv_monto, envio_costo</text>
-  <text x="370" y="337" font-size="8" fill="#374151">estado: Pendiente|Pagado</text>
-  <text x="370" y="350" font-size="8" fill="#374151">       |Enviado|Entregado</text>
-  <text x="370" y="363" font-size="8" fill="#374151">tipo_comprobante</text>
-  <text x="370" y="376" font-size="8" fill="#374151">courier, numero_guia</text>
-  <text x="370" y="389" font-size="8" fill="#b45309">🔗 direccion_id, cupon_id</text>
-  <text x="370" y="402" font-size="8" fill="#6b7280">creado_en</text>
-  <!-- detalle_pedido -->
-  <rect x="700" y="230" width="185" height="160" rx="6" fill="#fce7f3" stroke="#9d174d" stroke-width="2"/>
-  <rect x="700" y="230" width="185" height="26" rx="6" fill="#9d174d"/>
-  <rect x="700" y="250" width="185" height="6" fill="#9d174d"/>
-  <text x="792" y="248" text-anchor="middle" font-size="10" font-weight="bold" fill="white">detalle_pedido</text>
-  <text x="710" y="272" font-size="8" fill="#500724">🔑 id INT PK</text>
-  <text x="710" y="285" font-size="8" fill="#b45309">🔗 pedido_id → pedidos</text>
-  <text x="710" y="298" font-size="8" fill="#b45309">🔗 producto_id → productos</text>
-  <text x="710" y="311" font-size="8" fill="#374151">producto_nombre</text>
-  <text x="710" y="324" font-size="8" fill="#374151">variante_nombre</text>
-  <text x="710" y="337" font-size="8" fill="#374151">cantidad INT</text>
-  <text x="710" y="350" font-size="8" fill="#374151">precio_unitario_pen</text>
-  <text x="710" y="363" font-size="8" fill="#374151">subtotal DECIMAL</text>
-  <!-- pagos -->
-  <rect x="700" y="20" width="185" height="170" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
-  <rect x="700" y="20" width="185" height="26" rx="6" fill="#7c3aed"/>
-  <rect x="700" y="40" width="185" height="6" fill="#7c3aed"/>
-  <text x="792" y="38" text-anchor="middle" font-size="10" font-weight="bold" fill="white">pagos</text>
-  <text x="710" y="62" font-size="8" fill="#4c1d95">🔑 id INT PK</text>
-  <text x="710" y="75" font-size="8" fill="#b45309">🔗 pedido_id → pedidos</text>
-  <text x="710" y="88" font-size="8" fill="#374151">pasarela VARCHAR</text>
-  <text x="710" y="101" font-size="8" fill="#374151">metodo VARCHAR</text>
-  <text x="710" y="114" font-size="8" fill="#374151">monto DECIMAL</text>
-  <text x="710" y="127" font-size="8" fill="#374151">estado: Pendiente|Pagado</text>
-  <text x="710" y="140" font-size="8" fill="#374151">transaccion_id (ref)</text>
-  <text x="710" y="153" font-size="8" fill="#374151">payload (webhook)</text>
-  <text x="710" y="166" font-size="8" fill="#6b7280">creado_en</text>
-  <!-- movimientos_inventario -->
-  <rect x="20" y="260" width="185" height="165" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
-  <rect x="20" y="260" width="185" height="26" rx="6" fill="#dc2626"/>
-  <rect x="20" y="280" width="185" height="6" fill="#dc2626"/>
-  <text x="112" y="278" text-anchor="middle" font-size="9" font-weight="bold" fill="white">movimientos_inventario</text>
-  <text x="30" y="302" font-size="8" fill="#7f1d1d">🔑 id INT PK</text>
-  <text x="30" y="315" font-size="8" fill="#b45309">🔗 producto_id → productos</text>
-  <text x="30" y="328" font-size="8" fill="#b45309">🔗 pedido_id → pedidos</text>
-  <text x="30" y="341" font-size="8" fill="#374151">tipo: salida|entrada|ajuste</text>
-  <text x="30" y="354" font-size="8" fill="#374151">cantidad INT</text>
-  <text x="30" y="367" font-size="8" fill="#374151">motivo VARCHAR</text>
-  <text x="30" y="380" font-size="8" fill="#374151">stock_resultante INT</text>
-  <text x="30" y="393" font-size="8" fill="#6b7280">creado_en</text>
-  <!-- comisiones -->
-  <rect x="20" y="455" width="185" height="95" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
-  <rect x="20" y="455" width="185" height="26" rx="6" fill="#d97706"/>
-  <rect x="20" y="475" width="185" height="6" fill="#d97706"/>
-  <text x="112" y="473" text-anchor="middle" font-size="10" font-weight="bold" fill="white">comisiones</text>
-  <text x="30" y="495" font-size="8" fill="#92400e">🔑 id INT PK</text>
-  <text x="30" y="508" font-size="8" fill="#b45309">🔗 pedido_id, vendedor_id</text>
-  <text x="30" y="521" font-size="8" fill="#374151">monto_comision, monto_vendedor</text>
-  <text x="30" y="534" font-size="8" fill="#374151">estado: pendiente|liquidado</text>
-  <!-- marcas -->
-  <rect x="360" y="450" width="180" height="95" rx="6" fill="#d1fae5" stroke="#059669" stroke-width="2"/>
-  <rect x="360" y="450" width="180" height="26" rx="6" fill="#059669"/>
-  <rect x="360" y="470" width="180" height="6" fill="#059669"/>
-  <text x="450" y="468" text-anchor="middle" font-size="10" font-weight="bold" fill="white">marcas</text>
-  <text x="370" y="490" font-size="8" fill="#065f46">🔑 id INT PK</text>
-  <text x="370" y="503" font-size="8" fill="#374151">nombre VARCHAR UNIQUE</text>
-  <text x="370" y="516" font-size="8" fill="#374151">logo_url, activo</text>
-  <text x="370" y="529" font-size="8" fill="#6b7280">created_at</text>
-  <!-- ─────── RELACIONES ─────── -->
-  <!-- users → pedidos (1:N) -->
-  <line x1="200" y1="100" x2="360" y2="300" stroke="#4b5563" stroke-width="1.5" stroke-dasharray="5,3"/>
-  <text x="270" y="185" font-size="7" fill="#374151" transform="rotate(-30,270,185)">realiza (1:N)</text>
-  <!-- users → comisiones -->
-  <line x1="110" y1="220" x2="110" y2="455" stroke="#4b5563" stroke-width="1.5" stroke-dasharray="3,3"/>
-  <text x="115" y="345" font-size="7" fill="#374151">recibe (1:N)</text>
-  <!-- pedidos → detalle_pedido (1:N) -->
-  <line x1="540" y1="320" x2="700" y2="310" stroke="#4b5563" stroke-width="2" marker-end="url(#fk-arr)"/>
-  <text x="600" y="308" font-size="7" fill="#374151">contiene (1:N)</text>
-  <!-- pedidos → pagos (1:1) -->
-  <line x1="540" y1="250" x2="700" y2="140" stroke="#7c3aed" stroke-width="2" marker-end="url(#fk-arr)"/>
-  <text x="595" y="182" font-size="7" fill="#7c3aed">genera (1:1)</text>
-  <!-- pedidos → movimientos (1:N) -->
-  <line x1="360" y1="350" x2="205" y2="340" stroke="#dc2626" stroke-width="2" marker-end="url(#fk-arr)"/>
-  <text x="270" y="333" font-size="7" fill="#dc2626">registra (1:N)</text>
-  <!-- pedidos → comisiones -->
-  <line x1="400" y1="420" x2="150" y2="455" stroke="#d97706" stroke-width="1.5" stroke-dasharray="4,3"/>
-  <text x="260" y="440" font-size="7" fill="#d97706">liquida (1:N)</text>
-  <!-- productos → detalle_pedido -->
-  <line x1="540" y1="100" x2="700" y2="280" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="4,3"/>
-  <text x="638" y="175" font-size="7" fill="#16a34a">se vende (1:N)</text>
-  <!-- productos → movimientos -->
-  <line x1="360" y1="120" x2="205" y2="310" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,3"/>
-  <text x="255" y="200" font-size="7" fill="#dc2626">mueve stock (1:N)</text>
-  <!-- marcas → productos -->
-  <line x1="450" y1="450" x2="450" y2="195" stroke="#059669" stroke-width="1.5" stroke-dasharray="4,3"/>
-  <text x="455" y="330" font-size="7" fill="#059669">clasifica (1:N)</text>
-  <!-- Leyenda -->
-  <rect x="680" y="430" width="210" height="120" rx="6" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1"/>
-  <text x="690" y="448" font-size="9" font-weight="bold" fill="#374151">Leyenda</text>
-  <text x="690" y="464" font-size="8" fill="#374151">🔑 Primary Key (PK)</text>
-  <text x="690" y="478" font-size="8" fill="#374151">🔗 Foreign Key (FK)</text>
-  <line x1="690" y1="492" x2="720" y2="492" stroke="#4b5563" stroke-width="2"/>
-  <text x="725" y="496" font-size="8" fill="#374151">Relación directa</text>
-  <line x1="690" y1="508" x2="720" y2="508" stroke="#4b5563" stroke-width="1.5" stroke-dasharray="4,3"/>
-  <text x="725" y="512" font-size="8" fill="#374151">Relación indirecta</text>
-  <text x="690" y="528" font-size="8" fill="#6b7280">Motor Relacional · 31 tablas</text>
-  <text x="690" y="542" font-size="8" fill="#6b7280">PostgreSQL 14+ jeremy_tech (Supabase)</text>
+  <rect width="1440" height="900" fill="#f8fafc"/>
+  <path d="M320,250 H380" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fk-arr)"/>
+  <path d="M740,120 H680" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fk-arr)"/>
+  <path d="M170,334 V440" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fk-arr)"/>
+  <path d="M680,190 H700 V380 H890 V440" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fk-arr)"/>
+  <path d="M680,250 H720 V355 H1310 V440" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fk-arr)"/>
+  <path d="M320,310 H350 V420 H530 V440" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fk-arr)"/>
+  <path d="M600,440 V400 H1190 V290" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fk-arr)"/>
+  <path d="M680,500 H740" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fk-arr)"/>
+  <path d="M380,560 H320" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fk-arr)"/>
+  <path d="M530,734 V760 H1310 V668" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#fk-arr)"/>
+  <rect x="20" y="40" width="300" height="294" rx="6" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="20" y="40" width="300" height="40" rx="6" fill="#1d4ed8"/>
+  <rect x="20" y="70" width="300" height="10" fill="#1d4ed8"/>
+  <text x="34" y="66" fill="#ffffff" font-size="15" font-weight="600">users</text>
+  <text x="34" y="102" fill="#1e3a8a" font-weight="600">id BIGINT · PK</text>
+  <text x="34" y="124" fill="#334155">name VARCHAR</text>
+  <text x="34" y="146" fill="#334155">email VARCHAR UNIQUE</text>
+  <text x="34" y="168" fill="#334155">password VARCHAR (hash)</text>
+  <text x="34" y="190" fill="#334155">rol: admin | vendedor | cliente</text>
+  <text x="34" y="212" fill="#334155">tipo: B2C | B2B | C2C</text>
+  <text x="34" y="234" fill="#334155">ruc, dni, telefono</text>
+  <text x="34" y="256" fill="#334155">empresa, direccion</text>
+  <text x="34" y="278" fill="#334155">activo TINYINT</text>
+  <text x="34" y="300" fill="#334155">deleted_at (soft-delete)</text>
+  <text x="34" y="322" fill="#475569">created_at, updated_at</text>
+  <rect x="380" y="40" width="300" height="272" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="2"/>
+  <rect x="380" y="40" width="300" height="40" rx="6" fill="#15803d"/>
+  <rect x="380" y="70" width="300" height="10" fill="#15803d"/>
+  <text x="394" y="66" fill="#ffffff" font-size="15" font-weight="600">productos</text>
+  <text x="394" y="102" fill="#1e3a8a" font-weight="600">id VARCHAR · PK (slug)</text>
+  <text x="394" y="124" fill="#334155">nombre VARCHAR</text>
+  <text x="394" y="146" fill="#334155">precio_pen DECIMAL</text>
+  <text x="394" y="168" fill="#334155">stock INT</text>
+  <text x="394" y="190" fill="#334155">activo TINYINT</text>
+  <text x="394" y="212" fill="#334155">archivado_en TIMESTAMP</text>
+  <text x="394" y="234" fill="#92400e">marca_id → marcas (FK)</text>
+  <text x="394" y="256" fill="#92400e">vendedor_id → users (FK)</text>
+  <text x="394" y="278" fill="#334155">especificaciones, colores</text>
+  <text x="394" y="300" fill="#475569">created_at</text>
+  <rect x="740" y="40" width="300" height="140" rx="6" fill="#f0fdfa" stroke="#0f766e" stroke-width="2"/>
+  <rect x="740" y="40" width="300" height="40" rx="6" fill="#0f766e"/>
+  <rect x="740" y="70" width="300" height="10" fill="#0f766e"/>
+  <text x="754" y="66" fill="#ffffff" font-size="15" font-weight="600">marcas</text>
+  <text x="754" y="102" fill="#1e3a8a" font-weight="600">id INT · PK</text>
+  <text x="754" y="124" fill="#334155">nombre VARCHAR UNIQUE</text>
+  <text x="754" y="146" fill="#334155">logo_url, activo</text>
+  <text x="754" y="168" fill="#475569">created_at</text>
+  <rect x="1100" y="40" width="300" height="250" rx="6" fill="#f5f3ff" stroke="#6d28d9" stroke-width="2"/>
+  <rect x="1100" y="40" width="300" height="40" rx="6" fill="#6d28d9"/>
+  <rect x="1100" y="70" width="300" height="10" fill="#6d28d9"/>
+  <text x="1114" y="66" fill="#ffffff" font-size="15" font-weight="600">pagos</text>
+  <text x="1114" y="102" fill="#1e3a8a" font-weight="600">id INT · PK</text>
+  <text x="1114" y="124" fill="#92400e">pedido_id → pedidos (FK)</text>
+  <text x="1114" y="146" fill="#334155">pasarela VARCHAR</text>
+  <text x="1114" y="168" fill="#334155">metodo VARCHAR</text>
+  <text x="1114" y="190" fill="#334155">monto DECIMAL</text>
+  <text x="1114" y="212" fill="#334155">estado: Pendiente | Pagado</text>
+  <text x="1114" y="234" fill="#334155">transaccion_id (ref)</text>
+  <text x="1114" y="256" fill="#334155">payload (webhook)</text>
+  <text x="1114" y="278" fill="#475569">creado_en</text>
+  <rect x="20" y="440" width="300" height="140" rx="6" fill="#f8fafc" stroke="#334155" stroke-width="2"/>
+  <rect x="20" y="440" width="300" height="40" rx="6" fill="#334155"/>
+  <rect x="20" y="470" width="300" height="10" fill="#334155"/>
+  <text x="34" y="466" fill="#ffffff" font-size="15" font-weight="600">comisiones</text>
+  <text x="34" y="502" fill="#1e3a8a" font-weight="600">id INT · PK</text>
+  <text x="34" y="524" fill="#92400e">pedido_id, vendedor_id (FK)</text>
+  <text x="34" y="546" fill="#334155">monto_comision, monto_vendedor</text>
+  <text x="34" y="568" fill="#334155">estado: pendiente | liquidado</text>
+  <rect x="380" y="440" width="300" height="294" rx="6" fill="#fffbeb" stroke="#92400e" stroke-width="2"/>
+  <rect x="380" y="440" width="300" height="40" rx="6" fill="#92400e"/>
+  <rect x="380" y="470" width="300" height="10" fill="#92400e"/>
+  <text x="394" y="466" fill="#ffffff" font-size="15" font-weight="600">pedidos</text>
+  <text x="394" y="502" fill="#1e3a8a" font-weight="600">id INT · PK</text>
+  <text x="394" y="524" fill="#334155">codigo_seguimiento</text>
+  <text x="394" y="546" fill="#92400e">cliente_id → users (FK)</text>
+  <text x="394" y="568" fill="#334155">total_pen, subtotal</text>
+  <text x="394" y="590" fill="#334155">igv_monto, envio_costo</text>
+  <text x="394" y="612" fill="#334155">estado: Pendiente |</text>
+  <text x="394" y="634" fill="#334155">Pagado | Enviado | Entregado</text>
+  <text x="394" y="656" fill="#334155">tipo_comprobante</text>
+  <text x="394" y="678" fill="#334155">courier, numero_guia</text>
+  <text x="394" y="700" fill="#92400e">direccion_id, cupon_id (FK)</text>
+  <text x="394" y="722" fill="#475569">creado_en</text>
+  <rect x="740" y="440" width="300" height="228" rx="6" fill="#fdf2f8" stroke="#9d174d" stroke-width="2"/>
+  <rect x="740" y="440" width="300" height="40" rx="6" fill="#9d174d"/>
+  <rect x="740" y="470" width="300" height="10" fill="#9d174d"/>
+  <text x="754" y="466" fill="#ffffff" font-size="15" font-weight="600">detalle_pedido</text>
+  <text x="754" y="502" fill="#1e3a8a" font-weight="600">id INT · PK</text>
+  <text x="754" y="524" fill="#92400e">pedido_id → pedidos (FK)</text>
+  <text x="754" y="546" fill="#92400e">producto_id → productos (FK)</text>
+  <text x="754" y="568" fill="#334155">producto_nombre</text>
+  <text x="754" y="590" fill="#334155">variante_nombre</text>
+  <text x="754" y="612" fill="#334155">cantidad INT</text>
+  <text x="754" y="634" fill="#334155">precio_unitario_pen</text>
+  <text x="754" y="656" fill="#334155">subtotal DECIMAL</text>
+  <rect x="1100" y="440" width="300" height="228" rx="6" fill="#fef2f2" stroke="#991b1b" stroke-width="2"/>
+  <rect x="1100" y="440" width="300" height="40" rx="6" fill="#991b1b"/>
+  <rect x="1100" y="470" width="300" height="10" fill="#991b1b"/>
+  <text x="1114" y="466" fill="#ffffff" font-size="15" font-weight="600">movimientos_inventario</text>
+  <text x="1114" y="502" fill="#1e3a8a" font-weight="600">id INT · PK</text>
+  <text x="1114" y="524" fill="#92400e">producto_id → productos (FK)</text>
+  <text x="1114" y="546" fill="#92400e">pedido_id → pedidos (FK)</text>
+  <text x="1114" y="568" fill="#334155">tipo: salida | entrada | ajuste</text>
+  <text x="1114" y="590" fill="#334155">cantidad INT</text>
+  <text x="1114" y="612" fill="#334155">motivo VARCHAR</text>
+  <text x="1114" y="634" fill="#334155">stock_resultante INT</text>
+  <text x="1114" y="656" fill="#475569">creado_en</text>
+  <text x="330" y="242" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">1</text>
+  <text x="370" y="242" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">N</text>
+  <text x="729" y="112" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">1</text>
+  <text x="692" y="112" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">N</text>
+  <text x="180" y="346" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">1</text>
+  <text x="180" y="432" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">N</text>
+  <text x="688" y="182" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">1</text>
+  <text x="900" y="432" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">N</text>
+  <text x="688" y="242" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">1</text>
+  <text x="1320" y="432" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">N</text>
+  <text x="328" y="302" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">1</text>
+  <text x="540" y="432" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">N</text>
+  <text x="610" y="432" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">1</text>
+  <text x="1200" y="302" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">1</text>
+  <text x="692" y="492" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">1</text>
+  <text x="728" y="492" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">N</text>
+  <text x="374" y="552" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">1</text>
+  <text x="326" y="552" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">N</text>
+  <text x="540" y="746" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">1</text>
+  <text x="1320" y="678" text-anchor="middle" fill="#475569" font-size="13" font-weight="600" paint-order="stroke" stroke="#f8fafc" stroke-width="4">N</text>
+  <rect x="20" y="800" width="470" height="80" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="36" y="826" font-size="15" font-weight="600" fill="#1f2937">Leyenda</text>
+  <text x="36" y="850" fill="#334155">PK = clave primaria · FK = clave foránea</text>
+  <text x="36" y="872" fill="#334155">1 : N relación uno a muchos · 1 : 1 uno a uno · PostgreSQL 14+</text>
 </svg>
 </div>
 
@@ -441,12 +426,12 @@
 
 <h2>3. Cómo se relacionan y se protegen los datos</h2>
 <p>Explica, en 4-6 líneas: ¿cómo viven relacionados estos datos (qué pasa si borro un cliente que ya tiene pedidos)? y ¿qué dato sensible de tu proyecto necesita mayor protección (contraseñas, datos de pago, RUC/DNI) y cómo lo protegerías?</p>
-<textarea id="proteccion" placeholder="Escribe aquí tu explicación...">Los datos están estrictamente relacionados mediante integridad referencial (Foreign Keys) en PostgreSQL. Para proteger el histórico contable y legal ante la eliminación de un usuario, el sistema implementa 'Soft Delete' con la columna deleted_at, de modo que un cliente nunca se destruye físicamente de la base de datos si ya tiene pedidos o comprobantes asociados (evitando fallos por ON DELETE CASCADE y cumpliendo normativas de auditoría SUNAT). En caso de cancelar un pedido, una transacción revierte el stock mediante una entrada en movimientos_inventario.
+<textarea id="proteccion" placeholder="Escribe aquí tu explicación...">Los datos se relacionan con integridad referencial (Foreign Keys) en PostgreSQL. Para proteger el histórico contable y legal, la eliminación de usuarios es lógica ("Soft Delete" con deleted_at): un cliente con pedidos o comprobantes nunca se borra físicamente y se cumple la auditoría SUNAT. Al cancelar un pedido, una transacción revierte el stock en movimientos_inventario.
 
-Los datos más sensibles son las contraseñas, los datos tributarios (RUC/DNI) y la información financiera. Las contraseñas se almacenan mediante hashes unidireccionales generados con password_hash() (bcrypt / Argon2ID) y nunca en texto plano. Los datos de tarjetas de crédito o credenciales bancarias NUNCA se guardan en la base de datos de Jeremy Tech (principio PCI-DSS); la pasarela externa gestiona el token y la plataforma solo almacena el identificador transaccion_id referencial. Las consultas se ejecutan con sentencias preparadas PDO parametrizadas contra inyecciones SQL, y los accesos administrativos se aíslan en la clave admin_id con bitácora inmutable en auditoria_admin.</textarea>
+Los datos más sensibles son las contraseñas, el RUC/DNI y la información financiera. Las contraseñas usan hash unidireccional (bcrypt o Argon2ID), nunca en texto plano. Las tarjetas y credenciales bancarias no se almacenan (PCI-DSS): la pasarela guarda el token y aquí solo el transaccion_id.</textarea>
 
 <h2>4. Conclusión</h2>
-<textarea id="conclusion" placeholder="Escribe aquí tu conclusión...">El diseño relacional del DER garantiza la integridad física, lógica y financiera de la tienda. Separa con claridad la identidad unificada de usuarios, el catálogo de productos con sus variantes y marcas, y el ciclo transaccional compuesto por el pedido, su detalle, el pago conciliado y el kardex de inventario, sentando las bases para una operación E-business robusta y libre de inconsistencias.</textarea>
+<textarea id="conclusion" placeholder="Escribe aquí tu conclusión...">El DER garantiza la integridad física, lógica y financiera de la tienda: separa la identidad de los usuarios, el catálogo con marcas y variantes, y el ciclo del pedido con su detalle, pago conciliado y kardex de inventario.</textarea>
 
 <script>
   const CLAVE_STORAGE = 'grafiluz-s3-plano-maestro-der';
@@ -514,7 +499,7 @@ Los datos más sensibles son las contraseñas, los datos tributarios (RUC/DNI) y
     estado._t = setTimeout(() => estado.textContent = '', 2000);
   }
 
-  const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech (Tienda de Tecnología)", "mermaidCodigo": "erDiagram\n    users ||--o{ pedidos : \"realiza (1:N)\"\n    users ||--o{ direcciones : \"registra (1:N)\"\n    users ||--o{ comisiones : \"recibe_como_vendedor (1:N)\"\n    pedidos ||--|{ detalle_pedido : \"contiene (1:N)\"\n    pedidos ||--o| pagos : \"genera (1:1)\"\n    pedidos ||--o{ movimientos_inventario : \"registra_salida (1:N)\"\n    pedidos ||--o{ comisiones : \"liquida (1:N)\"\n    productos ||--o{ detalle_pedido : \"se_vende_en (1:N)\"\n    productos ||--o{ movimientos_inventario : \"mueve_stock (1:N)\"\n    marcas ||--o{ productos : \"clasifica (1:N)\"\n\n    users {\n        bigint id PK\n        string name\n        string email\n        string password\n        string rol \"admin | vendedor | cliente\"\n        string tipo \"B2C | B2B | C2C\"\n        string ruc\n        string dni\n        string telefono\n        string direccion\n    }\n    productos {\n        bigint id PK\n        string slug\n        string nombre\n        decimal precio_pen\n        int stock\n        tinyint activo\n        int marca_id FK\n        bigint vendedor_id FK\n    }\n    pedidos {\n        int id PK\n        bigint cliente_id FK\n        decimal total_pen\n        decimal subtotal\n        decimal igv_monto\n        decimal envio_costo\n        string estado \"Pendiente | Pagado | Enviado | Entregado | Cancelado\"\n        string tipo_comprobante \"Boleta | Factura\"\n    }\n    detalle_pedido {\n        int id PK\n        int pedidoId FK\n        bigint productoId FK\n        string producto_nombre\n        int cantidad\n        decimal precio_unitario_pen\n        decimal subtotal\n    }\n    pagos {\n        int id PK\n        int pedidoId FK\n        string pasarela\n        string metodo\n        decimal monto\n        string estado \"Pendiente | En verificacion | Pagado | Rechazado\"\n        string transaccion_id\n    }\n    movimientos_inventario {\n        int id PK\n        bigint producto_id FK\n        int pedido_id FK\n        string tipo \"salida | entrada | ajuste\"\n        int cantidad\n        string motivo\n        int stock_resultante\n    }\n    comisiones {\n        int id PK\n        int pedido_id FK\n        bigint vendedor_id FK\n        decimal monto_comision\n        decimal monto_vendedor\n        string estado \"pendiente | liquidado\"\n    }", "proteccion": "Los datos están estrictamente relacionados mediante integridad referencial (Foreign Keys) en PostgreSQL. Para proteger el histórico contable y legal ante la eliminación de un usuario, el sistema implementa 'Soft Delete' con la columna deleted_at, de modo que un cliente nunca se destruye físicamente de la base de datos si ya tiene pedidos o comprobantes asociados (evitando fallos por ON DELETE CASCADE y cumpliendo normativas de auditoría SUNAT). En caso de cancelar un pedido, una transacción revierte el stock mediante una entrada en movimientos_inventario.\n\nLos datos más sensibles son las contraseñas, los datos tributarios (RUC/DNI) y la información financiera. Las contraseñas se almacenan mediante hashes unidireccionales generados con password_hash() (bcrypt / Argon2ID) y nunca en texto plano. Los datos de tarjetas de crédito o credenciales bancarias NUNCA se guardan en la base de datos de Jeremy Tech (principio PCI-DSS); la pasarela externa gestiona el token y la plataforma solo almacena el identificador transaccion_id referencial. Las consultas se ejecutan con sentencias preparadas PDO parametrizadas contra inyecciones SQL, y los accesos administrativos se aíslan en la clave admin_id con bitácora inmutable en auditoria_admin.", "conclusion": "El diseño relacional del DER garantiza la integridad física, lógica y financiera de la tienda. Separa con claridad la identidad unificada de usuarios, el catálogo de productos con sus variantes y marcas, y el ciclo transaccional compuesto por el pedido, su detalle, el pago conciliado y el kardex de inventario, sentando las bases para una operación E-business robusta y libre de inconsistencias.", "filas": [{"entidad": "users", "atributos": "id, name, apellidos, email, usuario, password, rol, activo, telefono, direccion, tipo (B2C/B2B/C2C), empresa, ruc, dni, pregunta_secreta, respuesta_secreta_hash, created_at, deleted_at", "pk": "id", "fk": "—"}, {"entidad": "productos", "atributos": "id (slug), nombre, precio_pen, stock, activo, archivado_en, marca_id, categoria, vendedor_id, especificaciones, colores, garantia_id, created_at", "pk": "id", "fk": "marca_id → marcas, vendedor_id → users, garantia_id → garantias"}, {"entidad": "pedidos", "atributos": "id, codigo_seguimiento, cliente_id, total_pen, subtotal, igv_monto, envio_costo, envio_zona, descuento_aplicado, cupon_id, estado, tipo_comprobante, courier, numero_guia, direccion_id, creado_en", "pk": "id", "fk": "cliente_id → users, cupon_id → cupones, direccion_id → direcciones"}, {"entidad": "detalle_pedido", "atributos": "id, pedido_id, producto_id, producto_nombre, variante_nombre, cantidad, precio_unitario_pen, subtotal", "pk": "id", "fk": "pedido_id → pedidos, producto_id → productos"}, {"entidad": "pagos", "atributos": "id, pedido_id, pasarela, metodo, monto, moneda, estado, transaccion_id, referencia_externa, payload, creado_en", "pk": "id", "fk": "pedido_id → pedidos"}, {"entidad": "movimientos_inventario", "atributos": "id, producto_id, variante_id, pedido_id, tipo, cantidad, motivo, stock_resultante, creado_en", "pk": "id", "fk": "producto_id → productos, variante_id → producto_variantes, pedido_id → pedidos"}, {"entidad": "comisiones", "atributos": "id, pedido_id, vendedor_id, subtotal_linea, porcentaje, monto_comision, monto_vendedor, estado, creado_en", "pk": "id", "fk": "pedido_id → pedidos, vendedor_id → users"}]};
+  const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech (Tienda de Tecnología)", "mermaidCodigo": "erDiagram\n    users ||--o{ pedidos : \"realiza (1:N)\"\n    users ||--o{ direcciones : \"registra (1:N)\"\n    users ||--o{ comisiones : \"recibe_como_vendedor (1:N)\"\n    pedidos ||--|{ detalle_pedido : \"contiene (1:N)\"\n    pedidos ||--o| pagos : \"genera (1:1)\"\n    pedidos ||--o{ movimientos_inventario : \"registra_salida (1:N)\"\n    pedidos ||--o{ comisiones : \"liquida (1:N)\"\n    productos ||--o{ detalle_pedido : \"se_vende_en (1:N)\"\n    productos ||--o{ movimientos_inventario : \"mueve_stock (1:N)\"\n    marcas ||--o{ productos : \"clasifica (1:N)\"\n\n    users {\n        bigint id PK\n        string name\n        string email\n        string password\n        string rol \"admin | vendedor | cliente\"\n        string tipo \"B2C | B2B | C2C\"\n        string ruc\n        string dni\n        string telefono\n        string direccion\n    }\n    productos {\n        bigint id PK\n        string slug\n        string nombre\n        decimal precio_pen\n        int stock\n        tinyint activo\n        int marca_id FK\n        bigint vendedor_id FK\n    }\n    pedidos {\n        int id PK\n        bigint cliente_id FK\n        decimal total_pen\n        decimal subtotal\n        decimal igv_monto\n        decimal envio_costo\n        string estado \"Pendiente | Pagado | Enviado | Entregado | Cancelado\"\n        string tipo_comprobante \"Boleta | Factura\"\n    }\n    detalle_pedido {\n        int id PK\n        int pedidoId FK\n        bigint productoId FK\n        string producto_nombre\n        int cantidad\n        decimal precio_unitario_pen\n        decimal subtotal\n    }\n    pagos {\n        int id PK\n        int pedidoId FK\n        string pasarela\n        string metodo\n        decimal monto\n        string estado \"Pendiente | En verificacion | Pagado | Rechazado\"\n        string transaccion_id\n    }\n    movimientos_inventario {\n        int id PK\n        bigint producto_id FK\n        int pedido_id FK\n        string tipo \"salida | entrada | ajuste\"\n        int cantidad\n        string motivo\n        int stock_resultante\n    }\n    comisiones {\n        int id PK\n        int pedido_id FK\n        bigint vendedor_id FK\n        decimal monto_comision\n        decimal monto_vendedor\n        string estado \"pendiente | liquidado\"\n    }", "proteccion": "Los datos se relacionan con integridad referencial (Foreign Keys) en PostgreSQL. Para proteger el histórico contable y legal, la eliminación de usuarios es lógica (\"Soft Delete\" con deleted_at): un cliente con pedidos o comprobantes nunca se borra físicamente y se cumple la auditoría SUNAT. Al cancelar un pedido, una transacción revierte el stock en movimientos_inventario.\n\nLos datos más sensibles son las contraseñas, el RUC/DNI y la información financiera. Las contraseñas usan hash unidireccional (bcrypt o Argon2ID), nunca en texto plano. Las tarjetas y credenciales bancarias no se almacenan (PCI-DSS): la pasarela guarda el token y aquí solo el transaccion_id.", "conclusion": "El DER garantiza la integridad física, lógica y financiera de la tienda: separa la identidad de los usuarios, el catálogo con marcas y variantes, y el ciclo del pedido con su detalle, pago conciliado y kardex de inventario.", "filas": [{"entidad": "users", "atributos": "id, name, apellidos, email, usuario, password, rol, activo, telefono, direccion, tipo (B2C/B2B/C2C), empresa, ruc, dni, pregunta_secreta, respuesta_secreta_hash, created_at, deleted_at", "pk": "id", "fk": "—"}, {"entidad": "productos", "atributos": "id (slug), nombre, precio_pen, stock, activo, archivado_en, marca_id, categoria, vendedor_id, especificaciones, colores, garantia_id, created_at", "pk": "id", "fk": "marca_id → marcas, vendedor_id → users, garantia_id → garantias"}, {"entidad": "pedidos", "atributos": "id, codigo_seguimiento, cliente_id, total_pen, subtotal, igv_monto, envio_costo, envio_zona, descuento_aplicado, cupon_id, estado, tipo_comprobante, courier, numero_guia, direccion_id, creado_en", "pk": "id", "fk": "cliente_id → users, cupon_id → cupones, direccion_id → direcciones"}, {"entidad": "detalle_pedido", "atributos": "id, pedido_id, producto_id, producto_nombre, variante_nombre, cantidad, precio_unitario_pen, subtotal", "pk": "id", "fk": "pedido_id → pedidos, producto_id → productos"}, {"entidad": "pagos", "atributos": "id, pedido_id, pasarela, metodo, monto, moneda, estado, transaccion_id, referencia_externa, payload, creado_en", "pk": "id", "fk": "pedido_id → pedidos"}, {"entidad": "movimientos_inventario", "atributos": "id, producto_id, variante_id, pedido_id, tipo, cantidad, motivo, stock_resultante, creado_en", "pk": "id", "fk": "producto_id → productos, variante_id → producto_variantes, pedido_id → pedidos"}, {"entidad": "comisiones", "atributos": "id, pedido_id, vendedor_id, subtotal_linea, porcentaje, monto_comision, monto_vendedor, estado, creado_en", "pk": "id", "fk": "pedido_id → pedidos, vendedor_id → users"}]};
 
   function cargar() {
     const guardado = localStorage.getItem(CLAVE_STORAGE);

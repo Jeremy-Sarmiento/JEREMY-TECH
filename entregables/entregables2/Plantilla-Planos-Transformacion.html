@@ -81,6 +81,8 @@
     .diagrama-embebido { display: block !important; }
   }
 </style>
+<link rel="stylesheet" href="diagramas.css">
+<script src="diagramas.js" defer></script>
 </head>
 <body>
 
@@ -115,115 +117,103 @@
 <div class="caja">
   <div class="campo">
     <label for="asIsActores">Actores involucrados</label>
-    <textarea id="asIsActores" placeholder="Ej: Cliente, Asesor comercial, Registros manuales (Excel/PDF)...">1. Cliente (Residente, estudiante o agricultor de La Joya / Arequipa).
-2. Catálogo Web inicial (Frontend HTML/JS estático con botón de enlace hacia WhatsApp).
-3. Asesor comercial en sede física (La Paz Soldán, La Joya).
-4. Stock físico (Vitrinas y estanterías en la tienda física de La Joya).
-5. Registro de ventas manual (Cuaderno de apuntes y archivo Excel local).
-6. Banca móvil personal (Aplicación Yape / BCP en celular del asesor para revisión visual de vouchers).</textarea>
+    <textarea id="asIsActores" placeholder="Ej: Cliente, Asesor comercial, Registros manuales (Excel/PDF)...">1. Cliente de La Joya (residentes, estudiantes y agricultores).
+2. Catálogo web estático con botón que abre WhatsApp.
+3. Asesor comercial de la sede de La Paz Soldán.
+4. Stock físico en las vitrinas de la tienda.
+5. Registro manual en cuaderno y Excel local.
+6. Banca móvil personal (Yape/BCP) para revisar vouchers.</textarea>
   </div>
   <div class="campo">
     <label for="asIsFlujo">Flujo paso a paso</label>
-    <textarea id="asIsFlujo" placeholder="Describe, en orden, cómo interactúa hoy el cliente con tu negocio hasta cerrar una venta...">1. El cliente entra al catálogo web básico, revisa productos (celulares, laptops, audífonos) y elige una variante.
-2. Hace clic en el botón 'Consultar', ejecutando script.js que genera un mensaje predeterminado hacia +51 997 833 866.
-3. El asesor en la tienda de La Paz Soldán recibe el mensaje y debe dejar de atender el mostrador para revisar la vitrina y verificar stock.
-4. El asesor responde por chat confirmando precio y enviando el número de cuenta o código QR de Yape personal.
-5. El cliente realiza el pago en su app bancaria y envía una captura de pantalla del voucher por chat.
-6. El asesor abre la banca móvil en su teléfono personal, verifica si el dinero ingresó realmente en su cuenta bancaria.
-7. El asesor anota manualmente la venta en una libreta, descuenta el stock en un Excel y coordina el recojo en tienda o un delivery improvisado.</textarea>
+    <textarea id="asIsFlujo" placeholder="Describe, en orden, cómo interactúa hoy el cliente con tu negocio hasta cerrar una venta...">1. El cliente revisa el catálogo, elige producto y variante.
+2. Pulsa "Consultar" y script.js abre WhatsApp con un mensaje al +51 997 833 866.
+3. El asesor deja el mostrador, revisa la vitrina y confirma stock por chat.
+4. Envía el precio y el número de cuenta o QR de Yape personal.
+5. El cliente paga y manda la captura del voucher.
+6. El asesor verifica el abono en su banca móvil.
+7. Anota la venta en la libreta, ajusta el Excel y coordina recojo o delivery.</textarea>
   </div>
   <div class="campo" style="margin-bottom:0;">
     <label for="asIsCuello">Punto de fricción / cuello de botella</label>
-    <textarea id="asIsCuello" placeholder="¿En qué paso se pierde tiempo o se depende de trabajo manual?">1. Límite de Horario: Consultas nocturnas o de fines de semana quedan sin respuesta hasta el día hábil siguiente, provocando que el cliente compre en otro lugar.
-2. Validación Manual de Pagos: Riesgo de estafas mediante vouchers bancarios adulterados o editados con Photoshop, y lentitud al verificar transferencias una por una.
-3. Desincronización de Stock: Si un cliente en mostrador compra la última laptop en La Paz Soldán, la web sigue mostrándola disponible, generando quejas y devoluciones.
-4. Tiempo de ciclo excesivo: Cerrar una venta simple toma entre 20 a 45 minutos de intercambio de mensajes.</textarea>
+    <textarea id="asIsCuello" placeholder="¿En qué paso se pierde tiempo o se depende de trabajo manual?">1. Horario limitado: las consultas de noche o fin de semana se responden al día hábil y el cliente compra en otro lugar.
+2. Pagos manuales: riesgo de vouchers adulterados y verificación transferencia por transferencia.
+3. Stock desincronizado: la web sigue mostrando productos ya vendidos en mostrador.
+4. Ciclo excesivo: una venta simple toma de 20 a 45 minutos de mensajes.</textarea>
   </div>
 </div>
 <label for="inputImagenAsIs">Adjuntar diagrama As-Is (UML/ArchiMate)</label>
 <div class="diagrama-embebido" style="margin:12px 0;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;background:#fff;">
-<p style="margin:8px 12px;font-size:0.75rem;color:#6b7280;font-weight:600;">📊 DIAGRAMA AS-IS — Estado Actual (Proceso Manual de Venta)</p>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 420" width="100%" style="display:block;">
+<p>DIAGRAMA AS-IS — Estado actual del proceso manual de venta</p>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 760" width="100%" role="img" aria-label="Carriles del proceso manual de venta: cliente, asesor, banca móvil y registro manual" style="display:block;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:14px;">
   <defs>
-    <marker id="arr-asis" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-      <path d="M0,0 L0,6 L8,3 z" fill="#374151"/>
+    <marker id="arr-asis" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L0,8 L9,4 z" fill="#334155"/>
     </marker>
   </defs>
-  <!-- Fondo -->
-  <rect width="760" height="420" fill="#f8fafc"/>
-  <!-- Swimlanes -->
-  <rect x="0" y="40" width="190" height="360" fill="#dbeafe" opacity="0.5"/>
-  <rect x="190" y="40" width="190" height="360" fill="#dcfce7" opacity="0.5"/>
-  <rect x="380" y="40" width="190" height="360" fill="#fef9c3" opacity="0.5"/>
-  <rect x="570" y="40" width="190" height="360" fill="#fce7f3" opacity="0.5"/>
-  <!-- Lane headers -->
-  <rect x="0" y="0" width="190" height="40" fill="#1d4ed8"/>
-  <rect x="190" y="0" width="190" height="40" fill="#16a34a"/>
-  <rect x="380" y="0" width="190" height="40" fill="#ca8a04"/>
-  <rect x="570" y="0" width="190" height="40" fill="#9d174d"/>
-  <text x="95" y="25" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">Cliente</text>
-  <text x="285" y="25" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">Asesor / Tienda</text>
-  <text x="475" y="25" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">Banca Móvil</text>
-  <text x="665" y="25" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">Registro Manual</text>
-  <!-- Nodos -->
-  <!-- Inicio -->
-  <ellipse cx="95" cy="80" rx="30" ry="14" fill="#1d4ed8"/>
-  <text x="95" y="85" text-anchor="middle" fill="white" font-size="9" font-family="Arial">INICIO</text>
-  <!-- Paso 1: Cliente revisa catálogo -->
-  <rect x="20" y="110" width="150" height="36" rx="6" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5"/>
-  <text x="95" y="125" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">Cliente revisa</text>
-  <text x="95" y="139" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">catálogo web</text>
-  <!-- Paso 2: Consulta por WhatsApp -->
-  <rect x="20" y="170" width="150" height="36" rx="6" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5"/>
-  <text x="95" y="185" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">Consulta por</text>
-  <text x="95" y="199" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">WhatsApp</text>
-  <!-- Asesor recibe -->
-  <rect x="210" y="170" width="150" height="36" rx="6" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.5"/>
-  <text x="285" y="185" text-anchor="middle" font-size="9" fill="#14532d" font-family="Arial">Asesor verifica stock</text>
-  <text x="285" y="199" text-anchor="middle" font-size="9" fill="#14532d" font-family="Arial">en vitrina física</text>
-  <!-- Asesor envía QR -->
-  <rect x="210" y="230" width="150" height="36" rx="6" fill="#bbf7d0" stroke="#16a34a" stroke-width="1.5"/>
-  <text x="285" y="245" text-anchor="middle" font-size="9" fill="#14532d" font-family="Arial">Envía código QR</text>
-  <text x="285" y="259" text-anchor="middle" font-size="9" fill="#14532d" font-family="Arial">Yape / cuenta</text>
-  <!-- Cliente paga -->
-  <rect x="20" y="230" width="150" height="36" rx="6" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5"/>
-  <text x="95" y="245" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">Cliente paga y envía</text>
-  <text x="95" y="259" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">voucher foto</text>
-  <!-- Asesor verifica en banca -->
-  <rect x="400" y="230" width="150" height="36" rx="6" fill="#fef08a" stroke="#ca8a04" stroke-width="1.5"/>
-  <text x="475" y="245" text-anchor="middle" font-size="9" fill="#713f12" font-family="Arial">Asesor verifica en</text>
-  <text x="475" y="259" text-anchor="middle" font-size="9" fill="#713f12" font-family="Arial">banca móvil</text>
-  <!-- Decisión: ¿Válido? -->
-  <polygon points="475,300 520,320 475,340 430,320" fill="#fde68a" stroke="#ca8a04" stroke-width="1.5"/>
-  <text x="475" y="324" text-anchor="middle" font-size="9" fill="#713f12" font-family="Arial">¿Válido?</text>
-  <!-- Registro manual -->
-  <rect x="590" y="290" width="150" height="36" rx="6" fill="#fbcfe8" stroke="#9d174d" stroke-width="1.5"/>
-  <text x="665" y="305" text-anchor="middle" font-size="9" fill="#500724" font-family="Arial">Asesor anota venta</text>
-  <text x="665" y="319" text-anchor="middle" font-size="9" fill="#500724" font-family="Arial">en libreta / Excel</text>
-  <!-- Fin -->
-  <ellipse cx="665" cy="375" rx="30" ry="14" fill="#9d174d"/>
-  <text x="665" y="380" text-anchor="middle" fill="white" font-size="9" font-family="Arial">FIN</text>
-  <!-- Fraude -->
-  <rect x="400" y="350" width="150" height="30" rx="6" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
-  <text x="475" y="370" text-anchor="middle" font-size="9" fill="#7f1d1d" font-family="Arial">⚠ Voucher falso</text>
-  <!-- Arrows -->
-  <line x1="95" y1="94" x2="95" y2="110" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-asis)"/>
-  <line x1="95" y1="146" x2="95" y2="170" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-asis)"/>
-  <line x1="170" y1="188" x2="210" y2="188" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-asis)"/>
-  <line x1="285" y1="206" x2="285" y2="230" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-asis)"/>
-  <line x1="210" y1="248" x2="170" y2="248" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-asis)"/>
-  <line x1="95" y1="266" x2="95" y2="285" stroke="#374151" stroke-width="1.5"/>
-  <line x1="95" y1="285" x2="400" y2="285" stroke="#374151" stroke-width="1.5"/>
-  <line x1="400" y1="285" x2="400" y2="248" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-asis)"/>
-  <line x1="475" y1="266" x2="475" y2="300" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-asis)"/>
-  <line x1="520" y1="320" x2="590" y2="305" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-asis)"/>
-  <text x="550" y="307" font-size="8" fill="#16a34a" font-family="Arial">Sí</text>
-  <line x1="475" y1="340" x2="475" y2="350" stroke="#dc2626" stroke-width="1.5" marker-end="url(#arr-asis)"/>
-  <text x="455" y="348" font-size="8" fill="#dc2626" font-family="Arial">No</text>
-  <line x1="665" y1="326" x2="665" y2="361" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-asis)"/>
-  <!-- Etiqueta tiempo -->
-  <rect x="4" y="395" width="340" height="18" rx="4" fill="#fee2e2"/>
-  <text x="10" y="408" font-size="8" fill="#991b1b" font-family="Arial">⏱ Tiempo promedio de ciclo: 20–45 min por venta | Riesgo: vouchers falsos, stock desactualizado</text>
+  <rect width="960" height="760" fill="#ffffff"/>
+  <rect x="0" y="44" width="240" height="690" fill="#eff6ff"/>
+  <rect x="240" y="44" width="240" height="690" fill="#f0fdf4"/>
+  <rect x="480" y="44" width="240" height="690" fill="#fffbeb"/>
+  <rect x="720" y="44" width="240" height="690" fill="#fdf2f8"/>
+  <rect x="0" y="0" width="240" height="44" fill="#1d4ed8"/>
+  <rect x="240" y="0" width="240" height="44" fill="#15803d"/>
+  <rect x="480" y="0" width="240" height="44" fill="#92400e"/>
+  <rect x="720" y="0" width="240" height="44" fill="#9d174d"/>
+  <text x="120" y="27" text-anchor="middle" fill="#ffffff" font-size="15" font-weight="600">Cliente</text>
+  <text x="360" y="27" text-anchor="middle" fill="#ffffff" font-size="15" font-weight="600">Asesor / tienda</text>
+  <text x="600" y="27" text-anchor="middle" fill="#ffffff" font-size="15" font-weight="600">Banca móvil</text>
+  <text x="840" y="27" text-anchor="middle" fill="#ffffff" font-size="15" font-weight="600">Registro manual</text>
+
+  <rect x="70" y="56" width="100" height="32" rx="16" fill="#1d4ed8"/>
+  <text x="120" y="77" text-anchor="middle" fill="#ffffff" font-weight="600">INICIO</text>
+
+  <rect x="15" y="104" width="210" height="56" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120" y="126" text-anchor="middle" fill="#1f2937">Revisa el catálogo web</text>
+  <text x="120" y="144" text-anchor="middle" fill="#1f2937">sin stock en línea</text>
+  <rect x="15" y="176" width="210" height="56" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120" y="198" text-anchor="middle" fill="#1f2937">Consulta por WhatsApp</text>
+  <text x="120" y="216" text-anchor="middle" fill="#1f2937">precio y disponibilidad</text>
+  <rect x="255" y="248" width="210" height="56" rx="8" fill="#ffffff" stroke="#15803d" stroke-width="2"/>
+  <text x="360" y="270" text-anchor="middle" fill="#1f2937">Verifica el stock en</text>
+  <text x="360" y="288" text-anchor="middle" fill="#1f2937">la vitrina física</text>
+  <rect x="255" y="320" width="210" height="56" rx="8" fill="#ffffff" stroke="#15803d" stroke-width="2"/>
+  <text x="360" y="342" text-anchor="middle" fill="#1f2937">Envía el QR de Yape</text>
+  <text x="360" y="360" text-anchor="middle" fill="#1f2937">o el número de cuenta</text>
+  <rect x="15" y="392" width="210" height="56" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120" y="414" text-anchor="middle" fill="#1f2937">Paga y envía la foto</text>
+  <text x="120" y="432" text-anchor="middle" fill="#1f2937">del voucher</text>
+  <rect x="495" y="464" width="210" height="56" rx="8" fill="#ffffff" stroke="#b45309" stroke-width="2"/>
+  <text x="600" y="486" text-anchor="middle" fill="#1f2937">Verifica el pago en</text>
+  <text x="600" y="504" text-anchor="middle" fill="#1f2937">la banca móvil</text>
+  <rect x="735" y="624" width="210" height="56" rx="8" fill="#ffffff" stroke="#9d174d" stroke-width="2"/>
+  <text x="840" y="646" text-anchor="middle" fill="#1f2937">Anota la venta en</text>
+  <text x="840" y="664" text-anchor="middle" fill="#1f2937">libreta o Excel</text>
+  <rect x="255" y="624" width="210" height="56" rx="8" fill="#ffffff" stroke="#991b1b" stroke-width="2"/>
+  <text x="360" y="646" text-anchor="middle" fill="#1f2937">Rechaza y pide</text>
+  <text x="360" y="664" text-anchor="middle" fill="#1f2937">nuevo comprobante</text>
+
+  <polygon points="600,536 700,570 600,604 500,570" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+  <text x="600" y="564" text-anchor="middle" fill="#713f12">¿Voucher</text>
+  <text x="600" y="582" text-anchor="middle" fill="#713f12">válido?</text>
+
+  <path d="M120,88 V104" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-asis)"/>
+  <path d="M120,160 V176" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-asis)"/>
+  <path d="M225,204 H240 V276 H255" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-asis)"/>
+  <path d="M360,304 V320" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-asis)"/>
+  <path d="M255,348 H240 V420 H225" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-asis)"/>
+  <path d="M120,448 V492 H495" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-asis)"/>
+  <path d="M600,520 V536" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-asis)"/>
+  <path d="M700,570 H840 V624" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-asis)"/>
+  <path d="M600,604 V624" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-asis)"/>
+  <path d="M840,680 V694" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-asis)"/>
+  <text x="770" y="562" text-anchor="middle" fill="#15803d" font-weight="600">Sí</text>
+  <text x="614" y="620" fill="#991b1b" font-weight="600">No</text>
+
+  <rect x="735" y="694" width="210" height="32" rx="16" fill="#9d174d"/>
+  <text x="840" y="715" text-anchor="middle" fill="#ffffff" font-weight="600">FIN</text>
+
+  <text x="12" y="748" fill="#475569">Ciclo de venta: 20 a 45 min · Riesgos: voucher falsificado, stock desactualizado, venta no registrada</text>
 </svg>
 </div>
 <input type="file" id="inputImagenAsIs" accept="image/*" onchange="previsualizarImagen(event, 'vista-previa-asis')">
@@ -233,138 +223,115 @@
 <div class="caja">
   <div class="campo">
     <label for="toBeCapas">Capas / componentes de la nueva arquitectura</label>
-    <textarea id="toBeCapas" placeholder="Ej: Capa de experiencia (e-commerce), Capa de integración (CRM, ERP, pasarela de pagos), Capa de infraestructura (nube)...">1. Capa de Experiencia / Cliente: Interfaz web responsiva (PHP/CSS/JS) con buscador en tiempo real, selector multimoneda (ExchangeRate-API), asistente virtual (Chatbot FAQ), carrito de compras dinámico y panel de seguimiento 'Mis Pedidos'.
-2. Capa de Negocio / Backend (MVC): Controladores PHP modulares (ProductoController, CarritoController, AdminController, CuentaController) con validación estricta, sesiones aisladas y control de roles (Admin, Vendedor, Cliente, C2C).
-3. Capa de Transacciones e Inventario: Motor de transacciones PDO con concurrencia segura (SELECT ... FOR UPDATE), reservas de stock atómicas y registro detallado en movimientos_inventario.
-4. Capa de Integración / Pagos: Pasarela de pago con conciliación automática mediante Webhook seguro firmado con HMAC-SHA256 (POST ?ruta=pagos/webhook) para tarjetas, Yape y transferencias.
-5. Capa de Persistencia y Auditoría: PostgreSQL 14+ (Supabase) con 31 tablas relacionales, auditoría administrativa en auditoria_admin y analítica de eventos en eventos_analitica.
-6. Capa Logística: Cálculo automático de tarifas de envío por zonas (La Joya Express el mismo día, Arequipa Metropolitana, Provincias y Lima) con integración para recojo en tienda y guías de courier.</textarea>
+    <textarea id="toBeCapas" placeholder="Ej: Capa de experiencia (e-commerce), Capa de integración (CRM, ERP, pasarela de pagos), Capa de infraestructura (nube)...">1. Experiencia / Cliente: web responsiva (PHP/CSS/JS) con buscador en tiempo real, multimoneda (ExchangeRate-API), chatbot FAQ, carrito y seguimiento "Mis Pedidos".
+2. Negocio / Backend (MVC): controladores PHP modulares con validación, sesiones aisladas y roles Admin, Vendedor, Cliente y C2C.
+3. Transacciones e inventario: PDO con SELECT ... FOR UPDATE, reservas atómicas y registro en movimientos_inventario.
+4. Integración / Pagos: webhook firmado con HMAC-SHA256 (POST ?ruta=pagos/webhook) que concilia tarjetas, Yape y transferencias.
+5. Persistencia y auditoría: PostgreSQL 14+ (Supabase) con 31 tablas, auditoria_admin y eventos_analitica.
+6. Logística: tarifas por zona (La Joya Express, Arequipa, provincias y Lima), recojo en tienda y guías de courier.</textarea>
   </div>
   <div class="campo">
     <label for="toBeFlujo">Flujo paso a paso</label>
-    <textarea id="toBeFlujo" placeholder="Describe, en orden, cómo interactuará el cliente con tu negocio ya digitalizado...">1. El cliente ingresa a la tienda 24/7, busca productos, selecciona color/variante y agrega al carrito de compras.
-2. Pasa al checkout, ingresa su dirección de entrega (o selecciona recojo en sede La Joya) y el sistema calcula la tarifa exacta de envío.
-3. El cliente elige su medio de pago (Tarjeta de crédito/débito o Yape QR) y completa los datos de pago seguro.
-4. El backend inicia una transacción de base de datos con FOR UPDATE, descuenta el stock de inmediato en movimientos_inventario y crea el pedido en estado 'Pendiente'.
-5. La pasarela procesa el cobro y despacha un webhook asíncrono con firma HMAC-SHA256 validada con hash_equals.
-6. El webhook concilia la transacción, actualiza el pedido a 'Pagado' de forma atómica y genera la notificación por email (.eml/.html simulado).
-7. El almacén en La Joya recibe la alerta automática, prepara el paquete en menos de 15 minutos y el repartidor lo entrega el mismo día.</textarea>
+    <textarea id="toBeFlujo" placeholder="Describe, en orden, cómo interactuará el cliente con tu negocio ya digitalizado...">1. El cliente entra 24/7, busca productos, elige variante y agrega al carrito.
+2. En el checkout indica la dirección o el recojo en La Joya y el sistema calcula el envío.
+3. Elige tarjeta o Yape QR y completa el pago seguro.
+4. El backend abre una transacción con FOR UPDATE, descuenta stock en movimientos_inventario y crea el pedido "Pendiente".
+5. La pasarela cobra y envía un webhook asíncrono firmado con HMAC-SHA256, validado con hash_equals.
+6. El webhook concilia, pasa el pedido a "Pagado" y envía el email de confirmación.
+7. El almacén de La Joya prepara el paquete en menos de 15 minutos y lo entrega el mismo día.</textarea>
   </div>
   <div class="campo" style="margin-bottom:0;">
     <label for="toBeBeneficios">Beneficios esperados</label>
-    <textarea id="toBeBeneficios" placeholder="¿Qué mejora frente al estado As-Is? (tiempo de respuesta, alcance, escalabilidad, etc.)">1. Automatización total de la venta: 0 intervención humana necesaria para procesar, cobrar y confirmar pedidos.
-2. Disponibilidad 24/7: Recuperación del 100% de la demanda fuera de horario comercial y fines de semana.
-3. Cero discrepancias de stock: El aislamiento transaccional imposibilita la sobreventa o venta duplicada de unidades.
-4. Seguridad garantizada: Eliminación total de fraudes por vouchers falsos mediante la verificación criptográfica del webhook.
-5. Trazabilidad completa: El cliente rastrea su pedido en tiempo real y el administrador audita cada movimiento en el panel de control.</textarea>
+    <textarea id="toBeBeneficios" placeholder="¿Qué mejora frente al estado As-Is? (tiempo de respuesta, alcance, escalabilidad, etc.)">1. Venta automatizada: procesar, cobrar y confirmar pedidos sin intervención humana.
+2. Disponibilidad 24/7: recupera la demanda fuera de horario y en fines de semana.
+3. Stock exacto: el aislamiento transaccional impide la sobreventa.
+4. Pagos seguros: la firma del webhook elimina los vouchers falsos.
+5. Trazabilidad: el cliente sigue su pedido y el administrador audita cada movimiento.</textarea>
   </div>
 </div>
 <label for="inputImagenToBe">Adjuntar diagrama To-Be (UML/ArchiMate)</label>
 <div class="diagrama-embebido" style="margin:12px 0;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;background:#fff;">
-<p style="margin:8px 12px;font-size:0.75rem;color:#6b7280;font-weight:600;">📊 DIAGRAMA TO-BE — Estado Futuro (Proceso Digital Automatizado)</p>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 440" width="100%" style="display:block;">
+<p>DIAGRAMA TO-BE — Estado futuro del proceso digital automatizado</p>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 940" width="100%" role="img" aria-label="Carriles del proceso digital: cliente, backend, pasarela de pago y base de datos" style="display:block;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:14px;">
   <defs>
-    <marker id="arr-tobe" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-      <path d="M0,0 L0,6 L8,3 z" fill="#374151"/>
+    <marker id="arr-tobe" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto">
+      <path d="M0,0 L0,8 L9,4 z" fill="#334155"/>
     </marker>
   </defs>
-  <rect width="760" height="440" fill="#f0fdf4"/>
-  <!-- Swimlanes -->
-  <rect x="0" y="40" width="190" height="390" fill="#dbeafe" opacity="0.5"/>
-  <rect x="190" y="40" width="190" height="390" fill="#dcfce7" opacity="0.5"/>
-  <rect x="380" y="40" width="190" height="390" fill="#fef9c3" opacity="0.5"/>
-  <rect x="570" y="40" width="190" height="390" fill="#ede9fe" opacity="0.5"/>
-  <!-- Lane headers -->
-  <rect x="0" y="0" width="190" height="40" fill="#1d4ed8"/>
-  <rect x="190" y="0" width="190" height="40" fill="#059669"/>
-  <rect x="380" y="0" width="190" height="40" fill="#d97706"/>
-  <rect x="570" y="0" width="190" height="40" fill="#7c3aed"/>
-  <text x="95" y="25" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">Cliente 24/7</text>
-  <text x="285" y="25" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">Backend MVC PHP</text>
-  <text x="475" y="25" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">Pasarela / Webhook</text>
-  <text x="665" y="25" text-anchor="middle" fill="white" font-size="11" font-weight="bold" font-family="Arial">PostgreSQL / Email</text>
-  <!-- Inicio -->
-  <ellipse cx="95" cy="72" rx="30" ry="14" fill="#1d4ed8"/>
-  <text x="95" y="77" text-anchor="middle" fill="white" font-size="9" font-family="Arial">INICIO</text>
-  <!-- Paso 1 -->
-  <rect x="15" y="98" width="160" height="34" rx="6" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5"/>
-  <text x="95" y="113" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">Navega catálogo, filtra</text>
-  <text x="95" y="125" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">y selecciona variante</text>
-  <!-- Paso 2 -->
-  <rect x="15" y="150" width="160" height="34" rx="6" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5"/>
-  <text x="95" y="165" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">Agrega al carrito,</text>
-  <text x="95" y="179" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">selecciona dirección</text>
-  <!-- Backend valida stock -->
-  <rect x="205" y="150" width="160" height="34" rx="6" fill="#bbf7d0" stroke="#059669" stroke-width="1.5"/>
-  <text x="285" y="165" text-anchor="middle" font-size="9" fill="#064e3b" font-family="Arial">FOR UPDATE → reserva</text>
-  <text x="285" y="179" text-anchor="middle" font-size="9" fill="#064e3b" font-family="Arial">stock atómica en DB</text>
-  <!-- Decisión stock -->
-  <polygon points="285,210 330,228 285,246 240,228" fill="#d1fae5" stroke="#059669" stroke-width="1.5"/>
-  <text x="285" y="232" text-anchor="middle" font-size="9" fill="#064e3b" font-family="Arial">¿Stock?</text>
-  <!-- Cliente elige pago -->
-  <rect x="15" y="206" width="160" height="34" rx="6" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5"/>
-  <text x="95" y="221" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">Elige método de pago</text>
-  <text x="95" y="235" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">(Tarjeta / Yape QR)</text>
-  <!-- Pedido creado -->
-  <rect x="590" y="150" width="155" height="34" rx="6" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1.5"/>
-  <text x="667" y="165" text-anchor="middle" font-size="9" fill="#4c1d95" font-family="Arial">INSERT pedido</text>
-  <text x="667" y="179" text-anchor="middle" font-size="9" fill="#4c1d95" font-family="Arial">estado=Pendiente</text>
-  <!-- Pasarela procesa -->
-  <rect x="395" y="206" width="160" height="34" rx="6" fill="#fde68a" stroke="#d97706" stroke-width="1.5"/>
-  <text x="475" y="221" text-anchor="middle" font-size="9" fill="#713f12" font-family="Arial">Pasarela procesa</text>
-  <text x="475" y="235" text-anchor="middle" font-size="9" fill="#713f12" font-family="Arial">cobro seguro</text>
-  <!-- Webhook recibido -->
-  <rect x="395" y="260" width="160" height="34" rx="6" fill="#fde68a" stroke="#d97706" stroke-width="1.5"/>
-  <text x="475" y="275" text-anchor="middle" font-size="9" fill="#713f12" font-family="Arial">Webhook POST</text>
-  <text x="475" y="289" text-anchor="middle" font-size="9" fill="#713f12" font-family="Arial">HMAC-SHA256 ✓</text>
-  <!-- UPDATE pedido -->
-  <rect x="590" y="260" width="155" height="34" rx="6" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1.5"/>
-  <text x="667" y="275" text-anchor="middle" font-size="9" fill="#4c1d95" font-family="Arial">UPDATE pedido</text>
-  <text x="667" y="289" text-anchor="middle" font-size="9" fill="#4c1d95" font-family="Arial">estado=Pagado ✓</text>
-  <!-- Email -->
-  <rect x="590" y="314" width="155" height="34" rx="6" fill="#ddd6fe" stroke="#7c3aed" stroke-width="1.5"/>
-  <text x="667" y="329" text-anchor="middle" font-size="9" fill="#4c1d95" font-family="Arial">Email confirmación</text>
-  <text x="667" y="343" text-anchor="middle" font-size="9" fill="#4c1d95" font-family="Arial">+ notificación cliente</text>
-  <!-- Almacén alerta -->
-  <rect x="205" y="314" width="160" height="34" rx="6" fill="#bbf7d0" stroke="#059669" stroke-width="1.5"/>
-  <text x="285" y="329" text-anchor="middle" font-size="9" fill="#064e3b" font-family="Arial">Alerta almacén La Joya</text>
-  <text x="285" y="343" text-anchor="middle" font-size="9" fill="#064e3b" font-family="Arial">→ empaque &lt;15 min</text>
-  <!-- Cliente rastrea -->
-  <rect x="15" y="314" width="160" height="34" rx="6" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="1.5"/>
-  <text x="95" y="329" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">Cliente rastrea pedido</text>
-  <text x="95" y="343" text-anchor="middle" font-size="9" fill="#1e3a8a" font-family="Arial">en "Mis Pedidos"</text>
-  <!-- Fin -->
-  <ellipse cx="95" cy="395" rx="30" ry="14" fill="#1d4ed8"/>
-  <text x="95" y="400" text-anchor="middle" fill="white" font-size="9" font-family="Arial">FIN</text>
-  <!-- Sin stock -->
-  <rect x="205" y="260" width="160" height="34" rx="6" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
-  <text x="285" y="275" text-anchor="middle" font-size="9" fill="#7f1d1d" font-family="Arial">Notifica "sin stock"</text>
-  <text x="285" y="289" text-anchor="middle" font-size="9" fill="#7f1d1d" font-family="Arial">+ libera reserva</text>
-  <!-- ARROWS -->
-  <line x1="95" y1="86" x2="95" y2="98" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
-  <line x1="95" y1="132" x2="95" y2="150" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
-  <line x1="175" y1="167" x2="205" y2="167" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
-  <line x1="285" y1="184" x2="285" y2="210" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
-  <line x1="330" y1="228" x2="395" y2="167" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
-  <text x="355" y="200" font-size="8" fill="#059669" font-family="Arial">Sí</text>
-  <line x1="240" y1="228" x2="205" y2="275" stroke="#dc2626" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
-  <text x="210" y="258" font-size="8" fill="#dc2626" font-family="Arial">No</text>
-  <!-- cliente a pago -->
-  <line x1="175" y1="223" x2="395" y2="223" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
-  <line x1="475" y1="240" x2="475" y2="260" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
-  <!-- db pedido -->
-  <line x1="365" y1="167" x2="590" y2="167" stroke="#374151" stroke-width="1.2" stroke-dasharray="4" marker-end="url(#arr-tobe)"/>
-  <!-- webhook a db -->
-  <line x1="555" y1="277" x2="590" y2="277" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
-  <line x1="667" y1="294" x2="667" y2="314" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
-  <line x1="667" y1="184" x2="667" y2="260" stroke="#374151" stroke-width="1.2" stroke-dasharray="4"/>
-  <!-- almacén -->
-  <line x1="590" y1="331" x2="365" y2="331" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
-  <line x1="285" y1="348" x2="175" y2="331" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
-  <line x1="95" y1="348" x2="95" y2="381" stroke="#374151" stroke-width="1.5" marker-end="url(#arr-tobe)"/>
-  <!-- footer -->
-  <rect x="4" y="416" width="430" height="18" rx="4" fill="#d1fae5"/>
-  <text x="10" y="429" font-size="8" fill="#065f46" font-family="Arial">✅ Tiempo de ciclo: &lt;3 min | Automatización 100% | Seguridad HMAC-SHA256 | Disponibilidad 24/7</text>
+  <rect width="960" height="940" fill="#ffffff"/>
+  <rect x="0" y="44" width="240" height="850" fill="#eff6ff"/>
+  <rect x="240" y="44" width="240" height="850" fill="#f0fdf4"/>
+  <rect x="480" y="44" width="240" height="850" fill="#fffbeb"/>
+  <rect x="720" y="44" width="240" height="850" fill="#f5f3ff"/>
+  <rect x="0" y="0" width="240" height="44" fill="#1d4ed8"/>
+  <rect x="240" y="0" width="240" height="44" fill="#15803d"/>
+  <rect x="480" y="0" width="240" height="44" fill="#92400e"/>
+  <rect x="720" y="0" width="240" height="44" fill="#5b21b6"/>
+  <text x="120" y="27" text-anchor="middle" fill="#ffffff" font-size="15" font-weight="600">Cliente 24/7</text>
+  <text x="360" y="27" text-anchor="middle" fill="#ffffff" font-size="15" font-weight="600">Backend MVC PHP</text>
+  <text x="600" y="27" text-anchor="middle" fill="#ffffff" font-size="15" font-weight="600">Pasarela / webhook</text>
+  <text x="840" y="27" text-anchor="middle" fill="#ffffff" font-size="15" font-weight="600">PostgreSQL / email</text>
+
+  <rect x="70" y="56" width="100" height="32" rx="16" fill="#1d4ed8"/>
+  <text x="120" y="77" text-anchor="middle" fill="#ffffff" font-weight="600">INICIO</text>
+
+  <rect x="15" y="104" width="210" height="56" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120" y="126" text-anchor="middle" fill="#1f2937">Navega el catálogo,</text>
+  <text x="120" y="144" text-anchor="middle" fill="#1f2937">filtra y elige la variante</text>
+  <rect x="15" y="172" width="210" height="56" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120" y="194" text-anchor="middle" fill="#1f2937">Agrega al carrito y</text>
+  <text x="120" y="212" text-anchor="middle" fill="#1f2937">elige envío y pago</text>
+  <rect x="255" y="240" width="210" height="56" rx="8" fill="#ffffff" stroke="#15803d" stroke-width="2"/>
+  <text x="360" y="262" text-anchor="middle" fill="#1f2937">Reserva el stock con</text>
+  <text x="360" y="280" text-anchor="middle" fill="#1f2937">SELECT … FOR UPDATE</text>
+  <rect x="735" y="388" width="210" height="56" rx="8" fill="#ffffff" stroke="#5b21b6" stroke-width="2"/>
+  <text x="840" y="410" text-anchor="middle" fill="#1f2937">INSERT pedido</text>
+  <text x="840" y="428" text-anchor="middle" fill="#1f2937">estado = Pendiente</text>
+  <rect x="495" y="456" width="210" height="56" rx="8" fill="#ffffff" stroke="#92400e" stroke-width="2"/>
+  <text x="600" y="478" text-anchor="middle" fill="#1f2937">La pasarela procesa</text>
+  <text x="600" y="496" text-anchor="middle" fill="#1f2937">el cobro seguro</text>
+  <rect x="495" y="524" width="210" height="56" rx="8" fill="#ffffff" stroke="#92400e" stroke-width="2"/>
+  <text x="600" y="546" text-anchor="middle" fill="#1f2937">Recibe el webhook</text>
+  <text x="600" y="564" text-anchor="middle" fill="#1f2937">firma HMAC-SHA256</text>
+  <rect x="735" y="592" width="210" height="56" rx="8" fill="#ffffff" stroke="#5b21b6" stroke-width="2"/>
+  <text x="840" y="614" text-anchor="middle" fill="#1f2937">UPDATE pedido</text>
+  <text x="840" y="632" text-anchor="middle" fill="#1f2937">estado = Pagado</text>
+  <rect x="735" y="660" width="210" height="56" rx="8" fill="#ffffff" stroke="#5b21b6" stroke-width="2"/>
+  <text x="840" y="682" text-anchor="middle" fill="#1f2937">Envía el email de</text>
+  <text x="840" y="700" text-anchor="middle" fill="#1f2937">confirmación</text>
+  <rect x="255" y="728" width="210" height="56" rx="8" fill="#ffffff" stroke="#15803d" stroke-width="2"/>
+  <text x="360" y="750" text-anchor="middle" fill="#1f2937">Alerta al almacén:</text>
+  <text x="360" y="768" text-anchor="middle" fill="#1f2937">empaque &lt; 15 min</text>
+  <rect x="15" y="796" width="210" height="56" rx="8" fill="#ffffff" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="120" y="818" text-anchor="middle" fill="#1f2937">Rastrea el pedido</text>
+  <text x="120" y="836" text-anchor="middle" fill="#1f2937">en «Mis Pedidos»</text>
+  <rect x="255" y="388" width="210" height="56" rx="8" fill="#fef2f2" stroke="#991b1b" stroke-width="2"/>
+  <text x="360" y="410" text-anchor="middle" fill="#991b1b">Notifica «sin stock»</text>
+  <text x="360" y="428" text-anchor="middle" fill="#991b1b">y libera la reserva</text>
+
+  <polygon points="360,308 460,340 360,372 260,340" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+  <text x="360" y="346" text-anchor="middle" fill="#713f12">¿Hay stock?</text>
+
+  <path d="M120,88 V104" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-tobe)"/>
+  <path d="M120,156 V172" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-tobe)"/>
+  <path d="M225,198 H240 V266 H255" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-tobe)"/>
+  <path d="M360,292 V308" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-tobe)"/>
+  <path d="M460,340 H840 V388" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-tobe)"/>
+  <path d="M360,372 V388" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-tobe)"/>
+  <path d="M735,414 H600 V456" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-tobe)"/>
+  <path d="M600,508 V524" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-tobe)"/>
+  <path d="M705,550 H840 V592" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-tobe)"/>
+  <path d="M840,644 V660" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-tobe)"/>
+  <path d="M735,686 H360 V728" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-tobe)"/>
+  <path d="M255,754 H120 V796" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-tobe)"/>
+  <path d="M120,848 V862" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arr-tobe)"/>
+  <text x="750" y="332" text-anchor="middle" fill="#15803d" font-weight="600">Sí</text>
+  <text x="372" y="384" fill="#991b1b" font-weight="600">No</text>
+
+  <rect x="70" y="862" width="100" height="32" rx="16" fill="#1d4ed8"/>
+  <text x="120" y="883" text-anchor="middle" fill="#ffffff" font-weight="600">FIN</text>
+
+  <text x="12" y="926" fill="#475569">Ciclo: menos de 3 min · Sin pasos manuales · Pago conciliado por webhook firmado · Disponibilidad 24/7</text>
 </svg>
 </div>
 <input type="file" id="inputImagenToBe" accept="image/*" onchange="previsualizarImagen(event, 'vista-previa-tobe')">
@@ -374,7 +341,7 @@
 
 <h2>Conclusión</h2>
 <p>En 3-5 líneas, explica qué cambia entre el estado As-Is y el To-Be, y qué valor genera esa transformación para el negocio.</p>
-<textarea id="conclusion" placeholder="Escribe aquí tu conclusión...">La implementación del plano To-Be convierte a Jeremy Tech de un negocio dependiente de procesos artesanales a una empresa digital inteligente y autónoma. La arquitectura MVC desacoplada garantiza escalabilidad futura para operar como un marketplace multiregional, reduciendo a cero los errores operativos y ofreciendo al cliente una experiencia de compra inmediata y transparente.</textarea>
+<textarea id="conclusion" placeholder="Escribe aquí tu conclusión...">El To-Be convierte a Jeremy Tech de un negocio artesanal en una empresa digital autónoma: la arquitectura MVC desacoplada permite escalar a un marketplace multiregional, reduce a cero los errores operativos y ofrece una compra inmediata y transparente.</textarea>
 
 <p class="nota"><strong>Referencia:</strong> revisa el caso resuelto de Grafiluz en <code>Sesion - 001-A-Gia-.pdf</code> (Parte 2: Los Planos de Transformación, páginas 3-9) como modelo, incluyendo el código PlantUML de ambos diagramas.</p>
 
@@ -410,7 +377,7 @@
     estado._t = setTimeout(() => estado.textContent = '', 2000);
   }
 
-  const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "asIsActores": "1. Cliente (Residente, estudiante o agricultor de La Joya / Arequipa).\n2. Catálogo Web inicial (Frontend HTML/JS estático con botón de enlace hacia WhatsApp).\n3. Asesor comercial en sede física (La Paz Soldán, La Joya).\n4. Stock físico (Vitrinas y estanterías en la tienda física de La Joya).\n5. Registro de ventas manual (Cuaderno de apuntes y archivo Excel local).\n6. Banca móvil personal (Aplicación Yape / BCP en celular del asesor para revisión visual de vouchers).", "asIsFlujo": "1. El cliente entra al catálogo web básico, revisa productos (celulares, laptops, audífonos) y elige una variante.\n2. Hace clic en el botón 'Consultar', ejecutando script.js que genera un mensaje predeterminado hacia +51 997 833 866.\n3. El asesor en la tienda de La Paz Soldán recibe el mensaje y debe dejar de atender el mostrador para revisar la vitrina y verificar stock.\n4. El asesor responde por chat confirmando precio y enviando el número de cuenta o código QR de Yape personal.\n5. El cliente realiza el pago en su app bancaria y envía una captura de pantalla del voucher por chat.\n6. El asesor abre la banca móvil en su teléfono personal, verifica si el dinero ingresó realmente en su cuenta bancaria.\n7. El asesor anota manualmente la venta en una libreta, descuenta el stock en un Excel y coordina el recojo en tienda o un delivery improvisado.", "asIsCuello": "1. Límite de Horario: Consultas nocturnas o de fines de semana quedan sin respuesta hasta el día hábil siguiente, provocando que el cliente compre en otro lugar.\n2. Validación Manual de Pagos: Riesgo de estafas mediante vouchers bancarios adulterados o editados con Photoshop, y lentitud al verificar transferencias una por una.\n3. Desincronización de Stock: Si un cliente en mostrador compra la última laptop en La Paz Soldán, la web sigue mostrándola disponible, generando quejas y devoluciones.\n4. Tiempo de ciclo excesivo: Cerrar una venta simple toma entre 20 a 45 minutos de intercambio de mensajes.", "toBeCapas": "1. Capa de Experiencia / Cliente: Interfaz web responsiva (PHP/CSS/JS) con buscador en tiempo real, selector multimoneda (ExchangeRate-API), asistente virtual (Chatbot FAQ), carrito de compras dinámico y panel de seguimiento 'Mis Pedidos'.\n2. Capa de Negocio / Backend (MVC): Controladores PHP modulares (ProductoController, CarritoController, AdminController, CuentaController) con validación estricta, sesiones aisladas y control de roles (Admin, Vendedor, Cliente, C2C).\n3. Capa de Transacciones e Inventario: Motor de transacciones PDO con concurrencia segura (SELECT ... FOR UPDATE), reservas de stock atómicas y registro detallado en movimientos_inventario.\n4. Capa de Integración / Pagos: Pasarela de pago con conciliación automática mediante Webhook seguro firmado con HMAC-SHA256 (POST ?ruta=pagos/webhook) para tarjetas, Yape y transferencias.\n5. Capa de Persistencia y Auditoría: PostgreSQL 14+ (Supabase) con 31 tablas relacionales, auditoría administrativa en auditoria_admin y analítica de eventos en eventos_analitica.\n6. Capa Logística: Cálculo automático de tarifas de envío por zonas (La Joya Express el mismo día, Arequipa Metropolitana, Provincias y Lima) con integración para recojo en tienda y guías de courier.", "toBeFlujo": "1. El cliente ingresa a la tienda 24/7, busca productos, selecciona color/variante y agrega al carrito de compras.\n2. Pasa al checkout, ingresa su dirección de entrega (o selecciona recojo en sede La Joya) y el sistema calcula la tarifa exacta de envío.\n3. El cliente elige su medio de pago (Tarjeta de crédito/débito o Yape QR) y completa los datos de pago seguro.\n4. El backend inicia una transacción de base de datos con FOR UPDATE, descuenta el stock de inmediato en movimientos_inventario y crea el pedido en estado 'Pendiente'.\n5. La pasarela procesa el cobro y despacha un webhook asíncrono con firma HMAC-SHA256 validada con hash_equals.\n6. El webhook concilia la transacción, actualiza el pedido a 'Pagado' de forma atómica y genera la notificación por email (.eml/.html simulado).\n7. El almacén en La Joya recibe la alerta automática, prepara el paquete en menos de 15 minutos y el repartidor lo entrega el mismo día.", "toBeBeneficios": "1. Automatización total de la venta: 0 intervención humana necesaria para procesar, cobrar y confirmar pedidos.\n2. Disponibilidad 24/7: Recuperación del 100% de la demanda fuera de horario comercial y fines de semana.\n3. Cero discrepancias de stock: El aislamiento transaccional imposibilita la sobreventa o venta duplicada de unidades.\n4. Seguridad garantizada: Eliminación total de fraudes por vouchers falsos mediante la verificación criptográfica del webhook.\n5. Trazabilidad completa: El cliente rastrea su pedido en tiempo real y el administrador audita cada movimiento en el panel de control.", "conclusion": "La implementación del plano To-Be convierte a Jeremy Tech de un negocio dependiente de procesos artesanales a una empresa digital inteligente y autónoma. La arquitectura MVC desacoplada garantiza escalabilidad futura para operar como un marketplace multiregional, reduciendo a cero los errores operativos y ofreciendo al cliente una experiencia de compra inmediata y transparente."};
+  const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "asIsActores": "1. Cliente de La Joya (residentes, estudiantes y agricultores).\n2. Catálogo web estático con botón que abre WhatsApp.\n3. Asesor comercial de la sede de La Paz Soldán.\n4. Stock físico en las vitrinas de la tienda.\n5. Registro manual en cuaderno y Excel local.\n6. Banca móvil personal (Yape/BCP) para revisar vouchers.", "asIsFlujo": "1. El cliente revisa el catálogo, elige producto y variante.\n2. Pulsa \"Consultar\" y script.js abre WhatsApp con un mensaje al +51 997 833 866.\n3. El asesor deja el mostrador, revisa la vitrina y confirma stock por chat.\n4. Envía el precio y el número de cuenta o QR de Yape personal.\n5. El cliente paga y manda la captura del voucher.\n6. El asesor verifica el abono en su banca móvil.\n7. Anota la venta en la libreta, ajusta el Excel y coordina recojo o delivery.", "asIsCuello": "1. Horario limitado: las consultas de noche o fin de semana se responden al día hábil y el cliente compra en otro lugar.\n2. Pagos manuales: riesgo de vouchers adulterados y verificación transferencia por transferencia.\n3. Stock desincronizado: la web sigue mostrando productos ya vendidos en mostrador.\n4. Ciclo excesivo: una venta simple toma de 20 a 45 minutos de mensajes.", "toBeCapas": "1. Experiencia / Cliente: web responsiva (PHP/CSS/JS) con buscador en tiempo real, multimoneda (ExchangeRate-API), chatbot FAQ, carrito y seguimiento \"Mis Pedidos\".\n2. Negocio / Backend (MVC): controladores PHP modulares con validación, sesiones aisladas y roles Admin, Vendedor, Cliente y C2C.\n3. Transacciones e inventario: PDO con SELECT ... FOR UPDATE, reservas atómicas y registro en movimientos_inventario.\n4. Integración / Pagos: webhook firmado con HMAC-SHA256 (POST ?ruta=pagos/webhook) que concilia tarjetas, Yape y transferencias.\n5. Persistencia y auditoría: PostgreSQL 14+ (Supabase) con 31 tablas, auditoria_admin y eventos_analitica.\n6. Logística: tarifas por zona (La Joya Express, Arequipa, provincias y Lima), recojo en tienda y guías de courier.", "toBeFlujo": "1. El cliente entra 24/7, busca productos, elige variante y agrega al carrito.\n2. En el checkout indica la dirección o el recojo en La Joya y el sistema calcula el envío.\n3. Elige tarjeta o Yape QR y completa el pago seguro.\n4. El backend abre una transacción con FOR UPDATE, descuenta stock en movimientos_inventario y crea el pedido \"Pendiente\".\n5. La pasarela cobra y envía un webhook asíncrono firmado con HMAC-SHA256, validado con hash_equals.\n6. El webhook concilia, pasa el pedido a \"Pagado\" y envía el email de confirmación.\n7. El almacén de La Joya prepara el paquete en menos de 15 minutos y lo entrega el mismo día.", "toBeBeneficios": "1. Venta automatizada: procesar, cobrar y confirmar pedidos sin intervención humana.\n2. Disponibilidad 24/7: recupera la demanda fuera de horario y en fines de semana.\n3. Stock exacto: el aislamiento transaccional impide la sobreventa.\n4. Pagos seguros: la firma del webhook elimina los vouchers falsos.\n5. Trazabilidad: el cliente sigue su pedido y el administrador audita cada movimiento.", "conclusion": "El To-Be convierte a Jeremy Tech de un negocio artesanal en una empresa digital autónoma: la arquitectura MVC desacoplada permite escalar a un marketplace multiregional, reduce a cero los errores operativos y ofrece una compra inmediata y transparente."};
 
   function cargar() {
     const guardado = localStorage.getItem(CLAVE_STORAGE);

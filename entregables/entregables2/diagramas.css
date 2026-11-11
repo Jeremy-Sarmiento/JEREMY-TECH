@@ -1,0 +1,100 @@
+:root {
+  --diagrama-fondo: #ffffff;
+  --diagrama-superficie: #f8fafc;
+  --diagrama-texto: #1f2937;
+  --diagrama-secundario: #475569;
+  --diagrama-borde: #cbd5e1;
+  --diagrama-acento: #1d4ed8;
+  --diagrama-acento-hover: #1e40af;
+  --diagrama-suave: #eff6ff;
+  --diagrama-texto-oscuro: #cbd5e1;
+  --diagrama-radio: 0.5rem;
+  --diagrama-espacio: 1rem;
+}
+
+@media screen {
+  body:has(.diagrama-embebido) { max-width: 70rem; }
+}
+
+.diagrama-embebido {
+  color: var(--diagrama-texto);
+  background: var(--diagrama-fondo);
+}
+.diagrama-embebido > p {
+  font-size: 0.9375rem !important;
+  line-height: 1.5;
+  color: var(--diagrama-secundario) !important;
+  padding: 0.5rem;
+}
+.diagrama-embebido svg { height: auto; }
+.diagrama-evidencia svg text[fill="#64748b"],
+.diagrama-evidencia svg text[fill="#6b7280"] { fill: var(--diagrama-texto-oscuro); }
+
+.diagrama-ampliar,
+.diagrama-visor button {
+  box-sizing: border-box;
+  min-height: 2.75rem;
+  padding: 0.625rem 1rem;
+  border: 1px solid var(--diagrama-acento);
+  border-radius: var(--diagrama-radio);
+  font: 600 0.9375rem/1.25 system-ui, sans-serif;
+  background: var(--diagrama-fondo);
+  color: var(--diagrama-acento);
+  cursor: pointer;
+}
+.diagrama-ampliar { margin: 0 0 1rem; }
+.diagrama-ampliar:hover,
+.diagrama-visor button:hover { background: var(--diagrama-suave); }
+.diagrama-ampliar:active,
+.diagrama-visor button:active { color: var(--diagrama-acento-hover); }
+.diagrama-ampliar:focus-visible,
+.diagrama-visor :focus-visible {
+  outline: 3px solid var(--diagrama-acento);
+  outline-offset: 3px;
+}
+.diagrama-ampliar:disabled,
+.diagrama-visor button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.diagrama-visor {
+  box-sizing: border-box;
+  width: calc(100% - 1rem);
+  max-width: none;
+  height: calc(100dvh - 1rem);
+  max-height: none;
+  padding: var(--diagrama-espacio);
+  border: 1px solid var(--diagrama-borde);
+  border-radius: var(--diagrama-radio);
+  color: var(--diagrama-texto);
+  background: var(--diagrama-fondo);
+}
+.diagrama-visor[open] { display: flex; flex-direction: column; gap: 0.75rem; }
+.diagrama-visor::backdrop { background: rgb(15 23 42 / 75%); }
+body:has(.diagrama-visor[open]) { overflow: hidden; }
+.diagrama-visor header,
+.diagrama-controles { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.diagrama-visor header { justify-content: space-between; }
+.diagrama-visor h2 { margin: 0; padding: 0; border: 0; font-size: 1.125rem; flex: 1 1 12rem; }
+.diagrama-visor p { margin: 0; color: var(--diagrama-secundario); font-size: 0.875rem; }
+.diagrama-controles output { min-width: 4rem; font: 600 0.9375rem system-ui, sans-serif; }
+.diagrama-lienzo {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid var(--diagrama-borde);
+  border-radius: var(--diagrama-radio);
+  background: var(--diagrama-superficie);
+  overscroll-behavior: contain;
+}
+.diagrama-lienzo svg { display: block; max-width: none !important; height: auto; }
+
+@media print {
+  .diagrama-ampliar, .diagrama-visor { display: none !important; }
+  .diagrama-embebido {
+    overflow: visible !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .diagrama-embebido svg { width: 100% !important; max-width: 100% !important; height: auto !important; }
+}

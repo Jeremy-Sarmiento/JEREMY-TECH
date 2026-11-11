@@ -66,6 +66,8 @@
     .diagrama-embebido { display: block !important; }
   }
 </style>
+<link rel="stylesheet" href="diagramas.css">
+<script src="diagramas.js" defer></script>
 </head>
 <body>
 
@@ -118,7 +120,7 @@
 </div>
 
 <h2>3. Evidencia (captura del sitio ya publicado, con su URL visible)</h2>
-<div class="diagrama-embebido" style="margin:12px 0;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
+<div class="diagrama-embebido diagrama-evidencia" style="margin:12px 0;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
 <p style="margin:8px 12px;font-size:0.75rem;color:#6b7280;font-weight:600;">🌐 EVIDENCIA — Jeremy Tech: Tienda publicada y operativa en producción</p>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 340" width="100%" style="display:block;">
   <rect width="720" height="340" fill="#0f172a" rx="8"/>
@@ -195,14 +197,14 @@
 <img id="vista-previa-imagen" alt="Vista previa de la captura">
 
 <h2>4. Dificultades encontradas al publicar</h2>
-<textarea id="dificultades" placeholder="Escribe aquí...">Durante el despliegue y desarrollo del proyecto se superaron tres dificultades técnicas clave:
-1. Configuración de permisos y aislamiento en Apache: El servidor opera con directivas restrictivas (ProtectHome=on, PrivateTmp=on y AllowOverride None), lo que requirió asegurar que los archivos confidenciales (.env con credenciales de base de datos y webhook secret) se protegieran mediante reglas específicas de Apache y listas de control de acceso (ACL setfacl -m u:http:r .env), almacenando los correos simulados fuera del DocumentRoot.
-2. Manejo de concurrencia y stock en el checkout: Inicialmente la venta permitía descontar unidades sin bloqueo; se rediseñó el flujo transaccional con SELECT ... FOR UPDATE en PostgreSQL (Supabase) para garantizar que compras paralelas de la última laptop no generen stock negativo.
-3. Compatibilidad de esquemas entre tipos de clientes: Integrar en una sola tabla normalizada (users) a clientes B2C, empresas B2B (con validación de RUC de 11 dígitos y razón social) y revendedores C2C, junto con el cálculo automático de comisiones del 15% en el panel de vendedor.</textarea>
+<textarea id="dificultades" placeholder="Escribe aquí...">Durante el despliegue se superaron tres dificultades:
+1. Permisos y aislamiento en Apache: con ProtectHome=on, PrivateTmp=on y AllowOverride None hubo que proteger .env con reglas de Apache y ACL (setfacl -m u:http:r .env), y dejar los correos simulados fuera del DocumentRoot.
+2. Concurrencia y stock en el checkout: al principio se descontaban unidades sin bloqueo; se rediseñó con SELECT ... FOR UPDATE en PostgreSQL (Supabase) para evitar stock negativo en compras paralelas.
+3. Esquemas para tres tipos de cliente: integrar B2C, B2B (RUC de 11 dígitos y razón social) y C2C en la tabla users, con el cálculo automático del 15% de comisión del vendedor.</textarea>
 
 <h2>5. Conclusión</h2>
 <p>En 3-5 líneas: ¿tu proyecto quedó publicado y funcionando de extremo a extremo? ¿Qué le falta para ser un e-commerce real (más allá de esta prueba de concepto)?</p>
-<textarea id="conclusion" placeholder="Escribe tu conclusión...">Jeremy Tech se encuentra completamente construido, probado y operativo de extremo a extremo: integra catálogo interactivo, multimoneda en tiempo real, chatbot FAQ, carrito persistente, checkout con zonas de envío, simulación de pagos con webhook criptográfico, auditoría administrativa y cumplimiento normativo. Para convertirse en una operación comercial en producción a gran escala, únicamente resta tramitar el contrato de comercio electrónico con un adquirente financiero local (como Niubiz o Culqi) e interconectar el emisor de comprobantes con un OSE/PSE homologado por SUNAT.</textarea>
+<textarea id="conclusion" placeholder="Escribe tu conclusión...">Jeremy Tech está construido, probado y operativo de extremo a extremo: catálogo, multimoneda, chatbot, carrito persistente, checkout por zonas, pagos simulados con webhook, auditoría y cumplimiento normativo. Para operar a escala solo falta el contrato con un adquirente local (Niubiz o Culqi) y conectar los comprobantes a un OSE/PSE homologado por SUNAT.</textarea>
 
 <p class="nota"><strong>Guía de publicación (gratuita, sin tarjeta):</strong> revisa
 <code>Codigo/Implementado-Sesion-08/README.html</code> para los pasos exactos de GitHub
@@ -236,7 +238,7 @@ Pages, Netlify (arrastrar y soltar) o Vercel.</p>
     estado._t = setTimeout(() => estado.textContent = '', 2000);
   }
 
-  const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "hosting": "otro", "url": "https://jeremytech.pe/ (y entorno local http://127.0.0.1:8000/)", "c1": true, "c2": true, "c3": true, "c4": true, "c5": true, "c6": true, "c7": true, "dificultades": "Durante el despliegue y desarrollo del proyecto se superaron tres dificultades técnicas clave:\n1. Configuración de permisos y aislamiento en Apache: El servidor opera con directivas restrictivas (ProtectHome=on, PrivateTmp=on y AllowOverride None), lo que requirió asegurar que los archivos confidenciales (.env con credenciales de base de datos y webhook secret) se protegieran mediante reglas específicas de Apache y listas de control de acceso (ACL setfacl -m u:http:r .env), almacenando los correos simulados fuera del DocumentRoot.\n2. Manejo de concurrencia y stock en el checkout: Inicialmente la venta permitía descontar unidades sin bloqueo; se rediseñó el flujo transaccional con SELECT ... FOR UPDATE en PostgreSQL (Supabase) para garantizar que compras paralelas de la última laptop no generen stock negativo.\n3. Compatibilidad de esquemas entre tipos de clientes: Integrar en una sola tabla normalizada (users) a clientes B2C, empresas B2B (con validación de RUC de 11 dígitos y razón social) y revendedores C2C, junto con el cálculo automático de comisiones del 15% en el panel de vendedor.", "conclusion": "Jeremy Tech se encuentra completamente construido, probado y operativo de extremo a extremo: integra catálogo interactivo, multimoneda en tiempo real, chatbot FAQ, carrito persistente, checkout con zonas de envío, simulación de pagos con webhook criptográfico, auditoría administrativa y cumplimiento normativo. Para convertirse en una operación comercial en producción a gran escala, únicamente resta tramitar el contrato de comercio electrónico con un adquirente financiero local (como Niubiz o Culqi) e interconectar el emisor de comprobantes con un OSE/PSE homologado por SUNAT."};
+  const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "hosting": "otro", "url": "https://jeremytech.pe/ (y entorno local http://127.0.0.1:8000/)", "c1": true, "c2": true, "c3": true, "c4": true, "c5": true, "c6": true, "c7": true, "dificultades": "Durante el despliegue se superaron tres dificultades:\n1. Permisos y aislamiento en Apache: con ProtectHome=on, PrivateTmp=on y AllowOverride None hubo que proteger .env con reglas de Apache y ACL (setfacl -m u:http:r .env), y dejar los correos simulados fuera del DocumentRoot.\n2. Concurrencia y stock en el checkout: al principio se descontaban unidades sin bloqueo; se rediseñó con SELECT ... FOR UPDATE en PostgreSQL (Supabase) para evitar stock negativo en compras paralelas.\n3. Esquemas para tres tipos de cliente: integrar B2C, B2B (RUC de 11 dígitos y razón social) y C2C en la tabla users, con el cálculo automático del 15% de comisión del vendedor.", "conclusion": "Jeremy Tech está construido, probado y operativo de extremo a extremo: catálogo, multimoneda, chatbot, carrito persistente, checkout por zonas, pagos simulados con webhook, auditoría y cumplimiento normativo. Para operar a escala solo falta el contrato con un adquirente local (Niubiz o Culqi) y conectar los comprobantes a un OSE/PSE homologado por SUNAT."};
 
   function cargar() {
     const guardado = localStorage.getItem(CLAVE_STORAGE);
