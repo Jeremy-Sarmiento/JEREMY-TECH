@@ -120,5 +120,12 @@ $e = static fn (mixed $valor): string => htmlspecialchars((string) $valor, ENT_Q
 <script src="js/script.js?v=<?= (int) @filemtime(BASE_PATH . '/public/js/script.js') ?>"></script>
 <script src="js/chat.js?v=<?= (int) @filemtime(BASE_PATH . '/public/js/chat.js') ?>"></script>
 <script src="js/analitica.js?v=<?= (int) @filemtime(BASE_PATH . '/public/js/analitica.js') ?>"></script>
+<script nonce="<?= htmlspecialchars(\Security\Proteccion::nonce(), ENT_QUOTES) ?>">
+ if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+   navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+ }
+</script>
 </body>
 </html>

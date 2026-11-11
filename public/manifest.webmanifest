@@ -1,0 +1,34 @@
+{
+  "id": "./",
+  "name": "Jeremy Tech — Tienda de Tecnología",
+  "short_name": "Jeremy Tech",
+  "description": "Tecnología original en La Joya: celulares, laptops, audio y accesorios con entrega el mismo día.",
+  "lang": "es-PE",
+  "start_url": "./index.php?ruta=catalogo",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#070a0e",
+  "theme_color": "#070a0e",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "img/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

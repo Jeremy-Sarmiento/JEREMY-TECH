@@ -7,7 +7,14 @@
   <meta content="#070A0E" name="theme-color"/>
   <link href="img/favicon.svg" rel="icon" type="image/svg+xml"/>
   <link href="favicon.ico" rel="icon" sizes="any"/>
+  <link href="img/icon-192.png" rel="icon" sizes="192x192" type="image/png"/>
   <link href="img/apple-touch-icon.png" rel="apple-touch-icon"/>
+  <link href="manifest.webmanifest" rel="manifest"/>
+  <meta content="Jeremy Tech" name="application-name"/>
+  <meta content="yes" name="mobile-web-app-capable"/>
+  <meta content="yes" name="apple-mobile-web-app-capable"/>
+  <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+  <meta content="Jeremy Tech" name="apple-mobile-web-app-title"/>
   <title><?= htmlspecialchars($tituloPagina ?? 'Jeremy Tech - Tienda de Tecnologia', ENT_QUOTES, 'UTF-8') ?></title>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
    <?php
