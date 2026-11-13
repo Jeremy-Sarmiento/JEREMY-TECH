@@ -260,10 +260,14 @@ class IntegridadTest extends TestCase
 
     private static function migrar(): void
     {
+        $archivo = __DIR__ . '/../../database/integridad-rendimiento.sql';
+        if (!is_file($archivo)) {
+            self::markTestSkipped('Falta database/integridad-rendimiento.sql (migración no versionada).');
+        }
         // psql envía cada CREATE INDEX CONCURRENTLY fuera de una transacción.
         $proceso = proc_open([
             'psql', '-X', '-w', '-v', 'ON_ERROR_STOP=1', '-h', DB_HOST, '-p', DB_PORT,
-            '-U', DB_USER, '-d', DB_NAME, '-f', __DIR__ . '/../../database/integridad-rendimiento.sql',
+            '-U', DB_USER, '-d', DB_NAME, '-f', $archivo,
         ], [0 => ['file', '/dev/null', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, null, [
             'PATH' => (string) getenv('PATH'), 'PGPASSWORD' => DB_PASS, 'PGCONNECT_TIMEOUT' => '5',
         ]);

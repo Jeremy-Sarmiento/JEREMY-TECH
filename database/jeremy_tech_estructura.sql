@@ -4,10 +4,8 @@
 -- El seed contiene hijos antes que padres: importar entero y diferir las FK.
 -- Despues: psql -X -v ON_ERROR_STOP=1 -1 -d jeremy_tech -c 'SET CONSTRAINTS ALL DEFERRED' -f database/jeremy_tech_datos.sql
 -- Solo para instalaciones nuevas: este archivo elimina tablas. Para una BD
--- existente usar integridad-rendimiento.sql (sin borrar ni corregir historial).
--- Para habilitar variantes en carritos existentes usar carrito-persistente.sql.
--- Para relaciones de catalogo/cuentas y solicitudes usar relaciones-integridad.sql.
--- Para SKU automaticos en productos existentes usar sku-automatico.sql.
+-- existente hay que aplicar las migraciones pendientes antes del codigo nuevo;
+-- no se versionan en el repositorio.
 -- Los limites de numeric(10,2) en CHECK tambien excluyen el valor especial NaN.
 
 DROP TABLE IF EXISTS auditoria_admin CASCADE;

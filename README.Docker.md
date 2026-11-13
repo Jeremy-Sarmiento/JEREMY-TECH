@@ -97,8 +97,9 @@ docker compose up -d --build app --no-deps
 Render construye la imagen con el `Dockerfile` del repositorio: PHP 8.2 con
 Apache, `pdo_pgsql` y el DocumentRoot en `public/`. La base sigue en Supabase.
 
-1. Importa el esquema en Supabase y aplica `supabase-endurecer.sql` antes de
-   conectar la app. Si la base ya existía antes de las imágenes de producto.
+1. Importa `database/jeremy_tech_estructura.sql` y `database/jeremy_tech_datos.sql`
+   en Supabase y conecta la app. Si la base ya existía, aplica antes las
+   migraciones pendientes (no se versionan en el repositorio).
 
 2. En Render, New > Web Service, elige el repositorio y la rama `postgresql`.
    En Runtime selecciona Docker y define `DATABASE_URL` con la cadena del
@@ -110,9 +111,9 @@ Apache, `pdo_pgsql` y el DocumentRoot en `public/`. La base sigue en Supabase.
 
 ### Banners de la tienda
 
-Antes de desplegar estos cambios sobre una base existente, ejecuta en Supabase
-el contenido de `database/banners.sql` (o `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f database/banners.sql`).
-Es idempotente: crea la tabla sin borrar datos y bloquea su acceso por la API pública.
+La tabla `banners` se crea con `database/jeremy_tech_estructura.sql`, así que en
+una instalación nueva no hay paso aparte. Si la base ya existía antes de esa
+tabla, aplica la migración pendiente antes de desplegar (no se versiona).
 
 Una cuenta con rol `admin` puede entrar a **Panel > Banners** para crear, editar,
 ordenar, ocultar o eliminar promociones. Vendedores y clientes no tienen acceso

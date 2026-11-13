@@ -18,6 +18,18 @@ storage/mail/
 *.sql.gz
 /respaldo.dump
 
+# Migraciones para bases existentes: solo la estructura y los datos se versionan.
+/database/banners.sql
+/database/carrito-persistente.sql
+/database/carrito-persistente-down.sql
+/database/imagenes-producto.sql
+/database/integridad-rendimiento.sql
+/database/relaciones-integridad.sql
+/database/renombrar-espanol.sql
+/database/renombrar-espanol-down.sql
+/database/sku-automatico.sql
+/database/supabase-endurecer.sql
+
 # Resúmenes de sesiones: se conservan solo en este equipo.
 /entregables/Resumen-Sesiones-01-08.md
 /entregables/Resumen-Breve-Sesiones-01-08.md

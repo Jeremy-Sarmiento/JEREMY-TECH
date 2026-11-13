@@ -50,11 +50,19 @@ function ensureTestDb(): void
         $pdo->exec(file_get_contents(__DIR__ . '/../database/jeremy_tech_estructura.sql'));
     }
     // Migraciones idempotentes que una base de pruebas ya creada no tiene.
-    $pdo->exec(file_get_contents(__DIR__ . '/../database/imagenes-producto.sql'));
-    $pdo->exec(file_get_contents(__DIR__ . '/../database/banners.sql'));
-    $pdo->exec(file_get_contents(__DIR__ . '/../database/carrito-persistente.sql'));
-    $pdo->exec(file_get_contents(__DIR__ . '/../database/relaciones-integridad.sql'));
-    $pdo->exec(file_get_contents(__DIR__ . '/../database/sku-automatico.sql'));
+    // No se versionan: en un clon limpio o en CI no existen y no hacen falta.
+    foreach ([
+        'imagenes-producto.sql',
+        'banners.sql',
+        'carrito-persistente.sql',
+        'relaciones-integridad.sql',
+        'sku-automatico.sql',
+    ] as $migracion) {
+        $archivo = __DIR__ . '/../database/' . $migracion;
+        if (is_file($archivo)) {
+            $pdo->exec(file_get_contents($archivo));
+        }
+    }
 }
 
 function resetTestDb(): void
