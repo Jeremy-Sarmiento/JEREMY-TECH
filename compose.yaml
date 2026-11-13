@@ -22,7 +22,6 @@ services:
       # Se importan solos la primera vez que se crea el volumen.
       - ./database/jeremy_tech_estructura.sql:/docker-entrypoint-initdb.d/01-estructura.sql:ro
       - ./database/jeremy_tech_datos.sql:/docker-entrypoint-initdb.d/02-datos.sql:ro
-      - ./database/seed-producto-imagenes.sql:/docker-entrypoint-initdb.d/03-imagenes.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d jeremy_tech"]
       interval: 5s

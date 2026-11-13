@@ -22,7 +22,6 @@ final class DatosImagenesTest extends TestCase
             $pdo->exec('SET search_path TO ' . $esquema);
             $pdo->exec(file_get_contents(BASE_PATH . '/database/jeremy_tech_estructura.sql'));
             $pdo->exec(file_get_contents(BASE_PATH . '/database/jeremy_tech_datos.sql'));
-            $pdo->exec(file_get_contents(BASE_PATH . '/database/seed-producto-imagenes.sql'));
             $productos = $pdo->query('SELECT p.slug, p.imagen FROM productos p
                 JOIN producto_imagenes i ON i.producto_id = p.id ORDER BY p.id')->fetchAll(PDO::FETCH_ASSOC);
             $this->assertCount(30, $productos);
