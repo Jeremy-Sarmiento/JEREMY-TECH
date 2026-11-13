@@ -503,7 +503,10 @@ Los datos más sensibles son las contraseñas, el RUC/DNI y la información fina
 
   function cargar() {
     const guardado = localStorage.getItem(CLAVE_STORAGE);
-    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    let datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    // Un guardado sin ningún dato (p. ej. el que dejaba "Borrar") no debe
+    // tapar la plantilla: se vuelve a los valores por defecto.
+    if (guardado && sinDatos(datos)) datos = DATOS_DEFECTO;
     document.getElementById('filas-tabla').innerHTML = '';
     document.getElementById('alumno').value = datos.alumno || '';
     document.getElementById('proyecto').value = datos.proyecto || '';
@@ -514,17 +517,17 @@ Los datos más sensibles son las contraseñas, el RUC/DNI y la información fina
     if (datos.mermaidCodigo) previsualizarDiagrama();
   }
 
+  function sinDatos(d) {
+    return !d.alumno && !d.proyecto && !d.mermaidCodigo && !d.proteccion && !d.conclusion
+      && !(d.filas || []).some(f => f.entidad || f.atributos || f.pk || f.fk);
+  }
+
   function borrarTodo() {
     if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
+    clearTimeout(temporizador);
     localStorage.removeItem(CLAVE_STORAGE);
-    document.getElementById('alumno').value = '';
-    document.getElementById('proyecto').value = '';
-    document.getElementById('mermaidCodigo').value = '';
-    document.getElementById('proteccion').value = '';
-    document.getElementById('conclusion').value = '';
-    document.getElementById('vistaPreviaDiagrama').innerHTML = '';
-    document.getElementById('filas-tabla').innerHTML = '';
-    for (let i = 0; i < 4; i++) agregarFila();
+    cargar();
+    document.getElementById('estado-guardado').textContent = '';
   }
 
   function descargarTxt() {
