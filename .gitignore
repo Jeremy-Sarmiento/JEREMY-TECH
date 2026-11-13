@@ -30,9 +30,6 @@ storage/mail/
 /database/sku-automatico.sql
 /database/supabase-endurecer.sql
 
-# Resúmenes de sesiones: se conservan solo en este equipo.
-/entregables/Resumen-Sesiones-01-08.md
-/entregables/Resumen-Breve-Sesiones-01-08.md
 
 # Caché de PHPUnit
 /.phpunit.result.cache
