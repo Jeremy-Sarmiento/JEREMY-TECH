@@ -151,9 +151,9 @@ final class Notificacion
         string $estado = '',
         int $limite = 300
     ): array {
-        $sql = 'SELECT n.*, u.name AS cliente_nombre, u.apellidos AS cliente_apellidos
+        $sql = 'SELECT n.*, u.nombre AS cliente_nombre, u.apellidos AS cliente_apellidos
                   FROM notificaciones n
-             LEFT JOIN users u ON u.id = n.cliente_id
+             LEFT JOIN usuarios u ON u.id = n.cliente_id
                  WHERE 1 = 1';
         $params = [];
 
@@ -230,7 +230,7 @@ final class Notificacion
 
         $stmt = conexion()->prepare(
             'SELECT p.*,
-                    u.name AS cliente_nombre,
+                    u.nombre AS cliente_nombre,
                     u.apellidos AS cliente_apellidos,
                     u.email AS cliente_email,
                     u.telefono AS cliente_telefono,
@@ -239,7 +239,7 @@ final class Notificacion
                     pa.transaccion_id AS pago_transaccion,
                     pa.creado_en AS pago_creado_en
                FROM pedidos p
-               JOIN users u ON u.id = p.cliente_id
+               JOIN usuarios u ON u.id = p.cliente_id
           LEFT JOIN pagos pa ON pa.pedido_id = p.id
               WHERE p.id = ?
            ORDER BY pa.id DESC
@@ -382,10 +382,10 @@ final class Notificacion
             } else {
                 $titulo = 'Pedido enviado';
                 $intro = 'Tu pedido salió de nuestro almacén y va en camino.';
-                $courier = trim((string) ($pedido['courier'] ?? ''));
+                $mensajeria = trim((string) ($pedido['mensajeria'] ?? ''));
                 $guia = trim((string) ($pedido['guia_numero'] ?? ''));
                 $bloque = '<tr><td style="padding:8px 0;color:#6b7280;">Courier</td><td style="padding:8px 0;text-align:right;color:#111827;">'
-                    . $e($courier !== '' ? $courier : 'Por confirmar') . '</td></tr>'
+                    . $e($mensajeria !== '' ? $mensajeria : 'Por confirmar') . '</td></tr>'
                     . '<tr><td style="padding:8px 0;color:#6b7280;">Número de guía</td><td style="padding:8px 0;text-align:right;color:#111827;font-weight:600;">'
                     . $e($guia !== '' ? $guia : 'Por confirmar') . '</td></tr>';
             }
@@ -480,7 +480,7 @@ final class Notificacion
             $lineas[] = 'Teléfono: ' . self::telefonoTienda();
         } else {
             $lineas[] = 'Tu pedido salió de nuestro almacén y va en camino.';
-            $lineas[] = 'Courier: ' . ((string) ($pedido['courier'] ?? '') !== '' ? (string) $pedido['courier'] : 'Por confirmar');
+            $lineas[] = 'Courier: ' . ((string) ($pedido['mensajeria'] ?? '') !== '' ? (string) $pedido['mensajeria'] : 'Por confirmar');
             $lineas[] = 'Número de guía: ' . ((string) ($pedido['guia_numero'] ?? '') !== '' ? (string) $pedido['guia_numero'] : 'Por confirmar');
         }
 

@@ -137,7 +137,7 @@ class CarritoController
         }
 
         // Los datos del paso 1 (contacto) y del paso 2 (SUNAT) son del pedido,
-        // NO del perfil: el checkout no sobrescribe `users`. El perfil se
+        // NO del perfil: el checkout no sobrescribe `usuarios`. El perfil se
         // edita en "Mi perfil" y el registro. Aquí solo se resuelve el destino.
 
         // Destino de entrega (Etapa 5): la zona de la dirección fija el costo.

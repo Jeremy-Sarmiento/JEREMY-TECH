@@ -37,7 +37,7 @@ $claseEstado = static function (string $estado): string {
             <h2 class="admin-titulo">Solicitudes de vendedor</h2>
             <p class="admin-nota">
                 Toda cuenta nueva se registra como cliente. Aprobar aquí cambia
-                <code>users.rol</code> a <code>vendedor</code> y conserva el resto de la
+                <code>usuarios.rol</code> a <code>vendedor</code> y conserva el resto de la
                 ficha (tipo B2C/B2B/C2C, RUC, empresa, dirección y claves). El panel del
                 vendedor se adapta a su tipo.
             </p>
@@ -95,7 +95,7 @@ $claseEstado = static function (string $estado): string {
                 <?php
                 $id       = (int) $s['id'];
                 $estado   = (string) $s['estado'];
-                $cuenta   = trim((string) ($s['name'] ?? '') . ' ' . (string) ($s['apellidos'] ?? ''));
+                $cuenta   = trim((string) ($s['nombre'] ?? '') . ' ' . (string) ($s['apellidos'] ?? ''));
                 $mensaje  = trim((string) ($s['mensaje'] ?? ''));
                 $motivo   = trim((string) ($s['motivo_rechazo'] ?? ''));
                 ?>

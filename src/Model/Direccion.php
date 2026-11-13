@@ -7,7 +7,7 @@ namespace Model;
 /**
  * Modelo Direccion (Jeremy Tech).
  * Direcciones de envío guardadas por el cliente (tabla `direcciones`,
- * `cliente_id` -> `users.id`). Cada dirección lleva su ZONA de envío
+ * `cliente_id` -> `usuarios.id`). Cada dirección lleva su ZONA de envío
  * (`tarifa_envio_id` -> `tarifas_envio`), que es lo único que determina el
  * costo del pedido. No hay geo-ubigeo: dirección y referencia son texto libre.
  */

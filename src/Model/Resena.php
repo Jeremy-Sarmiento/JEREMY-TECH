@@ -44,9 +44,9 @@ final class Resena
         $limite = max(1, min(100, $limite));
         $stmt = conexion()->prepare(
             'SELECT r.id, r.producto_id, r.cliente_id, r.calificacion, r.comentario,
-                    r.creado_en, u.name AS cliente_nombre, u.apellidos AS cliente_apellidos
+                    r.creado_en, u.nombre AS cliente_nombre, u.apellidos AS cliente_apellidos
                FROM resenas r
-               JOIN users u ON u.id = r.cliente_id
+               JOIN usuarios u ON u.id = r.cliente_id
               WHERE r.producto_id = ? AND r.estado = \'visible\'
               ORDER BY r.creado_en DESC, r.id DESC
               LIMIT ' . $limite
@@ -268,11 +268,11 @@ final class Resena
     public static function todas(string $estado = '', string $buscar = '', int $limite = 300): array
     {
         $sql = 'SELECT r.*, p.nombre AS producto_nombre, p.slug AS producto_slug,
-                       u.name AS cliente_nombre, u.apellidos AS cliente_apellidos,
+                       u.nombre AS cliente_nombre, u.apellidos AS cliente_apellidos,
                        u.email AS cliente_email
                   FROM resenas r
              LEFT JOIN productos p ON p.id = r.producto_id
-             LEFT JOIN users u ON u.id = r.cliente_id
+             LEFT JOIN usuarios u ON u.id = r.cliente_id
                  WHERE 1 = 1';
         $params = [];
 
@@ -283,7 +283,7 @@ final class Resena
 
         $buscar = trim($buscar);
         if ($buscar !== '') {
-            $sql .= ' AND (r.comentario ILIKE ? OR p.nombre ILIKE ? OR u.name ILIKE ? OR u.email ILIKE ?)';
+            $sql .= ' AND (r.comentario ILIKE ? OR p.nombre ILIKE ? OR u.nombre ILIKE ? OR u.email ILIKE ?)';
             $like = '%' . $buscar . '%';
             for ($i = 0; $i < 4; $i++) {
                 $params[] = $like;

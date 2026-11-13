@@ -84,15 +84,15 @@ function resetTestDb(): void
             $hash[$clave] = password_hash($clave, PASSWORD_BCRYPT, ['cost' => 4]);
         }
     }
-    // Seed minimal users
-    $pdo->exec("INSERT INTO users (id,name,apellidos,email,usuario,password,rol,tipo,activo,verificado,telefono,direccion,dni,ruc,empresa,plataforma_reventa,pregunta_secreta,respuesta_secreta_hash,created_at)
+    // Seed minimal usuarios
+    $pdo->exec("INSERT INTO usuarios (id,nombre,apellidos,email,usuario,password,rol,tipo,activo,verificado,telefono,direccion,dni,ruc,empresa,plataforma_reventa,pregunta_secreta,respuesta_secreta_hash,creado_en)
         VALUES (1,'Admin','Demo','admin@example.com','admin','" . $hash['admin'] . "','admin','B2C',1,1,'999000000','Av. Demo','','','','','¿Cuál es el nombre de tu primera mascota?','" . $hash['mascota'] . "',NOW()),
         (2,'Vendedor','Demo','vendedor@example.com','vendedor','" . $hash['vendedor'] . "','vendedor','B2B',1,1,'999000001','Av. Demo','','20123456789','Empresa Demo','','¿En qué ciudad naciste?','" . $hash['ciudad'] . "',NOW()),
         (3,'Cliente','Demo','cliente@example.com',NULL,'" . $hash['cliente'] . "','cliente','B2C',1,1,'999000002','Av. Demo','00000001','','','','¿Cómo se llamaba tu colegio de primaria?','" . $hash['colegio'] . "',NOW()),
         (4,'Cliente','B2B','cliente_b2b@example.com',NULL,'" . $hash['cliente'] . "','cliente','B2B',1,1,'999000003','Av. Demo','','20123456789','Empresa B2B','','¿Cuál es tu plato favorito?','" . $hash['plato'] . "',NOW()),
         (5,'Cliente','C2C','cliente_c2c@example.com',NULL,'" . $hash['cliente'] . "','cliente','C2C',1,1,'999000004','Av. Demo','','','','Facebook','¿Cuál es el apellido de soltera de tu madre?','" . $hash['madre'] . "',NOW());");
     // Los ids explícitos no avanzan la secuencia identity: hay que sincronizarla.
-    foreach (['users', 'tarifas_envio'] as $tabla) {
+    foreach (['usuarios', 'tarifas_envio'] as $tabla) {
         $pdo->exec(sprintf(
             "SELECT setval(pg_get_serial_sequence('%s', 'id'), (SELECT MAX(id) FROM %s))",
             $tabla,
@@ -104,7 +104,7 @@ function resetTestDb(): void
 function findTestUser(string $email): ?array
 {
     $pdo = testPdo();
-    $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ? LIMIT 1');
+    $stmt = $pdo->prepare('SELECT * FROM usuarios WHERE email = ? LIMIT 1');
     $stmt->execute([$email]);
     return $stmt->fetch() ?: null;
 }

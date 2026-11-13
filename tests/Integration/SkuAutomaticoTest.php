@@ -126,7 +126,7 @@ class SkuAutomaticoTest extends TestCase
     {
         $this->enEsquema(true, function () use ($modo, $estado): void {
             $this->sembrarLegacy();
-            $this->pdo->exec("ALTER TABLE productos $modo TRIGGER trg_productos_updated_at");
+            $this->pdo->exec("ALTER TABLE productos $modo TRIGGER trg_productos_actualizado_en");
             $antes = $this->productosSinSku();
             $identidades = $this->identidades();
             $secuencia = $this->secuencia();
@@ -141,11 +141,11 @@ class SkuAutomaticoTest extends TestCase
                 ['id' => 5, 'codigo_sku' => 'JT-01000'],
                 ['id' => 100000, 'codigo_sku' => 'JT-100000'],
             ], $this->pdo->query('SELECT id, codigo_sku FROM productos ORDER BY id')->fetchAll(PDO::FETCH_ASSOC));
-            // El touch_updated_at existente no debe convertir el backfill en una edición del producto.
+            // El touch_actualizado_en existente no debe convertir el backfill en una edición del producto.
             $this->assertSame($antes, $this->productosSinSku());
             $datosMigrados = $this->productos();
             $disparadores = $this->disparadores();
-            $this->assertSame($estado, array_column($disparadores, 'tgenabled', 'tgname')['trg_productos_updated_at']);
+            $this->assertSame($estado, array_column($disparadores, 'tgenabled', 'tgname')['trg_productos_actualizado_en']);
 
             $this->migrar();
 
@@ -166,7 +166,7 @@ class SkuAutomaticoTest extends TestCase
     {
         $this->enEsquema(true, function () use ($modo, $estado): void {
             $this->sembrarLegacy();
-            $this->pdo->exec("ALTER TABLE productos $modo TRIGGER trg_productos_updated_at");
+            $this->pdo->exec("ALTER TABLE productos $modo TRIGGER trg_productos_actualizado_en");
             $this->pdo->exec("UPDATE productos SET codigo_sku = 'JT-00001' WHERE id = 4");
             $antes = $this->productos();
             $identidades = $this->identidades();
@@ -186,7 +186,7 @@ class SkuAutomaticoTest extends TestCase
             $this->assertSame($identidades, $this->identidades());
             $this->assertSame($secuencia, $this->secuencia());
             $this->assertSame($disparadores, $this->disparadores());
-            $this->assertSame($estado, array_column($this->disparadores(), 'tgenabled', 'tgname')['trg_productos_updated_at']);
+            $this->assertSame($estado, array_column($this->disparadores(), 'tgenabled', 'tgname')['trg_productos_actualizado_en']);
             $this->assertSame($timeout, $this->pdo->query('SHOW lock_timeout')->fetchColumn());
             $this->assertNull($this->pdo->query("SELECT to_regprocedure('asignar_codigo_sku()')")->fetchColumn());
         });
@@ -228,7 +228,7 @@ class SkuAutomaticoTest extends TestCase
     private function sembrarLegacy(): void
     {
         $this->pdo->exec("INSERT INTO productos (id, slug, categoria, nombre, especificaciones, codigo_sku,
-            stock, precio_pen, activo, archivado_en, updated_at) VALUES
+            stock, precio_pen, activo, archivado_en, actualizado_en) VALUES
             (1, 'legacy-null', 'Celulares', 'Null original', 'Ficha uno', NULL, 7, 11.11, 1, NULL, '2001-01-01'),
             (2, 'legacy-vacio', 'Celulares', 'Vacio original', 'Ficha dos', '', 8, 22.22, 1, NULL, '2002-01-01'),
             (3, 'legacy-espacios', 'Celulares', 'Archivado', 'Ficha tres', '   ', 9, 33.33, 0, '2020-01-01', NULL),

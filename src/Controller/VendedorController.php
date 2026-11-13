@@ -14,7 +14,7 @@ use Security\Proteccion;
 /**
  * Controlador del panel "Mis productos" (Jeremy Tech) — Fase 3.
  *
- * Permite a un usuario con `users.rol = 'vendedor'` publicar, editar,
+ * Permite a un usuario con `usuarios.rol = 'vendedor'` publicar, editar,
  * controlar el stock y
  * activar/ocultar sus productos sin entrar al panel de administración.
  * Toda lectura y escritura se acota por el id de la sesión: un vendedor

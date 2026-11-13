@@ -7,7 +7,7 @@ namespace Model;
 /**
  * Modelo Administrador (Jeremy Tech).
  *
- * Autenticación del panel sobre la tabla `users` (Etapa 4): misma fila que
+ * Autenticación del panel sobre la tabla `usuarios` (Etapa 4): misma fila que
  * usa la tienda, pero identificada por el campo `usuario` y restringida a
  * `rol IN ('admin', 'vendedor')`.
  *
@@ -48,13 +48,13 @@ class Administrador
     }
 
     /**
-     * @return array<string, mixed>|null  Fila de `users` del panel o null.
+     * @return array<string, mixed>|null  Fila de `usuarios` del panel o null.
      */
     public static function porId(int $id): ?array
     {
         $stmt = conexion()->prepare(
-            "SELECT * FROM users
-              WHERE id = ? AND activo = 1 AND rol IN ('admin', 'vendedor') AND deleted_at IS NULL LIMIT 1"
+            "SELECT * FROM usuarios
+              WHERE id = ? AND activo = 1 AND rol IN ('admin', 'vendedor') AND eliminado_en IS NULL LIMIT 1"
         );
         $stmt->execute([$id]);
         $fila = $stmt->fetch();
@@ -67,8 +67,8 @@ class Administrador
     public static function porUsuario(string $usuario): ?array
     {
         $stmt = conexion()->prepare(
-            "SELECT * FROM users
-              WHERE usuario = ? AND rol IN ('admin', 'vendedor') AND deleted_at IS NULL LIMIT 1"
+            "SELECT * FROM usuarios
+              WHERE usuario = ? AND rol IN ('admin', 'vendedor') AND eliminado_en IS NULL LIMIT 1"
         );
         $stmt->execute([trim($usuario)]);
         $fila = $stmt->fetch();
@@ -168,7 +168,7 @@ class Administrador
         $_SESSION[self::SESION_HUELLA] = hash('sha256', (string) $admin['password']);
 
         // Registro del último ingreso.
-        conexion()->prepare('UPDATE users SET ultimo_ingreso = NOW() WHERE id = ?')
+        conexion()->prepare('UPDATE usuarios SET ultimo_ingreso = NOW() WHERE id = ?')
             ->execute([(int) $admin['id']]);
 
         return true;
@@ -187,9 +187,9 @@ class Administrador
      *
      * Se llama al iniciar sesión en la tienda para que el botón "Panel" del
      * menú de cuenta no exija un segundo ingreso. La cuenta ya se validó
-     * contra la misma contraseña de `users`.
+     * contra la misma contraseña de `usuarios`.
      *
-     * @param array<string, mixed> $cuenta Fila de `users` ya autenticada.
+     * @param array<string, mixed> $cuenta Fila de `usuarios` ya autenticada.
      */
     public static function vincularCuenta(array $cuenta): void
     {

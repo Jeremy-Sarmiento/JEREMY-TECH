@@ -11,8 +11,8 @@ namespace Model;
 class Producto
 {
     public const VENDEDOR_HABILITADO = "(p.vendedor_id IS NULL OR EXISTS (
-        SELECT 1 FROM users vendedor WHERE vendedor.id = p.vendedor_id
-        AND vendedor.rol = 'vendedor' AND vendedor.activo = 1 AND vendedor.deleted_at IS NULL))";
+        SELECT 1 FROM usuarios vendedor WHERE vendedor.id = p.vendedor_id
+        AND vendedor.rol = 'vendedor' AND vendedor.activo = 1 AND vendedor.eliminado_en IS NULL))";
 
     /** @return array<string, string> Categorías administrables e identificadores HTML estables. */
     public static function grids(): array
@@ -45,10 +45,10 @@ class Producto
      * Columnas extra que solo aporta el listado del catálogo (Etapa 6):
      * el dueño de la publicación para poder mostrar "Vendido por".
      */
-    private const COLUMNAS_VENDEDOR = ', v.name AS vendedor_nombre, v.usuario AS vendedor_usuario, v.verificado AS vendedor_verificado';
+    private const COLUMNAS_VENDEDOR = ', v.nombre AS vendedor_nombre, v.usuario AS vendedor_usuario, v.verificado AS vendedor_verificado';
 
     /** LEFT JOIN al dueño (usuarios dados de baja no se muestran). */
-    private const JOIN_VENDEDOR = ' LEFT JOIN users v ON v.id = p.vendedor_id AND v.deleted_at IS NULL';
+    private const JOIN_VENDEDOR = ' LEFT JOIN usuarios v ON v.id = p.vendedor_id AND v.eliminado_en IS NULL';
 
     /**
      * Retorna el catálogo completo, opcionalmente acotado a un vendedor
@@ -138,10 +138,10 @@ class Producto
     public static function vendedores(): array
     {
         return conexion()->query(
-            "SELECT id, name, email FROM users
+            "SELECT id, nombre, email FROM usuarios
               WHERE rol = 'vendedor'
-                AND deleted_at IS NULL AND activo = 1
-              ORDER BY name"
+                AND eliminado_en IS NULL AND activo = 1
+              ORDER BY nombre"
         )->fetchAll();
     }
 

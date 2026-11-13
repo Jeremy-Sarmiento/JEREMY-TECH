@@ -284,8 +284,8 @@ class AdminStockTest extends TestCase
     {
         return [
             'admin' => [1, ''], 'cliente' => [3, ''], 'inexistente' => [999999, ''],
-            'inactivo' => [2, 'UPDATE users SET activo = 0 WHERE id = 2'],
-            'eliminado' => [2, 'UPDATE users SET deleted_at = NOW() WHERE id = 2'],
+            'inactivo' => [2, 'UPDATE usuarios SET activo = 0 WHERE id = 2'],
+            'eliminado' => [2, 'UPDATE usuarios SET eliminado_en = NOW() WHERE id = 2'],
         ];
     }
 

@@ -172,7 +172,7 @@ $banners = \Model\Banner::activos();
      if (!empty($vendedorFiltro)) {
          $vendedorFiltroNombre = trim((string) ($vendedorFiltro['usuario'] ?? ''));
          if ($vendedorFiltroNombre === '') {
-             $vendedorFiltroNombre = (string) ($vendedorFiltro['name'] ?? '');
+             $vendedorFiltroNombre = (string) ($vendedorFiltro['nombre'] ?? '');
          }
      }
    ?>

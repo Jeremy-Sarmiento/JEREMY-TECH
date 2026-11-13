@@ -67,7 +67,7 @@ class SolicitudVendedorTest extends TestCase
         $this->assertNull($error);
 
         $pdo = testPdo();
-        $rol = $pdo->prepare('SELECT rol FROM users WHERE id = ?');
+        $rol = $pdo->prepare('SELECT rol FROM usuarios WHERE id = ?');
         $rol->execute([$clienteId]);
         $this->assertEquals('vendedor', $rol->fetchColumn());
     }
@@ -76,7 +76,7 @@ class SolicitudVendedorTest extends TestCase
     {
         $clienteId = 3;
         $pdo = testPdo();
-        $stmt = $pdo->prepare('SELECT name, apellidos, email, tipo, empresa, ruc, dni, telefono, direccion FROM users WHERE id = ?');
+        $stmt = $pdo->prepare('SELECT nombre, apellidos, email, tipo, empresa, ruc, dni, telefono, direccion FROM usuarios WHERE id = ?');
         $stmt->execute([$clienteId]);
         $datosAntes = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -84,7 +84,7 @@ class SolicitudVendedorTest extends TestCase
         $sid = $r['id'];
         SolicitudVendedor::aprobar($sid, 'testadmin');
 
-        $stmt = $pdo->prepare('SELECT name, apellidos, email, tipo, empresa, ruc, dni, telefono, direccion, rol FROM users WHERE id = ?');
+        $stmt = $pdo->prepare('SELECT nombre, apellidos, email, tipo, empresa, ruc, dni, telefono, direccion, rol FROM usuarios WHERE id = ?');
         $stmt->execute([$clienteId]);
         $datosDespues = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -103,7 +103,7 @@ class SolicitudVendedorTest extends TestCase
         $this->assertNull($error);
 
         $pdo = testPdo();
-        $rol = $pdo->prepare('SELECT rol FROM users WHERE id = ?');
+        $rol = $pdo->prepare('SELECT rol FROM usuarios WHERE id = ?');
         $rol->execute([$clienteId]);
         $this->assertEquals('cliente', $rol->fetchColumn());
     }

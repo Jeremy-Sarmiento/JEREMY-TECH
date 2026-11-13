@@ -7,7 +7,7 @@
 -- SHARE ROW EXCLUSIVE bloquea INSERT/UPDATE/DELETE hasta COMMIT, pero permite lecturas.
 -- lock_timeout limita cada espera a 3s, NO la duracion del backfill.
 -- Solo completa NULL/vacios segun btrim; conserva SKU explicitos, datos e identidades.
--- Se desactiva SOLO trg_productos_updated_at durante el backfill y se restaura su estado O/A/R/D.
+-- Se desactiva SOLO trg_productos_actualizado_en durante el backfill y se restaura su estado O/A/R/D.
 -- UNIQUE, FK y los otros triggers siguen activos. No hay secuencias ni tablas nuevas.
 -- Una colision con un SKU historico produce 23505 y aborta TODO, sin reintentos ni renumeraciones.
 -- Ante fallo: ROLLBACK en PDO; diagnosticar con autorizacion y respaldo antes de reintentar.
@@ -47,10 +47,10 @@ BEGIN
 
   IF EXISTS (SELECT 1 FROM productos WHERE codigo_sku IS NULL OR btrim(codigo_sku) = '') THEN
     SELECT tgenabled INTO estado_timestamp FROM pg_trigger
-    WHERE tgrelid = 'productos'::regclass AND tgname = 'trg_productos_updated_at' AND NOT tgisinternal;
+    WHERE tgrelid = 'productos'::regclass AND tgname = 'trg_productos_actualizado_en' AND NOT tgisinternal;
 
     IF estado_timestamp IN ('O', 'A', 'R') THEN
-      ALTER TABLE productos DISABLE TRIGGER trg_productos_updated_at;
+      ALTER TABLE productos DISABLE TRIGGER trg_productos_actualizado_en;
     END IF;
 
     UPDATE productos
@@ -58,11 +58,11 @@ BEGIN
     WHERE codigo_sku IS NULL OR btrim(codigo_sku) = '';
 
     IF estado_timestamp = 'O' THEN
-      ALTER TABLE productos ENABLE TRIGGER trg_productos_updated_at;
+      ALTER TABLE productos ENABLE TRIGGER trg_productos_actualizado_en;
     ELSIF estado_timestamp = 'A' THEN
-      ALTER TABLE productos ENABLE ALWAYS TRIGGER trg_productos_updated_at;
+      ALTER TABLE productos ENABLE ALWAYS TRIGGER trg_productos_actualizado_en;
     ELSIF estado_timestamp = 'R' THEN
-      ALTER TABLE productos ENABLE REPLICA TRIGGER trg_productos_updated_at;
+      ALTER TABLE productos ENABLE REPLICA TRIGGER trg_productos_actualizado_en;
     END IF;
     -- D permanece desactivado; si no existe ese trigger, no se crea ni cambia ninguno.
   END IF;

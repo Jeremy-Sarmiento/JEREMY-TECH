@@ -62,7 +62,7 @@ INSERT INTO tarifas_envio VALUES
 (3,'Arequipa Provincia',15.00,'2-4 días',1,'2026-10-27 01:38:38'),
 (4,'Lima',18.00,'3-5 días',1,'2026-10-27 01:38:38'),
 (5,'Otras regiones del Perú',25.00,'4-7 días',1,'2026-10-27 01:38:38');
-INSERT INTO users VALUES
+INSERT INTO usuarios VALUES
 (1,'Admin','Demo','admin@example.com','jeremytech','!','admin',NULL,0,0,'999000000','Av. Demo 123','C2C','','','','','','','2026-10-29 02:35:28','2026-10-27 01:38:38','2026-10-29 04:52:56',NULL),
 (2,'Vendedor','Demo','vendedor@example.com','vendedor','!','vendedor',15.00,1,0,'999000001','Av. Demo 123','B2B','','','','','¿Cuál es el nombre de tu primera mascota?','!','2026-10-29 02:09:36','2026-10-27 01:38:38','2026-10-29 04:52:56',NULL),
 (3,'Cliente','','cliente@example.com',NULL,'$2y$12$nD6dIfvWyBC0DwP6UV.IFeNL8vfZE03ehO.LQoyzCOSs6sQW.l6SC','cliente',NULL,0,1,'999000002','Av. Demo 123','B2C','','','','','','',NULL,'2026-10-27 01:38:48','2026-10-29 04:52:56',NULL),
@@ -140,5 +140,5 @@ SELECT setval(pg_get_serial_sequence('precios_volumen', 'id'), COALESCE((SELECT 
 SELECT setval(pg_get_serial_sequence('producto_variantes', 'id'), COALESCE((SELECT MAX(id) FROM producto_variantes), 1), (SELECT COUNT(*) > 0 FROM producto_variantes));
 SELECT setval(pg_get_serial_sequence('productos', 'id'), COALESCE((SELECT MAX(id) FROM productos), 1), (SELECT COUNT(*) > 0 FROM productos));
 SELECT setval(pg_get_serial_sequence('tarifas_envio', 'id'), COALESCE((SELECT MAX(id) FROM tarifas_envio), 1), (SELECT COUNT(*) > 0 FROM tarifas_envio));
-SELECT setval(pg_get_serial_sequence('users', 'id'), COALESCE((SELECT MAX(id) FROM users), 1), (SELECT COUNT(*) > 0 FROM users));
+SELECT setval(pg_get_serial_sequence('usuarios', 'id'), COALESCE((SELECT MAX(id) FROM usuarios), 1), (SELECT COUNT(*) > 0 FROM usuarios));
 COMMIT;

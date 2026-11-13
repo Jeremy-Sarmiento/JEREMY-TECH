@@ -233,12 +233,12 @@ final class PedidoEvento
     /** @param array<string, mixed> $pedido */
     private static function detalleEnvio(array $pedido): string
     {
-        $courier = trim((string) ($pedido['courier'] ?? ''));
+        $mensajeria = trim((string) ($pedido['mensajeria'] ?? ''));
         $guia = trim((string) ($pedido['guia_numero'] ?? ''));
         $partes = [];
 
-        if ($courier !== '') {
-            $partes[] = $courier;
+        if ($mensajeria !== '') {
+            $partes[] = $mensajeria;
         }
         if ($guia !== '') {
             $partes[] = 'Guía ' . $guia;

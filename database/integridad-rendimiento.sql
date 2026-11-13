@@ -71,14 +71,14 @@ FROM (VALUES
   ('productos', 'ck_productos_precio', 'CHECK (precio_pen BETWEEN 0 AND 99999999.99)'),
   ('resenas', 'ck_resenas_calificacion', 'CHECK (calificacion BETWEEN 1 AND 5)'),
   ('tarifas_envio', 'ck_tarifas_envio_costo', 'CHECK (costo BETWEEN 0 AND 99999999.99)'),
-  ('users', 'ck_users_comision', 'CHECK (comision_porcentaje BETWEEN 0 AND 100)'),
+  ('usuarios', 'ck_usuarios_comision', 'CHECK (comision_porcentaje BETWEEN 0 AND 100)'),
   -- Las cuentas usan baja logica. El inventario necesita el producto al devolver
   -- stock: con ventas se archiva (ProductoVendedor::eliminar), no se borra.
   -- NO CASCADE en pedidos, detalles o pagos: nunca eliminar dinero/historial.
   -- DEFERRABLE permite importar el seed sin reordenarlo: psql -1 con
   -- -c 'SET CONSTRAINTS ALL DEFERRED' -f database/jeremy_tech_datos.sql.
   -- INITIALLY IMMEDIATE mantiene las comprobaciones normales por sentencia.
-  ('pedidos', 'fk_pedidos_cliente', 'FOREIGN KEY (cliente_id) REFERENCES public.users (id) DEFERRABLE INITIALLY IMMEDIATE'),
+  ('pedidos', 'fk_pedidos_cliente', 'FOREIGN KEY (cliente_id) REFERENCES public.usuarios (id) DEFERRABLE INITIALLY IMMEDIATE'),
   ('detalle_pedido', 'fk_detalle_pedido', 'FOREIGN KEY (pedido_id) REFERENCES public.pedidos (id) DEFERRABLE INITIALLY IMMEDIATE'),
   ('detalle_pedido', 'fk_detalle_producto', 'FOREIGN KEY (producto_id) REFERENCES public.productos (id) DEFERRABLE INITIALLY IMMEDIATE'),
   ('pagos', 'fk_pagos_pedido', 'FOREIGN KEY (pedido_id) REFERENCES public.pedidos (id) DEFERRABLE INITIALLY IMMEDIATE'),
@@ -133,7 +133,7 @@ ALTER TABLE public.producto_variantes DROP CONSTRAINT IF EXISTS ck_producto_vari
 ALTER TABLE public.productos DROP CONSTRAINT IF EXISTS ck_productos_stock, DROP CONSTRAINT IF EXISTS ck_productos_precio;
 ALTER TABLE public.resenas DROP CONSTRAINT IF EXISTS ck_resenas_calificacion;
 ALTER TABLE public.tarifas_envio DROP CONSTRAINT IF EXISTS ck_tarifas_envio_costo;
-ALTER TABLE public.users DROP CONSTRAINT IF EXISTS ck_users_comision;
+ALTER TABLE public.usuarios DROP CONSTRAINT IF EXISTS ck_usuarios_comision;
 DROP INDEX CONCURRENTLY IF EXISTS public.idx_pagos_pedido_id_desc;
 DROP INDEX CONCURRENTLY IF EXISTS public.idx_pedidos_cliente_id_desc;
 DROP INDEX CONCURRENTLY IF EXISTS public.idx_detalle_pedido_pedido;

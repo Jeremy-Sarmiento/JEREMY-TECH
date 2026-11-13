@@ -7,7 +7,7 @@ namespace Model;
 /**
  * Modelo Carrito (Jeremy Tech MVC).
  * Capa de Datos / Negocio: sesión para invitados, BD por cuenta y registro
- * transaccional de pedidos en las tablas relacionales (users, pedidos,
+ * transaccional de pedidos en las tablas relacionales (usuarios, pedidos,
  * detalle_pedido, pagos).
  */
 class Carrito
@@ -72,7 +72,7 @@ class Carrito
             'SELECT i.producto_id, i.variante_id, i.cantidad
                FROM carrito_items i
                JOIN carritos c ON c.id = i.carrito_id
-               JOIN users u ON u.id = c.cliente_id AND u.activo = 1 AND u.deleted_at IS NULL
+               JOIN usuarios u ON u.id = c.cliente_id AND u.activo = 1 AND u.eliminado_en IS NULL
                JOIN productos p ON p.id = i.producto_id AND p.activo = 1 AND p.archivado_en IS NULL
                     AND ' . Producto::VENDEDOR_HABILITADO . '
           LEFT JOIN producto_variantes v ON v.id = i.variante_id AND v.producto_id = p.id AND v.activo = 1
@@ -236,7 +236,7 @@ class Carrito
     {
         $stmt = $pdo->prepare(
             'INSERT INTO carritos (cliente_id)
-             SELECT id FROM users WHERE id = ? AND activo = 1 AND deleted_at IS NULL
+             SELECT id FROM usuarios WHERE id = ? AND activo = 1 AND eliminado_en IS NULL
              ON CONFLICT (cliente_id) DO UPDATE SET actualizado_en = NOW() RETURNING id'
         );
         $stmt->execute([$clienteId]);
@@ -522,7 +522,7 @@ class Carrito
      * Registra el pedido completo de forma atómica:
      * pedido -> detalle_pedido -> pago. Exige una cuenta iniciada: si la sesión
      * es de invitado lanza una excepción (el checkout es obligatorio con
-     * sesión). No escribe en `users`: los datos de contacto y de SUNAT son del
+     * sesión). No escribe en `usuarios`: los datos de contacto y de SUNAT son del
      * pedido, no del perfil.
      *
      * @param array<string, mixed> $pago     metodo, comprobante, documento,
@@ -862,7 +862,7 @@ class Carrito
 
         $stmtPedidos = $pdo->prepare(
             "SELECT id, cliente_id, total_pen, subtotal, igv_monto, envio_costo,
-                    envio_zona, descuento_aplicado, direccion_entrega, courier,
+                    envio_zona, descuento_aplicado, direccion_entrega, mensajeria,
                     guia_numero, fecha_envio, estado, creado_en
                FROM pedidos
               WHERE $where
@@ -899,9 +899,9 @@ class Carrito
         $stmtDetalles = $pdo->prepare(
             "SELECT dp.pedido_id, dp.producto_id, dp.producto_nombre, dp.cantidad,
                     dp.precio_unitario_pen, dp.variante_id, dp.variante_nombre,
-                    dp.vendedor_id, vu.name AS vendedor_nombre
+                    dp.vendedor_id, vu.nombre AS vendedor_nombre
                FROM detalle_pedido dp
-          LEFT JOIN users vu ON vu.id = dp.vendedor_id
+          LEFT JOIN usuarios vu ON vu.id = dp.vendedor_id
               WHERE dp.pedido_id IN ($marcas)
               ORDER BY dp.id"
         );

@@ -50,7 +50,7 @@ class CatalogoIntegridadTest extends TestCase
 
     public function testCatalogoNoMezclaOfertasDeVendedoresDistintos(): void
     {
-        testPdo()->exec("INSERT INTO users (id, name, email, usuario, password, rol, activo, created_at)
+        testPdo()->exec("INSERT INTO usuarios (id, nombre, email, usuario, password, rol, activo, creado_en)
             VALUES (18, 'Empresa', 'empresa@example.com', 'empresa', '!', 'vendedor', 1, NOW())");
         testPdo()->exec("INSERT INTO productos (id, slug, categoria, nombre, especificaciones, precio_pen, stock, vendedor_id)
             VALUES (10, 'mismo-2', 'Celulares', 'Mismo', '', 100, 5, 2),
@@ -120,7 +120,7 @@ class CatalogoIntegridadTest extends TestCase
 
     public function testCambioDeRolRetiraLaPublicacionPeroConservaElProducto(): void
     {
-        testPdo()->exec("UPDATE users SET rol = 'cliente' WHERE id = 2");
+        testPdo()->exec("UPDATE usuarios SET rol = 'cliente' WHERE id = 2");
         $this->assertSame([1], array_column(Producto::catalogoFiltrado(), 'id'));
         $this->assertNull(Producto::precioDe(2, null, 1));
         $this->assertNotNull(Producto::porId(2));
@@ -128,9 +128,9 @@ class CatalogoIntegridadTest extends TestCase
 
     public function testVendedorInactivoODadoDeBajaTampocoPuedeVender(): void
     {
-        testPdo()->exec('UPDATE users SET activo = 0 WHERE id = 2');
+        testPdo()->exec('UPDATE usuarios SET activo = 0 WHERE id = 2');
         $this->assertNull(Producto::precioDe(2, null, 1));
-        testPdo()->exec('UPDATE users SET activo = 1, deleted_at = NOW() WHERE id = 2');
+        testPdo()->exec('UPDATE usuarios SET activo = 1, eliminado_en = NOW() WHERE id = 2');
         $this->assertSame([1], array_column(Producto::catalogoFiltrado(), 'id'));
     }
 
@@ -138,7 +138,7 @@ class CatalogoIntegridadTest extends TestCase
     {
         $this->assertTrue(Cuenta::iniciarSesion('cliente@example.com', 'cliente'));
         Carrito::agregar('2', 1);
-        testPdo()->exec("UPDATE users SET rol = 'cliente' WHERE id = 2");
+        testPdo()->exec("UPDATE usuarios SET rol = 'cliente' WHERE id = 2");
         $this->assertNull(Carrito::checkout(['modalidad' => 'tienda', 'metodo' => 'Tarjeta']));
         $this->assertSame(0, (int) testPdo()->query('SELECT count(*) FROM pedidos')->fetchColumn());
         $this->assertSame(10, (int) testPdo()->query('SELECT stock FROM productos WHERE id = 2')->fetchColumn());
@@ -147,12 +147,12 @@ class CatalogoIntegridadTest extends TestCase
     public function testCarritoInvitadoNoCuentaLineasIndisponiblesNiBorraLaSesion(): void
     {
         Carrito::agregar('2', 2);
-        testPdo()->exec('UPDATE users SET activo = 0 WHERE id = 2');
+        testPdo()->exec('UPDATE usuarios SET activo = 0 WHERE id = 2');
         $this->assertSame([], Carrito::items());
         $this->assertSame(0, Carrito::totalItems());
         $this->assertTrue(Carrito::estaVacio());
         $this->assertSame(['2' => 2], $_SESSION['carrito']);
-        testPdo()->exec('UPDATE users SET activo = 1 WHERE id = 2');
+        testPdo()->exec('UPDATE usuarios SET activo = 1 WHERE id = 2');
         $this->assertSame(['2' => 2], Carrito::items());
     }
 
@@ -160,12 +160,12 @@ class CatalogoIntegridadTest extends TestCase
     {
         Cuenta::iniciarSesion('cliente@example.com', 'cliente');
         Carrito::agregar('2', 2);
-        testPdo()->exec("UPDATE users SET rol = 'cliente' WHERE id = 2");
+        testPdo()->exec("UPDATE usuarios SET rol = 'cliente' WHERE id = 2");
         $this->assertSame([], Carrito::items());
         $this->assertSame(0, Carrito::totalItems());
         $this->assertTrue(Carrito::estaVacio());
         $this->assertSame(2, (int) testPdo()->query('SELECT cantidad FROM carrito_items')->fetchColumn());
-        testPdo()->exec("UPDATE users SET rol = 'vendedor' WHERE id = 2");
+        testPdo()->exec("UPDATE usuarios SET rol = 'vendedor' WHERE id = 2");
         $this->assertSame(['2' => 2], Carrito::items());
     }
 
@@ -174,7 +174,7 @@ class CatalogoIntegridadTest extends TestCase
         $this->assertTrue(Cuenta::iniciarSesion('cliente@example.com', 'cliente'));
         Carrito::agregar('2', 1);
         $lineas = Carrito::lineas();
-        testPdo()->exec("UPDATE users SET rol = 'cliente' WHERE id = 2");
+        testPdo()->exec("UPDATE usuarios SET rol = 'cliente' WHERE id = 2");
         $pdo = conexion();
         $pdo->beginTransaction();
         try {

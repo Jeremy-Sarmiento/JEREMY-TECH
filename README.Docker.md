@@ -62,7 +62,7 @@ Para convertir una cuenta existente en administrador, cambia su rol en la base:
 
 ```bash
 docker compose exec -T db psql -U postgres -d jeremy_tech \
-  -c "UPDATE users SET rol='admin', activo=1 WHERE email='tu@correo.com';"
+  -c "UPDATE usuarios SET rol='admin', activo=1 WHERE email='tu@correo.com';"
 ```
 
 Para crear el administrador o cambiar su contraseña:

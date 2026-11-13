@@ -119,12 +119,12 @@ final class Favorito
             'SELECT p.id, p.slug, p.nombre, p.categoria, p.precio_pen, p.imagen,
                     (EXISTS (SELECT 1 FROM producto_imagenes pi WHERE pi.producto_id = p.id)) AS imagen_db,
                     p.stock, p.activo, p.vendedor_id,
-                    v.name AS vendedor_nombre, v.usuario AS vendedor_usuario,
+                    v.nombre AS vendedor_nombre, v.usuario AS vendedor_usuario,
                     v.verificado AS vendedor_verificado,
                     f.creado_en AS guardado_en
                FROM favoritos f
                JOIN productos p ON p.id = f.producto_id
-          LEFT JOIN users v ON v.id = p.vendedor_id AND v.deleted_at IS NULL
+          LEFT JOIN usuarios v ON v.id = p.vendedor_id AND v.eliminado_en IS NULL
               WHERE f.cliente_id = ?
            ORDER BY f.id DESC'
         );

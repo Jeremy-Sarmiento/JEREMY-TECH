@@ -14,21 +14,21 @@ class AdminInicialTest extends TestCase
         [$codigo, $salida] = $this->ejecutar('admin@example.com', 'Nueva-Clave-2026!');
         $this->assertSame(0, $codigo, $salida);
         $this->assertStringNotContainsString('Nueva-Clave-2026!', $salida);
-        $hash = testPdo()->query('SELECT password FROM users WHERE id = 1')->fetchColumn();
+        $hash = testPdo()->query('SELECT password FROM usuarios WHERE id = 1')->fetchColumn();
         $this->assertTrue(password_verify('Nueva-Clave-2026!', $hash));
         $this->assertFalse(password_verify('admin', $hash));
 
         [$codigo] = $this->ejecutar('cliente@example.com', 'Nueva-Clave-2026!');
         $this->assertSame(1, $codigo);
-        $this->assertSame('cliente', testPdo()->query('SELECT rol FROM users WHERE id = 3')->fetchColumn());
+        $this->assertSame('cliente', testPdo()->query('SELECT rol FROM usuarios WHERE id = 3')->fetchColumn());
 
         [$codigo] = $this->ejecutar('nuevo-admin@example.com', '12345678');
         $this->assertSame(1, $codigo);
-        $this->assertEquals(0, testPdo()->query("SELECT COUNT(*) FROM users WHERE email = 'nuevo-admin@example.com'")->fetchColumn());
+        $this->assertEquals(0, testPdo()->query("SELECT COUNT(*) FROM usuarios WHERE email = 'nuevo-admin@example.com'")->fetchColumn());
 
         [$codigo, $salida] = $this->ejecutar('nuevo-admin@example.com', 'Nueva-Clave-2026!', 'nuevo-admin');
         $this->assertSame(0, $codigo, $salida);
-        $this->assertSame('admin', testPdo()->query("SELECT rol FROM users WHERE email = 'nuevo-admin@example.com'")->fetchColumn());
+        $this->assertSame('admin', testPdo()->query("SELECT rol FROM usuarios WHERE email = 'nuevo-admin@example.com'")->fetchColumn());
     }
 
     private function ejecutar(string $email, string $clave, string $usuario = 'admin'): array

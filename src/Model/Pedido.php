@@ -88,7 +88,7 @@ class Pedido
         }
 
         $stmt = conexion()->prepare(
-            'SELECT id, cliente_id, total_pen, estado, envio_zona, courier,
+            'SELECT id, cliente_id, total_pen, estado, envio_zona, mensajeria,
                     guia_numero, fecha_envio, creado_en
                FROM pedidos
               WHERE id = ? AND cliente_id = ?

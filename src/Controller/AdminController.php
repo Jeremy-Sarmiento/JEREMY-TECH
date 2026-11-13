@@ -276,11 +276,11 @@ final class AdminController
             $totales['ventas'] = (float) $q->fetchColumn();
 
             $q = $pdo->prepare(
-                'SELECT p.id, p.estado, p.total_pen, p.creado_en, c.name AS nombre, c.apellidos
+                'SELECT p.id, p.estado, p.total_pen, p.creado_en, c.nombre, c.apellidos
                    FROM pedidos p
-                   JOIN users c ON c.id = p.cliente_id
+                   JOIN usuarios c ON c.id = p.cliente_id
                    JOIN detalle_pedido dp ON dp.pedido_id = p.id AND dp.vendedor_id = ?
-                  GROUP BY p.id, c.name, c.apellidos
+                  GROUP BY p.id, c.nombre, c.apellidos
                   ORDER BY p.id DESC LIMIT 8'
             );
             $q->execute([$vendedorId]);
@@ -298,18 +298,18 @@ final class AdminController
             'productos'  => (int) $pdo->query('SELECT COUNT(*) FROM productos')->fetchColumn(),
             'pedidos'    => (int) $pdo->query('SELECT COUNT(*) FROM pedidos')->fetchColumn(),
             'pendientes' => (int) $pdo->query("SELECT COUNT(*) FROM pedidos WHERE estado = 'Pendiente'")->fetchColumn(),
-            'usuarios'   => (int) $pdo->query('SELECT COUNT(*) FROM users WHERE deleted_at IS NULL')->fetchColumn(),
+            'usuarios'   => (int) $pdo->query('SELECT COUNT(*) FROM usuarios WHERE eliminado_en IS NULL')->fetchColumn(),
             'cupones'    => (int) $pdo->query('SELECT COUNT(*) FROM cupones')->fetchColumn(),
             'auditoria'  => (int) $pdo->query('SELECT COUNT(*) FROM auditoria_admin')->fetchColumn(),
             'vendedores' => (int) $pdo->query(
-                "SELECT COUNT(*) FROM users WHERE rol = 'vendedor' AND deleted_at IS NULL"
+                "SELECT COUNT(*) FROM usuarios WHERE rol = 'vendedor' AND eliminado_en IS NULL"
             )->fetchColumn(),
             'comisiones' => (float) $pdo->query('SELECT COALESCE(SUM(monto_comision), 0) FROM comisiones')->fetchColumn(),
         ];
 
         $ultimos = $pdo->query(
-            'SELECT p.id, p.estado, p.total_pen, p.creado_en, c.name AS nombre, c.apellidos
-             FROM pedidos p JOIN users c ON c.id = p.cliente_id
+            'SELECT p.id, p.estado, p.total_pen, p.creado_en, c.nombre, c.apellidos
+             FROM pedidos p JOIN usuarios c ON c.id = p.cliente_id
              ORDER BY p.id DESC LIMIT 8'
         )->fetchAll();
 
@@ -511,7 +511,7 @@ final class AdminController
                 }
                 if ($vendedorId !== null) {
                     $qVendedor = $pdo->prepare(
-                        "SELECT id FROM users WHERE id = ? AND rol = 'vendedor' AND activo = 1 AND deleted_at IS NULL FOR SHARE"
+                        "SELECT id FROM usuarios WHERE id = ? AND rol = 'vendedor' AND activo = 1 AND eliminado_en IS NULL FOR SHARE"
                     );
                     $qVendedor->execute([$vendedorId]);
                     if (!$qVendedor->fetchColumn()) {
@@ -630,11 +630,11 @@ final class AdminController
         [$alcance, $params] = \Model\Producto::alcancePanel();
         $palabra = trim((string) ($_GET['q'] ?? ''));
         $sql = 'SELECT p.*, m.nombre AS marca_nombre, g.nombre AS garantia_nombre,
-                       v.name AS vendedor_nombre, v.verificado AS vendedor_verificado
+                       v.nombre AS vendedor_nombre, v.verificado AS vendedor_verificado
                 FROM productos p
                 LEFT JOIN marcas m ON m.id = p.marca_id
                 LEFT JOIN garantias g ON g.id = p.garantia_id
-                LEFT JOIN users v ON v.id = p.vendedor_id AND v.deleted_at IS NULL
+                LEFT JOIN usuarios v ON v.id = p.vendedor_id AND v.eliminado_en IS NULL
                WHERE 1=1 ' . $alcance;
         if ($palabra !== '') {
             $sql .= ' AND p.nombre ILIKE ?';
@@ -1164,7 +1164,7 @@ final class AdminController
         if ($subRuta === 'pedidos/estado' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $id      = (int) ($_POST['id'] ?? 0);
             $estado  = (string) ($_POST['estado'] ?? '');
-            $courier = trim((string) ($_POST['courier'] ?? ''));
+            $mensajeria = trim((string) ($_POST['mensajeria'] ?? ''));
             $guia    = trim((string) ($_POST['guia_numero'] ?? ''));
 
             // El estado es global: un vendedor no puede mover líneas ajenas ni de plataforma.
@@ -1206,17 +1206,17 @@ final class AdminController
                 if ($esRecojo) {
                     // El recojo no tiene courier ni guía: el hito se muestra
                     // como "Listo para recojo" en el historial del cliente.
-                    $courier = 'Recojo en tienda';
+                    $mensajeria = 'Recojo en tienda';
                     $guia = '';
-                } elseif ($courier === '' || $guia === '') {
+                } elseif ($mensajeria === '' || $guia === '') {
                     $this->flash('Para marcar el pedido como Enviado debes indicar courier y número de guía.', true);
                     header('Location: ?ruta=admin/pedidos');
                     exit;
                 }
-                $courier = mb_substr($courier, 0, 80);
+                $mensajeria = mb_substr($mensajeria, 0, 80);
                 $guia = mb_substr($guia, 0, 80);
             } else {
-                $courier = '';
+                $mensajeria = '';
                 $guia = '';
             }
 
@@ -1231,7 +1231,7 @@ final class AdminController
                 'Pagado'    => 'Pago confirmado desde el panel.',
                 'Enviado'   => $esRecojo
                     ? 'Pedido listo para recojo en tienda.'
-                    : 'Courier: ' . $courier . ' · Guía: ' . $guia,
+                    : 'Courier: ' . $mensajeria . ' · Guía: ' . $guia,
                 'Entregado' => 'Pedido entregado al cliente.',
                 'Cancelado' => 'Pedido cancelado desde el panel.',
                 default     => '',
@@ -1245,11 +1245,11 @@ final class AdminController
                 if ($estado === 'Enviado') {
                     $cambio = $pdo->prepare(
                         'UPDATE pedidos
-                            SET estado = ?, courier = ?, guia_numero = ?,
+                            SET estado = ?, mensajeria = ?, guia_numero = ?,
                                 fecha_envio = COALESCE(fecha_envio, NOW())
                           WHERE id = ? AND estado = ?'
                     );
-                    $cambio->execute([$estado, $courier, $guia, $id, $actual]);
+                    $cambio->execute([$estado, $mensajeria, $guia, $id, $actual]);
                 } else {
                     $cambio = $pdo->prepare('UPDATE pedidos SET estado = ? WHERE id = ? AND estado = ?');
                     $cambio->execute([$estado, $id, $actual]);
@@ -1335,7 +1335,7 @@ final class AdminController
     }
 
     // ------------------------------------------------------------ //
-    //  Usuarios (identidad unificada en `users` — Etapa 4)
+    //  Usuarios (identidad unificada en `usuarios` — Etapa 4)
     // ------------------------------------------------------------ //
 
     /** Roles que puede asignar el panel. */
@@ -1345,8 +1345,8 @@ final class AdminController
     private function esUltimoAdminActivo(\PDO $pdo, int $id): bool
     {
         $stmt = $pdo->prepare(
-            "SELECT COUNT(*) FROM users
-              WHERE id <> ? AND rol = 'admin' AND activo = 1 AND deleted_at IS NULL"
+            "SELECT COUNT(*) FROM usuarios
+              WHERE id <> ? AND rol = 'admin' AND activo = 1 AND eliminado_en IS NULL"
         );
         $stmt->execute([$id]);
         return (int) $stmt->fetchColumn() === 0;
@@ -1355,7 +1355,7 @@ final class AdminController
     /** @return array<string, mixed>|null */
     private function usuarioPorId(\PDO $pdo, int $id): ?array
     {
-        $stmt = $pdo->prepare('SELECT * FROM users WHERE id = ? AND deleted_at IS NULL LIMIT 1');
+        $stmt = $pdo->prepare('SELECT * FROM usuarios WHERE id = ? AND eliminado_en IS NULL LIMIT 1');
         $stmt->execute([$id]);
         $fila = $stmt->fetch();
         return $fila ?: null;
@@ -1378,7 +1378,7 @@ final class AdminController
                     && $this->esUltimoAdminActivo($pdo, $id)) {
                     $this->flash('No puedes desactivar al único administrador activo.', true);
                 } else {
-                    $pdo->prepare('UPDATE users SET activo = CASE WHEN activo = 1 THEN 0 ELSE 1 END WHERE id = ?')
+                    $pdo->prepare('UPDATE usuarios SET activo = CASE WHEN activo = 1 THEN 0 ELSE 1 END WHERE id = ?')
                         ->execute([$id]);
                     $this->auditar($admin, 'usuarios/estado', $id, 'Cambió el estado del usuario #' . $id);
                     $this->flash('Estado actualizado.');
@@ -1399,7 +1399,7 @@ final class AdminController
                 } elseif (($fila['rol'] ?? '') === 'admin' && $this->esUltimoAdminActivo($pdo, $id)) {
                     $this->flash('No puedes eliminar al único administrador activo.', true);
                 } else {
-                    $pdo->prepare('UPDATE users SET deleted_at = NOW(), activo = 0 WHERE id = ?')
+                    $pdo->prepare('UPDATE usuarios SET eliminado_en = NOW(), activo = 0 WHERE id = ?')
                         ->execute([$id]);
                     $this->auditar($admin, 'usuarios/eliminar', $id, 'Dio de baja al usuario #' . $id);
                     $this->flash('Usuario dado de baja.');
@@ -1461,7 +1461,7 @@ final class AdminController
                     }
 
                     if ($clave !== '') {
-                        $pdo->prepare('UPDATE users SET name = ?, apellidos = ?, email = ?, usuario = ?, password = ?, rol = ?, tipo = ?, activo = ? WHERE id = ?')
+                        $pdo->prepare('UPDATE usuarios SET nombre = ?, apellidos = ?, email = ?, usuario = ?, password = ?, rol = ?, tipo = ?, activo = ? WHERE id = ?')
                             ->execute([$nombre, $apellidos, $email, $usuario !== '' ? $usuario : null, password_hash($clave, PASSWORD_DEFAULT), $rol, $tipo, $activo, $id]);
 
                         // Una contraseña nueva invalida los enlaces de
@@ -1469,13 +1469,13 @@ final class AdminController
                         $pdo->prepare('UPDATE tokens_recuperacion SET usado = 1 WHERE usuario_id = ? AND usado = 0')
                             ->execute([$id]);
                     } else {
-                        $pdo->prepare('UPDATE users SET name = ?, apellidos = ?, email = ?, usuario = ?, rol = ?, tipo = ?, activo = ? WHERE id = ?')
+                        $pdo->prepare('UPDATE usuarios SET nombre = ?, apellidos = ?, email = ?, usuario = ?, rol = ?, tipo = ?, activo = ? WHERE id = ?')
                             ->execute([$nombre, $apellidos, $email, $usuario !== '' ? $usuario : null, $rol, $tipo, $activo, $id]);
                     }
                     $this->auditar($admin, 'usuarios/editar', $id, 'Editó al usuario "' . $nombre . '"');
                     $this->flash('Usuario actualizado.');
                 } else {
-                    $pdo->prepare('INSERT INTO users (name, apellidos, email, usuario, password, rol, tipo, activo)
+                    $pdo->prepare('INSERT INTO usuarios (nombre, apellidos, email, usuario, password, rol, tipo, activo)
                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
                         ->execute([
                             $nombre,
@@ -1500,8 +1500,8 @@ final class AdminController
 
         $this->vista('usuarios', [
             'usuarios' => $pdo->query(
-                "SELECT id, name, apellidos, email, usuario, rol, tipo, activo, ultimo_ingreso, created_at
-                 FROM users WHERE deleted_at IS NULL
+                "SELECT id, nombre, apellidos, email, usuario, rol, tipo, activo, ultimo_ingreso, creado_en
+                 FROM usuarios WHERE eliminado_en IS NULL
                  ORDER BY CASE rol WHEN 'admin' THEN 0 WHEN 'vendedor' THEN 1 ELSE 2 END, id"
             )->fetchAll(),
         ]);
@@ -1512,14 +1512,14 @@ final class AdminController
      */
     private function ultimoErrorFlash(\PDO $pdo, int $id, string $email, string $usuario): ?string
     {
-        $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ? AND id <> ? AND deleted_at IS NULL LIMIT 1');
+        $stmt = $pdo->prepare('SELECT id FROM usuarios WHERE email = ? AND id <> ? AND eliminado_en IS NULL LIMIT 1');
         $stmt->execute([$email, $id]);
         if ($stmt->fetch()) {
             return 'Ya existe una cuenta con ese correo.';
         }
 
         if ($usuario !== '') {
-            $stmt = $pdo->prepare('SELECT id FROM users WHERE usuario = ? AND id <> ? AND deleted_at IS NULL LIMIT 1');
+            $stmt = $pdo->prepare('SELECT id FROM usuarios WHERE usuario = ? AND id <> ? AND eliminado_en IS NULL LIMIT 1');
             $stmt->execute([$usuario, $id]);
             if ($stmt->fetch()) {
                 return 'Ese nombre de usuario ya está en uso.';
@@ -1566,8 +1566,8 @@ final class AdminController
             }
 
             $pdo->prepare(
-                'UPDATE users SET comision_porcentaje = ?, verificado = ?, activo = ?,
-                        updated_at = NOW() WHERE id = ?'
+                'UPDATE usuarios SET comision_porcentaje = ?, verificado = ?, activo = ?,
+                        actualizado_en = NOW() WHERE id = ?'
             )->execute([round((float) $porcentaje, 2), $verificado, $activo, $id]);
 
             $this->auditar(
@@ -1618,10 +1618,10 @@ final class AdminController
 
         $filtroVendedor = (int) ($_GET['vendedor'] ?? 0);
         $sql = 'SELECT c.*, p.estado, p.creado_en AS pedido_fecha,
-                       u.name AS vendedor_nombre, u.usuario AS vendedor_usuario
+                       u.nombre AS vendedor_nombre, u.usuario AS vendedor_usuario
                   FROM comisiones c
                   JOIN pedidos p ON p.id = c.pedido_id
-                  JOIN users u ON u.id = c.vendedor_id
+                  JOIN usuarios u ON u.id = c.vendedor_id
                  WHERE 1=1';
         $params = [];
         if ($filtroVendedor > 0) {

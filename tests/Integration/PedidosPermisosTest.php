@@ -15,8 +15,8 @@ final class PedidosPermisosTest extends TestCase
         resetTestDb();
         \Security\Proteccion::iniciarSesion();
         $_SESSION = [];
-        testPdo()->exec("INSERT INTO users (id, name, email, rol, password)
-            SELECT 6, 'Otro vendedor', 'otro@example.test', 'vendedor', password FROM users WHERE id = 2");
+        testPdo()->exec("INSERT INTO usuarios (id, nombre, email, rol, password)
+            SELECT 6, 'Otro vendedor', 'otro@example.test', 'vendedor', password FROM usuarios WHERE id = 2");
     }
 
     protected function tearDown(): void
@@ -105,7 +105,7 @@ final class PedidosPermisosTest extends TestCase
         $codigo = 'require ' . var_export(__DIR__ . '/../bootstrap.php', true) . ';'
             . '\Model\Administrador::iniciarSesion(' . var_export($usuario, true) . ', ' . var_export($usuario, true) . ');'
             . '$_SERVER["REQUEST_METHOD"] = "POST";'
-            . '$_POST = ' . var_export(['id' => 1, 'estado' => $estado, 'courier' => 'Prueba', 'guia_numero' => 'SIM-1'], true) . ';'
+            . '$_POST = ' . var_export(['id' => 1, 'estado' => $estado, 'mensajeria' => 'Prueba', 'guia_numero' => 'SIM-1'], true) . ';'
             . 'register_shutdown_function(function () { echo json_encode($_SESSION["admin_flash"] ?? null); });'
             . '(new \Controller\AdminController())->atender("pedidos/estado");';
         $proceso = proc_open([PHP_BINARY, '-r', $codigo], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);

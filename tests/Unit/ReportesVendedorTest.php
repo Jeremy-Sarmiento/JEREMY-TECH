@@ -24,7 +24,7 @@ class ReportesVendedorTest extends TestCase
 
         // Pedido cobrado del mes actual: 2 unidades de A.
         $pdo->exec(
-            "INSERT INTO pedidos (id, cliente_id, total_pen, subtotal, igv_monto, envio_costo, envio_zona, comprobante_documento, courier, estado, creado_en)
+            "INSERT INTO pedidos (id, cliente_id, total_pen, subtotal, igv_monto, envio_costo, envio_zona, comprobante_documento, mensajeria, estado, creado_en)
              VALUES (1, 3, 236.00, 200.00, 36.00, 0, 'Lima', '', '', 'Pagado', NOW())"
         );
         $pdo->exec(
@@ -38,7 +38,7 @@ class ReportesVendedorTest extends TestCase
 
         // Pedido cobrado de hace dos meses: 1 unidad de B.
         $pdo->exec(
-            "INSERT INTO pedidos (id, cliente_id, total_pen, subtotal, igv_monto, envio_costo, envio_zona, comprobante_documento, courier, estado, creado_en)
+            "INSERT INTO pedidos (id, cliente_id, total_pen, subtotal, igv_monto, envio_costo, envio_zona, comprobante_documento, mensajeria, estado, creado_en)
              VALUES (2, 4, 59.00, 50.00, 9.00, 0, 'Lima', '', '', 'Pagado', NOW() - INTERVAL '2 months')"
         );
         $pdo->exec(
@@ -52,7 +52,7 @@ class ReportesVendedorTest extends TestCase
 
         // Pedido cancelado: no debe aparecer en ningún reporte.
         $pdo->exec(
-            "INSERT INTO pedidos (id, cliente_id, total_pen, subtotal, igv_monto, envio_costo, envio_zona, comprobante_documento, courier, estado, creado_en)
+            "INSERT INTO pedidos (id, cliente_id, total_pen, subtotal, igv_monto, envio_costo, envio_zona, comprobante_documento, mensajeria, estado, creado_en)
              VALUES (3, 3, 118.00, 100.00, 18.00, 0, 'Lima', '', '', 'Cancelado', NOW())"
         );
         $pdo->exec(

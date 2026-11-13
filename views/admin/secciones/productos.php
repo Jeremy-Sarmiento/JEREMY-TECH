@@ -8,11 +8,11 @@ $vendedorActual = $esVendedor ? \Model\Administrador::idSesion() : null;
 
 $palabra = trim((string) ($_GET['q'] ?? ''));
 $sql = 'SELECT p.*, m.nombre AS marca_nombre, g.nombre AS garantia_nombre,
-               v.name AS vendedor_nombre, v.verificado AS vendedor_verificado
+               v.nombre AS vendedor_nombre, v.verificado AS vendedor_verificado
         FROM productos p
         LEFT JOIN marcas m ON m.id = p.marca_id
         LEFT JOIN garantias g ON g.id = p.garantia_id
-        LEFT JOIN users v ON v.id = p.vendedor_id AND v.deleted_at IS NULL
+        LEFT JOIN usuarios v ON v.id = p.vendedor_id AND v.eliminado_en IS NULL
        WHERE 1=1 ' . $alcance;
 $params = $paramsAlcance;
 if ($palabra !== '') {
@@ -118,7 +118,7 @@ $e = static fn($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
                         <option value="">La tienda (plataforma)</option>
                         <?php foreach ($vendedores as $v): ?>
                             <option value="<?= (int) $v['id'] ?>" <?= (int) ($editando['vendedor_id'] ?? 0) === (int) $v['id'] ? 'selected' : '' ?>>
-                                <?= $e($v['name']) ?> — <?= $e($v['email']) ?>
+                                <?= $e($v['nombre']) ?> — <?= $e($v['email']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>

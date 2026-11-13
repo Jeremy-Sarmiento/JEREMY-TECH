@@ -41,7 +41,7 @@ class RegistroValidacionTest extends TestCase
 
     public function testRespuestasGuardadasConLaNormalizacionAntiguaSiguenFuncionando(): void
     {
-        testPdo()->prepare('UPDATE users SET respuesta_secreta_hash = ? WHERE id = 3')
+        testPdo()->prepare('UPDATE usuarios SET respuesta_secreta_hash = ? WHERE id = 3')
             ->execute([password_hash(strtolower('ÁNCASH'), PASSWORD_DEFAULT)]);
         $this->assertNull(Cuenta::cambiarPorPregunta('cliente@example.com', 'ÁNCASH', 'Nueva-Clave-Segura-2026!', 'Nueva-Clave-Segura-2026!'));
     }
@@ -50,7 +50,7 @@ class RegistroValidacionTest extends TestCase
     {
         $codigo = 'require ' . var_export(__DIR__ . '/../bootstrap.php', true) . ';'
             . '\Model\Cuenta::iniciarSesion("cliente@example.com", "cliente");'
-            . 'testPdo()->exec("UPDATE users SET activo = 0 WHERE id = 3");'
+            . 'testPdo()->exec("UPDATE usuarios SET activo = 0 WHERE id = 3");'
             . 'register_shutdown_function(function () { echo json_encode(["cliente_id" => \Model\Cuenta::idSesion()]); });'
             . '(new \Controller\CuentaController())->perfil();';
         $proceso = proc_open([PHP_BINARY, '-r', $codigo], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);

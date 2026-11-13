@@ -7,10 +7,10 @@ $pdo = conexion();
 
 $filtroVendedor = (int) ($_GET['vendedor'] ?? 0);
 $sql = 'SELECT c.*, (c.monto_comision + c.monto_vendedor) AS monto_venta, p.estado, p.creado_en AS pedido_fecha,
-               u.name AS vendedor_nombre, u.usuario AS vendedor_usuario
+               u.nombre AS vendedor_nombre, u.usuario AS vendedor_usuario
           FROM comisiones c
           JOIN pedidos p ON p.id = c.pedido_id
-          JOIN users u ON u.id = c.vendedor_id
+          JOIN usuarios u ON u.id = c.vendedor_id
          WHERE 1=1';
 $params = [];
 if ($filtroVendedor > 0) {
@@ -55,7 +55,7 @@ foreach ($comisiones as $c) {
                     <option value="0">Todos los vendedores</option>
                     <?php foreach ($vendedores as $v): ?>
                         <option value="<?= (int) $v['id'] ?>" <?= $filtroVendedor === (int) $v['id'] ? 'selected' : '' ?>>
-                            <?= $e($v['name']) ?>
+                            <?= $e($v['nombre']) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

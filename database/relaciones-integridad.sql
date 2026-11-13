@@ -60,7 +60,7 @@ BEGIN
     WHERE conrelid = 'solicitudes_vendedor'::regclass AND conname = 'fk_solicitudes_usuario'
   ) THEN
     ALTER TABLE solicitudes_vendedor ADD CONSTRAINT fk_solicitudes_usuario
-      FOREIGN KEY (usuario_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE NO ACTION;
+      FOREIGN KEY (usuario_id) REFERENCES usuarios (id) ON UPDATE NO ACTION ON DELETE NO ACTION;
   END IF;
 
   IF NOT EXISTS (
@@ -68,7 +68,7 @@ BEGIN
     WHERE conrelid = 'tokens_recuperacion'::regclass AND conname = 'fk_tokens_usuario'
   ) THEN
     ALTER TABLE tokens_recuperacion ADD CONSTRAINT fk_tokens_usuario
-      FOREIGN KEY (usuario_id) REFERENCES users (id) ON UPDATE NO ACTION ON DELETE NO ACTION;
+      FOREIGN KEY (usuario_id) REFERENCES usuarios (id) ON UPDATE NO ACTION ON DELETE NO ACTION;
   END IF;
 END;
 $$;

@@ -24,11 +24,11 @@ $pdo = conexion();
 $pdo->beginTransaction();
 try {
     $stmt = $pdo->prepare(
-        "INSERT INTO users (name, apellidos, email, usuario, password, rol, activo)
+        "INSERT INTO usuarios (nombre, apellidos, email, usuario, password, rol, activo)
          VALUES ('Administrador', '', ?, ?, ?, 'admin', 1)
          ON CONFLICT (email) DO UPDATE SET password = EXCLUDED.password,
              usuario = EXCLUDED.usuario, activo = 1
-         WHERE users.rol = 'admin' AND users.deleted_at IS NULL
+         WHERE usuarios.rol = 'admin' AND usuarios.eliminado_en IS NULL
          RETURNING id"
     );
     $stmt->execute([$email, $usuario, password_hash($clave, PASSWORD_DEFAULT)]);

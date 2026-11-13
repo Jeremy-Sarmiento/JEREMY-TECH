@@ -177,10 +177,10 @@ class ChatController
             $lineas[] = 'Entrega: ' . $zona;
         }
 
-        $courier = trim((string) ($pedido['courier'] ?? ''));
+        $mensajeria = trim((string) ($pedido['mensajeria'] ?? ''));
         $guia = trim((string) ($pedido['guia_numero'] ?? ''));
-        if ($courier !== '' || $guia !== '') {
-            $lineas[] = 'Envío: ' . trim($courier . ($guia !== '' ? ' · Guía ' . $guia : ''));
+        if ($mensajeria !== '' || $guia !== '') {
+            $lineas[] = 'Envío: ' . trim($mensajeria . ($guia !== '' ? ' · Guía ' . $guia : ''));
         }
 
         return [
@@ -844,10 +844,10 @@ class ChatController
                 if ($zona !== '') {
                     $lineas[] = 'Zona de entrega: ' . $zona;
                 }
-                $courier = trim((string) ($pedido['courier'] ?? ''));
+                $mensajeria = trim((string) ($pedido['mensajeria'] ?? ''));
                 $guia    = trim((string) ($pedido['guia_numero'] ?? ''));
-                if ($courier !== '' || $guia !== '') {
-                    $lineas[] = 'Envío: ' . trim($courier . ($guia !== '' ? ' · Guía ' . $guia : ''));
+                if ($mensajeria !== '' || $guia !== '') {
+                    $lineas[] = 'Envío: ' . trim($mensajeria . ($guia !== '' ? ' · Guía ' . $guia : ''));
                 }
                 $links = [['label' => '🔎 Ver historial', 'url' => '?ruta=carrito#historial']];
                 return [implode('. ', $lineas), $links, []];

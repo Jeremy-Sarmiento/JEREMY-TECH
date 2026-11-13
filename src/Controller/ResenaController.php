@@ -53,7 +53,7 @@ class ResenaController
             $resumen = Resena::resumen($productoId);
             $resenas = Resena::deCliente($clienteId);
             $cuenta = Cuenta::usuarioActual();
-            $autor = trim((string) ($cuenta['name'] ?? 'Cliente'));
+            $autor = trim((string) ($cuenta['nombre'] ?? 'Cliente'));
             $apellidos = trim((string) ($cuenta['apellidos'] ?? ''));
             if ($apellidos !== '') {
                 $autor .= ' ' . mb_strtoupper(mb_substr($apellidos, 0, 1)) . '.';

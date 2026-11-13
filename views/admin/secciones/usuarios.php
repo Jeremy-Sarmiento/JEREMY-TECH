@@ -3,15 +3,15 @@ $pdo = conexion();
 $yoId = (int) (\Model\Administrador::usuarioActual()['id'] ?? 0);
 
 $usuarios = $pdo->query(
-    'SELECT id, name, apellidos, email, usuario, rol, tipo, activo, ultimo_ingreso, created_at
-     FROM users WHERE deleted_at IS NULL
+    'SELECT id, nombre, apellidos, email, usuario, rol, tipo, activo, ultimo_ingreso, creado_en
+     FROM usuarios WHERE eliminado_en IS NULL
      ORDER BY CASE rol WHEN \'admin\' THEN 0 WHEN \'vendedor\' THEN 1 ELSE 2 END, id'
 )->fetchAll();
 
 $editando = null;
 $idEditar = (int) ($_GET['editar'] ?? 0);
 if ($idEditar > 0) {
-    $q = $pdo->prepare('SELECT id, name, apellidos, email, usuario, rol, tipo, activo FROM users WHERE id = ? AND deleted_at IS NULL LIMIT 1');
+    $q = $pdo->prepare('SELECT id, nombre, apellidos, email, usuario, rol, tipo, activo FROM usuarios WHERE id = ? AND eliminado_en IS NULL LIMIT 1');
     $q->execute([$idEditar]);
     $editando = $q->fetch() ?: null;
 }
@@ -49,7 +49,7 @@ $etiquetaRol = static function (string $rol): string {
             <div class="admin-modal-cuerpo">
                 <input type="hidden" name="id" value="<?= $e($editando['id'] ?? 0) ?>">
                 <label>Nombre
-                    <input type="text" name="nombre" required value="<?= $e($editando['name'] ?? '') ?>">
+                    <input type="text" name="nombre" required value="<?= $e($editando['nombre'] ?? '') ?>">
                 </label>
                 <label>Apellidos
                     <input type="text" name="apellidos" value="<?= $e($editando['apellidos'] ?? '') ?>">
@@ -111,7 +111,7 @@ $etiquetaRol = static function (string $rol): string {
                     <tr>
                         <td><?= (int) $u['id'] ?></td>
                         <td>
-                            <strong><?= $e($u['name']) ?> <?= $e($u['apellidos']) ?></strong>
+                            <strong><?= $e($u['nombre']) ?> <?= $e($u['apellidos']) ?></strong>
                             <div class="admin-secundario"><?= $e($u['email']) ?></div>
                         </td>
                         <td><?= $u['usuario'] !== null && $u['usuario'] !== '' ? $e($u['usuario']) : '—' ?></td>

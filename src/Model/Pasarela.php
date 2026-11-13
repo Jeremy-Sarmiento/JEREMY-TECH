@@ -13,7 +13,7 @@ namespace Model;
  *
  *   - firma HMAC-SHA256 sobre `{timestamp}.{cuerpo_crudo}`;
  *   - tolerancia de 5 minutos contra replay;
- *   - idempotencia por `(pasarela, evento_id)` en `pagos_webhooks`;
+ *   - idempotencia por `(pasarela, evento_id)` en `pagos_eventos`;
  *   - el pago se localiza por `pago_id`, `pedido_id` o referencia externa;
  *   - un pago aprobado confirma el pedido; uno rechazado lo cancela si aún
  *     estaba pendiente; un reembolso devuelve stock y registra el hito.
@@ -135,8 +135,8 @@ final class Pasarela
             // Idempotencia: la UNIQUE (pasarela, evento_id) evita aplicar dos
             // veces el mismo evento si el proveedor reintenta.
             $pdo->prepare(
-                'INSERT INTO pagos_webhooks
-                    (pasarela, evento_id, tipo, estado, payload, resultado)
+                'INSERT INTO pagos_eventos
+                    (pasarela, evento_id, tipo, estado, contenido, resultado)
                  VALUES (?, ?, ?, ?, ?, ?)'
             )->execute([
                 $pasarela,
@@ -265,7 +265,7 @@ final class Pasarela
             }
 
             $pdo->prepare(
-                'UPDATE pagos_webhooks
+                'UPDATE pagos_eventos
                     SET pedido_id = ?, pago_id = ?, resultado = ?
                   WHERE pasarela = ? AND evento_id = ?'
             )->execute([
@@ -327,11 +327,11 @@ final class Pasarela
         $limite = max(1, min(500, $limite));
         return conexion()->query(
             'SELECT pa.*, p.estado AS pedido_estado, p.total_pen,
-                    u.name AS cliente_nombre, u.apellidos AS cliente_apellidos,
+                    u.nombre AS cliente_nombre, u.apellidos AS cliente_apellidos,
                     u.email AS cliente_email
                FROM pagos pa
           LEFT JOIN pedidos p ON p.id = pa.pedido_id
-          LEFT JOIN users u ON u.id = p.cliente_id
+          LEFT JOIN usuarios u ON u.id = p.cliente_id
            ORDER BY pa.id DESC
               LIMIT ' . $limite
         )->fetchAll();
@@ -346,7 +346,7 @@ final class Pasarela
     {
         $limite = max(1, min(500, $limite));
         return conexion()->query(
-            'SELECT * FROM pagos_webhooks ORDER BY id DESC LIMIT ' . $limite
+            'SELECT * FROM pagos_eventos ORDER BY id DESC LIMIT ' . $limite
         )->fetchAll();
     }
 
@@ -368,7 +368,7 @@ final class Pasarela
             'pagados'      => (int) ($fila['pagados'] ?? 0),
             'pendientes'   => (int) ($fila['pendientes'] ?? 0),
             'reembolsados' => (int) ($fila['reembolsados'] ?? 0),
-            'webhooks'     => (int) conexion()->query('SELECT COUNT(*) FROM pagos_webhooks')->fetchColumn(),
+            'webhooks'     => (int) conexion()->query('SELECT COUNT(*) FROM pagos_eventos')->fetchColumn(),
         ];
     }
 

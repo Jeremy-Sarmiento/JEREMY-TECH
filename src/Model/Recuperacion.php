@@ -86,8 +86,8 @@ final class Recuperacion
             }
 
             $actualizar = $pdo->prepare(
-                'UPDATE users SET password = ?
-                  WHERE id = ? AND activo = 1 AND deleted_at IS NULL'
+                'UPDATE usuarios SET password = ?
+                  WHERE id = ? AND activo = 1 AND eliminado_en IS NULL'
             );
             $actualizar->execute([password_hash($nueva, PASSWORD_DEFAULT), (int) $fila['usuario_id']]);
 
@@ -159,7 +159,7 @@ final class Recuperacion
     private static function enviarCorreo(array $usuario, string $token): void
     {
         $email = trim((string) ($usuario['email'] ?? ''));
-        $nombre = trim((string) ($usuario['name'] ?? '') . ' ' . (string) ($usuario['apellidos'] ?? ''));
+        $nombre = trim((string) ($usuario['nombre'] ?? '') . ' ' . (string) ($usuario['apellidos'] ?? ''));
         $enlace = APP_URL . '/index.php?ruta=login/restablecer&token=' . urlencode($token);
         $asunto = 'Recuperación de contraseña — Jeremy Tech';
 
@@ -251,12 +251,12 @@ final class Recuperacion
         }
 
         $stmt = conexion()->prepare(
-            'SELECT t.id, t.usuario_id, u.name, u.apellidos, u.email, u.usuario, u.rol
+            'SELECT t.id, t.usuario_id, u.nombre, u.apellidos, u.email, u.usuario, u.rol
                FROM tokens_recuperacion t
-               JOIN users u ON u.id = t.usuario_id
+               JOIN usuarios u ON u.id = t.usuario_id
               WHERE t.tipo = ? AND t.token = ? AND t.usado = 0
                 AND t.expira_en > NOW()
-                AND u.activo = 1 AND u.deleted_at IS NULL
+                AND u.activo = 1 AND u.eliminado_en IS NULL
               LIMIT 1'
         );
         $stmt->execute([self::TIPO, hash('sha256', $token)]);

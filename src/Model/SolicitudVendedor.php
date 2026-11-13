@@ -9,7 +9,7 @@ namespace Model;
  *
  * Toda cuenta se registra como cliente. Para publicar en el marketplace hay
  * que pedir el rol desde el perfil; el administrador aprueba o rechaza en
- * `?ruta=admin/solicitudes`. Aprobar solo cambia `users.rol`: el resto de la
+ * `?ruta=admin/solicitudes`. Aprobar solo cambia `usuarios.rol`: el resto de la
  * ficha (tipo B2C/B2B/C2C, RUC, empresa, dirección, claves) se conserva.
  */
 final class SolicitudVendedor
@@ -51,7 +51,7 @@ final class SolicitudVendedor
         }
         $stmt = conexion()->prepare(
             'INSERT INTO solicitudes_vendedor (usuario_id, tipo, mensaje)
-             SELECT id, tipo, ? FROM users WHERE id = ? AND deleted_at IS NULL LIMIT 1
+             SELECT id, tipo, ? FROM usuarios WHERE id = ? AND eliminado_en IS NULL LIMIT 1
              ON CONFLICT (usuario_id) WHERE estado = \'pendiente\' DO NOTHING
              RETURNING id'
         );
@@ -61,7 +61,7 @@ final class SolicitudVendedor
             return ['ok' => true, 'id' => (int) $id];
         }
 
-        $cuenta = conexion()->prepare('SELECT 1 FROM users WHERE id = ? AND deleted_at IS NULL');
+        $cuenta = conexion()->prepare('SELECT 1 FROM usuarios WHERE id = ? AND eliminado_en IS NULL');
         $cuenta->execute([$usuarioId]);
 
         return ['ok' => false, 'error' => $cuenta->fetchColumn() !== false
@@ -107,11 +107,11 @@ final class SolicitudVendedor
      */
     public static function listar(string $estado = '', int $limite = 200): array
     {
-        $sql = 'SELECT s.*, u.name, u.apellidos, u.email, u.telefono, u.empresa, u.ruc,
+        $sql = 'SELECT s.*, u.nombre, u.apellidos, u.email, u.telefono, u.empresa, u.ruc,
                        u.plataforma_reventa, u.tipo AS tipo_cuenta, u.rol
                   FROM solicitudes_vendedor s
-                  JOIN users u ON u.id = s.usuario_id
-                 WHERE u.deleted_at IS NULL';
+                  JOIN usuarios u ON u.id = s.usuario_id
+                 WHERE u.eliminado_en IS NULL';
         $parametros = [];
         if (in_array($estado, self::ESTADOS, true)) {
             $sql .= ' AND s.estado = ?';
@@ -176,7 +176,7 @@ final class SolicitudVendedor
             }
 
             $usuarioId = (int) $solicitud['usuario_id'];
-            $pdo->prepare("UPDATE users SET rol = 'vendedor' WHERE id = ?")->execute([$usuarioId]);
+            $pdo->prepare("UPDATE usuarios SET rol = 'vendedor' WHERE id = ?")->execute([$usuarioId]);
             $pdo->prepare(
                 "UPDATE solicitudes_vendedor
                     SET estado = 'aprobada', resuelto_por = ?, resuelto_en = NOW()

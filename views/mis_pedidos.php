@@ -151,7 +151,7 @@ $claseEstado = static function (string $estado): string {
      <span class="pedido-card-direccion"><strong>Entrega</strong> <?= $e((string) $pedido['direccion_entrega']) ?></span>
      <?php endif; ?>
      <?php if ((string) ($pedido['guia_numero'] ?? '') !== ''): ?>
-     <span><strong>Guía</strong> <?= $e((string) $pedido['guia_numero']) ?><?= (string) ($pedido['courier'] ?? '') !== '' ? ' · ' . $e((string) $pedido['courier']) : '' ?></span>
+     <span><strong>Guía</strong> <?= $e((string) $pedido['guia_numero']) ?><?= (string) ($pedido['mensajeria'] ?? '') !== '' ? ' · ' . $e((string) $pedido['mensajeria']) : '' ?></span>
      <?php endif; ?>
     </div>
 

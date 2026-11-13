@@ -86,7 +86,7 @@ $totalSaldo = round($totalGanancias - $totalLiquidado, 2);
             <div class="admin-modal-cuerpo">
                 <input type="hidden" name="id" value="<?= (int) ($editando['id'] ?? 0) ?>">
                 <label>Vendedor
-                    <input type="text" disabled value="<?= $e(($editando['name'] ?? '') . ' ' . ($editando['apellidos'] ?? '')) ?>">
+                    <input type="text" disabled value="<?= $e(($editando['nombre'] ?? '') . ' ' . ($editando['apellidos'] ?? '')) ?>">
                 </label>
                 <label>Comisión de la plataforma (%)
                     <input type="number" step="0.01" min="0" max="100" name="comision_porcentaje" required
@@ -120,7 +120,7 @@ $totalSaldo = round($totalGanancias - $totalLiquidado, 2);
             <div class="admin-modal-cuerpo">
                 <input type="hidden" name="id" value="<?= (int) ($liquidando['id'] ?? 0) ?>">
                 <label>Vendedor
-                    <input type="text" disabled value="<?= $e($liquidando['name'] ?? '') ?>">
+                    <input type="text" disabled value="<?= $e($liquidando['nombre'] ?? '') ?>">
                 </label>
                 <label>Saldo pendiente (S/)
                     <input type="text" disabled
@@ -160,7 +160,7 @@ $totalSaldo = round($totalGanancias - $totalLiquidado, 2);
                     $saldo = round((float) $v['ganancias'] - (float) $v['liquidado'], 2); ?>
                     <tr>
                         <td>
-                            <strong><?= $e($v['name']) ?> <?= $e($v['apellidos']) ?></strong>
+                            <strong><?= $e($v['nombre']) ?> <?= $e($v['apellidos']) ?></strong>
                             <?php if ((string) ($v['tipo'] ?? '') === 'C2C'): ?>
                                 <span class="etiqueta etiqueta-info">C2C</span>
                             <?php endif; ?>

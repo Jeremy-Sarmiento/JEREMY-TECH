@@ -28,11 +28,11 @@ final class SesionVigenteTest extends TestCase
     public function testDesactivarRevocaElPanelAunqueSeReactiveDespues(string $usuario, int $id): void
     {
         $this->assertTrue(Administrador::iniciarSesion($usuario, $usuario));
-        testPdo()->prepare('UPDATE users SET activo = 0 WHERE id = ?')->execute([$id]);
+        testPdo()->prepare('UPDATE usuarios SET activo = 0 WHERE id = ?')->execute([$id]);
 
         $this->assertFalse(Administrador::estaAutenticado());
         $this->assertNull(Administrador::idSesion());
-        testPdo()->prepare('UPDATE users SET activo = 1 WHERE id = ?')->execute([$id]);
+        testPdo()->prepare('UPDATE usuarios SET activo = 1 WHERE id = ?')->execute([$id]);
         $this->assertFalse(Administrador::estaAutenticado());
     }
 
@@ -56,7 +56,7 @@ final class SesionVigenteTest extends TestCase
         } elseif ($flujo === 'pregunta') {
             $this->assertNull(Cuenta::cambiarPorPregunta('admin@example.com', 'mascota', $nueva, $nueva));
         } else {
-            testPdo()->prepare('UPDATE users SET password = ? WHERE id = 1')
+            testPdo()->prepare('UPDATE usuarios SET password = ? WHERE id = 1')
                 ->execute([password_hash($nueva, PASSWORD_DEFAULT)]);
         }
 
@@ -77,7 +77,7 @@ final class SesionVigenteTest extends TestCase
     public function testDesactivarClienteRevocaTambienLosAccesosQueSoloPidenElId(): void
     {
         $this->assertTrue(Cuenta::iniciarSesion('cliente@example.com', 'cliente'));
-        testPdo()->exec('UPDATE users SET activo = 0 WHERE id = 3');
+        testPdo()->exec('UPDATE usuarios SET activo = 0 WHERE id = 3');
         $this->assertNull(Cuenta::idSesion());
         $this->assertFalse(Cuenta::estaRegistrado());
     }
@@ -118,7 +118,7 @@ final class SesionVigenteTest extends TestCase
     {
         $this->assertTrue(Cuenta::iniciarSesion('admin@example.com', 'admin'));
         $nueva = 'Clave-Panel-Nueva-2026!';
-        testPdo()->prepare('UPDATE users SET password = ? WHERE id = 1')
+        testPdo()->prepare('UPDATE usuarios SET password = ? WHERE id = 1')
             ->execute([password_hash($nueva, PASSWORD_DEFAULT)]);
         $this->assertTrue(Administrador::iniciarSesion('admin', $nueva));
 

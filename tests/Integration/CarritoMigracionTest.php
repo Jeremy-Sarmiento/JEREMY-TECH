@@ -128,7 +128,7 @@ class CarritoMigracionTest extends TestCase
         }
         $this->rechaza('INSERT INTO carritos (cliente_id) VALUES (3)', '23505');
         $this->pdo->exec('INSERT INTO carrito_items (carrito_id, producto_id, cantidad) VALUES (1, 1, 1)');
-        foreach (['DELETE FROM carritos WHERE id = 1', 'DELETE FROM productos WHERE id = 1', 'DELETE FROM users WHERE id = 3'] as $sql) {
+        foreach (['DELETE FROM carritos WHERE id = 1', 'DELETE FROM productos WHERE id = 1', 'DELETE FROM usuarios WHERE id = 3'] as $sql) {
             $this->rechaza($sql, '23503');
         }
         $indices = $this->pdo->query("SELECT indexname, indexdef FROM pg_indexes

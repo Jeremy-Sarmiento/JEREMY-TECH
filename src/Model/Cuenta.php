@@ -6,8 +6,8 @@ namespace Model;
 
 /**
  * Modelo Cuenta (Jeremy Tech MVC).
- * Autenticación de la tienda sobre la tabla `users` (Etapa 4): una sola fila
- * por persona con `rol`, `activo` y soft-delete (`deleted_at`). La tienda
+ * Autenticación de la tienda sobre la tabla `usuarios` (Etapa 4): una sola fila
+ * por persona con `rol`, `activo` y soft-delete (`eliminado_en`). La tienda
  * identifica al usuario por `email`; el panel lo hace por `usuario`.
  * Recuperación de contraseña por pregunta de seguridad (campos
  * `pregunta_secreta` + `respuesta_secreta_hash`, sin token ni correo).
@@ -92,9 +92,9 @@ class Cuenta
         }
 
         $stmt = conexion()->prepare(
-            'SELECT id, name AS nombre, apellidos, email, usuario, telefono, direccion, dni, ruc, empresa,
+            'SELECT id, nombre, apellidos, email, usuario, telefono, direccion, dni, ruc, empresa,
                     plataforma_reventa, tipo, rol, verificado, password
-             FROM users WHERE id = ? AND activo = 1 AND deleted_at IS NULL LIMIT 1'
+             FROM usuarios WHERE id = ? AND activo = 1 AND eliminado_en IS NULL LIMIT 1'
         );
         $stmt->execute([$id]);
         $fila = $stmt->fetch();
@@ -118,13 +118,13 @@ class Cuenta
 
     /**
      * Busca un usuario por su correo (en minúsculas), ignorando los dados de
-     * baja (`deleted_at`).
+     * baja (`eliminado_en`).
      * @return array<string, mixed>|null
      */
     public static function porEmail(string $email): ?array
     {
         $stmt = conexion()->prepare(
-            'SELECT * FROM users WHERE email = ? AND deleted_at IS NULL LIMIT 1'
+            'SELECT * FROM usuarios WHERE email = ? AND eliminado_en IS NULL LIMIT 1'
         );
         $stmt->execute([strtolower(trim($email))]);
         $cliente = $stmt->fetch();
@@ -193,8 +193,8 @@ class Cuenta
             return 'Ese nombre de usuario no está disponible';
         }
         // El índice UNIQUE incluye cuentas dadas de baja: se comprueba sin
-        // filtrar `deleted_at` para no chocar con la restricción al insertar.
-        $stmtUsuario = conexion()->prepare('SELECT 1 FROM users WHERE usuario = ? LIMIT 1');
+        // filtrar `eliminado_en` para no chocar con la restricción al insertar.
+        $stmtUsuario = conexion()->prepare('SELECT 1 FROM usuarios WHERE usuario = ? LIMIT 1');
         $stmtUsuario->execute([$usuario]);
         if ($stmtUsuario->fetchColumn()) {
             return 'Ese nombre de usuario ya está en uso';
@@ -258,8 +258,8 @@ class Cuenta
         $pdo->beginTransaction();
         try {
             $stmt = $pdo->prepare(
-                'INSERT INTO users
-                    (name, apellidos, email, usuario, telefono, direccion, dni, tipo, empresa,
+                'INSERT INTO usuarios
+                    (nombre, apellidos, email, usuario, telefono, direccion, dni, tipo, empresa,
                      ruc, plataforma_reventa, password, pregunta_secreta,
                      respuesta_secreta_hash, rol)
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
@@ -343,7 +343,7 @@ class Cuenta
         // El tipo de cuenta solo lo cambia el administrador: se lee de la BD
         // y se ignora cualquier `tipo` que llegue en el POST.
         $stmtTipo = conexion()->prepare(
-            'SELECT tipo FROM users WHERE id = ? AND activo = 1 AND deleted_at IS NULL LIMIT 1'
+            'SELECT tipo FROM usuarios WHERE id = ? AND activo = 1 AND eliminado_en IS NULL LIMIT 1'
         );
         $stmtTipo->execute([$clienteId]);
         $tipoActual = $stmtTipo->fetchColumn();
@@ -383,17 +383,17 @@ class Cuenta
         // El correo es el identificador de acceso: debe seguir siendo único,
         // incluso frente a cuentas dadas de baja (el índice UNIQUE no las
         // excluye).
-        $stmt = conexion()->prepare('SELECT COUNT(*) FROM users WHERE email = ? AND id <> ?');
+        $stmt = conexion()->prepare('SELECT COUNT(*) FROM usuarios WHERE email = ? AND id <> ?');
         $stmt->execute([$email, $clienteId]);
         if ((int) $stmt->fetchColumn() > 0) {
             return 'Ya existe otra cuenta con ese correo electrónico.';
         }
 
         $stmt = conexion()->prepare(
-            'UPDATE users
-                SET name = ?, apellidos = ?, email = ?, telefono = ?, direccion = ?,
+            'UPDATE usuarios
+                SET nombre = ?, apellidos = ?, email = ?, telefono = ?, direccion = ?,
                     dni = ?, ruc = ?, empresa = ?, plataforma_reventa = ?
-              WHERE id = ? AND activo = 1 AND deleted_at IS NULL'
+              WHERE id = ? AND activo = 1 AND eliminado_en IS NULL'
         );
         $stmt->execute([
             $nombre, $apellidos, $email, $telefono, $direccion,
@@ -483,7 +483,7 @@ class Cuenta
     public static function preguntaDe(string $email): ?string
     {
         $stmt = conexion()->prepare(
-            'SELECT pregunta_secreta FROM users WHERE email = ? AND deleted_at IS NULL LIMIT 1'
+            'SELECT pregunta_secreta FROM usuarios WHERE email = ? AND eliminado_en IS NULL LIMIT 1'
         );
         $stmt->execute([strtolower(trim($email))]);
         $pregunta = $stmt->fetchColumn();
@@ -515,7 +515,7 @@ class Cuenta
         }
 
         $stmt = conexion()->prepare(
-            'SELECT id, respuesta_secreta_hash FROM users WHERE email = ? AND deleted_at IS NULL LIMIT 1'
+            'SELECT id, respuesta_secreta_hash FROM usuarios WHERE email = ? AND eliminado_en IS NULL LIMIT 1'
         );
         $stmt->execute([$email]);
         $cliente = $stmt->fetch();
@@ -532,7 +532,7 @@ class Cuenta
             return 'La respuesta de seguridad no es correcta';
         }
 
-        conexion()->prepare('UPDATE users SET password = ? WHERE id = ?')
+        conexion()->prepare('UPDATE usuarios SET password = ? WHERE id = ?')
             ->execute([password_hash($nueva, PASSWORD_DEFAULT), (int) $cliente['id']]);
 
         // Cambiar la contraseña invalida cualquier enlace de recuperación

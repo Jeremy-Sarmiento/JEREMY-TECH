@@ -64,8 +64,8 @@ class Inventario
             }
             if ($vendedorId !== null) {
                 // Mantiene el permiso hasta COMMIT, incluso si se revoca durante la compra.
-                $vendedor = $pdo->prepare("SELECT id FROM users WHERE id = ? AND rol = 'vendedor'
-                    AND activo = 1 AND deleted_at IS NULL FOR SHARE");
+                $vendedor = $pdo->prepare("SELECT id FROM usuarios WHERE id = ? AND rol = 'vendedor'
+                    AND activo = 1 AND eliminado_en IS NULL FOR SHARE");
                 $vendedor->execute([$vendedorId]);
                 if ($vendedor->fetchColumn() === false) {
                     throw new \RuntimeException('El vendedor ya no está disponible. Recarga el carrito.');

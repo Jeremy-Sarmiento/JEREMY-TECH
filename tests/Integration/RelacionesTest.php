@@ -112,11 +112,11 @@ class RelacionesTest extends TestCase
             ('cliente', 4, 'conservar-cliente', NOW() + INTERVAL '1 hour'),
             ('admin', 4, 'conservar-admin', NOW() + INTERVAL '1 hour')");
         foreach ([3, 4] as $id) {
-            $this->rechaza('DELETE FROM users WHERE id = ' . $id, '23503');
-            $this->rechaza('UPDATE users SET id = 999999 WHERE id = ' . $id, '23503');
+            $this->rechaza('DELETE FROM usuarios WHERE id = ' . $id, '23503');
+            $this->rechaza('UPDATE usuarios SET id = 999999 WHERE id = ' . $id, '23503');
         }
         $antes = $this->datos();
-        $this->pdo->exec('UPDATE users SET deleted_at = NOW(), activo = 0 WHERE id IN (3, 4)');
+        $this->pdo->exec('UPDATE usuarios SET eliminado_en = NOW(), activo = 0 WHERE id IN (3, 4)');
         $despues = $this->datos();
         $this->assertSame($antes['solicitudes_vendedor'], $despues['solicitudes_vendedor']);
         $this->assertSame($antes['tokens_recuperacion'], $despues['tokens_recuperacion']);
@@ -250,7 +250,7 @@ class RelacionesTest extends TestCase
                 $this->pdo->exec('DROP INDEX IF EXISTS ' . $indice);
             }
             $this->pdo->exec('ALTER TABLE productos ALTER COLUMN categoria TYPE varchar(60)');
-            $this->pdo->exec("INSERT INTO users (id, name, email, password, empresa, telefono)
+            $this->pdo->exec("INSERT INTO usuarios (id, nombre, email, password, empresa, telefono)
                 VALUES (3, 'Cuenta conservada', 'legacy@example.com', '!', 'Empresa original', '999000000')");
             $this->pdo->exec("INSERT INTO marcas (id, nombre) VALUES (10, 'Marca original')");
             $this->pdo->exec("INSERT INTO categorias (id, nombre) VALUES (10, 'Celulares')");
@@ -299,7 +299,7 @@ class RelacionesTest extends TestCase
     private function datos(): array
     {
         $datos = [];
-        foreach (['users', 'marcas', 'categorias', 'productos', 'solicitudes_vendedor', 'tokens_recuperacion'] as $tabla) {
+        foreach (['usuarios', 'marcas', 'categorias', 'productos', 'solicitudes_vendedor', 'tokens_recuperacion'] as $tabla) {
             $datos[$tabla] = $this->pdo->query("SELECT row_to_json(t)::text FROM $tabla t ORDER BY id")
                 ->fetchAll(PDO::FETCH_COLUMN);
         }

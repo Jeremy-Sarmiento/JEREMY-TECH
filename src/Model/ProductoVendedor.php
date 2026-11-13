@@ -43,7 +43,7 @@ final class ProductoVendedor
 
         $sql = 'SELECT p.id, p.slug, p.nombre, p.modelo, p.categoria, p.codigo_sku,
                        p.precio_pen, p.stock, p.stock_minimo, p.activo, p.imagen,
-                       p.archivado_en, p.created_at, p.updated_at,
+                       p.archivado_en, p.creado_en, p.actualizado_en,
                        (EXISTS (SELECT 1 FROM producto_imagenes pi WHERE pi.producto_id = p.id)) AS imagen_db,
                        m.nombre AS marca_nombre, g.nombre AS garantia_nombre,
                        COALESCE(v.unidades, 0) AS unidades_vendidas,

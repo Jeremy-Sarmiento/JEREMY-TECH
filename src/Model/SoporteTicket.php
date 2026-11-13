@@ -220,10 +220,10 @@ final class SoporteTicket
      */
     public static function todos(string $estado = '', string $buscar = '', int $limite = 250): array
     {
-        $sql = 'SELECT t.*, u.name AS cliente_nombre, u.apellidos AS cliente_apellidos,
+        $sql = 'SELECT t.*, u.nombre AS cliente_nombre, u.apellidos AS cliente_apellidos,
                        u.email AS cliente_email
                   FROM soporte_tickets t
-             LEFT JOIN users u ON u.id = t.cliente_id
+             LEFT JOIN usuarios u ON u.id = t.cliente_id
                  WHERE 1 = 1';
         $params = [];
 
@@ -235,7 +235,7 @@ final class SoporteTicket
         $buscar = trim($buscar);
         if ($buscar !== '') {
             $sql .= ' AND (t.asunto ILIKE ? OR t.descripcion ILIKE ? OR t.respuesta ILIKE ?
-                           OR u.name ILIKE ? OR u.email ILIKE ?)';
+                           OR u.nombre ILIKE ? OR u.email ILIKE ?)';
             $like = '%' . $buscar . '%';
             for ($i = 0; $i < 5; $i++) {
                 $params[] = $like;
@@ -262,10 +262,10 @@ final class SoporteTicket
         }
 
         $stmt = conexion()->prepare(
-            'SELECT t.*, u.name AS cliente_nombre, u.apellidos AS cliente_apellidos,
+            'SELECT t.*, u.nombre AS cliente_nombre, u.apellidos AS cliente_apellidos,
                     u.email AS cliente_email
                FROM soporte_tickets t
-          LEFT JOIN users u ON u.id = t.cliente_id
+          LEFT JOIN usuarios u ON u.id = t.cliente_id
               WHERE t.id = ?
               LIMIT 1'
         );

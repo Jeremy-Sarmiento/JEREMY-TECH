@@ -16,10 +16,10 @@ $gestionable = $esVendedor
                   AND otro.vendedor_id IS DISTINCT FROM dp.vendedor_id)'
     : 'TRUE';
 $sqlPedidos = 'SELECT ' . ($joinPedidos !== '' ? 'DISTINCT ' : '')
-    . 'p.*, c.name AS nombre, c.apellidos,
+    . 'p.*, c.nombre, c.apellidos,
        pa.estado AS pago_estado, pa.monto_pen AS pago_monto, ' . $gestionable . ' AS gestionable
        FROM pedidos p
-       JOIN users c ON c.id = p.cliente_id
+       JOIN usuarios c ON c.id = p.cliente_id
        LEFT JOIN LATERAL (
             SELECT estado, monto_pen FROM pagos
              WHERE pedido_id = p.id ORDER BY id DESC LIMIT 1
@@ -142,9 +142,9 @@ $puedeReembolsar = static function (array $p): bool {
                     ) ?></td>
                     <td>
                         <span class="<?= \Model\Pedido::claseEstado((string) $p['estado']) ?>"><?= $e($p['estado']) ?></span>
-                        <?php if ((string) ($p['courier'] ?? '') !== '' || (string) ($p['guia_numero'] ?? '') !== ''): ?>
+                        <?php if ((string) ($p['mensajeria'] ?? '') !== '' || (string) ($p['guia_numero'] ?? '') !== ''): ?>
                             <div class="admin-secundario">
-                                <?= $e($p['courier'] ?? '') ?><?= (string) ($p['guia_numero'] ?? '') !== '' ? ' · Guía ' . $e($p['guia_numero']) : '' ?>
+                                <?= $e($p['mensajeria'] ?? '') ?><?= (string) ($p['guia_numero'] ?? '') !== '' ? ' · Guía ' . $e($p['guia_numero']) : '' ?>
                             </div>
                         <?php endif; ?>
                         <?php if ((string) ($p['fecha_envio'] ?? '') !== ''): ?>
@@ -173,7 +173,7 @@ $puedeReembolsar = static function (array $p): bool {
                                 <?php endforeach; ?>
                             </select>
                             <?php if (in_array('Enviado', $destinos, true) && !$esRecojo): ?>
-                                <input type="text" name="courier" maxlength="80" placeholder="Courier"
+                                <input type="text" name="mensajeria" maxlength="80" placeholder="Courier"
                                        title="Obligatorio al marcar Enviado" aria-label="Courier del pedido <?= (int) $p['id'] ?>">
                                 <input type="text" name="guia_numero" maxlength="80" placeholder="N° de guía"
                                        title="Obligatorio al marcar Enviado" aria-label="Número de guía del pedido <?= (int) $p['id'] ?>">

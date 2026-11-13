@@ -7,11 +7,11 @@ namespace Model;
 /**
  * Modelo Vendedor (Jeremy Tech) — Etapa 6 (marketplace).
  *
- * No hay tabla propia: un vendedor es una fila de `users` con
+ * No hay tabla propia: un vendedor es una fila de `usuarios` con
  * `rol = 'vendedor'` y su ficha comercial
  * (`comision_porcentaje`, `verificado`) en las mismas columnas. Coincide
  * con el diseño de la semilla original, cuyas FK de `comisiones`,
- * `pagos_vendedor` y `calificaciones_vendedor` ya apuntan a `users(id)`.
+ * `pagos_vendedor` y `calificaciones_vendedor` ya apuntan a `usuarios(id)`.
  *
  * El reparto de dinero se congela en `comisiones` (una fila por pedido y
  * vendedor) al momento de la compra, igual que en la referencia `techmarket`.
@@ -23,7 +23,7 @@ class Vendedor
 
     /**
      * Condición SQL de las cuentas que pueden vender. Se aplica sobre
-     * `users.tipo` no interviene: el rol es la única llave.
+     * `usuarios.tipo` no interviene: el rol es la única llave.
      */
     private const CONDICION_VENDEDOR = "rol = 'vendedor'";
 
@@ -35,7 +35,7 @@ class Vendedor
     public static function todos(): array
     {
         return conexion()->query(
-            "SELECT u.id, u.name, u.apellidos, u.email, u.usuario, u.tipo, u.activo,
+            "SELECT u.id, u.nombre, u.apellidos, u.email, u.usuario, u.tipo, u.activo,
                     u.verificado, u.comision_porcentaje,
                     (SELECT COUNT(*) FROM productos p
                       WHERE p.vendedor_id = u.id) AS productos,
@@ -53,9 +53,9 @@ class Vendedor
                        AND pd.estado NOT IN ('Cancelado', 'Pendiente')) AS ganancias,
                     (SELECT COALESCE(SUM(pv.monto), 0) FROM pagos_vendedor pv
                      WHERE pv.vendedor_id = u.id) AS liquidado
-               FROM users u
-              WHERE " . self::CONDICION_VENDEDOR . ' AND u.deleted_at IS NULL
-              ORDER BY u.name, u.apellidos'
+               FROM usuarios u
+              WHERE " . self::CONDICION_VENDEDOR . ' AND u.eliminado_en IS NULL
+              ORDER BY u.nombre, u.apellidos'
         )->fetchAll();
     }
 
@@ -65,8 +65,8 @@ class Vendedor
     public static function porId(int $id): ?array
     {
         $stmt = conexion()->prepare(
-            'SELECT * FROM users
-              WHERE id = ? AND ' . self::CONDICION_VENDEDOR . ' AND deleted_at IS NULL LIMIT 1'
+            'SELECT * FROM usuarios
+              WHERE id = ? AND ' . self::CONDICION_VENDEDOR . ' AND eliminado_en IS NULL LIMIT 1'
         );
         $stmt->execute([$id]);
         $fila = $stmt->fetch();
@@ -100,7 +100,7 @@ class Vendedor
         }
 
         $stmt = conexion()->prepare(
-            'SELECT comision_porcentaje FROM users WHERE id = ? AND ' . self::CONDICION_VENDEDOR . ' LIMIT 1'
+            'SELECT comision_porcentaje FROM usuarios WHERE id = ? AND ' . self::CONDICION_VENDEDOR . ' LIMIT 1'
         );
         $stmt->execute([$vendedorId]);
         $valor = $stmt->fetchColumn();
@@ -251,14 +251,14 @@ class Vendedor
             'SELECT dp.pedido_id, dp.producto_nombre, dp.variante_nombre,
                     dp.cantidad, dp.precio_unitario_pen,
                     p.estado AS pedido_estado, p.creado_en,
-                    u.name AS comprador_nombre, u.apellidos AS comprador_apellidos,
+                    u.nombre AS comprador_nombre, u.apellidos AS comprador_apellidos,
                     u.email AS comprador_email,
                     (SELECT pa.estado FROM pagos pa
                       WHERE pa.pedido_id = p.id
                       ORDER BY pa.id DESC LIMIT 1) AS pago_estado
                FROM detalle_pedido dp
                JOIN pedidos p ON p.id = dp.pedido_id
-               JOIN users u ON u.id = p.cliente_id
+               JOIN usuarios u ON u.id = p.cliente_id
               WHERE dp.vendedor_id = ?
               ORDER BY p.id DESC, dp.id DESC
               LIMIT ' . $limite
@@ -404,15 +404,15 @@ class Vendedor
 
         $limite = max(1, min(20, $limite));
         $stmt = conexion()->prepare(
-            'SELECT u.name AS nombre, u.apellidos,
+            'SELECT u.nombre, u.apellidos,
                     COUNT(DISTINCT p.id) AS pedidos,
                     COALESCE(SUM(dp.cantidad * dp.precio_unitario_pen), 0) AS total
                FROM detalle_pedido dp
                JOIN pedidos p ON p.id = dp.pedido_id
-               JOIN users u ON u.id = p.cliente_id
+               JOIN usuarios u ON u.id = p.cliente_id
               WHERE dp.vendedor_id = ?
                 AND p.estado NOT IN (\'Cancelado\', \'Pendiente\')
-              GROUP BY u.id, u.name, u.apellidos
+              GROUP BY u.id, u.nombre, u.apellidos
               ORDER BY total DESC
               LIMIT ' . $limite
         );
@@ -438,9 +438,9 @@ class Vendedor
 
         $limite = max(1, min(20, $limite));
         $stmt = conexion()->prepare(
-            'SELECT c.calificacion, c.comentario, c.creado_en, u.name AS cliente_nombre
+            'SELECT c.calificacion, c.comentario, c.creado_en, u.nombre AS cliente_nombre
                FROM calificaciones_vendedor c
-               JOIN users u ON u.id = c.cliente_id
+               JOIN usuarios u ON u.id = c.cliente_id
               WHERE c.vendedor_id = ?
               ORDER BY c.id DESC
               LIMIT ' . $limite
@@ -531,7 +531,7 @@ class Vendedor
             // Bloquea la fila del vendedor: dos liquidaciones simultáneas
             // esperan turno y la segunda ya ve el saldo descontado. Sin esto,
             // ambas leen el mismo saldo y lo pagan dos veces.
-            $lock = $pdo->prepare('SELECT id FROM users WHERE id = ? FOR UPDATE');
+            $lock = $pdo->prepare('SELECT id FROM usuarios WHERE id = ? FOR UPDATE');
             $lock->execute([$vendedorId]);
             if (!$lock->fetchColumn()) {
                 $pdo->rollBack();
@@ -579,7 +579,7 @@ class Vendedor
             return '';
         }
         $stmt = conexion()->prepare(
-            'SELECT name FROM users WHERE id = ? AND deleted_at IS NULL LIMIT 1'
+            'SELECT nombre FROM usuarios WHERE id = ? AND eliminado_en IS NULL LIMIT 1'
         );
         $stmt->execute([$vendedorId]);
         $nombre = $stmt->fetchColumn();

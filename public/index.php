@@ -85,7 +85,7 @@ if ($ruta !== 'pagos/webhook') {
 // al AdminController, que atiende internamente cada sub-ruta (productos,
 // categorias, marcas, garantias, cupones, tarifas envio, configuracion,
 // pedidos, usuarios, auditoria). La sección antigua "clientes" redirige a
-// "usuarios" (Etapa 4: identidad unificada en `users`).
+// "usuarios" (Etapa 4: identidad unificada en `usuarios`).
 if ($ruta === 'admin' || str_starts_with($ruta, 'admin/')) {
     $subRuta = $ruta === 'admin' ? '' : substr($ruta, 6);
     (new Controller\AdminController())->atender($subRuta);

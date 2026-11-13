@@ -68,7 +68,7 @@ class IntegridadTest extends TestCase
             'UPDATE cupones SET usos_actuales = -1',
             'UPDATE cupones SET usos_maximos = -1',
             'UPDATE comisiones SET porcentaje_comision = 101',
-            'UPDATE users SET comision_porcentaje = -1 WHERE id = 2',
+            'UPDATE usuarios SET comision_porcentaje = -1 WHERE id = 2',
         ] as $sql) {
             $this->rechaza($sql, '23514');
         }
@@ -190,8 +190,8 @@ class IntegridadTest extends TestCase
     {
         $this->pdo->exec('INSERT INTO pagos (pedido_id, monto_pen) VALUES (1, 20)');
         $this->rechaza('DELETE FROM pedidos WHERE id = 1', '23503');
-        $this->rechaza('DELETE FROM users WHERE id = 3', '23503');
-        $this->pdo->exec('UPDATE users SET deleted_at = NOW(), activo = 0 WHERE id = 3');
+        $this->rechaza('DELETE FROM usuarios WHERE id = 3', '23503');
+        $this->pdo->exec('UPDATE usuarios SET eliminado_en = NOW(), activo = 0 WHERE id = 3');
         $this->assertSame('20.00', $this->pdo->query('SELECT monto_pen FROM pagos WHERE pedido_id = 1')->fetchColumn());
     }
 
@@ -203,7 +203,7 @@ class IntegridadTest extends TestCase
             $this->pdo->exec('INSERT INTO pagos (pedido_id) VALUES (77)');
             $this->pdo->exec('INSERT INTO detalle_pedido (pedido_id, producto_id, variante_id) VALUES (77, 77, 77)');
             $this->pdo->exec('INSERT INTO pedidos (id, cliente_id, cupon_id, direccion_id) VALUES (77, 77, 77, 77)');
-            $this->pdo->exec("INSERT INTO users (id, name, email, password) VALUES (77, 'Importado', 'importado@example.com', '!')");
+            $this->pdo->exec("INSERT INTO usuarios (id, nombre, email, password) VALUES (77, 'Importado', 'importado@example.com', '!')");
             $this->pdo->exec("INSERT INTO productos (id, slug, categoria, nombre, especificaciones)
                 VALUES (77, 'importado', 'Celulares', 'Importado', '')");
             $this->pdo->exec("INSERT INTO producto_variantes (id, producto_id, nombre_variante) VALUES (77, 77, 'Azul')");

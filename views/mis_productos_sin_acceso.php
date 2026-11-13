@@ -3,7 +3,7 @@
  * VISTA: Acceso restringido a "Mis productos" (Jeremy Tech) — Fase 3.
  *
  * Se muestra con HTTP 403 cuando la cuenta autenticada no tiene
- * `users.rol = 'vendedor'`. El controlador ya cargó el header. Desde aquí
+ * `usuarios.rol = 'vendedor'`. El controlador ya cargó el header. Desde aquí
  * se puede pedir el rol al administrador.
  */
 $e = static fn ($v): string => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');

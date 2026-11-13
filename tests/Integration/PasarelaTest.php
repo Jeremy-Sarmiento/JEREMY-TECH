@@ -30,7 +30,7 @@ class PasarelaTest extends TestCase
         $this->assertSame(200, $this->evento('evt-1', 'approved')['codigo']);
         $this->assertSame(200, $this->evento('evt-1', 'approved')['codigo']);
         $this->assertSame('Pagado', testPdo()->query('SELECT estado FROM pagos WHERE id = 1')->fetchColumn());
-        $this->assertEquals(1, testPdo()->query('SELECT COUNT(*) FROM pagos_webhooks')->fetchColumn());
+        $this->assertEquals(1, testPdo()->query('SELECT COUNT(*) FROM pagos_eventos')->fetchColumn());
         $this->assertEquals(1, testPdo()->query('SELECT COUNT(*) FROM pedido_eventos')->fetchColumn());
     }
 
@@ -58,7 +58,7 @@ class PasarelaTest extends TestCase
         $resultado = Pasarela::procesarWebhook('{}', ['x-jt-timestamp' => (string) time(), 'x-jt-signature' => 'falsa']);
         $this->assertSame(401, $resultado['codigo']);
         $this->assertSame('Pendiente', testPdo()->query('SELECT estado FROM pedidos WHERE id = 1')->fetchColumn());
-        $this->assertEquals(0, testPdo()->query('SELECT COUNT(*) FROM pagos_webhooks')->fetchColumn());
+        $this->assertEquals(0, testPdo()->query('SELECT COUNT(*) FROM pagos_eventos')->fetchColumn());
     }
 
     private function evento(string $id, string $estado): array
