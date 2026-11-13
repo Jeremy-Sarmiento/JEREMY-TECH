@@ -297,9 +297,19 @@ confirmación → actualización automática del pedido — funcione de extremo 
 
   const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "pasarela": "sandbox-propio", "justificacionPasarela": "Se diseñó un sandbox integrado en el backend MVC (CarritoController y modelos Pedido/Pago), con contrato agnóstico para pasarelas reales (Culqi, Mercado Pago o Stripe). Permite probar en local todo el ciclo de estados (Pendiente, Pagado, En verificación, Rechazado), la reversión de stock con SELECT ... FOR UPDATE y el webhook firmado con HMAC-SHA256, sin cuenta bancaria ni saldo real.", "codigo": "// Procesamiento transaccional de pago y confirmación atómica en Jeremy Tech\n->beginTransaction();\ntry {\n    // 1. Bloqueo pesimista para evitar carreras en el inventario\n     = ->prepare(\"SELECT stock FROM productos WHERE id = ? FOR UPDATE\");\n    ->execute([]);\n     = ->fetch();\n\n    if (['stock'] < ) {\n        throw new Exception(\"Stock insuficiente para el producto.\");\n    }\n\n    // 2. Registro del pedido y descuento en el kardex\n     = ->prepare(\"INSERT INTO pedidos (cliente_id, total_pen, subtotal, igv_monto, estado) VALUES (?, ?, ?, ?, 'Pendiente')\");\n    ->execute([, , , ]);\n     = ->lastInsertId();\n\n    // 3. Simulación y verificación del pago\n    if (['estado'] === 'approved') {\n         = ->prepare(\"INSERT INTO pagos (pedido_id, pasarela, metodo, monto, estado, transaccion_id) VALUES (?, 'simulador', ?, ?, 'Pagado', ?)\");\n        ->execute([, , , ]);\n\n        ->prepare(\"UPDATE pedidos SET estado = 'Pagado' WHERE id = ?\")->execute([]);\n        Inventario::descontarStock(, , );\n    }\n    ->commit();\n} catch (\\Throwable ) {\n    ->rollBack();\n    throw ;\n}", "conclusion": "Que un pedido pase de \"Pendiente\" a \"Pagado\" sin intervención humana es el hito transaccional del proyecto: elimina los comprobantes falsos, evita que el asesor revise extractos de madrugada y deja la mercadería reservada y pagada en milisegundos.", "filas": [{"tarjeta": "4111 1111 1111 1111 (Vence: 12/40, CVV: 123)", "esperado": "Pago exitoso (Aprobado)", "obtenido": "Pago aprobado, pedido #14 marcado como 'Pagado' de inmediato", "observacion": "Transacción SIM-TX-984321 registrada en tabla pagos; stock descontado en movimientos_inventario."}, {"tarjeta": "4000 0000 0000 0002 (Vence: 12/40, CVV: 123)", "esperado": "Pago rechazado", "obtenido": "Pago rechazado por fondos insuficientes", "observacion": "El pedido no se crea; se muestra mensaje de alerta al usuario y se preserva el carrito intacto."}, {"tarjeta": "Yape: Celular 987654321 / Código 849201", "esperado": "Pago aprobado al instante", "obtenido": "Pago aprobado, pedido marcado como 'Pagado'", "observacion": "Conciliación instantánea con identificador SIM-YAPE-849201; stock descontado atómicamente."}, {"tarjeta": "Yape: Código 000000", "esperado": "Rechazo de operación", "obtenido": "Código inválido / rechazado", "observacion": "No se afecta la base de datos; el usuario puede reintentar con otro código o medio de pago."}, {"tarjeta": "Transferencia BCP: Op. 847291", "esperado": "Pedido 'Pendiente', pago 'En verificación'", "obtenido": "Pedido registrado con estado 'Pendiente'", "observacion": "Requiere confirmación de pago por administrador desde panel admin o webhook bancario."}]};
 
+  function sinDatos(d) {
+    const vacio = v => v === '' || v === false || v === null || v === undefined
+      || (Array.isArray(v) && v.every(vacio))
+      || (typeof v === 'object' && !Array.isArray(v) && Object.values(v).every(vacio));
+    return Object.values(d).every(vacio);
+  }
+
   function cargar() {
     const guardado = localStorage.getItem(CLAVE_STORAGE);
-    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    let datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    // Un guardado sin ningún dato (p. ej. el que dejaba "Borrar") no debe
+    // tapar la plantilla: se vuelve a los valores por defecto.
+    if (guardado && sinDatos(datos)) datos = DATOS_DEFECTO;
     document.getElementById('filas-tabla').innerHTML = '';
     CAMPOS.forEach(id => { if (datos[id] !== undefined) document.getElementById(id).value = datos[id]; });
     (datos.filas || []).forEach(agregarFila);
@@ -307,12 +317,14 @@ confirmación → actualización automática del pedido — funcione de extremo 
 
   function borrarTodo() {
     if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
-    localStorage.removeItem(CLAVE_STORAGE);
+    clearTimeout(temporizador);
     CAMPOS.forEach(id => document.getElementById(id).value = '');
     document.getElementById('vista-previa-imagen').style.display = 'none';
     document.getElementById('inputImagen').value = '';
     document.getElementById('filas-tabla').innerHTML = '';
     for (let i = 0; i < 3; i++) agregarFila();
+    localStorage.removeItem(CLAVE_STORAGE);
+    cargar();
   }
 
   function descargarTxt() {

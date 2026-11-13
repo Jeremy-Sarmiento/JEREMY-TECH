@@ -260,18 +260,30 @@ lo que se evalúa es que el ciclo Pedido → Pago → actualización automática
 
   const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "pedidoAntes": "Pendiente", "pedidoDespues": "Pagado", "pagoAntes": "Pendiente (o En verificación)", "pagoDespues": "Pagado (Conciliado)", "metodoAntes": "null / pendiente", "metodoDespues": "Tarjeta (Culqi/Simulador) / SIM-TX-984321", "evidenciaTexto": "Prueba de ejecución del webhook con herramienta tools/webhook-prueba.php:\n$ php tools/webhook-prueba.php --pedido=14 --estado=approved\n> Enviando evento POST a http://127.0.0.1:8000/index.php?ruta=pagos/webhook\n> Cabecera X-JT-Timestamp: 1793145600\n> Cabecera X-JT-Signature: 7c4a1b8e9f2d3c... (HMAC-SHA256 verificado con PAGOS_WEBHOOK_SECRET)\n> Payload JSON: {\"id\":\"evt_2026_0042\",\"type\":\"payment.updated\",\"data\":{\"pedido_id\":14,\"referencia\":\"TX-984321\",\"estado\":\"approved\",\"metodo\":\"Tarjeta\"}}\n< Respuesta HTTP 200 OK: {\"ok\":true,\"mensaje\":\"Pago conciliado con éxito\",\"pedido_id\":14,\"nuevo_estado\":\"Pagado\"}\n\nVerificación en base de datos PostgreSQL (Supabase):\nSELECT id, estado, total_pen FROM pedidos WHERE id = 14;\n-> ID: 14 | Estado: Pagado | Total: S/ 5499.00\nSELECT id, pedido_id, metodo, estado, transaccion_id FROM pagos WHERE pedido_id = 14;\n-> ID: 14 | Pedido: 14 | Metodo: Tarjeta | Estado: Pagado | TX: TX-984321", "aplicacion": "El personal ya no revisa capturas de WhatsApp ni la app bancaria para confirmar un pago. El webhook actúa como puente contable en tiempo real: garantiza idempotencia y dispara la orden de empaque en el almacén de La Joya.", "objetivoGeneral": "Desarrollar y operar una plataforma web de E-business para Jeremy Tech en La Joya que combine venta multicanal (B2C, B2B y C2C), cobros con conciliación criptográfica, control transaccional de inventario y un panel de administración auditable.", "alcance": "• Incluye: catálogo responsivo con buscador y variantes, multimoneda (ExchangeRate-API), chatbot FAQ, carrito con cupones, checkout multizona con envío automático, pasarela simulada con webhook HMAC-SHA256 y panel admin con 11 secciones (productos, marcas, pedidos, envíos, comisiones y auditoría) más comprobantes.\n• Queda fuera: contrato de producción con un adquirente bancario real (exige RUC activo y homologación PCI-DSS) y facturación electrónica conectada al OSE de SUNAT en producción.", "pendienteSesion8": "1. Verificación de seguridad: cabeceras HTTP, tokens CSRF en todos los formularios y sanitización contra XSS.\n2. Política de Privacidad y Términos y Condiciones conforme a la Ley N° 29733.\n3. Despliegue en un servidor accesible por Internet y pruebas E2E sin errores de consola.", "conclusion": "El panel y el webhook cierran la brecha entre el frontend transaccional y la gestión interna: Jeremy Tech deja de ser un catálogo estático y pasa a ser un sistema que cobra, concilia, protege el stock y audita cada evento."};
 
+  function sinDatos(d) {
+    const vacio = v => v === '' || v === false || v === null || v === undefined
+      || (Array.isArray(v) && v.every(vacio))
+      || (typeof v === 'object' && !Array.isArray(v) && Object.values(v).every(vacio));
+    return Object.values(d).every(vacio);
+  }
+
   function cargar() {
     const guardado = localStorage.getItem(CLAVE_STORAGE);
-    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    let datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    // Un guardado sin ningún dato (p. ej. el que dejaba "Borrar") no debe
+    // tapar la plantilla: se vuelve a los valores por defecto.
+    if (guardado && sinDatos(datos)) datos = DATOS_DEFECTO;
     CAMPOS.forEach(id => { if (datos[id] !== undefined) document.getElementById(id).value = datos[id]; });
   }
 
   function borrarTodo() {
     if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
-    localStorage.removeItem(CLAVE_STORAGE);
+    clearTimeout(temporizador);
     CAMPOS.forEach(id => document.getElementById(id).value = '');
     document.getElementById('vista-previa-imagen').style.display = 'none';
     document.getElementById('inputImagen').value = '';
+    localStorage.removeItem(CLAVE_STORAGE);
+    cargar();
   }
 
   function descargarTxt() {

@@ -287,9 +287,19 @@
 
   const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech (Tienda de Tecnología)", "conclusion": "Jeremy Tech combina E-commerce (catálogo y checkout transaccional) y E-business (API de divisas, datos centralizados en PostgreSQL/Supabase, conciliación de pagos por webhook y componentes dinámicos). Esa base tecnológica automatizada sostiene la venta directa para clientes locales e interprovinciales.", "filas": [{"proceso": "Catálogo interactivo categorizado (Celulares, Laptops, Audífonos, Accesorios, Smartwatches, Tablets, Gaming)", "ecommerce": true, "ebusiness": false, "justificacion": "Canal de vitrina digital directa para exhibición de productos, especificaciones y precios al consumidor."}, {"proceso": "Botón de consulta directa por WhatsApp con mensaje predeterminado de producto", "ecommerce": true, "ebusiness": false, "justificacion": "Canal comercial y transaccional directo para asesoría personalizada y cierre de ventas."}, {"proceso": "Módulo de conversión multimoneda en tiempo real conectado a ExchangeRate-API", "ecommerce": false, "ebusiness": true, "justificacion": "Interoperabilidad y servicio tecnológico externo que calcula divisas automáticamente sin constituir una venta directa."}, {"proceso": "Galería interactiva de variantes de productos y selector de colores dinámicos", "ecommerce": false, "ebusiness": true, "justificacion": "Herramienta tecnológica de interfaz y experiencia de usuario que facilita la selección informada del cliente."}, {"proceso": "Base de datos relacional PostgreSQL (Supabase) y gestión de inventario automatizado (movimientos_inventario)", "ecommerce": false, "ebusiness": true, "justificacion": "Digitalización y administración central de catálogo, stock y referencias de precios para soporte operativo."}, {"proceso": "Carrusel principal con auto-slide cada 5 segundos, navegación manual e indicadores", "ecommerce": false, "ebusiness": true, "justificacion": "Infraestructura visual de presentación que optimiza la experiencia de usuario y retención en la plataforma."}, {"proceso": "Sistema de conciliación automática de pagos por Webhook con firma HMAC-SHA256", "ecommerce": false, "ebusiness": true, "justificacion": "Automatización de procesos financieros internos y sincronización entre pasarela externa y base de datos."}, {"proceso": "Módulo de cálculo de tarifas de envío logístico por zonas y recojo en tienda", "ecommerce": false, "ebusiness": true, "justificacion": "Lógica de optimización logística y costeo operativo que da soporte al cumplimiento de órdenes."}]};
 
+  function sinDatos(d) {
+    const vacio = v => v === '' || v === false || v === null || v === undefined
+      || (Array.isArray(v) && v.every(vacio))
+      || (typeof v === 'object' && !Array.isArray(v) && Object.values(v).every(vacio));
+    return Object.values(d).every(vacio);
+  }
+
   function cargar() {
     const guardado = localStorage.getItem(CLAVE_STORAGE);
-    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    let datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    // Un guardado sin ningún dato (p. ej. el que dejaba "Borrar") no debe
+    // tapar la plantilla: se vuelve a los valores por defecto.
+    if (guardado && sinDatos(datos)) datos = DATOS_DEFECTO;
     document.getElementById('filas-tabla').innerHTML = '';
     document.getElementById('alumno').value = datos.alumno || '';
     document.getElementById('proyecto').value = datos.proyecto || '';
@@ -299,12 +309,14 @@
 
   function borrarTodo() {
     if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
-    localStorage.removeItem(CLAVE_STORAGE);
+    clearTimeout(temporizador);
     document.getElementById('alumno').value = '';
     document.getElementById('proyecto').value = '';
     document.getElementById('conclusion').value = '';
     document.getElementById('filas-tabla').innerHTML = '';
     for (let i = 0; i < 6; i++) agregarFila();
+    localStorage.removeItem(CLAVE_STORAGE);
+    cargar();
   }
 
   function descargarTxt() {

@@ -200,20 +200,32 @@ educativo publicado.</p>
 
   const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "resumenPrivacidad": "La Política de Privacidad cumple la Ley N° 29733 y su reglamento. Declara qué datos se recogen (nombres, DNI/RUC, correo, teléfono, dirección de entrega y coordenadas opcionales) y para qué: procesar pedidos, coordinar despachos y emitir comprobantes. No se venden ni comparten datos con terceros con fines publicitarios. Las contraseñas usan hash unidireccional (bcrypt/Argon2) y ningún dato de tarjeta se guarda en la base ni en el navegador. Los derechos ARCO se ejercen en jeresarmientotarojo@gmail.com o desde el perfil.", "resumenTerminos": "Los Términos y Condiciones indican que Jeremy Tech opera online y en su sede de La Paz Soldán, La Joya. En el entorno académico los pagos con tarjeta y Yape son simulados y no generan cargos. Se detallan las entregas (express el mismo día en La Joya y couriers para provincias), la garantía oficial de 12 meses, la devolución en 30 días con empaque original, la factura electrónica para clientes B2B y la retención del 15% para vendedores C2C.", "s1": true, "s2": true, "s3": true, "s4": true, "s5": true, "etica": "El sitio actúa con transparencia: la pasarela avisa mediante insignias y textos que es una demostración y que no se debe ingresar dinero real. El chatbot reconoce el alcance de su base de conocimiento y deriva al asesor humano por WhatsApp cuando la duda lo supera. No hay dark patterns, los precios se muestran en PEN con desglose de IGV (18%) y las reseñas son reales, moderadas contra spam y sin censurar críticas.", "conclusion": "La ciberseguridad y la ética son pilares del proyecto, no un añadido: protección CSRF, PDO parametrizado contra inyección SQL, credenciales administrativas en .env fuera del DocumentRoot y políticas legales transparentes hacen de Jeremy Tech una plataforma confiable y segura para la comunidad de La Joya."};
 
+  function sinDatos(d) {
+    const vacio = v => v === '' || v === false || v === null || v === undefined
+      || (Array.isArray(v) && v.every(vacio))
+      || (typeof v === 'object' && !Array.isArray(v) && Object.values(v).every(vacio));
+    return Object.values(d).every(vacio);
+  }
+
   function cargar() {
     const guardado = localStorage.getItem(CLAVE_STORAGE);
-    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    let datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    // Un guardado sin ningún dato (p. ej. el que dejaba "Borrar") no debe
+    // tapar la plantilla: se vuelve a los valores por defecto.
+    if (guardado && sinDatos(datos)) datos = DATOS_DEFECTO;
     CAMPOS.forEach(id => { if (datos[id] !== undefined) document.getElementById(id).value = datos[id]; });
     CHECKS.forEach(id => { if (datos[id] !== undefined) document.querySelector(`[data-id="${id}"]`).checked = datos[id]; });
   }
 
   function borrarTodo() {
     if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
-    localStorage.removeItem(CLAVE_STORAGE);
+    clearTimeout(temporizador);
     CAMPOS.forEach(id => document.getElementById(id).value = '');
     CHECKS.forEach(id => document.querySelector(`[data-id="${id}"]`).checked = false);
     document.getElementById('vista-previa-imagen').style.display = 'none';
     document.getElementById('inputImagen').value = '';
+    localStorage.removeItem(CLAVE_STORAGE);
+    cargar();
   }
 
   function descargarTxt() {

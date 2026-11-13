@@ -323,9 +323,19 @@ function actualizarPreciosEnTarjetas() {
 
   const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech (Tienda de Tecnología)", "objetivo": "Permitir que clientes corporativos y extranjeros consulten el catálogo con precios actualizados en USD, EUR, GBP, BRL, ARS, CLP y COP, calculados en tiempo real desde los precios en Soles (PEN), sin actualizar listas a mano.", "servicioNombre": "ExchangeRate-API / Open Access Endpoint", "servicioUrl": "https://open.er-api.com/v6/latest/PEN", "servicioKey": "No", "servicioDatos": "{\n  \"result\": \"success\",\n  \"provider\": \"https://www.exchangerate-api.com\",\n  \"base_code\": \"PEN\",\n  \"time_last_update_utc\": \"Mon, 31 Aug 2026 00:02:31 +0000\",\n  \"rates\": {\n    \"PEN\": 1,\n    \"USD\": 0.2745,\n    \"EUR\": 0.2512,\n    \"GBP\": 0.2155,\n    \"BRL\": 1.48,\n    \"ARS\": 260.5,\n    \"CLP\": 258.4,\n    \"COP\": 1120.3\n  }\n}", "flujoPropio": "1. Al cargar la página o cambiar de divisa, cargarTasas() hace fetch('https://open.er-api.com/v6/latest/PEN').\n2. Se valida la respuesta HTTP y las tasas (rates) se guardan en la variable global tasasDeCambio.\n3. Al cambiar el dropdown, actualizarPreciosEnTarjetas() recorre cada tarjeta, lee data-precio (en PEN), aplica convertirPrecio() y actualiza el texto y el símbolo de la moneda.", "codigo": "// Función que consulta la API de tasas de cambio con manejo de errores\nasync function cargarTasas() {\n  try {\n    var respuesta = await fetch(\"https://open.er-api.com/v6/latest/PEN\");\n    if (!respuesta.ok) throw new Error(\"API error: \" + respuesta.status);\n    var datos = await respuesta.json();\n    if (datos.result !== \"success\") throw new Error(\"Invalid rates\");\n    tasasDeCambio = datos.rates;\n    return true;\n  } catch (error) {\n    console.error(\"Error cargando tasas:\", error);\n    return false;\n  }\n}\n\n// Conversión dinámica de precio según divisa activa\nfunction convertirPrecio(precioPEN, moneda) {\n  if (moneda === \"PEN\") return precioPEN;\n  if (!tasasDeCambio || !tasasDeCambio[moneda]) return precioPEN;\n  return Number((precioPEN * tasasDeCambio[moneda]).toFixed(2));\n}\n\n// Actualización dinámica de elementos .price en la interfaz\nfunction actualizarPreciosEnTarjetas() {\n  document.querySelectorAll(\".price\").forEach(function (el) {\n    var precioPEN = parseFloat(el.getAttribute(\"data-precio\"));\n    if (isNaN(precioPEN)) return;\n    var precio = convertirPrecio(precioPEN, monedaActual);\n    var simbolo = MONEDAS[monedaActual] ? MONEDAS[monedaActual].simbolo : monedaActual;\n    el.textContent = simbolo + \" \" + precio.toLocaleString();\n  });\n}", "resultadoTexto": "[Puente Digital] Iniciando consulta asíncrona a https://open.er-api.com/v6/latest/PEN...\n[Puente Digital] Conexión establecida con éxito (Status: 200 OK).\n[Puente Digital] Tasas de cambio recibidas correctamente:\n- USD: 0.2745\n- EUR: 0.2512\n- GBP: 0.2155\n- BRL: 1.4800\n- ARS: 260.50\n- CLP: 258.40\n- COP: 1120.30\n[Puente Digital] Catálogo sincronizado en tiempo real.", "aplicacion": "La integración amplía el alcance hacia clientes corporativos, extranjeros y transfronterizos sin listas de precios en Excel ni cambios de código cuando fluctúa el tipo de cambio, elimina errores de cálculo y reduce tiempos operativos.", "conclusion": "Es E-business porque es una integración tecnológica externa que optimiza la infraestructura comercial sin constituir un cobro final (E-commerce)."};
 
+  function sinDatos(d) {
+    const vacio = v => v === '' || v === false || v === null || v === undefined
+      || (Array.isArray(v) && v.every(vacio))
+      || (typeof v === 'object' && !Array.isArray(v) && Object.values(v).every(vacio));
+    return Object.values(d).every(vacio);
+  }
+
   function cargar() {
     const guardado = localStorage.getItem(CLAVE_STORAGE);
-    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    let datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    // Un guardado sin ningún dato (p. ej. el que dejaba "Borrar") no debe
+    // tapar la plantilla: se vuelve a los valores por defecto.
+    if (guardado && sinDatos(datos)) datos = DATOS_DEFECTO;
     CAMPOS.forEach(id => {
       if (datos[id] !== undefined) document.getElementById(id).value = datos[id];
     });
@@ -333,10 +343,12 @@ function actualizarPreciosEnTarjetas() {
 
   function borrarTodo() {
     if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
-    localStorage.removeItem(CLAVE_STORAGE);
+    clearTimeout(temporizador);
     CAMPOS.forEach(id => document.getElementById(id).value = '');
     document.getElementById('vista-previa-imagen').style.display = 'none';
     document.getElementById('inputImagen').value = '';
+    localStorage.removeItem(CLAVE_STORAGE);
+    cargar();
   }
 
   function descargarTxt() {

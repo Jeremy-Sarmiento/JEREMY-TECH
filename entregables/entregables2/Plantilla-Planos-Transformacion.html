@@ -379,9 +379,19 @@
 
   const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "asIsActores": "1. Cliente de La Joya (residentes, estudiantes y agricultores).\n2. Catálogo web estático con botón que abre WhatsApp.\n3. Asesor comercial de la sede de La Paz Soldán.\n4. Stock físico en las vitrinas de la tienda.\n5. Registro manual en cuaderno y Excel local.\n6. Banca móvil personal (Yape/BCP) para revisar vouchers.", "asIsFlujo": "1. El cliente revisa el catálogo, elige producto y variante.\n2. Pulsa \"Consultar\" y script.js abre WhatsApp con un mensaje al +51 997 833 866.\n3. El asesor deja el mostrador, revisa la vitrina y confirma stock por chat.\n4. Envía el precio y el número de cuenta o QR de Yape personal.\n5. El cliente paga y manda la captura del voucher.\n6. El asesor verifica el abono en su banca móvil.\n7. Anota la venta en la libreta, ajusta el Excel y coordina recojo o delivery.", "asIsCuello": "1. Horario limitado: las consultas de noche o fin de semana se responden al día hábil y el cliente compra en otro lugar.\n2. Pagos manuales: riesgo de vouchers adulterados y verificación transferencia por transferencia.\n3. Stock desincronizado: la web sigue mostrando productos ya vendidos en mostrador.\n4. Ciclo excesivo: una venta simple toma de 20 a 45 minutos de mensajes.", "toBeCapas": "1. Experiencia / Cliente: web responsiva (PHP/CSS/JS) con buscador en tiempo real, multimoneda (ExchangeRate-API), chatbot FAQ, carrito y seguimiento \"Mis Pedidos\".\n2. Negocio / Backend (MVC): controladores PHP modulares con validación, sesiones aisladas y roles Admin, Vendedor, Cliente y C2C.\n3. Transacciones e inventario: PDO con SELECT ... FOR UPDATE, reservas atómicas y registro en movimientos_inventario.\n4. Integración / Pagos: webhook firmado con HMAC-SHA256 (POST ?ruta=pagos/webhook) que concilia tarjetas, Yape y transferencias.\n5. Persistencia y auditoría: PostgreSQL 14+ (Supabase) con 31 tablas, auditoria_admin y eventos_analitica.\n6. Logística: tarifas por zona (La Joya Express, Arequipa, provincias y Lima), recojo en tienda y guías de mensajería.", "toBeFlujo": "1. El cliente entra 24/7, busca productos, elige variante y agrega al carrito.\n2. En el checkout indica la dirección o el recojo en La Joya y el sistema calcula el envío.\n3. Elige tarjeta o Yape QR y completa el pago seguro.\n4. El backend abre una transacción con FOR UPDATE, descuenta stock en movimientos_inventario y crea el pedido \"Pendiente\".\n5. La pasarela cobra y envía un webhook asíncrono firmado con HMAC-SHA256, validado con hash_equals.\n6. El webhook concilia, pasa el pedido a \"Pagado\" y envía el email de confirmación.\n7. El almacén de La Joya prepara el paquete en menos de 15 minutos y lo entrega el mismo día.", "toBeBeneficios": "1. Venta automatizada: procesar, cobrar y confirmar pedidos sin intervención humana.\n2. Disponibilidad 24/7: recupera la demanda fuera de horario y en fines de semana.\n3. Stock exacto: el aislamiento transaccional impide la sobreventa.\n4. Pagos seguros: la firma del webhook elimina los vouchers falsos.\n5. Trazabilidad: el cliente sigue su pedido y el administrador audita cada movimiento.", "conclusion": "El To-Be convierte a Jeremy Tech de un negocio artesanal en una empresa digital autónoma: la arquitectura MVC desacoplada permite escalar a un marketplace multiregional, reduce a cero los errores operativos y ofrece una compra inmediata y transparente."};
 
+  function sinDatos(d) {
+    const vacio = v => v === '' || v === false || v === null || v === undefined
+      || (Array.isArray(v) && v.every(vacio))
+      || (typeof v === 'object' && !Array.isArray(v) && Object.values(v).every(vacio));
+    return Object.values(d).every(vacio);
+  }
+
   function cargar() {
     const guardado = localStorage.getItem(CLAVE_STORAGE);
-    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    let datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    // Un guardado sin ningún dato (p. ej. el que dejaba "Borrar") no debe
+    // tapar la plantilla: se vuelve a los valores por defecto.
+    if (guardado && sinDatos(datos)) datos = DATOS_DEFECTO;
     CAMPOS.forEach(id => {
       if (datos[id] !== undefined) document.getElementById(id).value = datos[id];
     });
@@ -389,11 +399,13 @@
 
   function borrarTodo() {
     if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
-    localStorage.removeItem(CLAVE_STORAGE);
+    clearTimeout(temporizador);
     CAMPOS.forEach(id => document.getElementById(id).value = '');
     ['vista-previa-asis', 'vista-previa-tobe'].forEach(id => document.getElementById(id).style.display = 'none');
     document.getElementById('inputImagenAsIs').value = '';
     document.getElementById('inputImagenToBe').value = '';
+    localStorage.removeItem(CLAVE_STORAGE);
+    cargar();
   }
 
   function descargarTxt() {

@@ -318,9 +318,19 @@ motor propio conviviría con o sería reemplazado por Google Analytics / Meta Pi
 
   const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "objetivo": "Capturar el comportamiento de los usuarios en tiempo real para decidir con datos: qué categorías y productos despiertan interés, en qué paso se abandonan los carritos, qué impacto tiene el asistente virtual y qué campañas atraen tickets más altos.", "evidenciaTexto": "[Registro de Eventos - Jeremy Tech Analytics]\n- Endpoint: POST ?ruta=analitica/evento (X-CSRF-Token validado)\n- Tabla de persistencia: eventos_analitica en PostgreSQL jeremy_tech (Supabase)\nMétricas registradas en la última sesión:\n  * Total de visitas registradas: 142 sesiones\n  * Consultas en buscador: 38 (Términos principales: 'iPhone 15', 'Laptop HP', 'AirPods')\n  * Productos añadidos al carrito: 27 eventos\n  * Inicios de checkout: 16 eventos\n  * Compras finalizadas con éxito: 11 transacciones\n  * Tasa de conversión global: 7.74%\n  * Clics hacia WhatsApp de soporte: 9 eventos", "aplicacion": "Los datos muestran que Celulares concentra el 52% de las búsquedas y adiciones al carrito, pero el 30% que agregó un iPhone abandonó al elegir el envío. Por eso se añadió el \"Recojo gratuito en tienda de La Paz Soldán\" y se destacó el pago con Yape QR, lo que redujo el abandono más de un 15% en las sesiones siguientes.", "conclusion": "La analítica dentro de la base permite operar con visión estratégica: Jeremy Tech deja las corazonadas y optimiza inventario, promociones y experiencia con métricas verificables.", "filas": [{"evento": "visita", "donde": "Al cargar cualquier vista de la tienda en público (DOMContentLoaded en analitica.js)", "mide": "Volumen total de tráfico, páginas más visitadas y procedencia de la sesión del cliente."}, {"evento": "busqueda", "donde": "Al presionar enter o interactuar con el buscador predictivo en la barra superior", "mide": "Términos exactos que buscan los clientes; detecta demanda no satisfecha o productos faltantes en el catálogo."}, {"evento": "clic_whatsapp", "donde": "Botón de consulta rápida de WhatsApp en el header, footer y ficha de producto", "mide": "Interés directo en atención personalizada y efectividad del canal conversacional."}, {"evento": "agregar_carrito", "donde": "Botón 'Agregar al carrito' en tarjetas del catálogo y página de detalle", "mide": "Tasa de conversión de producto visto a producto añadido al carrito (Add-to-Cart Rate)."}, {"evento": "iniciar_checkout", "donde": "Al hacer clic en 'Continuar al pago' desde la vista del carrito (?ruta=carrito)", "mide": "Volumen de clientes que inician la fase de pago; base para calcular la tasa de abandono de checkout."}, {"evento": "compra", "donde": "Al confirmarse exitosamente la transacción en el servidor o mediante webhook", "mide": "Conversión final de venta (monto total, método de pago utilizado y ticket promedio)."}]};
 
+  function sinDatos(d) {
+    const vacio = v => v === '' || v === false || v === null || v === undefined
+      || (Array.isArray(v) && v.every(vacio))
+      || (typeof v === 'object' && !Array.isArray(v) && Object.values(v).every(vacio));
+    return Object.values(d).every(vacio);
+  }
+
   function cargar() {
     const guardado = localStorage.getItem(CLAVE_STORAGE);
-    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    let datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    // Un guardado sin ningún dato (p. ej. el que dejaba "Borrar") no debe
+    // tapar la plantilla: se vuelve a los valores por defecto.
+    if (guardado && sinDatos(datos)) datos = DATOS_DEFECTO;
     document.getElementById('filas-tabla').innerHTML = '';
     CAMPOS.forEach(id => { if (datos[id] !== undefined) document.getElementById(id).value = datos[id]; });
     (datos.filas || []).forEach(agregarFila);
@@ -328,12 +338,14 @@ motor propio conviviría con o sería reemplazado por Google Analytics / Meta Pi
 
   function borrarTodo() {
     if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
-    localStorage.removeItem(CLAVE_STORAGE);
+    clearTimeout(temporizador);
     CAMPOS.forEach(id => document.getElementById(id).value = '');
     document.getElementById('vista-previa-imagen').style.display = 'none';
     document.getElementById('inputImagen').value = '';
     document.getElementById('filas-tabla').innerHTML = '';
     for (let i = 0; i < 3; i++) agregarFila();
+    localStorage.removeItem(CLAVE_STORAGE);
+    cargar();
   }
 
   function descargarTxt() {

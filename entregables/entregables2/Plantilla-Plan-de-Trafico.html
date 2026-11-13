@@ -274,9 +274,19 @@ realmente pusiste en el <code>&lt;head&gt;</code> de tu proyecto (ver
 
   const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "publico": "Dos perfiles principales: 1) Consumidores finales de 18 a 45 años (estudiantes, profesionales, agricultores y familias) de La Joya, San Camilo, El Triunfo y Arequipa que buscan smartphones, laptops y accesorios originales sin viajar a Arequipa, y valoran entrega local y garantía en tienda. 2) Compradores corporativos de fundos e instituciones educativas que necesitan lotes con factura y soporte in situ. Antes de encontrarnos buscan en Google y Facebook tecnología con entrega express local o consultan en grupos de compra y venta de La Joya.", "metadatos": "<title>Jeremy Tech - Tienda de Tecnología | Celulares, Laptops y Accesorios en La Joya, Arequipa</title>\n<meta name=\"description\" content=\"Tu tienda de tecnología de confianza en La Joya, Arequipa. Compra smartphones, laptops, audio y smartwatches 100% originales con entrega en el día, garantía oficial y pagos seguros con Yape y tarjetas.\">\n<meta name=\"keywords\" content=\"tecnologia la joya, celulares arequipa, laptops hp lenovo, iphone la joya, jeremy tech, comprar gadgets arequipa\">", "conclusion": "La estrategia es coherente con la propuesta de valor y los segmentos del Modelo Canvas. En lugar de competir con el retail nacional por palabras genéricas, apostamos por SEO local en La Joya y campañas hiper-segmentadas que llevan tráfico cualificado al catálogo con checkout automatizado.", "filasSeo": [{"palabra": "tienda de tecnologia en la joya arequipa", "intencion": "Residentes que buscan un establecimiento físico y digital confiable para comprar celulares y laptops en su distrito.", "uso": "Título H1 de la página de inicio, meta etiqueta title y párrafo introductorio del catálogo."}, {"palabra": "comprar iphone samsung la joya entrega hoy", "intencion": "Clientes con alta intención de compra inmediata de smartphones con entrega en el mismo día.", "uso": "Meta descripción del catálogo, títulos de categoría de celulares y banners promocionales."}, {"palabra": "laptops hp thinkpad baratas arequipa provincia", "intencion": "Estudiantes y profesionales que comparan precios de computadoras portátiles con garantía oficial.", "uso": "Encabezados H2 de categoría Laptops, fichas técnicas de producto y etiquetas alt de imágenes."}, {"palabra": "venta de tecnologia por mayor ruc la joya", "intencion": "Empresas agrícolas y pymes que buscan cotizar suministros de oficina o tecnología con factura.", "uso": "Página de contacto B2B, pie de página institucional y descripción de registro para empresas."}], "filasCamp": [{"canal": "Facebook & Instagram Ads (Meta)", "publico": "Hombres y mujeres de 18 a 45 años en un radio de 25 km de La Joya y valles aledaños interesados en tecnología, smartphones y gaming.", "presupuesto": "S/ 250 / mes (simulado)", "mensaje": "\"¡Tecnología original en tus manos hoy mismo! Estrena tu iPhone, Samsung o Laptop en La Joya con entrega en menos de 2 horas y garantía local en La Paz Soldán. Compra online en Jeremy Tech.\""}, {"canal": "Google Search Ads (Búsqueda)", "publico": "Personas que buscan activamente términos de compra como 'celulares La Joya', 'reparación laptops La Joya' o 'audífonos bluetooth Arequipa'.", "presupuesto": "S/ 200 / mes (simulado)", "mensaje": "\"Jeremy Tech La Joya | Laptops y Celulares con Entrega Inmediata. Precios justos, garantía real y atención 24/7. ¡Visítanos o compra online aquí!\""}, {"canal": "WhatsApp Marketing y Comunidad Local", "publico": "Base de clientes recurrentes y grupos vecinales/agroindustriales de La Joya.", "presupuesto": "S/ 50 / mes (simulado)", "mensaje": "\"📢 Ofertas exclusivas de fin de mes en Jeremy Tech: Llévate tus AirPods o audífonos Sony con 15% de descuento usando el cupón JEREMYTECH10. Stock limitado en tienda La Paz Soldán.\""}]};
 
+  function sinDatos(d) {
+    const vacio = v => v === '' || v === false || v === null || v === undefined
+      || (Array.isArray(v) && v.every(vacio))
+      || (typeof v === 'object' && !Array.isArray(v) && Object.values(v).every(vacio));
+    return Object.values(d).every(vacio);
+  }
+
   function cargar() {
     const guardado = localStorage.getItem(CLAVE_STORAGE);
-    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    let datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    // Un guardado sin ningún dato (p. ej. el que dejaba "Borrar") no debe
+    // tapar la plantilla: se vuelve a los valores por defecto.
+    if (guardado && sinDatos(datos)) datos = DATOS_DEFECTO;
     document.getElementById('filas-seo').innerHTML = '';
     document.getElementById('filas-camp').innerHTML = '';
     document.getElementById('alumno').value = datos.alumno || '';
@@ -290,7 +300,7 @@ realmente pusiste en el <code>&lt;head&gt;</code> de tu proyecto (ver
 
   function borrarTodo() {
     if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
-    localStorage.removeItem(CLAVE_STORAGE);
+    clearTimeout(temporizador);
     document.getElementById('alumno').value = '';
     document.getElementById('proyecto').value = '';
     document.getElementById('publico').value = '';
@@ -300,6 +310,8 @@ realmente pusiste en el <code>&lt;head&gt;</code> de tu proyecto (ver
     document.getElementById('filas-camp').innerHTML = '';
     for (let i = 0; i < 4; i++) agregarFilaSeo();
     for (let i = 0; i < 3; i++) agregarFilaCampana();
+    localStorage.removeItem(CLAVE_STORAGE);
+    cargar();
   }
 
   function descargarTxt() {

@@ -219,9 +219,19 @@ interacciones) para poder crecer sin colapsar, apoyándote en el DER de la Sesi�
 
   const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "tamanoProbado": "5,000 productos y 20,000 variantes", "tiempoIngenuoResultado": "74.80 ms", "tiempoEscalableResultado": "1.25 ms", "diseno": "La arquitectura lógica se apoya en un MVC desacoplado y orientado al rendimiento:\n1. Presentación: vistas PHP modulares con paginación de 12 elementos y carga asíncrona vía Fetch API, para no sobrecargar el DOM.\n2. Dominio y servicios: controladores especializados (ProductoController, CarritoController, AdminController) que validan en servidor antes de tocar la base.\n3. Datos: PostgreSQL 14+ (Supabase) con índices compuestos (idx_productos_archivado, idx_mov_pedido, idx_pedidos_cliente), integridad referencial y transacciones con SELECT ... FOR UPDATE contra condiciones de carrera.\n4. Caché y escalabilidad: caché en memoria PHP estática para consultas repetitivas (tarifas de envío y configuración) y proyección de Redis como capa distribuida.", "conclusion": "La escalabilidad no se resuelve con más potencia de servidor, sino eliminando algoritmos O(N) en favor de consultas indexadas O(log N) y paginación acotada. Así Jeremy Tech mantiene respuestas bajo 100 ms aunque el catálogo pase de 20 a decenas de miles de productos.", "filas": [{"elemento": "Catálogo de Productos", "actual": "El catálogo se carga mediante consultas directas a PostgreSQL y renderiza tarjetas de productos en bloque en la vista HTML.", "propuesto": "Los productos se indexan en un motor de búsqueda (Elasticsearch/Meilisearch), se sirven con paginación cursor-based (12 por vista) y se almacenan en caché en Redis o CDN de borde."}, {"elemento": "Búsqueda y Filtros", "actual": "Filtrado en cliente mediante eventos JavaScript en script.js recorriendo el array de productos cargados.", "propuesto": "Índices de texto completo (Full-Text) en base de datos, autocompletado predictivo con debounce en servidor y facetado dinámico por atributos (marca, categoría, rango de precio)."}, {"elemento": "Inventario y Concurrencia", "actual": "El checkout valida stock antes de insertar el pedido, pero compras simultáneas podrían colisionar sin un bloqueo transaccional estricto.", "propuesto": "Transacciones ACID con aislamiento estricto y bloqueo SELECT ... FOR UPDATE en PostgreSQL (Supabase), apoyado por colas de mensajería (RabbitMQ) y reservas temporales con TTL en Redis."}, {"elemento": "Usuarios y Sesiones", "actual": "Sesiones PHP nativas almacenadas en archivos temporales del sistema de archivos del servidor web Apache.", "propuesto": "Gestión de sesiones distribuidas en memoria (Redis Cluster) o autenticación stateless mediante JSON Web Tokens (JWT) con rotación de claves, permitiendo balanceo multi-servidor."}, {"elemento": "Interacciones y Soporte", "actual": "Atención mediante chatbot FAQ basado en base de datos local y derivación manual a WhatsApp del administrador.", "propuesto": "Arquitectura de microservicios con bots impulsados por LLM con RAG sobre la base de conocimiento y orquestador de tickets omnicanal (Zendesk / Freshdesk API)."}]};
 
+  function sinDatos(d) {
+    const vacio = v => v === '' || v === false || v === null || v === undefined
+      || (Array.isArray(v) && v.every(vacio))
+      || (typeof v === 'object' && !Array.isArray(v) && Object.values(v).every(vacio));
+    return Object.values(d).every(vacio);
+  }
+
   function cargar() {
     const guardado = localStorage.getItem(CLAVE_STORAGE);
-    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    let datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    // Un guardado sin ningún dato (p. ej. el que dejaba "Borrar") no debe
+    // tapar la plantilla: se vuelve a los valores por defecto.
+    if (guardado && sinDatos(datos)) datos = DATOS_DEFECTO;
     document.getElementById('filas-tabla').innerHTML = '';
     document.getElementById('alumno').value = datos.alumno || '';
     document.getElementById('proyecto').value = datos.proyecto || '';
@@ -235,7 +245,7 @@ interacciones) para poder crecer sin colapsar, apoyándote en el DER de la Sesi�
 
   function borrarTodo() {
     if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
-    localStorage.removeItem(CLAVE_STORAGE);
+    clearTimeout(temporizador);
     document.getElementById('alumno').value = '';
     document.getElementById('proyecto').value = '';
     document.getElementById('tamanoProbado').value = '';
@@ -245,6 +255,8 @@ interacciones) para poder crecer sin colapsar, apoyándote en el DER de la Sesi�
     document.getElementById('conclusion').value = '';
     document.getElementById('filas-tabla').innerHTML = '';
     for (let i = 0; i < 4; i++) agregarFila();
+    localStorage.removeItem(CLAVE_STORAGE);
+    cargar();
   }
 
   function descargarTxt() {

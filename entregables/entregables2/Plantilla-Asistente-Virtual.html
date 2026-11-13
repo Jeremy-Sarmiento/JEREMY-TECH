@@ -331,9 +331,19 @@ que la tecnología exacta usada por debajo.</p>
 
   const DATOS_DEFECTO = {"alumno": "Jeremy Sarmiento Tapia", "proyecto": "Jeremy Tech — Tienda de Tecnología (La Joya)", "objetivo": "Resolver de forma automática y 24/7 las consultas más repetidas (horario, ubicación en La Joya, medios de pago, envíos y garantías), para que el personal se concentre en armar pedidos y atender ventas corporativas.", "evidenciaTexto": "Conversación de prueba documentada en widget chat.js:\n[Usuario]: ¿dónde queda su tienda y atienden sábados?\n[Jeremy Tech Bot]: Nuestra sede central está ubicada en La Paz Soldán, frente al salón de eventos 'Los Portales', en el distrito de La Joya, Arequipa. Atendemos de lunes a sábado de 9:00 am a 7:00 pm. También puedes comprar 24/7 por esta web.\n[Usuario]: ¿aceptan yape y tarjetas?\n[Jeremy Tech Bot]: Aceptamos Tarjeta de crédito/débito (Visa, Mastercard), Yape, Plin, Transferencia bancaria (BCP/BBVA) y Pago Contraentrega al recibir en La Joya. En este sitio demo los pagos son simulados para demostración.\n[Usuario]: ¿cuanto cuesta el envio a la joya?\n[Jeremy Tech Bot]: En el distrito de La Joya la entrega es express el mismo día en menos de 2 horas (S/ 8.00 o GRATIS en recojo en tienda). Para Arequipa provincia es S/ 15 (2-4 días) y a Lima S/ 18 (3-5 días).", "preguntasTotales": "24", "tasaResolucion": "83%", "aplicacion": "El asistente absorbe más del 80% de las consultas diarias que antes saturaban el WhatsApp y libera unas 2.5 horas diarias del asesor, que ahora dedica a verificar inventario, atender clientes B2B y coordinar despachos locales con mayor celeridad.", "conclusion": "Un asistente basado en una base de conocimiento estructurada (chatbot_faq) demuestra que no hace falta IA compleja para resolver el soporte de un e-commerce local: responde en milisegundos y mejora la retención del comprador.", "filas": [{"pregunta": "¿Dónde queda su tienda física y cuál es su horario?", "claves": "ubicacion, direccion, tienda, sede, local, horario, horarios, atienden, donde", "respuesta": "Nuestra sede central está ubicada en La Paz Soldán, frente al salón de eventos 'Los Portales', en el distrito de La Joya, Arequipa. Atendemos de lunes a sábado de 9:00 am a 7:00 pm. También puedes comprar 24/7 por esta web."}, {"pregunta": "¿Qué métodos de pago aceptan?", "claves": "pago, pagar, tarjeta, yape, plin, transferencia, contraentrega, cuotas", "respuesta": "Aceptamos Tarjeta de crédito/débito (Visa, Mastercard), Yape, Plin, Transferencia bancaria (BCP/BBVA) y Pago Contraentrega al recibir en La Joya. En este sitio demo los pagos son simulados para demostración."}, {"pregunta": "¿Cuánto cuesta el envío y cuánto demora la entrega?", "claves": "envio, envios, delivery, costo, cuanto cuesta, flete, tiempo, demora, la joya", "respuesta": "En el distrito de La Joya la entrega es express el mismo día en menos de 2 horas (S/ 8.00 o GRATIS en recojo en tienda). Para Arequipa provincia es S/ 15 (2-4 días) y a Lima S/ 18 (3-5 días)."}, {"pregunta": "¿Los productos son originales y tienen garantía?", "claves": "garantia, original, garantia oficial, nuevo, caja, boleta, factura, autentico", "respuesta": "Todos nuestros smartphones, laptops y accesorios son 100% nuevos y originales con empaque sellado de fábrica. Cuentan con garantía oficial de 12 meses y respaldo técnico directo en nuestro local de La Joya."}, {"pregunta": "¿Cómo realizo el seguimiento de mi pedido?", "claves": "seguimiento, rastrear, mi pedido, donde esta, guia, mensajeria, estado", "respuesta": "Inicia sesión en tu cuenta y entra a 'Mis Pedidos'. Allí verás la línea de tiempo interactiva con el estado en tiempo real (Pendiente, Pagado, En preparación, Enviado y Entregado) y tu número de guía."}]};
 
+  function sinDatos(d) {
+    const vacio = v => v === '' || v === false || v === null || v === undefined
+      || (Array.isArray(v) && v.every(vacio))
+      || (typeof v === 'object' && !Array.isArray(v) && Object.values(v).every(vacio));
+    return Object.values(d).every(vacio);
+  }
+
   function cargar() {
     const guardado = localStorage.getItem(CLAVE_STORAGE);
-    const datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    let datos = guardado ? JSON.parse(guardado) : DATOS_DEFECTO;
+    // Un guardado sin ningún dato (p. ej. el que dejaba "Borrar") no debe
+    // tapar la plantilla: se vuelve a los valores por defecto.
+    if (guardado && sinDatos(datos)) datos = DATOS_DEFECTO;
     document.getElementById('filas-tabla').innerHTML = '';
     CAMPOS.forEach(id => { if (datos[id] !== undefined) document.getElementById(id).value = datos[id]; });
     (datos.filas || []).forEach(agregarFila);
@@ -341,12 +351,14 @@ que la tecnología exacta usada por debajo.</p>
 
   function borrarTodo() {
     if (!confirm('¿Borrar todas tus respuestas de esta plantilla? Esta acción no se puede deshacer.')) return;
-    localStorage.removeItem(CLAVE_STORAGE);
+    clearTimeout(temporizador);
     CAMPOS.forEach(id => document.getElementById(id).value = '');
     document.getElementById('vista-previa-imagen').style.display = 'none';
     document.getElementById('inputImagen').value = '';
     document.getElementById('filas-tabla').innerHTML = '';
     for (let i = 0; i < 3; i++) agregarFila();
+    localStorage.removeItem(CLAVE_STORAGE);
+    cargar();
   }
 
   function descargarTxt() {
